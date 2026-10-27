@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.13</title>
+<title>Lagerplaner V2.14</title>
 <style>
 :root{
   --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --mut:#64748b; --line:#e2e8f0;
@@ -320,7 +320,7 @@ details.obs[open] summary{margin-bottom:4px}
 <body>
 <div id="app">
 <header>
-  <h1>Lagerplaner <span class="v" id="app-ver" title="Änderungslog öffnen">V2.13</span></h1>
+  <h1>Lagerplaner <span class="v" id="app-ver" title="Änderungslog öffnen">V2.14</span></h1>
   <input id="in-projname" type="text" placeholder="Projektname" style="width:180px">
   <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" style="width:200px">
   <div class="hdr-actions">
@@ -862,7 +862,7 @@ details.obs[open] summary{margin-bottom:4px}
 </aside>
 </div>
 
-<footer id="app-footer">Lagerplaner V2.13 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip: tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+<footer id="app-footer">Lagerplaner V2.14 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip: tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -986,7 +986,10 @@ function fillTruck(tk,p){
   const fit=(x,y)=>Math.floor(mL/x)*Math.floor(mW/y);
   const pos=Math.max(fit(l,b),fit(b,l));
   const heightLayers=Math.floor(mH/h);
-  const lay=Math.min(Math.floor(vehicleLayers),heightLayers);
+  // Stapelfaktor der Ladeeinheit begrenzt die Lagen im Fahrzeug (1 = nicht stapelbar).
+  const st=Number(p&&p.stack);
+  const stackLayers=Number.isFinite(st)&&st>=1?Math.floor(st):Infinity;
+  const lay=Math.min(Math.floor(vehicleLayers),heightLayers,stackLayers);
   if(pos<1||lay<1)return 0;
   const byArea=pos*lay;
   if(g>0&&Number.isFinite(payload)&&payload>0){
@@ -1025,7 +1028,7 @@ function delCustomTruck(k){
   pushUndo("LKW-Typ gelöscht ("+S.customTrucks[k].label+")");
   delete S.customTrucks[k];
   (S.items||[]).forEach(it=>{
-    if(it&&it.truck===k){it.truck="standard";it.ppt=fillTruck("standard",it);}
+    if(it&&it.truck===k){it.truck="standard";it.pptManual=false;it.ppt=fillTruck("standard",it);}
   });
   renderTruckMD();fillTruckSel();renderItems();recalc();
 }
@@ -1168,11 +1171,11 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.13";
+const APP_VERSION="V2.14";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
-  return {name:"Neue Position",demand:"truck",trucks:1,truck:"standard",palletsDay:0,pcsDay:0,pcsPerKlt:0,kltPerPallet:0,targetStock:0,skus:0,lhm:k,l:p.l,b:p.b,h:p.h,g:p.g,stack:p.stack,blockShare:0,dataBasis:"assumption"};
+  return {name:"Neue Position",demand:"truck",trucks:1,truck:"standard",palletsDay:0,pcsDay:0,pcsPerKlt:0,kltPerPallet:0,targetStock:0,skus:0,lhm:k,l:p.l,b:p.b,h:p.h,g:p.g,stack:p.stack,blockShare:0,dataBasis:"assumption",pptManual:false};
 }
 function defaults(){
   return {
@@ -1351,7 +1354,7 @@ function renderPalletMD(){
         if(!it||it.lhm!==k)return;
         if((attr==="h"&&it.h===prev.h)||(attr==="g"&&it.g===prev.g)||(attr==="stack"&&it.stack===prev.stack)){
           it[attr]=now[attr];
-          it.ppt=fillTruck(it.truck,it);
+          if(!it.pptManual)it.ppt=fillTruck(it.truck,it);
         }
       });
       renderPalletMD();renderTruckMD();renderItems();recalc();
@@ -1419,6 +1422,13 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.14",date:"27.10.2026",items:[
+    "Paletten je LKW folgen ohne bewusste Überschreibung stets der Kreuztabelle; Änderungen an Maßen und Gewicht wirken sofort. Ältere Planungsdateien rechnen mit dem automatischen Wert.",
+    "LKW-Füllmenge berücksichtigt den Stapelfaktor: nicht stapelbare Ladeeinheiten werden im Mega-Trailer einlagig geladen.",
+    "LKW/Tag enthält das Mengenwachstum in allen Ermittlungsmodi.",
+    "Blockkanäle sind artikelrein: je Artikel im Block mindestens ein Kanal. Im Quoten- und Manuellmodus anteilige Artikelzahl nach Blockvolumen.",
+    "Kanaltiefe in ganzen Paletten; Kapazität und Geometrie verwenden denselben Wert."
+  ]},
   {v:"V2.13",date:"27.10.2026",items:[
     "Stufe 7: HTML-Verschachtelung der Lagerreichweite korrigiert. Bestandsparameter stehen als getrennte Zeilen im Bemessungskasten.",
     "Gesamtregression und gezielte echte Chromium-Pruefungen dokumentiert. Zielumgebungsfreigabe bleibt gesondert."
@@ -1843,7 +1853,7 @@ function assertSafeImportTree(value,depth){
     }
   }
 }
-const ITEM_NUMERIC_FIELDS=["trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus","l","b","h","g","stack","blockShare","net","trucksDay","blockNet","rackNet","blockGross","rackGross"];
+const ITEM_NUMERIC_FIELDS=["blockSkus","trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus","l","b","h","g","stack","blockShare","net","trucksDay","blockNet","rackNet","blockGross","rackGross"];
 function validatePositionArray(items,label){
   if(!Array.isArray(items))throw new Error(label+" muss eine Liste sein.");
   if(items.length>10000)throw new Error(label+" enthaelt mehr als 10.000 Positionen.");
@@ -1855,6 +1865,7 @@ function validatePositionArray(items,label){
     if(it.name!=null&&(typeof it.name!=="string"||it.name.length>2000))issue(row,"name",it.name,"ungueltige Bezeichnung");
     if(it.demand!=null&&!["truck","pallets","pieces","stock"].includes(it.demand))issue(row,"demand",it.demand,"unbekannte Bedarfsermittlung");
     if(it.dataBasis!=null&&!["customer","assumption"].includes(it.dataBasis))issue(row,"dataBasis",it.dataBasis,"unbekannte Datenbasis");
+    if(it.pptManual!==undefined&&typeof it.pptManual!=="boolean")issue(row,"pptManual",it.pptManual,"wahr/falsch erwartet");
     for(const key of ITEM_NUMERIC_FIELDS){
       if(it[key]!==undefined&&(typeof it[key]!=="number"||!Number.isFinite(it[key])))issue(row,key,it[key],"endliche Zahl erwartet");
     }
@@ -2144,6 +2155,10 @@ function downloadBlob(blob,filename){
 }
 
 /* ============================ Engine ============================ */
+function blockChannelDepth(){
+  // Kanaltiefe in ganzen Paletten; Kapazität und Geometrie verwenden denselben Wert.
+  return clamp(Math.round(Number(S.block.channelDepth)||1),1,20);
+}
 function tippingStackLimit(l,b,h){
   const base=Math.min(Math.max(0,Number(l)||0),Math.max(0,Number(b)||0));
   return Math.max(1,Math.floor(6*base/Math.max(1,Number(h)||1)));
@@ -2365,7 +2380,10 @@ function computeModelCore(){
         const kltDay=(it.pcsDay||0)/Math.max(1,it.pcsPerKlt||1);
         palletsDay=kltDay/Math.max(0.001,it.kltPerPallet||1);
       }else{
-        if(!(it.ppt>0))it.ppt=fillTruck(it.truck,it);
+        // Ohne bewusste Überschreibung folgt der Wert stets der Kreuztabelle (Maße, Gewicht, Stapelfaktor, LKW-Typ).
+        const autoPpt=fillTruck(it.truck,it);
+        if(!(it.pptManual===true&&it.ppt>0)){it.pptManual=false;it.ppt=autoPpt;}
+        else if(autoPpt>0&&it.ppt>autoPpt)warn.push({t:"Position "+(ii+1)+" ("+(it.name||"ohne Name")+"): Manuell gesetzte "+fmt(it.ppt)+" Paletten je LKW liegen über der Kreuztabelle ("+fmt(autoPpt)+"). Wert prüfen.",sev:false});
         palletsDay=(it.trucks||0)*it.ppt;
       }
       it.net=Math.round(palletsDay*growthFactor*S.volume.range*Math.max(1,S.volume.peak)*(1+clamp(S.volume.safety,0,100)/100)*(1-trV));
@@ -2376,10 +2394,10 @@ function computeModelCore(){
     if(truckFill<1&&(palletsDay>0||(it.trucks||0)>0)){
       warn.push({t:"Position "+(ii+1)+" ("+(it.name||"ohne Name")+"): Die Palette passt mit den hinterlegten Maßen, der LKW-Innenhöhe oder Nutzlast nicht in den gewählten LKW-Typ ("+(getTruck(it.truck).label||it.truck)+"). Fahrzeugtyp, Palettenmaße, Gewicht und LKW-Stammdaten prüfen.",sev:true});
     }
-    it.trucksDay=it.demand==="truck"?(it.trucks||0)*growthFactor:(palletsDay>0&&truckFill>0?palletsDay/truckFill:0);
+    it.trucksDay=it.demand==="truck"?(it.trucks||0)*growthFactor:(palletsDay>0&&truckFill>0?palletsDay*growthFactor/truckFill:0);
     trucksTotal+=it.trucksDay;
     netTotal+=it.net;
-    let blockNet=0;
+    let blockNet=0,blockSkus=0;
     if(S.block.mode==="quota"){blockNet=it.net*clamp(S.block.quota,0,100)/100;}
     else if(S.block.mode==="manual"){blockNet=it.net*clamp(it.blockShare||0,0,100)/100;}
     else{
@@ -2395,17 +2413,20 @@ function computeModelCore(){
         if(effStack>kippCap){
           warn.push({t:"Position "+(ii+1)+" ("+it.name+"): Der Stapel 1+"+(effStack-1)+" liegt über der rechnerischen Kippgrenze 6:1 (aufgerundet 1+"+(kippCap-1)+"); Standsicherheit des Stapels gesondert nachweisen.",sev:false});
         }
-        const cap=S.block.channelDepth*effStack;
+        const cap=blockChannelDepth()*effStack;
         const aV=clamp(S.block.aVol,0,100)/100,bV=clamp(S.block.bVol,0,100)/100;
         const segs=[[0.2,aV],[0.3,bV],[0.5,Math.max(0,1-aV-bV)]];
         for(const sg of segs){
           const vol=it.net*sg[1];
           const skusN=Math.max(1,Math.round(it.skus*skuGrowthFactor*sg[0]));
-          if(effStack>1&&(vol/skusN)>=S.block.minFill/100*cap)blockNet+=vol;
+          if(effStack>1&&(vol/skusN)>=S.block.minFill/100*cap){blockNet+=vol;blockSkus+=skusN;}
         }
       }else skuMissing=true;
     }
     blockNet=Math.min(blockNet,it.net);
+    // Quote/manuell: Artikel im Block anteilig zum Blockvolumen (neutrale Annahme ohne Artikelverteilung).
+    if(S.block.mode!=="sku"&&it.skus>0&&blockNet>0&&it.net>0)blockSkus=Math.ceil(it.skus*skuGrowthFactor*blockNet/it.net);
+    it.blockSkus=blockNet>0?blockSkus:0;
     it.blockNet=Math.round(blockNet);
     it.rackNet=it.net-it.blockNet;
     it.blockGross=Math.ceil(it.blockNet/fillB*strategicFactor/availabilityFactor);
@@ -2478,7 +2499,7 @@ function computeModelCore(){
   const bl=blockItems.length?blockItems.reduce((a,b)=>b.blockGross>a.blockGross?b:a):null;
   let block=null;
   if(bl&&grossBlockNeed>0){
-    const channelDepth=clamp(Math.round(Number(S.block.channelDepth)||1),1,20);
+    const channelDepth=blockChannelDepth();
     const globalStack=clamp(Math.round(Number(S.block.stackH)||1),1,9);
     const limMM=Math.max(0,Number(S.block.maxTop)||7.5)*1000;
     const channelGroups=blockItems.map(it=>{
@@ -2487,7 +2508,12 @@ function computeModelCore(){
       const topCap=Math.max(1,Math.floor(limMM/ih));
       const effectiveStack=Math.max(1,Math.min(requested,globalStack,topCap));
       const laneCapacity=channelDepth*effectiveStack;
-      const channels=Math.ceil(Math.max(0,Number(it.blockGross)||0)/laneCapacity);
+      const gross=Math.max(0,Number(it.blockGross)||0);
+      const volumeChannels=Math.ceil(gross/laneCapacity);
+      // Kanäle sind artikelrein: je Artikel mindestens ein Kanal, Rundung je Artikel.
+      const skuCount=Math.max(0,Math.round(Number(it.blockSkus)||0));
+      const channels=(skuCount>0&&gross>0)?skuCount*Math.ceil(gross/skuCount/laneCapacity):volumeChannels;
+      if(channels>volumeChannels)warn.push({t:"Position "+(S.items.indexOf(it)+1)+" ("+(it.name||"ohne Name")+"): "+fmt(skuCount)+" Artikel im Blocklager erfordern artikelreine Kanäle; Kanalzahl "+fmt(channels)+" statt "+fmt(volumeChannels)+" nach reinem Volumen.",sev:false});
       if(S.block.mode!=="sku"&&requested>effectiveStack){
         warn.push({t:"Position "+(S.items.indexOf(it)+1)+" ("+(it.name||"ohne Name")+"): Die Blockstapelhöhe wird von "+requested+" auf "+effectiveStack+" Paletten je Kanal begrenzt (globale Stapelhöhe bzw. Oberkante Lagergut).",sev:false});
       }
@@ -2742,7 +2768,7 @@ function renderWays(g){
   const add=(label,von,nach,len)=>{if(len>0)rows.push({label,von,nach,len:len/1000});};
   add("Tiefe WE-Zone (Nord)","Nordwand","Block-/Regalzone",g.zoneND);
   add("Tiefe Blockbereich (Bänder inkl. Gassen)","Nordzone","Südkante Block",g.blockDepth);
-  add("Länge eines Blockkanals","Kanalzugang","Kanalende",bl?bl.laneUnit*S.block.channelDepth:0);
+  add("Länge eines Blockkanals","Kanalzugang","Kanalende",bl?bl.laneUnit*blockChannelDepth():0);
   add("Abstand Block – Regalzone","Südkante Block","Nordkante Regalzone",bl?500:0);
   add("Tiefe Leergutband","Blockbereich","Regalzone",g.lgDepth);
   add("Tiefe Regalzone (inkl. Arbeitsgänge)","Nordkante Regalzone","Südkante Regalzone",g.regionH);
@@ -2858,7 +2884,7 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
   const bOrient=(S.block.orient==="W")?"W":"N";
   let laneDepthY=0,bands=0,lanesPerBand=0;
   if(block){
-    laneDepthY=block.laneUnit*S.block.channelDepth;
+    laneDepthY=block.laneUnit*blockChannelDepth();
     if(bOrient==="N"){
       lanesPerBand=Math.max(1,Math.floor(areaLen/block.laneW));
       bands=Math.max(1,Math.ceil(block.nL/lanesPerBand));
@@ -3146,7 +3172,7 @@ function renderItems(){
     else if(dem==="stock")bed=frow("Ziel-Bestand",num("targetStock","1",0,"Paletten",76,true),"Vorgegebener Bestand in Paletten")+frow("LKW-Typ",selTruck,"Dient der Herleitung von LKW/Tag aus Paletten/Tag und Füllmenge");
     else bed=frow("LKW/Tag",num("trucks","0.5",0,"LKW",56,true),"Ankünfte je Tag, 0,5er Schritte zulässig")+
       frow("LKW-Typ",selTruck)+
-      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Vorbelegt aus der Kreuztabelle (Registerkarte Parameter, Paletten & LKW), überschreibbar; die Bedarfsermittlung rechnet mit diesem Wert");
+      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Automatisch aus der Kreuztabelle (Registerkarte Parameter, Paletten & LKW) nach Maßen, Gewicht und Stapelfaktor. Ein eigener Wert überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.");
     const nameIn='<input type="text" data-i="'+idx+'" data-k="name" value="'+escH(it.name)+'">';
     tr.appendChild(mk('<input type="checkbox" class="sel-cb" data-sel="'+idx+'" aria-label="Position '+(idx+1)+' auswählen">'));
     tr.appendChild(mk(String(idx+1)));
@@ -3191,17 +3217,21 @@ function initItems(){
       S.items[i].lhm=t.value;
       const p=getLhm(t.value);
       if(p){S.items[i].l=p.l;S.items[i].b=p.b;S.items[i].h=p.h;S.items[i].g=p.g;S.items[i].stack=p.stack;}
-      S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
+      S.items[i].pptManual=false;S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
       renderItems();recalc();return;
     }
     if(t.dataset.k==="truck"){
       S.items[i].truck=t.value;
-      S.items[i].ppt=fillTruck(t.value,S.items[i]);
+      S.items[i].pptManual=false;S.items[i].ppt=fillTruck(t.value,S.items[i]);
       renderItems();recalc();return;
     }
     const v=(t.type==="number")?(parseFloat(String(t.value).replace(",","."))||0):t.value;
     S.items[i][t.dataset.k]=v;
+    // Eigener Wert > 0 überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.
+    if(t.dataset.k==="ppt")S.items[i].pptManual=v>0;
     recalc();
+    const pptIn=tb.querySelector('input[data-i="'+i+'"][data-k="ppt"]');
+    if(pptIn&&pptIn!==t&&!S.items[i].pptManual)pptIn.value=S.items[i].ppt>0?S.items[i].ppt:"";
   });
   tb.addEventListener("click",ev=>{
     const d=ev.target.dataset&&ev.target.dataset.del;
@@ -3326,10 +3356,10 @@ function drawLayout(){
     ctx.fillRect(X(r.x),Y(r.y),r.w*sc,r.h*sc);
     ctx.strokeRect(X(r.x),Y(r.y),r.w*sc,r.h*sc);
     const horizLane=r.w>=r.h;
-    const unit=S.block.channelDepth>0?((horizLane?r.w:r.h)+200)/S.block.channelDepth:0;
+    const unit=((horizLane?r.w:r.h)+200)/blockChannelDepth();
     if(unit*sc>6){
       ctx.strokeStyle="#fcd34d";ctx.setLineDash([4,4]);
-      for(let i=1;i<S.block.channelDepth;i++){
+      for(let i=1;i<blockChannelDepth();i++){
         ctx.beginPath();
         if(horizLane){
           ctx.moveTo(X(r.x),Y(r.y+50+i*unit-50));
@@ -3617,7 +3647,7 @@ function drawBlockSection(){
   if(!b){ctx.fillStyle="#94a3b8";ctx.font="13px system-ui";ctx.fillText("Kein Blockbedarf – der gesamte Bestand läuft über das Regal.",16,26);return;}
   const g=R.geo;
   const bAisle=g.aisleBlk||g.aisle;
-  const cd=Math.max(1,S.block.channelDepth),sh=Math.max(1,S.block.stackH);
+  const cd=blockChannelDepth(),sh=Math.max(1,S.block.stackH);
   const palW=b.laneUnit,palH=b.bl.h;
 
   /* --- Kanalschnitt: Seitenansicht eines Kanals (links) --- */
@@ -5170,7 +5200,7 @@ function parseCsv(text){
     if(map.stack>=0){const sv=String(c[map.stack]||"").trim();const match=/^1\s*\+\s*(\d+)$/.exec(sv);it.stack=match?1+Number(match[1]):numeric(sv,sourceRow,head[map.stack]);}
     if(map.truck>=0){const raw=String(c[map.truck]||"").trim().toLowerCase();const all=allTrucks();const key=Object.keys(all).find(k=>String(k).toLowerCase()===raw||String(all[k].label||"").trim().toLowerCase()===raw);if(key)it.truck=key;else if(raw)csvWarnings.push("CSV, Zeile "+sourceRow+", Feld LKW-Typ, Originalwert "+c[map.truck]);}
     it.trucks=fnum(c,map.trucks,it.trucks);
-    if(map.ppt>=0)it.ppt=fnum(c,map.ppt,it.ppt);
+    if(map.ppt>=0){it.ppt=fnum(c,map.ppt,it.ppt);it.pptManual=it.ppt>0;}
     it.palletsDay=fnum(c,map.palletsDay,it.palletsDay);
     it.pcsDay=fnum(c,map.pcsDay,it.pcsDay);
     it.pcsPerKlt=fnum(c,map.pcsPerKlt,it.pcsPerKlt);
@@ -5400,7 +5430,7 @@ function initButtons(){
   $("btn-sel-truck").addEventListener("click",()=>{
     const t=$("sel-truck").value;
     pushUndo("LKW-Typ zugewiesen ("+selectedIdx().length+" Positionen)");
-    selectedIdx().forEach(i=>{S.items[i].truck=t;S.items[i].ppt=fillTruck(t,S.items[i]);});
+    selectedIdx().forEach(i=>{S.items[i].truck=t;S.items[i].pptManual=false;S.items[i].ppt=fillTruck(t,S.items[i]);});
     renderItems();recalc();
   });
   $("btn-sel-lhm").addEventListener("click",()=>{
@@ -5410,7 +5440,7 @@ function initButtons(){
       S.items[i].lhm=k;
       const p=getLhm(k);
       if(p){S.items[i].l=p.l;S.items[i].b=p.b;S.items[i].h=p.h;S.items[i].g=p.g;S.items[i].stack=p.stack;}
-      S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
+      S.items[i].pptManual=false;S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
     });
     renderItems();recalc();
   });
