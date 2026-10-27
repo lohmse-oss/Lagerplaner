@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.14</title>
+<title>Lagerplaner V2.15</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -363,7 +363,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.14</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.15</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -2217,7 +2217,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.14 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.15 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -2524,7 +2524,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.14";
+const APP_VERSION="V2.15";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2739,6 +2739,14 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.15",date:"27.10.2026",items:[
+    "Navigation in vier Phasen (Eingabe, Konzept, Bewertung, Ergebnis) mit einheitlichen Registernamen; Pfeiltasten wechseln das Register.",
+    "Kopfzeile mit Menü Datei für Öffnen, Speichern, Import und Export.",
+    "Kennzahlen-Leiste schmaler und einklappbar; Kennzahlen führen per Klick ins zuständige Register. Leeres Projekt ohne Alarmanzeige.",
+    "Optimierungsleiste erscheint nur während und nach einem Lauf.",
+    "Startseite als Phasenübersicht mit Sprungzielen. Smartphone-Ansicht ohne waagerechten Überlauf. Beschriftungen für alle Eingabefelder.",
+    "Technisch: Oberfläche steht vollständig im Markup (kein Umbau beim Start mehr); Stylesheet zusammengeführt."
+  ]},
   {v:"V2.14",date:"27.10.2026",items:[
     "Paletten je LKW folgen ohne bewusste Überschreibung stets der Kreuztabelle; Änderungen an Maßen und Gewicht wirken sofort. Ältere Planungsdateien rechnen mit dem automatischen Wert.",
     "LKW-Füllmenge berücksichtigt den Stapelfaktor: nicht stapelbare Ladeeinheiten werden im Mega-Trailer einlagig geladen.",
