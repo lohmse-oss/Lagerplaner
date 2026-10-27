@@ -12,6 +12,7 @@
   font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;height:100%;color:var(--ink);background:var(--bg);font-size:13px}
 table{border-collapse:collapse;width:100%}
 th{background:#f8fafc;text-align:left;font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.03em;padding:4px 5px;border:1px solid var(--line);white-space:nowrap}
@@ -29,6 +30,9 @@ canvas{width:100%;display:block;border-radius:6px}
 .btn:hover{background:#334155}
 .btn.acc{background:var(--acc);border-color:var(--acc)}
 .btn.acc:hover{background:#1d4ed8}
+.btn:focus-visible,.dd-list button:focus-visible,#tabs button:focus-visible,.ptabs button:focus-visible,.kpis-toggle:focus-visible,.linkbtn:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}
+.btn-quiet{background:transparent;color:#334155;border-color:var(--line)}
+.btn-quiet:hover{background:#f1f5f9}
 .tag{display:inline-block;border-radius:99px;padding:2px 9px;font-size:10.5px;font-weight:600;margin:1px 2px 1px 0}
 .tag-def{background:#e2e8f0;color:#334155}
 .tag-set{background:#dbeafe;color:#1e40af}
@@ -48,15 +52,17 @@ canvas{width:100%;display:block;border-radius:6px}
 header{background:var(--side);color:#fff;padding:10px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 12px rgba(15,23,42,.18)}
 header h1{font-size:16px;margin:0;font-weight:600;letter-spacing:.02em}
 header .v{color:var(--amber);font-weight:600;cursor:pointer;border-bottom:1px dotted var(--amber)}
-header input{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:5px 8px;font-size:12px}
-.hdr-actions{margin-left:auto;display:flex;gap:6px;align-items:center;white-space:nowrap}
+header input{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:5px 8px;font-size:12px;width:180px;min-width:0}
+header #in-kunde{width:200px}
+.hdr-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;white-space:nowrap}
 .hdr-sep{width:1px;height:22px;background:#334155;margin:0 2px}
 .chip{font-size:11px;color:#94a3b8;background:#1e293b;border:1px solid #334155;border-radius:999px;padding:4px 10px;white-space:nowrap}
 .chip.on{color:#6ee7b7;border-color:#047857}
-footer{background:var(--side);color:#64748b;font-size:11px;padding:6px 16px;text-align:center}
+footer{background:var(--side);color:#64748b;font-size:11px;padding:6px 16px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #body{display:flex;flex:1;min-height:0}
 main{flex:1;display:flex;flex-direction:column;min-width:0}
-#opt-run-panel{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#opt-run-panel{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 14px 0;padding:8px 12px;border-color:#bfdbfe;background:#eff6ff}
+#opt-run-panel .hint{flex:1 1 320px;color:#1e3a8a}
 
 /* Auswahlmenü Optimierung */
 .dd{position:relative}
@@ -67,19 +73,39 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .dd-checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
 .dd-menu .tt::after{left:auto;right:0;width:310px}
 .ck{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);white-space:nowrap}
+.dd-menu.dd-list{width:240px;padding:6px}
+.dd.open .dd-menu.dd-list{gap:0}
+.dd-list button{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:6px;padding:7px 10px;font-size:12.5px;color:var(--ink);cursor:pointer}
+.dd-list button:hover,.dd-list button:focus{background:#eff6ff;outline:none}
+.dd-sep{height:1px;background:var(--line);margin:5px 4px}
+.dd-cap{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);padding:4px 10px 2px}
 
 /* ============================ Register ============================ */
-#tabs{display:flex;gap:6px;padding:10px 14px 0;border-bottom:1px solid var(--line);background:var(--bg);flex-wrap:nowrap;overflow-x:auto}
-#tabs button{position:relative;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-bottom:none;background:#e2e8f0;color:var(--mut);border-radius:9px 9px 0 0;padding:9px 13px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
-#tabs button.on{background:var(--card);color:var(--ink);border-color:var(--acc);box-shadow:inset 0 -3px 0 var(--acc)}
-#tabs button.tc-info{background:#f1f5f9;color:#334155;border-color:#cbd5e1}
-#tabs button.tc-in{background:#dbeafe;color:#1e40af;border-color:#bfdbfe}
-#tabs button.tc-eng{background:#d1fae5;color:#065f46;border-color:#a7f3d0}
-#tabs button.tc-rep{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}
-#tabs button.on.tc-info{background:#e2e8f0;color:#0f172a;border-color:#475569}
-#tabs button.on.tc-in{background:#bfdbfe;color:#1d4ed8;border-color:#2563eb}
-#tabs button.on.tc-eng{background:#a7f3d0;color:#047857;border-color:#059669}
-#tabs button.on.tc-rep{background:#ddd6fe;color:#6d28d9;border-color:#7c3aed}
+#tabs{display:flex;flex-direction:column;padding:10px 14px 0;border-bottom:1px solid var(--line);background:var(--bg)}
+#tabs .phase-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding-bottom:10px}
+#tabs .phase{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:#475569;border-radius:999px;padding:6px 14px 6px 8px;cursor:pointer;font-size:12.5px;font-weight:600;white-space:nowrap}
+#tabs .phase[data-phase="start"]{padding-left:14px}
+#tabs .phase:not(:last-child)::after{content:"›";margin-left:6px;color:#94a3b8;font-weight:400}
+#tabs .phase .ph-n,.phase-card .ph-n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#e2e8f0;color:#334155;font-size:11px;font-weight:700}
+#tabs .phase:hover{border-color:#94a3b8}
+#tabs .phase.on{color:var(--ink);border-color:#475569;box-shadow:0 1px 3px rgba(15,23,42,.12)}
+#tabs .phase.on.tc-info{background:#e2e8f0}
+#tabs .phase.on.tc-in{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}
+#tabs .phase.on.tc-eng{background:#d1fae5;border-color:#059669;color:#047857}
+#tabs .phase.on.tc-eval{background:#fef3c7;border-color:#d97706;color:#92400e}
+#tabs .phase.on.tc-rep{background:#ede9fe;border-color:#7c3aed;color:#6d28d9}
+#tabs .phase.on .ph-n{background:#fff}
+#tabs .sub-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto}
+#tabs .sub-row button{position:relative;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-bottom:none;background:#e2e8f0;color:var(--mut);border-radius:9px 9px 0 0;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
+#tabs .sub-row button.tc-in{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+#tabs .sub-row button.tc-eng{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}
+#tabs .sub-row button.tc-eval{background:#fffbeb;color:#92400e;border-color:#fde68a}
+#tabs .sub-row button.tc-rep{background:#f5f3ff;color:#5b21b6;border-color:#ddd6fe}
+#tabs .sub-row button.on{background:var(--card);color:var(--ink);box-shadow:inset 0 -3px 0 currentColor}
+#tabs .sub-row button.on.tc-in{color:#1d4ed8;border-color:#2563eb}
+#tabs .sub-row button.on.tc-eng{color:#047857;border-color:#059669}
+#tabs .sub-row button.on.tc-eval{color:#b45309;border-color:#d97706}
+#tabs .sub-row button.on.tc-rep{color:#6d28d9;border-color:#7c3aed}
 #panels{flex:1;overflow:auto;padding:12px 14px 24px}
 .panel{display:none}
 .panel.on{display:block}
@@ -88,17 +114,17 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .rowbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 
 /* Startseite */
-.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
-.flow .fs{border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-width:104px}
-.flow .fs b{display:block;font-size:12px;margin-bottom:2px}
-.flow .fs small{color:var(--mut);font-size:10.5px;line-height:1.35;display:block}
-.flow .fa{align-self:center;color:var(--mut);font-weight:700;font-size:13px}
-.fs.p-in{background:#dbeafe;border-color:#bfdbfe}
-.fs.p-eng{background:#d1fae5;border-color:#a7f3d0}
-.fs.p-rep{background:#ede9fe;border-color:#ddd6fe}
-.reggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px}
-.reggrid>div{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:11.5px;line-height:1.5}
-.reggrid b{display:block;font-size:12px;margin-bottom:2px}
+.phase-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.phase-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5}
+.phase-card h4{display:flex;align-items:center;gap:8px;margin:0 0 4px;font-size:13px}
+.phase-card>p{margin:0 0 6px;color:var(--mut)}
+.phase-card ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.phase-card.p-in{background:#eff6ff;border-color:#bfdbfe}
+.phase-card.p-eng{background:#ecfdf5;border-color:#a7f3d0}
+.phase-card.p-eval{background:#fffbeb;border-color:#fde68a}
+.phase-card.p-rep{background:#f5f3ff;border-color:#ddd6fe}
+.linkbtn{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--acc);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.linkbtn:hover{color:#1d4ed8}
 
 /* ============================ Parameterformular ============================ */
 .ptabs{position:sticky;top:-12px;z-index:10;display:flex;gap:6px;flex-wrap:wrap;background:var(--bg);padding:12px 0 8px;margin:-12px 0 10px;border-bottom:1px solid var(--line)}
@@ -230,31 +256,42 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .scengrp .btn:disabled{opacity:.45;cursor:default}
 
 /* ============================ Kennzahlen-Leiste ============================ */
-#kpis{width:470px;flex:0 0 470px;display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px;padding:12px;background:var(--bg);border-left:1px solid var(--line);border-top:none;overflow-y:auto}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-width:0}
-.kpi .l{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
-.kpi .v{font-size:14.5px;font-weight:700;margin-top:2px}
+#kpis{width:340px;flex:0 0 340px;display:flex;flex-direction:column;gap:8px;padding:10px 12px 16px;background:var(--bg);border-left:1px solid var(--line);overflow-y:auto}
+.kpis-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kpis-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.kpis-toggle{width:28px;height:26px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;color:#334155;font-size:15px;line-height:1}
+.kpis-toggle:hover{border-color:#94a3b8}
+#kpis-body{display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0}
+.kpi.full,#kpi-ampel-wrap,.kpi-more{grid-column:1/-1}
+.kpi .l{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;line-height:1.25}
+.kpi .v{font-size:15px;font-weight:700;line-height:1.25;margin-top:3px;overflow-wrap:anywhere}
+.kpi .v.small{font-size:11.5px;line-height:1.4;font-weight:600}
 .kpi .v.acc{color:var(--acc)}
 .kpi .v.red{color:var(--red)}
 .kpi .v.amber{color:var(--amber)}
 .kpi .v.green{color:#16a34a}
-.kpi .bar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:5px;overflow:hidden}
-.kpi .bar i{display:block;height:100%;background:var(--acc)}
-#kpis .kpi{grid-column:auto!important;min-width:0;min-height:62px;padding:10px 12px;border-radius:9px;cursor:pointer}
-#kpis .kpi .l{font-size:10.5px;color:#64748b;text-transform:uppercase;letter-spacing:.03em;white-space:normal;line-height:1.25}
-#kpis .kpi .v{font-size:16px;line-height:1.25;margin-top:5px;overflow-wrap:anywhere}
-#kpis .kpi .v.small{font-size:11.5px;line-height:1.4;font-weight:600}
-#calc-status{position:static;top:0;display:block;z-index:2;grid-column:1;font-size:12px;color:#0f172a;background:transparent;border:0;border-radius:6px;padding:0;margin:0;max-width:none;min-height:0;align-items:center;justify-content:center;text-align:left}
-#calc-status.on{color:#047857;border-color:#bbf7d0;background:#f0fdf4}
-#calc-status.busy{color:#1d4ed8;border-color:#bfdbfe;background:#eff6ff}
-#kpi-ampel-wrap{grid-column:2;border-left:5px solid var(--amber);min-height:58px}
-#kpi-ampel-wrap.amp-green{border-left:6px solid #16a34a;background:#f0fdf4}
-#kpi-ampel-wrap.amp-amber{border-left:6px solid #f59e0b;background:#fffbeb}
-#kpi-ampel-wrap.amp-red{border-left:6px solid #dc2626;background:#fef2f2}
-#kpi-reason-wrap{background:#f8fafc}
+#kpis [data-goto]{cursor:pointer}
+#kpis [data-goto]:hover{border-color:#94a3b8}
+#kpis [data-goto]:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+#calc-status{font-size:12px;font-weight:600;color:#0f172a;border-radius:6px}
+#calc-status.on{color:#047857}
+#calc-status.busy{color:#1d4ed8}
+#kpi-ampel-wrap{border-left:6px solid var(--amber)}
+#kpi-ampel-wrap.amp-green{border-left-color:#16a34a;background:#f0fdf4}
+#kpi-ampel-wrap.amp-amber{border-left-color:#f59e0b;background:#fffbeb}
+#kpi-ampel-wrap.amp-red{border-left-color:#dc2626;background:#fef2f2}
+#kpi-ampel-wrap.amp-neutral{border-left-color:#94a3b8;background:#f8fafc}
+#kpi-reason{color:#334155;margin-top:4px}
 .capacity-card.state-ok{background:#f0fdf4;border-color:#86efac}
 .capacity-card.state-high{background:#fffbeb;border-color:#fcd34d}
 .capacity-card.state-low{background:#fef2f2;border-color:#fca5a5}
+.kpi-more summary{cursor:pointer;font-size:11.5px;font-weight:600;color:#334155;padding:4px 2px}
+.kpi-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+#app.kpis-collapsed #kpis{width:44px;flex-basis:44px;padding:10px 7px}
+#app.kpis-collapsed #kpis-body{display:none}
+#app.kpis-collapsed .kpis-head{flex-direction:column-reverse;gap:12px}
+#app.kpis-collapsed .kpis-title{writing-mode:vertical-rl;transform:rotate(180deg)}
 
 /* ============================ Dialoge, Meldungen ============================ */
 .modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:50}
@@ -283,25 +320,37 @@ details.obs[open] summary{margin-bottom:4px}
 
 /* ============================ Schmale Bildschirme ============================ */
 @media(max-width:1250px){
-  #kpis{width:420px;flex-basis:420px}
+  #kpis{width:300px;flex-basis:300px}
 }
 @media(max-width:1100px){
   #body{display:block;overflow:auto}
-  #kpis{width:auto;border-left:0;border-top:1px solid var(--line)}
+  #kpis,#app.kpis-collapsed #kpis{width:auto;border-left:0;border-top:1px solid var(--line);padding:10px 14px 16px}
+  #kpis-body{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  #app.kpis-collapsed .kpis-head{flex-direction:row}
+  #app.kpis-collapsed .kpis-title{writing-mode:horizontal-tb;transform:none}
 }
 @media(max-width:900px){
   .items-table-scroll{margin-left:-4px;margin-right:-4px;width:calc(100% + 8px)}
 }
 @media(max-width:760px){
-  .fld,.param-result{grid-template-columns:minmax(150px,1fr) 110px 58px}
+  header{gap:8px 12px;padding:8px 12px}
+  header input,header #in-kunde{flex:1 1 140px;width:auto}
+  .hdr-actions{margin-left:0;justify-content:flex-start}
+  .chip,.hdr-sep{display:none}
+  #cv-layout{height:min(75vh,120vw)!important}
+  .dd-menu{right:auto;left:0}
+  #tabs{padding:8px 10px 0}
+  #tabs .phase{padding:5px 10px 5px 6px;font-size:12px}
+  #tabs .phase:not(:last-child)::after{display:none}
+  #panels{padding:10px 10px 20px}
+  .fld,.param-result{grid-template-columns:minmax(0,1fr) 110px 58px}
   .height-row{grid-template-columns:1fr 110px 58px}
   .param-intro{display:block}
   .ptabs{position:static}
   .pgroup{padding:8px 0}
-}
-@media(max-width:680px){
-  #kpis{grid-template-columns:1fr}
-  #kpis .kpi{grid-column:1!important}
+  .canvas-wrap.split{flex-direction:column}
+  .legend.side{max-width:none;flex-direction:row;flex-wrap:wrap;gap:8px 14px;font-size:11.5px}
+  footer{font-size:10px;padding:5px 10px}
 }
 @media print{
   #opt-run-panel{display:none!important}
@@ -316,8 +365,8 @@ details.obs[open] summary{margin-bottom:4px}
       Lagerplaner
       <span class="v" id="app-ver" title="Änderungslog öffnen">V2.14</span>
     </h1>
-    <input id="in-projname" type="text" placeholder="Projektname" style="width: 180px" />
-    <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" style="width: 200px" />
+    <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
+    <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
     <div class="hdr-actions">
       <span class="chip" id="src-chip">Datenquelle: –</span>
       <button
@@ -328,7 +377,9 @@ details.obs[open] summary{margin-bottom:4px}
         Berechnung aktualisieren
       </button>
       <div class="dd" id="dd-opt">
-        <button class="btn" id="btn-dd-opt" title="Ziel und veränderbare Parameter des Optimierungslaufs">Varianten ermitteln ▾</button>
+        <button class="btn" id="btn-dd-opt" aria-haspopup="true" aria-expanded="false" title="Ziel und veränderbare Parameter des Optimierungslaufs">
+          Varianten ermitteln ▾
+        </button>
         <div class="dd-menu">
           <div class="dd-row">
             <label for="sel-goal">
@@ -402,52 +453,69 @@ details.obs[open] summary{margin-bottom:4px}
       >
         Rückgängig
       </button>
-      <button class="btn" id="btn-new">Neu</button>
-      <button class="btn" id="btn-load">Öffnen</button>
-      <button class="btn" id="btn-save">Speichern</button>
-      <span class="hdr-sep"></span>
-      <button class="btn" id="btn-reload-input">Daten importieren</button>
+      <div class="dd" id="dd-file">
+        <button class="btn" id="btn-dd-file" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-file">Datei ▾</button>
+        <div class="dd-menu dd-list" id="menu-file" role="menu" aria-label="Datei">
+          <button type="button" role="menuitem" id="btn-new">Neue Planung</button>
+          <button type="button" role="menuitem" id="btn-load">Planungsdatei öffnen …</button>
+          <button type="button" role="menuitem" id="btn-save">Planungsdatei speichern</button>
+          <div class="dd-sep" role="separator"></div>
+          <div class="dd-cap">Importieren</div>
+          <button type="button" role="menuitem" id="btn-reload-input">Eingabedatei laden …</button>
+          <button type="button" role="menuitem" id="btn-menu-csv">Mengengerüst aus CSV …</button>
+          <div class="dd-sep" role="separator"></div>
+          <div class="dd-cap">Exportieren</div>
+          <button type="button" role="menuitem" id="btn-export-input">Eingabedatei erzeugen</button>
+          <button type="button" role="menuitem" id="btn-menu-bom-csv">Stückliste als CSV</button>
+          <button type="button" role="menuitem" id="btn-menu-layout-png">Hallenlayout als PNG</button>
+        </div>
+      </div>
       <button class="btn" id="btn-help" title="Kurzhilfe, häufige Fragen und Handbuch">Hilfe</button>
-      <input type="file" id="jsonFile" accept=".json,application/json" style="display: none" />
-      <input type="file" id="csvFile" accept=".csv,text/csv" style="display: none" />
-      <input type="file" id="inputFile" accept=".js,.json,.txt" style="display: none" />
+      <input type="file" id="jsonFile" aria-label="Planungsdatei auswählen" accept=".json,application/json" style="display: none" />
+      <input type="file" id="csvFile" aria-label="CSV-Datei auswählen" accept=".csv,text/csv" style="display: none" />
+      <input type="file" id="inputFile" aria-label="Eingabedatei auswählen" accept=".js,.json,.txt" style="display: none" />
     </div>
   </header>
 
   <div id="body">
     <main>
-      <div class="card" id="opt-run-panel">
-        <button class="btn" id="btn-opt-cancel" type="button" disabled="">Optimierung abbrechen</button>
+      <div class="card" id="opt-run-panel" hidden="">
         <span id="opt-run-status" class="hint" role="status" aria-live="polite">Kein Optimierungslauf aktiv.</span>
+        <button class="btn" id="btn-opt-cancel" type="button" disabled="">Optimierung abbrechen</button>
+        <button class="btn btn-quiet" id="btn-opt-dismiss" type="button" hidden="">Ausblenden</button>
       </div>
 
-      <div id="tabs">
-        <button data-tab="0" class="tc-info on" title="Willkommensseite: Einstieg, Arbeitsablauf und Registerübersicht.">Start</button>
-        <button data-tab="1" class="tc-in" title="Eingaberegister: Dateneingabe und Planungsvorgaben.">Projekt &amp; Vorgaben</button>
-        <button data-tab="2" class="tc-in" title="Eingaberegister: Dateneingabe und Planungsvorgaben.">Mengengerüst</button>
-        <button data-tab="3" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Lagerkonzept</button>
-        <button data-tab="4" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">
-          Regal &amp; Block
-        </button>
-        <button data-tab="5" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">
-          Kosten &amp; Equipment
-        </button>
-        <button data-tab="6" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Varianten</button>
-        <button data-tab="7" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Datenqualität</button>
-        <button data-tab="8" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Sensitivität</button>
-        <button data-tab="9" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Berichte</button>
-        <button data-tab="10" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Ergebnis</button>
-        <button data-tab="11" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Methodik</button>
-      </div>
+      <nav id="tabs" aria-label="Arbeitsschritte">
+        <div class="phase-row">
+          <button type="button" class="phase tc-info" data-tab="0" data-phase="start" id="tab-0" aria-controls="panel-0">Start</button>
+          <button type="button" class="phase tc-in" data-phase="in"><span class="ph-n">1</span>Eingabe</button>
+          <button type="button" class="phase tc-eng" data-phase="eng"><span class="ph-n">2</span>Konzept</button>
+          <button type="button" class="phase tc-eval" data-phase="eval"><span class="ph-n">3</span>Bewertung</button>
+          <button type="button" class="phase tc-rep" data-phase="rep"><span class="ph-n">4</span>Ergebnis</button>
+        </div>
+        <div class="sub-row" role="tablist" aria-label="Register der Phase">
+          <button type="button" role="tab" class="tc-in" data-tab="1" data-phase="in" id="tab-1" aria-controls="panel-1">Vorgaben</button>
+          <button type="button" role="tab" class="tc-in" data-tab="2" data-phase="in" id="tab-2" aria-controls="panel-2">Mengengerüst</button>
+          <button type="button" role="tab" class="tc-eng" data-tab="3" data-phase="eng" id="tab-3" aria-controls="panel-3">Layout</button>
+          <button type="button" role="tab" class="tc-eng" data-tab="4" data-phase="eng" id="tab-4" aria-controls="panel-4">Regal &amp; Block</button>
+          <button type="button" role="tab" class="tc-eng" data-tab="5" data-phase="eng" id="tab-5" aria-controls="panel-5">Stückliste &amp; CAPEX</button>
+          <button type="button" role="tab" class="tc-eval" data-tab="6" data-phase="eval" id="tab-6" aria-controls="panel-6">Varianten</button>
+          <button type="button" role="tab" class="tc-eval" data-tab="8" data-phase="eval" id="tab-8" aria-controls="panel-8">Sensitivität</button>
+          <button type="button" role="tab" class="tc-eval" data-tab="7" data-phase="eval" id="tab-7" aria-controls="panel-7">Annahmen</button>
+          <button type="button" role="tab" class="tc-rep" data-tab="10" data-phase="rep" id="tab-10" aria-controls="panel-10">Übersicht</button>
+          <button type="button" role="tab" class="tc-rep" data-tab="9" data-phase="rep" id="tab-9" aria-controls="panel-9">Berichte</button>
+          <button type="button" role="tab" class="tc-rep" data-tab="11" data-phase="rep" id="tab-11" aria-controls="panel-11">Methodik</button>
+        </div>
+      </nav>
 
       <div id="panels">
-        <div class="panel on" id="panel-0">
+        <div class="panel on" id="panel-0" role="tabpanel" aria-labelledby="tab-0">
           <div class="card">
             <h3>
               Willkommen
               <span
                 class="tt"
-                data-tip="Hilfe, häufige Fragen und Handbuch öffnen über die Schaltfläche Hilfe / FAQ in der Kopfzeile. Der Änderungslog öffnet über die Versionsangabe im Kopf. Der Planungsstand bleibt im lokalen Browserspeicher dieses Geräts erhalten."
+                data-tip="Hilfe, häufige Fragen und Handbuch öffnen über die Schaltfläche Hilfe in der Kopfzeile. Der Änderungslog öffnet über die Versionsangabe im Kopf. Der Planungsstand bleibt im lokalen Browserspeicher dieses Geräts erhalten."
                 tabindex="0"
               >
                 ⓘ
@@ -461,137 +529,62 @@ details.obs[open] summary{margin-bottom:4px}
             </p>
           </div>
           <div class="card">
-            <h3>
-              Arbeitsablauf
-              <span
-                class="tt"
-                data-tip="Blau kennzeichnet die Dateneingabe, Grün die Hallenplanung und Modellierung, Violett die Auswertung und Dokumentation. Nach jeder Eingabe rechnet das Werkzeug automatisch nach; die Schaltfläche Berechnung aktualisieren erzwingt einen vollständigen Lauf aller zwölf Rechenschritte."
-                tabindex="0"
-              >
-                ⓘ
-              </span>
-            </h3>
-            <div class="flow">
-              <div class="fs p-in">
-                <b>1 Parameter</b>
-                <small>Vorgaben pflegen</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-in">
-                <b>2 Input</b>
-                <small>Positionen erfassen</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-in">
-                <b>Neu berechnen</b>
-                <small>Ergebnisse erzeugen</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-eng">
-                <b>3 Layout</b>
-                <small>Halle prüfen</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-eng">
-                <b>4 Regal &amp; Block</b>
-                <small>Struktur prüfen</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-eng">
-                <b>5 Equipment</b>
-                <small>Stückliste und CAPEX</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-eng">
-                <b>6 Szenarien</b>
-                <small>Varianten vergleichen</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-rep">
-                <b>7 Annahmen · 8 Sensitivität</b>
-                <small>Prüfen und bewerten</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-rep">
-                <b>9 Berichte · 10 Report</b>
-                <small>Dokumentieren</small>
-              </div>
-              <div class="fa">→</div>
-              <div class="fs p-rep">
-                <b>Speichern</b>
-                <small>Planungsdatei (JSON)</small>
-              </div>
+            <h3>Arbeitsablauf in vier Phasen</h3>
+            <div class="phase-grid">
+              <section class="phase-card p-in">
+                <h4><span class="ph-n">1</span>Eingabe</h4>
+                <p>Vorgaben pflegen und Positionen erfassen.</p>
+                <ul>
+                  <li><button type="button" class="linkbtn" data-goto="1">Vorgaben</button> Gebäude, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit, Kosten.</li>
+                  <li><button type="button" class="linkbtn" data-goto="2">Mengengerüst</button> Positionen erfassen oder per CSV importieren, Bedarfsermittlung je Position, Sammeländerungen.</li>
+                </ul>
+              </section>
+              <section class="phase-card p-eng">
+                <h4><span class="ph-n">2</span>Konzept</h4>
+                <p>Halle, Lagertechnik und Kosten prüfen.</p>
+                <ul>
+                  <li><button type="button" class="linkbtn" data-goto="3">Layout</button> Hallenlayout mit Zonen und Toren, Flächenbedarf, Wegestrecken.</li>
+                  <li><button type="button" class="linkbtn" data-goto="4">Regal &amp; Block</button> Regalschnitt mit Ebenen, Blockstruktur mit Kanaltiefe und Stapelhöhe.</li>
+                  <li><button type="button" class="linkbtn" data-goto="5">Stückliste &amp; CAPEX</button> Mengen aus dem Layout, Einheitspreise, Zuschläge, CSV-Export.</li>
+                </ul>
+              </section>
+              <section class="phase-card p-eval">
+                <h4><span class="ph-n">3</span>Bewertung</h4>
+                <p>Alternativen vergleichen und Annahmen absichern.</p>
+                <ul>
+                  <li><button type="button" class="linkbtn" data-goto="6">Varianten</button> Szenarien speichern und vergleichen, Optimierungsergebnisse, Vergleich mit einer Planungsdatei.</li>
+                  <li><button type="button" class="linkbtn" data-goto="8">Sensitivität</button> Wirksamste Treiber auf Fläche und CAPEX.</li>
+                  <li><button type="button" class="linkbtn" data-goto="7">Annahmen</button> Datenbasis je Position, Datenlücken, Parameterquellen, Fragekatalog für den Kunden.</li>
+                </ul>
+              </section>
+              <section class="phase-card p-rep">
+                <h4><span class="ph-n">4</span>Ergebnis</h4>
+                <p>Zusammenfassen und dokumentieren.</p>
+                <ul>
+                  <li><button type="button" class="linkbtn" data-goto="10">Übersicht</button> Kurzbericht und alle Plausibilitätshinweise.</li>
+                  <li><button type="button" class="linkbtn" data-goto="9">Berichte</button> Interner Bericht und kundenfähiger Grobkonzeptbericht, druckbar.</li>
+                  <li><button type="button" class="linkbtn" data-goto="11">Methodik</button> Jeder Rechenschritt mit Eingabefeldern und Formel.</li>
+                </ul>
+              </section>
             </div>
-          </div>
-          <div class="card">
-            <h3>Registerübersicht</h3>
-            <div class="reggrid">
-              <div>
-                <b>0 · Info</b>
-                Diese Willkommensseite mit Arbeitsablauf und Registerübersicht. Sie öffnet beim Start.
-              </div>
-              <div>
-                <b>1 · Parameter</b>
-                Planungsvorgaben pflegen: Gebäude &amp; Flächen, Volumen &amp; Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit
-                &amp; Abstände sowie Kosten &amp; Optionen.
-              </div>
-              <div>
-                <b>2 · Input</b>
-                Ausschreibungspositionen erfassen, per CSV importieren oder die Eingabedatei laden. Je Position die Bedarfsermittlung
-                wählen. Über Batch-Änderungen markierten Positionen LKW-Typ, LHM-Typ, Blockanteil und Datenbasis zuweisen.
-              </div>
-              <div>
-                <b>3 · Layout</b>
-                2D-Hallenlayout mit Zonen und Toren prüfen. Flächenbedarfsrechnung und Wegestrecken lesen. Bei Bedarf die Layout-Optimierung
-                starten.
-              </div>
-              <div>
-                <b>4 · Regal &amp; Block</b>
-                Regalschnitt mit Ebenen prüfen. Blockstruktur mit Kanaltiefe und Stapelhöhe kontrollieren.
-              </div>
-              <div>
-                <b>5 · Equipment</b>
-                Stückliste und CAPEX prüfen. Einheitspreise anpassen und die Stückliste exportieren.
-              </div>
-              <div>
-                <b>6 · Szenarien</b>
-                Bis zu drei Varianten speichern und vergleichen. Gespeicherte Planungsdateien per Diff gegenüberstellen.
-              </div>
-              <div>
-                <b>7 · Annahmen</b>
-                Datenbasis und Datenlücken prüfen. Fragekatalog für den Kunden erzeugen.
-              </div>
-              <div>
-                <b>8 · Sensitivität</b>
-                Wirksamste Treiber auf Fläche und CAPEX erkennen. Das Tornado-Diagramm zeigt die Wirkung je Treiber.
-              </div>
-              <div>
-                <b>9 · Berichte</b>
-                Internen Bericht und kundenfähigen Grobkonzeptbericht öffnen und drucken.
-              </div>
-              <div>
-                <b>10 · Report</b>
-                Quick-Report und Hinweise lesen. Der Hinweiszähler der Seitenleiste springt hierher.
-              </div>
-              <div>
-                <b>11 · Berechnungsfolge</b>
-                Jeden Rechenschritt mit Formeln und Eingabefeldern nachvollziehen.
-              </div>
-            </div>
+            <p class="hint" style="margin: 10px 0 0">
+              Nach jeder Eingabe rechnet das Werkzeug automatisch nach. Öffnen, Speichern, Importieren und Exportieren liegen im Menü Datei in der
+              Kopfzeile. Die Kennzahlen rechts führen per Klick zum zuständigen Register.
+            </p>
           </div>
         </div>
-        <div class="panel" id="panel-1">
-          <div class="ptabs" id="ptabs">
-            <button data-pg="gbp" class="on">1 Gebäude &amp; Flächen</button>
-            <button data-pg="vol">2 Volumen &amp; Puffer</button>
-            <button data-pg="pal">3 Stammdaten</button>
-            <button data-pg="ffz">4 Lagertechnik</button>
-            <button data-pg="blk">5 Blocklager</button>
-            <button data-pg="fir">6 Sicherheit &amp; Abstände</button>
-            <button data-pg="cost">7 Kosten &amp; Optionen</button>
+        <div class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1">
+          <div class="ptabs" id="ptabs" role="tablist" aria-label="Bereiche der Vorgaben">
+            <button type="button" role="tab" id="ptab-gbp" aria-controls="pg-gbp" data-pg="gbp" class="on">1 Gebäude &amp; Flächen</button>
+            <button type="button" role="tab" id="ptab-vol" aria-controls="pg-vol" data-pg="vol">2 Volumen &amp; Puffer</button>
+            <button type="button" role="tab" id="ptab-pal" aria-controls="pg-pal" data-pg="pal">3 Stammdaten</button>
+            <button type="button" role="tab" id="ptab-ffz" aria-controls="pg-ffz" data-pg="ffz">4 Lagertechnik</button>
+            <button type="button" role="tab" id="ptab-blk" aria-controls="pg-blk" data-pg="blk">5 Blocklager</button>
+            <button type="button" role="tab" id="ptab-fir" aria-controls="pg-fir" data-pg="fir">6 Sicherheit &amp; Abstände</button>
+            <button type="button" role="tab" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">7 Kosten &amp; Optionen</button>
           </div>
           <div id="pgroups">
-            <div class="pgroup on" id="pg-gbp">
+            <div class="pgroup on" id="pg-gbp" role="tabpanel" aria-labelledby="ptab-gbp">
               <h3>
                 Gebäude &amp; Flächen
                 <span
@@ -773,7 +766,7 @@ details.obs[open] summary{margin-bottom:4px}
               </section>
             </div>
 
-            <div class="pgroup" id="pg-pal">
+            <div class="pgroup" id="pg-pal" role="tabpanel" aria-labelledby="ptab-pal">
               <h3>
                 Paletten- und LKW-Stammdaten
                 <span
@@ -820,7 +813,7 @@ details.obs[open] summary{margin-bottom:4px}
               </div>
             </div>
 
-            <div class="pgroup" id="pg-vol">
+            <div class="pgroup" id="pg-vol" role="tabpanel" aria-labelledby="ptab-vol">
               <h3>
                 Volumen &amp; Puffer
                 <span
@@ -851,7 +844,7 @@ details.obs[open] summary{margin-bottom:4px}
                     </label>
                     <input id="in-range" type="range" min="0.5" max="56" step="0.5" />
                     <span style="display: flex; gap: 6px; align-items: center">
-                      <input id="num-range" type="number" min="0.5" max="56" step="0.5" style="width: 64px" />
+                      <input id="num-range" aria-label="Lagerreichweite in Tagen" type="number" min="0.5" max="56" step="0.5" style="width: 64px" />
                       <span class="val">Tage</span>
                     </span>
                   </div>
@@ -1038,7 +1031,7 @@ details.obs[open] summary{margin-bottom:4px}
               </section>
             </div>
 
-            <div class="pgroup" id="pg-blk">
+            <div class="pgroup" id="pg-blk" role="tabpanel" aria-labelledby="ptab-blk">
               <h3>
                 Blocklager
                 <span
@@ -1123,7 +1116,7 @@ details.obs[open] summary{margin-bottom:4px}
               </section>
             </div>
 
-            <div class="pgroup" id="pg-ffz">
+            <div class="pgroup" id="pg-ffz" role="tabpanel" aria-labelledby="ptab-ffz">
               <h3>
                 Lagertechnik
                 <span
@@ -1301,7 +1294,7 @@ details.obs[open] summary{margin-bottom:4px}
               </section>
             </div>
 
-            <div class="pgroup" id="pg-fir">
+            <div class="pgroup" id="pg-fir" role="tabpanel" aria-labelledby="ptab-fir">
               <h3>Sicherheit &amp; Abstände</h3>
               <div class="param-intro">
                 <div>
@@ -1345,7 +1338,7 @@ details.obs[open] summary{margin-bottom:4px}
                 </div>
               </section>
             </div>
-            <div class="pgroup" id="pg-cost">
+            <div class="pgroup" id="pg-cost" role="tabpanel" aria-labelledby="ptab-cost">
               <h3>Kosten &amp; Optionen</h3>
               <div class="param-intro">
                 <div>
@@ -1420,7 +1413,7 @@ details.obs[open] summary{margin-bottom:4px}
             </div>
           </div>
         </div>
-        <div class="panel" id="panel-10">
+        <div class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10">
           <div id="qreport">
             <details open="">
               <summary id="qr-sum">Quick-Report</summary>
@@ -1442,7 +1435,7 @@ details.obs[open] summary{margin-bottom:4px}
               Bedeutung der Hinweise
               <span
                 class="tt"
-                data-tip="Kritische Hinweise sind rot gekennzeichnet und vor jeder Weitergabe der Planung zu klären. Übrige Hinweise sind Plausibilitätsbemerkungen. Der Hinweiszähler in der Status-Seitenleiste öffnet diese Registerkarte."
+                data-tip="Kritische Hinweise sind rot gekennzeichnet und vor jeder Weitergabe der Planung zu klären. Übrige Hinweise sind Plausibilitätsbemerkungen. Der Hinweiszähler in der Kennzahlen-Leiste öffnet diese Registerkarte."
                 tabindex="0"
               >
                 ⓘ
@@ -1450,7 +1443,7 @@ details.obs[open] summary{margin-bottom:4px}
             </h3>
           </div>
         </div>
-        <div class="panel" id="panel-11">
+        <div class="panel" id="panel-11" role="tabpanel" aria-labelledby="tab-11">
           <div class="card">
             <h3>
               Berechnungsfolge: Auflösung der Rechenschritte
@@ -1477,7 +1470,7 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <td>1</td>
                     <td>Bedarf je Position</td>
-                    <td>Tab 2: Ermittlung, Bedarfseingabe, LKW-Typ, Paletten je LKW</td>
+                    <td>Mengengerüst: Ermittlung, Bedarfseingabe, LKW-Typ, Paletten je LKW</td>
                     <td>
                       LKW/Tag: Paletten/Tag = LKW/Tag × Paletten je LKW (Vorbelegung aus der Kreuztabelle, überschreibbar) · Paletten/Tag:
                       direkte Eingabe · Stückbasis: Paletten/Tag = Stück/Tag ÷ Stück je KLT ÷ KLT je Palette · Ziel-Bestand: Bestand direkt
@@ -1490,13 +1483,13 @@ details.obs[open] summary{margin-bottom:4px}
                     <td>aus Schritt 1 und Füllmenge der Kreuztabelle</td>
                     <td>
                       LKW/Tag = Paletten/Tag ÷ Füllmenge des LKW-Typs; im Modus LKW/Tag direkte Eingabe (Kachel LKW/Tag der
-                      Status-Seitenleiste)
+                      Kennzahlen-Leiste)
                     </td>
                   </tr>
                   <tr>
                     <td>3</td>
                     <td>Netto-Bestand je Position</td>
-                    <td>Tab 1: Lagerreichweite, Transit-/Cross-Dock-Anteil</td>
+                    <td>Vorgaben: Lagerreichweite, Transit-/Cross-Dock-Anteil</td>
                     <td>
                       Bemessungsbestand = Paletten/Tag × Reichweite × Peak-Faktor × (1 + Sicherheitsbestand ÷ 100) × (1 − Transitanteil ÷
                       100); im Modus Ziel-Bestand: Netto = Ziel-Bestand × (1 − Transitanteil ÷ 100). Transitpaletten verbrauchen keine
@@ -1507,7 +1500,7 @@ details.obs[open] summary{margin-bottom:4px}
                     <td>4</td>
                     <td>Blockverteilung je Position</td>
                     <td>
-                      Tab 1: Verteilungsmethode, Volumenquote, ABC-Anteile, Mindest-Kanalfüllgrad; Tab 2: Artikel, Stapel 1+x, Blockanteil
+                      Vorgaben: Verteilungsmethode, Volumenquote, ABC-Anteile, Mindest-Kanalfüllgrad; Mengengerüst: Artikel, Stapel 1+x, Blockanteil
                     </td>
                     <td>
                       Quote: Blockpaletten = Netto × Quote · Manuell: Blockpaletten = Netto × Blockanteil · Artikelbasiert: drei
@@ -1521,7 +1514,7 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <td>5</td>
                     <td>Brutto-Bedarf</td>
-                    <td>Tab 1: Füllgrad Regal, Füllgrad Block</td>
+                    <td>Vorgaben: Füllgrad Regal, Füllgrad Block</td>
                     <td>
                       Brutto Regal = Aufrunden(Regalpaletten ÷ Füllgrad Regal) · Brutto Block = Aufrunden(Blockpaletten ÷ Füllgrad Block)
                       (Bedarf an Regal- und Blockplätzen)
@@ -1530,7 +1523,7 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <td>6</td>
                     <td>Regalgeometrie</td>
-                    <td>Tab 1: Auslegungsbasis, Feldweite, Bodenebene, Brandschutz; Gebäude: UKB</td>
+                    <td>Vorgaben: Auslegungsbasis, Feldweite, Bodenebene, Brandschutz; Gebäude: UKB</td>
                     <td>
                       Leitartikel oder Hüllkurve legen Palette und Fachlast fest; Fachlast bestimmt Ständer- und Traversenprofil (100/120 mm
                       bzw. 120/140 mm) · Feldweite automatisch aus den Kandidaten 1.800, 2.250, 2.700, 3.100, 3.600 mm (kleinster Kandidat
@@ -1543,7 +1536,7 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <td>7</td>
                     <td>Blockgeometrie</td>
-                    <td>Tab 1: Kanaltiefe, max. Stapelhöhe, Blockausrichtung; Tab 4: Block-Leitartikel</td>
+                    <td>Vorgaben: Kanaltiefe, max. Stapelhöhe, Blockausrichtung; Regal & Block: Block-Leitartikel</td>
                     <td>
                       Kanalbreite = breiteste Palettenbreite + 150 mm · Kanaltiefe = (längste Palettenlänge + 50 mm) × Kanaltiefe in
                       Paletten (konservative Maßhüllkurve über die Positionen) · wirksame Stapelhöhe je Position = Minimum aus
@@ -1556,7 +1549,7 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <td>8</td>
                     <td>Leergut</td>
-                    <td>Tab 1: Volumen &amp; Puffer (Menge, Stapelhöhe, Zugangsreserve)</td>
+                    <td>Vorgaben: Volumen &amp; Puffer (Menge, Stapelhöhe, Zugangsreserve)</td>
                     <td>
                       Leerpaletten = Anteil am Brutto-Bedarf oder absolute Zahl · Stapel = Aufrunden(Leerpaletten ÷ Stapelhöhe) · Bandtiefe
                       = Stapelfläche × (1 + Zugangsreserve) ÷ nutzbare Länge, aufgerundet auf 10 mm; das Band verbraucht Fläche und erhöht
@@ -1567,7 +1560,7 @@ details.obs[open] summary{margin-bottom:4px}
                     <td>9</td>
                     <td>Layout und Kapazität</td>
                     <td>
-                      Tab 1: Gebäude, Tore, Zonen, Stützraster, FFZ, Gangbreiten, VNA-P&amp;D, Fluchttunnel, Einzelreihen;
+                      Vorgaben: Gebäude, Tore, Zonen, Stützraster, FFZ, Gangbreiten, VNA-P&amp;D, Fluchttunnel, Einzelreihen;
                       Greenfield-Parameter
                     </td>
                     <td>
@@ -1593,7 +1586,7 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <td>11</td>
                     <td>Stückliste und CAPEX</td>
-                    <td>Tab 5: Einheitspreise, Montagepauschale, Rückbau, Durchschubsicherungen, Gitterroste</td>
+                    <td>Stückliste & CAPEX: Einheitspreise, Montagepauschale, Rückbau, Durchschubsicherungen, Gitterroste</td>
                     <td>
                       Rahmen je Reihe × (Felder + 1) · Traversenpaare = Reihen × Felder × Ebenen · Gitterroste und Anfahrschutz je
                       Fluchttunnel · Rückwandgitter je Feld bei Einzelreihen · Durchschubsicherungen je Fach bei Rücken-an-Rücken-Reihen ·
@@ -1612,7 +1605,7 @@ details.obs[open] summary{margin-bottom:4px}
                       Hallennutzung unter 65 oder über 90 Prozent oder vorhandenen Plausibilitätshinweisen (etwa knappe WE-Pufferfläche,
                       Kippgrenze 6:1, durch Verschieben von Gängen lösbare Stützenkollisionen) · 🟢 Zielbereich bei 100 bis 115 Prozent
                       Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise; im Greenfield-Modus gilt die Hallennutzung als erfüllt,
-                      weil die Halle aus dem Bedarf abgeleitet wird (Status-Seitenleiste und Register 10)
+                      weil die Halle aus dem Bedarf abgeleitet wird (Kennzahlen-Leiste und Register Übersicht)
                     </td>
                   </tr>
                 </tbody>
@@ -1620,11 +1613,10 @@ details.obs[open] summary{margin-bottom:4px}
             </div>
           </div>
         </div>
-        <div class="panel" id="panel-2">
+        <div class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2">
           <div class="rowbtns">
             <button class="btn acc" id="btn-add-item">+ Position</button>
             <button class="btn" id="btn-csv">Mengengerüst importieren (CSV)</button>
-            <button class="btn" id="btn-export-input">Eingabedatei erzeugen</button>
           </div>
           <div class="card">
             <h3>Artikelgruppen / Ausschreibungspositionen</h3>
@@ -1646,7 +1638,7 @@ details.obs[open] summary{margin-bottom:4px}
                 title="Palettentyp, der den ausgewählten Positionen zugewiesen wird; Maße und Stapelfaktor werden mit übernommen"
               ></select>
               <button class="btn" id="btn-sel-lhm" disabled="">LHM-Typ zuweisen</button>
-              <input type="number" id="sel-block" min="0" max="100" step="5" style="width: 60px" />
+              <input type="number" id="sel-block" aria-label="Blockanteil für ausgewählte Positionen in Prozent" min="0" max="100" step="5" style="width: 60px" />
               <span>%</span>
               <button class="btn" id="btn-sel-block" disabled="">Blockanteil zuweisen</button>
               <label for="sel-basis" title="Datenbasis, die den ausgewählten Positionen zugewiesen wird">Basis:</label>
@@ -1707,7 +1699,7 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
 
-        <div class="panel" id="panel-3">
+        <div class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3">
           <div class="card" id="opt-card" style="display: none">
             <details id="opt-details" open="">
               <summary id="opt-summary" style="cursor: pointer; font-weight: 600">Optimierungsvarianten</summary>
@@ -1827,7 +1819,7 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
 
-        <div class="panel" id="panel-4">
+        <div class="panel" id="panel-4" role="tabpanel" aria-labelledby="tab-4">
           <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch">
             <div class="canvas-wrap" style="flex: 1 1 460px">
               <canvas id="cv-section" style="height: 68vh"></canvas>
@@ -1882,7 +1874,7 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
 
-        <div class="panel" id="panel-5">
+        <div class="panel" id="panel-5" role="tabpanel" aria-labelledby="tab-5">
           <div class="card">
             <h3>Stückliste (BOM)</h3>
             <div class="rowbtns" style="margin: 0 0 8px">
@@ -1910,13 +1902,13 @@ details.obs[open] summary{margin-bottom:4px}
               </span>
               <span>
                 Montage &amp; Ingenieur-Pauschale
-                <input id="pr-mount" type="number" step="0.5" />
+                <input id="pr-mount" aria-label="Montage- und Ingenieur-Pauschale in Prozent" type="number" step="0.5" />
                 %:
                 <b id="bom-mount">0 €</b>
               </span>
               <span>
                 Rückbau &amp; Demontage
-                <input id="pr-demount" type="number" step="0.5" />
+                <input id="pr-demount" aria-label="Rückbau- und Demontage-Pauschale in Prozent" type="number" step="0.5" />
                 %:
                 <b id="bom-demount">0 €</b>
               </span>
@@ -1953,7 +1945,7 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
 
-        <div class="panel" id="panel-6">
+        <div class="panel" id="panel-6" role="tabpanel" aria-labelledby="tab-6">
           <div class="card">
             <h3>
               Szenarien speichern und aufrufen
@@ -2018,19 +2010,19 @@ details.obs[open] summary{margin-bottom:4px}
             <div class="rowbtns">
               <button class="btn acc" id="btn-diff-load">Planungsdatei zum Vergleich laden</button>
               <button class="btn" id="btn-diff-clear" disabled="">Vergleich zurücksetzen</button>
-              <input type="file" id="diffFile" accept=".json,application/json" style="display: none" />
+              <input type="file" id="diffFile" aria-label="Planungsdatei zum Vergleich auswählen" accept=".json,application/json" style="display: none" />
             </div>
             <div id="diff-out"><p class="hint" style="margin: 2px 0">Der Vergleich erscheint nach dem Laden einer Planungsdatei.</p></div>
           </div>
         </div>
 
-        <div class="panel" id="panel-7">
+        <div class="panel" id="panel-7" role="tabpanel" aria-labelledby="tab-7">
           <div class="card">
             <h3>
               Annahmenregister
               <span
                 class="tt"
-                data-tip="Das Register weist aus, welche Eingaben auf Kundendaten und welche auf Annahmen beruhen. Die Quelle je Parameter wird ausdrücklich dokumentiert. Gleiche Zahlenwerte belegen keine Herkunft. Änderungen am Bezugswert machen eine Bestätigung ungültig. Die Datenbasis je Position wird in der Artikeltabelle (Tab 2) gesetzt."
+                data-tip="Das Register weist aus, welche Eingaben auf Kundendaten und welche auf Annahmen beruhen. Die Quelle je Parameter wird ausdrücklich dokumentiert. Gleiche Zahlenwerte belegen keine Herkunft. Änderungen am Bezugswert machen eine Bestätigung ungültig. Die Datenbasis je Position wird in der Artikeltabelle (Register Mengengerüst) gesetzt."
                 tabindex="0"
               >
                 ⓘ
@@ -2071,7 +2063,7 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
 
-        <div class="panel" id="panel-8">
+        <div class="panel" id="panel-8" role="tabpanel" aria-labelledby="tab-8">
           <div class="card">
             <h3>
               Sensitivitätsanalyse: Fläche &amp; CAPEX
@@ -2093,7 +2085,7 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
 
-        <div class="panel" id="panel-9">
+        <div class="panel" id="panel-9" role="tabpanel" aria-labelledby="tab-9">
           <div class="card">
             <h3>
               Interner Bericht
@@ -2127,110 +2119,113 @@ details.obs[open] summary{margin-bottom:4px}
         </div>
       </div>
     </main>
-    <aside id="kpis">
-      <div class="kpi kpi-work">
-        <div class="l">Arbeitsstatus</div>
-        <div class="v" id="calc-status" role="status" aria-live="polite">–</div>
+    <aside id="kpis" aria-label="Kennzahlen">
+      <div class="kpis-head">
+        <span class="kpis-title">Kennzahlen</span>
+        <button type="button" class="kpis-toggle" id="btn-kpis-toggle" aria-expanded="true" aria-controls="kpis-body" title="Kennzahlen-Leiste einklappen">‹</button>
       </div>
-      <div class="kpi kpi-method">
-        <div class="l">Methodischer Status</div>
-        <div class="v small" id="kpi-method">–</div>
+      <div id="kpis-body">
+        <div class="kpi kpi-work full">
+          <div class="l">Arbeitsstatus</div>
+          <div class="v" id="calc-status" role="status" aria-live="polite">–</div>
+        </div>
+        <div class="kpi" id="kpi-ampel-wrap" data-goto="10">
+          <div class="l">Planungsampel</div>
+          <div class="v" id="kpi-ampel">–</div>
+          <div class="v small" id="kpi-reason">–</div>
+        </div>
+        <div class="kpi" data-goto="2">
+          <div class="l">Regal Bedarf</div>
+          <div class="v" id="kpi-rack-need">0</div>
+        </div>
+        <div class="kpi capacity-card" data-goto="3" id="kpi-rack-is-wrap">
+          <div class="l">Regal Ist</div>
+          <div class="v" id="kpi-rack-is">0</div>
+        </div>
+        <div class="kpi" data-goto="2">
+          <div class="l">Block Bedarf</div>
+          <div class="v" id="kpi-block-need">0</div>
+        </div>
+        <div class="kpi capacity-card" data-goto="4" id="kpi-block-is-wrap">
+          <div class="l">Block Ist</div>
+          <div class="v" id="kpi-block-is">0</div>
+        </div>
+        <div class="kpi" data-goto="3">
+          <div class="l">Lagerfläche</div>
+          <div class="v" id="kpi-area">–</div>
+        </div>
+        <div class="kpi" data-goto="3">
+          <div class="l">Hallenfläche</div>
+          <div class="v" id="kpi-hall-area">–</div>
+        </div>
+        <div class="kpi" data-goto="5">
+          <div class="l">CAPEX min.</div>
+          <div class="v" id="kpi-capex-min">–</div>
+        </div>
+        <div class="kpi" data-goto="5">
+          <div class="l">CAPEX max.</div>
+          <div class="v" id="kpi-capex-max">–</div>
+        </div>
+        <div class="kpi" data-goto="10" id="kpi-warn">
+          <div class="l">Hinweise</div>
+          <div class="v" id="kpi-warnv">–</div>
+        </div>
+        <div class="kpi" data-goto="3">
+          <div class="l">Nutzungsgrad</div>
+          <div class="v" id="kpi-util">–</div>
+        </div>
+        <details class="kpi-more" id="kpi-more">
+          <summary>Weitere Kennzahlen</summary>
+          <div class="kpi-more-grid">
+            <div class="kpi full">
+              <div class="l">Methodischer Status</div>
+              <div class="v small" id="kpi-method">–</div>
+            </div>
+            <div class="kpi" data-goto="7">
+              <div class="l">Datenqualität</div>
+              <div class="v" id="kpi-dataquality">–</div>
+            </div>
+            <div class="kpi" data-goto="2">
+              <div class="l">Netto-Bestand</div>
+              <div class="v" id="kpi-net">0</div>
+            </div>
+            <div class="kpi" data-goto="2" title="LKW-Ankünfte je Tag">
+              <div class="l">LKW/Tag</div>
+              <div class="v" id="kpi-trucks">0</div>
+            </div>
+            <div class="kpi">
+              <div class="l">Peak Pal./h WE</div>
+              <div class="v" id="kpi-peak-we">0</div>
+            </div>
+            <div class="kpi">
+              <div class="l">Peak Pal./h WA</div>
+              <div class="v" id="kpi-peak-wa">0</div>
+            </div>
+            <div class="kpi" data-goto="3">
+              <div class="l">m² pro Palette</div>
+              <div class="v" id="kpi-eff">–</div>
+            </div>
+          </div>
+        </details>
+        <div id="kpi-cov" hidden=""></div>
+        <div id="kpi-cap" hidden=""></div>
+        <div id="kpi-capb" hidden=""></div>
+        <div id="kpi-rack" hidden=""></div>
+        <div id="kpi-block" hidden=""></div>
+        <div id="kpi-capex" hidden=""></div>
+        <div id="kpi-capex-range" hidden=""></div>
+        <i id="kpi-utilbar" hidden=""></i>
       </div>
-      <div class="kpi" id="kpi-ampel-wrap">
-        <div class="l">Planungsampel</div>
-        <div class="v" id="kpi-ampel">–</div>
-      </div>
-      <div class="kpi" id="kpi-reason-wrap">
-        <div class="l">Begründung</div>
-        <div class="v small" id="kpi-reason">–</div>
-      </div>
-      <div class="kpi" id="kpi-warn" style="cursor: pointer" title="Zur Registerkarte Hinweise">
-        <div class="l">Hinweise</div>
-        <div class="v" id="kpi-warnv">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Datenqualität</div>
-        <div class="v" id="kpi-dataquality">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Regal Bedarf</div>
-        <div class="v" id="kpi-rack-need">0</div>
-      </div>
-      <div class="kpi capacity-card" id="kpi-rack-is-wrap">
-        <div class="l">Regal Ist</div>
-        <div class="v" id="kpi-rack-is">0</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Block Bedarf</div>
-        <div class="v" id="kpi-block-need">0</div>
-      </div>
-      <div class="kpi capacity-card" id="kpi-block-is-wrap">
-        <div class="l">Block Ist</div>
-        <div class="v" id="kpi-block-is">0</div>
-      </div>
-      <div class="kpi" title="LKW-Ankünfte je Tag">
-        <div class="l">LKW/Tag</div>
-        <div class="v" id="kpi-trucks">0</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Peak Pal./h WE</div>
-        <div class="v" id="kpi-peak-we">0</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Peak Pal./h WA</div>
-        <div class="v" id="kpi-peak-wa">0</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Netto-Bestand</div>
-        <div class="v" id="kpi-net">0</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Hallenfläche</div>
-        <div class="v" id="kpi-hall-area">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Lagerfläche</div>
-        <div class="v" id="kpi-area">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">CAPEX min.</div>
-        <div class="v" id="kpi-capex-min">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">CAPEX max.</div>
-        <div class="v" id="kpi-capex-max">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">m² pro Palette</div>
-        <div class="v" id="kpi-eff">–</div>
-      </div>
-      <div class="kpi">
-        <div class="l">Nutzungsgrad</div>
-        <div class="v" id="kpi-util">–</div>
-      </div>
-      <div id="kpi-cov" hidden=""></div>
-      <div id="kpi-cap" hidden=""></div>
-      <div id="kpi-capb" hidden=""></div>
-      <div id="kpi-rack" hidden=""></div>
-      <div id="kpi-block" hidden=""></div>
-      <div id="kpi-capex" hidden=""></div>
-      <div id="kpi-capex-range" hidden=""></div>
-      <i id="kpi-utilbar" hidden=""></i>
     </aside>
   </div>
 
-  <footer id="app-footer">
-    Lagerplaner V2.14 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip:
-    tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit
-    · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-,
-    Statik- oder Brandschutzplanung
-  </footer>
+  <footer id="app-footer">Lagerplaner V2.14 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
   <h3>Planungsdatei (JSON)</h3>
   <p class="hint" id="json-hint">Die Datei wurde zum Download angeboten. Alternativ können Sie den JSON-Text unten kopieren oder eine bestehende Planungsdatei hier einfügen und laden.</p>
-  <textarea id="jsonArea" spellcheck="false"></textarea>
+  <textarea id="jsonArea" spellcheck="false" aria-label="Inhalt der Planungs- oder Eingabedatei"></textarea>
   <div style="display:flex;gap:8px">
     <button class="btn acc" id="btn-json-apply">JSON laden</button>
     <button class="btn" id="btn-json-close">Schließen</button>
@@ -2251,39 +2246,40 @@ details.obs[open] summary{margin-bottom:4px}
   <div style="overflow:auto;max-height:74vh;display:flex;flex-direction:column;gap:10px">
     <details class="obs" open><summary>Kurzhilfe: Arbeitsablauf</summary><div>
       <ol style="margin:6px 0 0;padding-left:20px;line-height:1.7">
-        <li>Einstieg: Register 0 Info zeigt den Arbeitsablauf als Ablaufdiagramm und ordnet alle Registerkarten kurz zu. Die Seite öffnet beim Start.</li>
-        <li>Parameter: Planungsvorgaben pflegen (Gebäude und Bauraum, Paletten-Stammdaten, Volumen, Reichweite und Leergut, Blocklager- und ABC/XYZ-Logik, FFZ und Regaltechnik, Brandschutz).</li>
-        <li>Input: Positionen erfassen, per CSV importieren oder die Eingabedatei laden.</li>
+        <li>Start: Die Startseite zeigt die vier Phasen mit ihren Registern; jeder Eintrag springt ins Register.</li>
+        <li>Eingabe · Vorgaben: Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen).</li>
+        <li>Eingabe · Mengengerüst: Positionen erfassen oder per CSV importieren; die Eingabedatei lädt das Menü Datei.</li>
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
-        <li>Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
-        <li>Bei Bedarf Layout-Optimierung über das Dropdown neben Berechnung aktualisieren: Ziel und veränderbare Parameter wählen (Regalausrichtung, Blockausrichtung, Feldweite, Gangbreite, Stützraster, Zonenrollen und weitere), Lauf starten, gewählte Variante prüfen.</li>
-        <li>Rückgängig (Kopfzeile) stellt den Stand vor der letzten strukturellen Änderung wieder her, etwa vor einem Import, dem Laden einer Datei, einem Optimierungslauf oder dem Löschen von Positionen.</li>
-        <li>Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
-        <li>Equipment: Stückliste und CAPEX prüfen, Einheitspreise anpassen.</li>
-        <li>Szenarien: bis zu drei Varianten speichern und vergleichen; zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen (Diff).</li>
-        <li>Annahmen: Datenbasis und Datenlücken prüfen; bei Bedarf den Fragekatalog für den Kunden erzeugen.</li>
-        <li>Sensitivität: wirksamste Annahmen erkennen; das Tornado-Diagramm zeigt die Wirkung je Treiber.</li>
-        <li>Berichte: internen und kundenfähigen Bericht öffnen.</li>
-        <li>Report: Quick-Report und Hinweise lesen.</li>
-        <li>Berechnungsfolge: Register 11 löst jeden Rechenschritt mit Formeln und Eingabefeldern auf und erleichtert die Nachverfolgung der Ergebnisse.</li>
-        <li>Planung speichern legt eine Planungsdatei (JSON) an; Neue Planung leert den Stand.</li>
+        <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
+        <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
+        <li>Konzept · Stückliste &amp; CAPEX: Mengen und Kosten prüfen, Einheitspreise anpassen.</li>
+        <li>Bei Bedarf Layout-Optimierung über das Menü Varianten ermitteln in der Kopfzeile: Ziel und veränderbare Parameter wählen, Lauf starten, Ergebnis im Register Layout prüfen und eine Variante per Klick übernehmen. Während des Laufs erscheint oben eine Statusleiste mit Abbruchmöglichkeit.</li>
+        <li>Bewertung · Varianten: bis zu drei Szenarien speichern und vergleichen; zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen.</li>
+        <li>Bewertung · Sensitivität: wirksamste Annahmen erkennen; das Tornado-Diagramm zeigt die Wirkung je Treiber.</li>
+        <li>Bewertung · Annahmen: Datenbasis, Datenlücken und Parameterquellen prüfen; bei Bedarf den Fragekatalog für den Kunden erzeugen.</li>
+        <li>Ergebnis · Übersicht: Kurzbericht und alle Plausibilitätshinweise lesen.</li>
+        <li>Ergebnis · Berichte: internen und kundenfähigen Bericht öffnen und drucken.</li>
+        <li>Ergebnis · Methodik: jeden Rechenschritt mit Eingabefeldern und Formel nachvollziehen.</li>
+        <li>Rückgängig (Kopfzeile) stellt den Stand vor der letzten strukturellen Änderung wieder her, etwa vor einem Import, dem Laden einer Datei, einer übernommenen Optimierungsvariante oder dem Löschen von Positionen.</li>
+        <li>Menü Datei: Neue Planung, Planungsdatei öffnen und speichern (JSON), Eingabedatei laden, Mengengerüst aus CSV, Eingabedatei erzeugen, Stückliste als CSV, Hallenlayout als PNG.</li>
+        <li>Die Kennzahlen-Leiste rechts lässt sich einklappen; jede Kennzahl führt per Klick zum zuständigen Register.</li>
       </ol>
     </div></details>
     <details class="obs"><summary>Eingabedaten: Bedarfsermittlung · Mengengerüst-Import · Drei-Datei-Prinzip</summary><div>
       <ul>
-        <li>Bedarfsermittlung je Position wählbar: <code>LKW/Tag × LKW-Typ × Paletten je LKW</code> (Umrechnungswert vorbelegt aus der Kreuztabelle, überschreibbar), <code>Paletten/Tag</code>, <code>Stückbasis</code> (Stück/Tag ÷ Stück/KLT ÷ KLT/Palette) oder <code>Ziel-Bestand</code>; die Kachel LKW/Tag in der Status-Seitenleiste weist das hergeleitete LKW-Volumen aus.</li>
+        <li>Bedarfsermittlung je Position wählbar: <code>LKW/Tag × LKW-Typ × Paletten je LKW</code> (Umrechnungswert vorbelegt aus der Kreuztabelle, überschreibbar), <code>Paletten/Tag</code>, <code>Stückbasis</code> (Stück/Tag ÷ Stück/KLT ÷ KLT/Palette) oder <code>Ziel-Bestand</code>; die Kachel LKW/Tag in der Kennzahlen-Leiste weist das hergeleitete LKW-Volumen aus.</li>
         <li>Der Netto-Bestand ergibt sich aus Paletten/Tag × Lagerreichweite. Im Modus Ziel-Bestand wird der Bestand direkt vorgegeben.</li>
         <li>Mengengerüst-Import (CSV): Spaltenüberschriften werden automatisch erkannt – <code>Bezeichnung; Ermittlung; LKW-Typ; LKW/Tag; Paletten/Tag; Stueck/Tag; Stueck/KLT; KLT/Palette; Ziel-Bestand; Artikel; LHM; Laenge; Breite; Hoehe; Gewicht; Stapelfaktor; Blockanteil; Datenbasis</code>. Trennzeichen Komma oder Semikolon. Die Spalte Artikel (Anzahl unterschiedlicher Artikel je Position) wird auch über die Überschrift SKU erkannt.</li>
-        <li>Paletten-Stammdaten: Die Registerkarte Parameter führt Euro-, Industrie- und Halbpalette mit Grundmaß, Standardhöhe 1,0 m (Referenz EPal 1.200 × 800 × 1.000 mm BTH), Gewicht und Referenz-Stapelfaktor. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar.</li>
+        <li>Paletten-Stammdaten: Die Register Vorgaben führt Euro-, Industrie- und Halbpalette mit Grundmaß, Standardhöhe 1,0 m (Referenz EPal 1.200 × 800 × 1.000 mm BTH), Gewicht und Referenz-Stapelfaktor. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar.</li>
         <li>Artikeltabelle: Die Spaltenbreiten passen sich dem Inhalt an; bei Platzbedarf scrollt die Tabelle waagerecht und senkrecht. Die Datenzellen brechen Text nicht um. Ein Griff am rechten Rand der Spaltenüberschrift setzt eine Wunschbreite, ein Doppelklick auf einen Griff stellt alle Standardbreiten wiederher. Die Breiten werden im Browser gespeichert.</li>
         <li>Der Stapelfaktor akzeptiert im CSV-Import die Notation 1+x (etwa 1+2) oder die Gesamtzahl der Paletten je Stapel. Artikeltabelle und Paletten-Stammdaten erfassen das x der Notation 1+x (Eingabefeld mit vorgestelltem 1+); in den gespeicherten Dateien (Eingabedatei und Planungsdatei) wird die Gesamtzahl geführt.</li>
-        <li>Drei-Datei-Prinzip: Die Eingabedatei <code>tender-input.js</code> liefert Positionen und Vorgaben. Sie wird über die Schaltfläche Eingabedatei laden geöffnet. Die Datei wird als Datentext geparst und nicht als JavaScript ausgeführt.</li>
-        <li>Das Frontend enthält keine vordefinierten Artikeldaten. Der Browser speichert den letzten Planungsstand und stellt ihn beim Start wieder her; die Schaltfläche Neue Planung leert ihn.</li>
+        <li>Drei-Datei-Prinzip: Die Eingabedatei <code>tender-input.js</code> liefert Positionen und Vorgaben. Sie wird über Datei › Eingabedatei laden geöffnet. Die Datei wird als Datentext geparst und nicht als JavaScript ausgeführt.</li>
+        <li>Das Frontend enthält keine vordefinierten Artikeldaten. Der Browser speichert den letzten Planungsstand und stellt ihn beim Start wieder her; die Menü Datei › Neue Planung leert ihn.</li>
         <li>Die gespeicherte Planung (JSON) enthält den vollständigen Ergebnisstand.</li>
       </ul>
     </div></details>
     <details class="obs"><summary>Häufige Fragen (FAQ)</summary><div>
-      <p><b>Warum sind beim Öffnen der Datei bereits Artikel in den Inputdaten enthalten?</b> Das Werkzeug speichert den letzten Planungsstand im Browser (lokaler Speicher, Schlüssel trbp-state) und stellt ihn beim Start wieder her. Die Schaltfläche Neue Planung leert den Stand. Eingabedateien werden bewusst manuell über Eingabedatei laden importiert; sie werden nicht automatisch als Script ausgeführt.</p>
+      <p><b>Warum sind beim Öffnen der Datei bereits Artikel in den Inputdaten enthalten?</b> Das Werkzeug speichert den letzten Planungsstand im Browser (lokaler Speicher, Schlüssel trbp-state) und stellt ihn beim Start wieder her. Die Menü Datei › Neue Planung leert den Stand. Eingabedateien werden bewusst manuell über Datei › Eingabedatei laden importiert; sie werden nicht automatisch als Script ausgeführt.</p>
       <p><b>Warum liegt der Deckungsgrad nur knapp über 100 Prozent?</b> Die Regalreihenzahl folgt dem Bedarf und springt in ganzen Doppelreihen. Der Deckungsgrad ist daher reihengranular.</p>
       <p><b>Warum enthält das Werkzeug keine Personal- und Betriebskosten?</b> Der Umfang ist bewusst auf Fläche, Kapazität, Durchsatzspitzen und CAPEX begrenzt. Personalplanung und Personalkosten sind kein Bestandteil des Werkzeugs.</p>
       <p><b>Warum greift der Blockzugang standardmäßig von der Nordseite?</b> In der Grundeinstellung laufen die Kanäle quer mit Zugang von der Nordseite; die Zone Nord ist dafür als WE-Zone zu konfigurieren. Wird die Blockausrichtung auf Kanäle längs gestellt, wechselt der Zugang auf die Westseite über die Längsgasse; dann ist die Zone West als WE-Zone zu konfigurieren. Der Report weist eine nicht passende Zonenrolle als Hinweis aus.</p>
@@ -2294,8 +2290,8 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Was ist die Brutto-Lagerfläche?</b> Sie ist der Flächenbedarf des eigentlichen Lagers: Regalstellflächen, Regal-Arbeitsgänge, Blockstellflächen, Blockgassen, Leergutband, WE-/WA-Zonen und Abstandsflächen. Die Hallenfläche aus den Gebäudeangaben ist meist größer, weil Randwege, Technik- und Sozialflächen sowie Fehlflächen außerhalb des Werkzeugs liegen. Die Flächenbedarfsrechnung unter dem Hallenlayout weist beide Größen, die freie Fläche und den Nutzungsgrad aus.</p>
       <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Ohne gewähltes Verhältnis bleibt die Hallenlänge eine Eingabe, und das Werkzeug berechnet die benötigte Hallenbreite. Mit festem Verhältnis (1:1 bis 3:1) werden beide Hallenmaße berechnet, und zwar als kleinste Halle im 0,5-Meter-Raster, die den Bedarf deckt. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
       <p><b>Was macht die Schaltfläche Rückgängig?</b> Sie stellt den Planungsstand vor der letzten strukturellen Änderung wieder her, etwa vor einem CSV-Import, dem Laden einer Projekt- oder Eingabedatei, einem Optimierungslauf, einer Zuweisung an ausgewählte Positionen, dem Löschen von Positionen oder dem Zurücksetzen der Planung. Es werden bis zu 20 Schritte vorgehalten, ausschließlich im Arbeitsspeicher der laufenden Sitzung; nach dem Schließen des Tabs ist der Verlauf verloren. Eine Wiederherstellen-Funktion für rückgängig gemachte Schritte gibt es nicht.</p>
-      <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW ist manuell und wird aus der Kreuztabelle der Registerkarte Parameter (Paletten &amp; LKW) vorbelegt; er gilt dann überschreibbar für diese Position, und die Bedarfsermittlung rechnet mit dem eingetragenen Wert. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Status-Seitenleiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Festwerte der LKW-Stammdaten; die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
-      <p><b>Wie werden Transitpaletten, Miete und Rückbau berücksichtigt?</b> Der Transit-/Cross-Dock-Anteil (Registerkarte Parameter, Volumen und Reichweite) mindert den bestandsrelevanten Bedarf je Position um den Durchschub-Anteil. Der Durchschub verbraucht keine Regal- oder Blockfläche. Der separate Cross-Dock-Puffer ist abschaltbar (Standard aus): Nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche mit den einstellbaren Annahmen 0,5 Tage Standzeit und 1,5 Quadratmeter je Palette; sie erscheint als eigene Zeile der Brutto-Lagerfläche. Wird Cross-Docking innerhalb der dimensionierten WE-/WA-Zonen abgewickelt, bleibt der Puffer ausgeschaltet, um eine Doppelberechnung zu vermeiden. Die Miete Halle (Registerkarte Parameter, Gebäude und Bauraum) berechnet bei Angabe eines Quadratmeterpreises die monatlichen und jährlichen Mietkosten der Hallenfläche und weist sie in der Flächenbedarfsrechnung und in den Berichten aus. Die Rückbau- und Demontage-Pauschale ist in der Stückliste zuschaltbar und erhöht als Prozentsatz der Bauteilsumme den Gesamt-CAPEX.</p>
+      <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW ist manuell und wird aus der Kreuztabelle der Register Vorgaben (Paletten &amp; LKW) vorbelegt; er gilt dann überschreibbar für diese Position, und die Bedarfsermittlung rechnet mit dem eingetragenen Wert. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Kennzahlen-Leiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Festwerte der LKW-Stammdaten; die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
+      <p><b>Wie werden Transitpaletten, Miete und Rückbau berücksichtigt?</b> Der Transit-/Cross-Dock-Anteil (Register Vorgaben, Volumen und Reichweite) mindert den bestandsrelevanten Bedarf je Position um den Durchschub-Anteil. Der Durchschub verbraucht keine Regal- oder Blockfläche. Der separate Cross-Dock-Puffer ist abschaltbar (Standard aus): Nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche mit den einstellbaren Annahmen 0,5 Tage Standzeit und 1,5 Quadratmeter je Palette; sie erscheint als eigene Zeile der Brutto-Lagerfläche. Wird Cross-Docking innerhalb der dimensionierten WE-/WA-Zonen abgewickelt, bleibt der Puffer ausgeschaltet, um eine Doppelberechnung zu vermeiden. Die Miete Halle (Register Vorgaben, Gebäude und Bauraum) berechnet bei Angabe eines Quadratmeterpreises die monatlichen und jährlichen Mietkosten der Hallenfläche und weist sie in der Flächenbedarfsrechnung und in den Berichten aus. Die Rückbau- und Demontage-Pauschale ist in der Stückliste zuschaltbar und erhöht als Prozentsatz der Bauteilsumme den Gesamt-CAPEX.</p>
       <p><b>Woran erkenne ich eine zu kleine WE-Zone?</b> Das Werkzeug prüft die Fläche aller Zonen mit der Rolle WE gegen die gleichzeitige Abfertigung an den WE-Toren. Je Tor setzt es ein Standard-Fahrzeug mit der Füllmenge der Euro-Referenzpalette an und je Palette 2,0 Quadratmeter Bereitstellungsfläche. Reicht die Zonenfläche nicht aus, erscheint ein Hinweis mit Bedarfs- und Ist-Wert.</p>
       <p><b>Wie wird der Stapelfaktor angegeben und begrenzt?</b> Der Stapelfaktor wird in der Notation 1+x angegeben: x ist die Zahl der Paletten, die zusätzlich auf der untersten Palette stehen (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf, 1+6 = sieben Paletten). Im Regal steht je Fach und Ebene eine Palette; der Faktor wirkt dort nicht. Im Blocklager gilt je Position das Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut (Planungsvorgabe, Standard 7,5 m; ab 7,5 m Lagerguthöhe fordert die Industriebaurichtlinie selbsttätige Feuerlöschanlagen). Die Kippgrenze 6:1 (Stapelhöhe zur Schmalseite der Grundfläche) wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet ausgewiesen; liegt der nutzbare Stapel darüber, meldet das Werkzeug einen Hinweis zur gesonderten Standsicherheitsprüfung und begrenzt nicht hart. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m ergibt sich 1+6 (7 × 1,0 m = 7,0 m).</p>
       <p><b>Was unterscheidet Regalausrichtung und Blockausrichtung?</b> Die Regalausrichtung legt fest, ob die Regalreihen orthogonal oder parallel zu den Toren laufen. Die Blockausrichtung legt die Kanalrichtung im Nordband fest: Kanäle quer laufen in Hallenbreite mit Zugang von der Nordseite (Zone Nord als WE), Kanäle längs laufen in Hallenlänge mit Zugang über eine Längsgasse von Westen (Zone West als WE). Beide sind im Optimierungs-Dropdown einzeln zuschaltbar; der Optimierer vergleicht dann beide Varianten.</p>
@@ -2303,19 +2299,19 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Welche Daten verlässt den Rechner?</b> Keine. Alle Berechnungen laufen lokal im Browser; es besteht keine Serververbindung.</p>
     </div></details>
     <details class="obs"><summary>Handbuch: Registerkarten und Funktionen</summary><div>
-      <p>Farbliche Kennzeichnung der Registerkarten: Jede Registerkarte trägt eine vollflächige Pastellfläche nach Planungsphase. Neutral grau kennzeichnet die Willkommensseite (0 Info). Blau kennzeichnet die Dateneingabe (1 Parameter, 2 Input). Grün kennzeichnet die Hallenplanung und Modellierung (3 Layout, 4 Regal &amp; Block, 5 Equipment, 6 Szenarien). Violett kennzeichnet die Auswertung und Dokumentation (7 Annahmen, 8 Sensitivität, 9 Berichte, 10 Report, 11 Berechnungsfolge). Die aktive Registerkarte hebt sich innerhalb ihrer Phase durch satte Rahmenfarbe und kräftigen Text ab. Die Zuordnung steht zusätzlich als Tooltip an jeder Registerkarte.</p>
-      <p>0 Info – Willkommensseite: Einstieg mit grobem Ablaufdiagramm des Arbeitsablaufs, Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start.</p>
-      <p>1 Parameter – Planungsvorgaben: Gebäude und Bauraum (Modus Bestandshalle oder Greenfield, Hallenmaße, Tore, Zonen je Himmelsrichtung, Stützenraster, Miete Halle), Paletten- und LKW-Stammdaten (Palettentypen Euro, Industrie, Halbpalette sowie eigene Typen; LKW-Typen 7,5t, Standard, Mega, Jumbo, Giga sowie eigene Typen; berechnete Kreuztabelle der Füllmenge je LKW und Palettentyp), Volumen, Reichweite und Leergut (Lagerreichweite, Füllgrade, Transit-/Cross-Dock-Anteil; Leergutbereich verdichtet als angegliederte Gruppe mit Mengenbasis, Stapelhöhe und Zugangsreserve), Blocklager- und ABC/XYZ-Logik (Verteilungsmethode, Kanaltiefe, Stapelhöhe, Ausrichtung, ABC-Anteile), FFZ und Regaltechnik (Mehrfachauswahl der Flurförderzeuge je Lagerbereich, getrennte Gangbreiten für Regal und Block, P&D-Plätze bei VNA, Regal-Auslegungsbasis, Feldweite, Einzelreihen) sowie Brandschutz und Sicherheit (Sprinkler-Freiraum, Fluchttunnel, In-Rack-Sprinklerung). Die Gruppen liegen als Karteireiter vor; je Karteireiter ist eine Gruppe sichtbar. Eingabefelder führen ihre Einheit unmittelbar hinter dem Feld; berechnete Werte (etwa die Greenfield-Maße) bleiben hervorgehoben. Erläuternde Infotexte erscheinen als Mausover-Hinweis am ⓘ-Symbol neben der zugehörigen Überschrift; lange Beschriftungen tragen die Erläuterung als Tooltip. Die FFZ der WE/WA-Vorzone lassen sich auch vollständig abwählen: Das Werkzeug weist dann bei VNA im Regal auf den fehlenden Vorzonentransport hin; beim Neuladen einer Datei wird die leere Auswahl auf Schnellläufer zurückgesetzt.</p>
-      <p>2 Input – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und manuellem, aus der Kreuztabelle vorbelegtem Wert Paletten je LKW; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Paletten-Stammdaten (Euro, Industrie, Halbpalette; Standardhöhe 1,0 m; wählbare Standardpalette), inhaltsadaptive Spaltenbreiten; die Datenzellen brechen Text nicht um, jede Auswahlliste zeigt jeden Eintrag vollständig, und bei Platzbedarf scrollt die Tabelle waagerecht, Datenbasis (Kundendaten oder Annahme), Batch-Änderungen an ausgewählte Positionen (LKW-Typ, LHM-Typ, Blockanteil, Datenbasis), CSV-Import und Erzeugung der Eingabedatei.</p>
-      <p>3 Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die Hallenbreite aus dem Bedarf; mit festem Seitenverhältnis (etwa 2:1) werden beide Hallenmaße als kleinste bedarfsdeckende Fläche im 0,5-m-Raster berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Registerkarte Parameter zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Dropdown neben der Schaltfläche Berechnung aktualisieren gesteuert: Ziel (CAPEX, Gangfläche, kombiniert, Mindestfläche) und veränderbare Parameter wählen und den Lauf starten. Zur Wahl stehen Regalausrichtung (orthogonal oder parallel zu Toren), Blockausrichtung (Kanäle quer mit Zugang Nord oder längs mit Längsgasse und Zugang West), Feldweite, Gangbreite, Blockparameter, Fluchttunnel-Intervall, Zonentiefen, Volumenquote sowie die Umgebungsparameter Stützraster (Paarungen 5×10 bis 12,5×25 plus die eingestellte Kombination) und Zonenrollen (16 Kombinationen aus WE- und WA-Seite). Der Lauf erfolgt dreistufig: Stufe 1 variiert die Layoutparameter, Stufe 2 prüft bei zugeschalteten Umgebungsparametern Stützraster und Zonenrollen, Stufe 3 verfeinert die Layoutparameter mit der besten Umgebung. Varianten mit Blockzugang ohne passende WE-Zone werden verworfen. Die Ergebnistabelle zeigt die 25 besten Varianten mit Stützraster und Zonenrollen; die gewählte Variante wird übernommen.</p>
-      <p>4 Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
-      <p>5 Equipment – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren speichert die Kalkulationsgrundlage als Datei.</p>
-      <p>6 Szenarien – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
-      <p>7 Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
-      <p>8 Sensitivität – Analyse: Ein-Punkt-Variation der zentralen Treiber auf Flächenbedarf und CAPEX. Das Tornado-Diagramm unter der Ergebnistabelle zeigt die Wirkung jedes Treibers als Balken; Balken nach links stehen für die untere Variante (blau), Balken nach rechts für die obere Variante (orange), die Balkenlänge folgt dem größeren Betrag aus Δ Fläche und Δ CAPEX.</p>
-      <p>9 Berichte – interner Bericht und kundenfähiger Grobkonzeptbericht, jeweils als Ansicht und Druckfenster.</p>
-      <p>10 Report – Quick-Report und Hinweise zusammengefasst; der Hinweiszähler in der Status-Seitenleiste springt hierher.</p>
-      <p>11 Berechnungsfolge – löst alle Rechenschritte von der Bedarfsermittlung je Position über die Blockverteilung, Regal- und Blockgeometrie, das Layout und die Flächenbedarfsrechnung bis zur Stückliste und den Kennzahlen auf. Jeder Schritt nennt die Eingabefelder und den Rechenweg und dient der Nachverfolgbarkeit der Ergebnisse.</p>
+      <p>Navigation in vier Phasen: Unter der Kopfzeile stehen Start und die Phasen Eingabe (blau), Konzept (grün), Bewertung (gelb) und Ergebnis (violett); darunter die Register der gewählten Phase. Ein Klick auf eine Phase öffnet das zuletzt genutzte Register dieser Phase. Innerhalb der Registerzeile wechseln die Pfeiltasten das Register.</p>
+      <p>Start – Willkommensseite: Einstieg mit grobem Ablaufdiagramm des Arbeitsablaufs, Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start.</p>
+      <p>Eingabe · Vorgaben – Planungsvorgaben: Gebäude und Bauraum (Modus Bestandshalle oder Greenfield, Hallenmaße, Tore, Zonen je Himmelsrichtung, Stützenraster, Miete Halle), Paletten- und LKW-Stammdaten (Palettentypen Euro, Industrie, Halbpalette sowie eigene Typen; LKW-Typen 7,5t, Standard, Mega, Jumbo, Giga sowie eigene Typen; berechnete Kreuztabelle der Füllmenge je LKW und Palettentyp), Volumen, Reichweite und Leergut (Lagerreichweite, Füllgrade, Transit-/Cross-Dock-Anteil; Leergutbereich verdichtet als angegliederte Gruppe mit Mengenbasis, Stapelhöhe und Zugangsreserve), Blocklager- und ABC/XYZ-Logik (Verteilungsmethode, Kanaltiefe, Stapelhöhe, Ausrichtung, ABC-Anteile), FFZ und Regaltechnik (Mehrfachauswahl der Flurförderzeuge je Lagerbereich, getrennte Gangbreiten für Regal und Block, P&D-Plätze bei VNA, Regal-Auslegungsbasis, Feldweite, Einzelreihen) sowie Brandschutz und Sicherheit (Sprinkler-Freiraum, Fluchttunnel, In-Rack-Sprinklerung). Die Gruppen liegen als Karteireiter vor; je Karteireiter ist eine Gruppe sichtbar. Eingabefelder führen ihre Einheit unmittelbar hinter dem Feld; berechnete Werte (etwa die Greenfield-Maße) bleiben hervorgehoben. Erläuternde Infotexte erscheinen als Mausover-Hinweis am ⓘ-Symbol neben der zugehörigen Überschrift; lange Beschriftungen tragen die Erläuterung als Tooltip. Die FFZ der WE/WA-Vorzone lassen sich auch vollständig abwählen: Das Werkzeug weist dann bei VNA im Regal auf den fehlenden Vorzonentransport hin; beim Neuladen einer Datei wird die leere Auswahl auf Schnellläufer zurückgesetzt.</p>
+      <p>Eingabe · Mengengerüst – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und manuellem, aus der Kreuztabelle vorbelegtem Wert Paletten je LKW; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Paletten-Stammdaten (Euro, Industrie, Halbpalette; Standardhöhe 1,0 m; wählbare Standardpalette), inhaltsadaptive Spaltenbreiten; die Datenzellen brechen Text nicht um, jede Auswahlliste zeigt jeden Eintrag vollständig, und bei Platzbedarf scrollt die Tabelle waagerecht, Datenbasis (Kundendaten oder Annahme), Batch-Änderungen an ausgewählte Positionen (LKW-Typ, LHM-Typ, Blockanteil, Datenbasis), CSV-Import und Erzeugung der Eingabedatei.</p>
+      <p>Konzept · Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die Hallenbreite aus dem Bedarf; mit festem Seitenverhältnis (etwa 2:1) werden beide Hallenmaße als kleinste bedarfsdeckende Fläche im 0,5-m-Raster berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Register Vorgaben zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Menü Varianten ermitteln in der Kopfzeile gesteuert: Ziel (CAPEX, Gangfläche, kombiniert, Mindestfläche) und veränderbare Parameter wählen und den Lauf starten. Zur Wahl stehen Regalausrichtung (orthogonal oder parallel zu Toren), Blockausrichtung (Kanäle quer mit Zugang Nord oder längs mit Längsgasse und Zugang West), Feldweite, Gangbreite, Blockparameter, Fluchttunnel-Intervall, Zonentiefen, Volumenquote sowie die Umgebungsparameter Stützraster (Paarungen 5×10 bis 12,5×25 plus die eingestellte Kombination) und Zonenrollen (16 Kombinationen aus WE- und WA-Seite). Der Lauf erfolgt dreistufig: Stufe 1 variiert die Layoutparameter, Stufe 2 prüft bei zugeschalteten Umgebungsparametern Stützraster und Zonenrollen, Stufe 3 verfeinert die Layoutparameter mit der besten Umgebung. Varianten mit Blockzugang ohne passende WE-Zone werden verworfen. Die Ergebnistabelle zeigt die 25 besten Varianten mit Stützraster und Zonenrollen; die gewählte Variante wird übernommen.</p>
+      <p>Konzept · Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
+      <p>Konzept · Stückliste &amp; CAPEX – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren (auch im Menü Datei) speichert die Kalkulationsgrundlage als Datei.</p>
+      <p>Bewertung · Varianten – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
+      <p>Bewertung · Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
+      <p>Bewertung · Sensitivität – Analyse: Ein-Punkt-Variation der zentralen Treiber auf Flächenbedarf und CAPEX. Das Tornado-Diagramm unter der Ergebnistabelle zeigt die Wirkung jedes Treibers als Balken; Balken nach links stehen für die untere Variante (blau), Balken nach rechts für die obere Variante (orange), die Balkenlänge folgt dem größeren Betrag aus Δ Fläche und Δ CAPEX.</p>
+      <p>Ergebnis · Berichte – interner Bericht und kundenfähiger Grobkonzeptbericht, jeweils als Ansicht und Druckfenster.</p>
+      <p>Ergebnis · Übersicht – Quick-Report und Hinweise zusammengefasst; der Hinweiszähler in der Kennzahlen-Leiste springt hierher.</p>
+      <p>Ergebnis · Methodik – löst alle Rechenschritte von der Bedarfsermittlung je Position über die Blockverteilung, Regal- und Blockgeometrie, das Layout und die Flächenbedarfsrechnung bis zur Stückliste und den Kennzahlen auf. Jeder Schritt nennt die Eingabefelder und den Rechenweg und dient der Nachverfolgbarkeit der Ergebnisse.</p>
       <p>Ergebnisstand: Alle Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungsplanung. Speicherort des Browser-Stands: lokaler Browser-Speicher des verwendeten Geräts und Browsers.</p>
     </div></details>
   </div>
@@ -2411,12 +2407,12 @@ function renderTruckMD(){
     }
     html+='</tbody></table>';
     html+='<div class="lhmform">'+
-      '<input id="trk-f-name" type="text" placeholder="Bezeichnung" maxlength="40">'+
-      '<input id="trk-f-l" type="number" placeholder="Länge m" min="3" max="30" step="0.1">'+
-      '<input id="trk-f-b" type="number" placeholder="Breite m" min="1.5" max="3.5" step="0.05">'+
-      '<input id="trk-f-h" type="number" placeholder="Höhe m" min="1.8" max="4.5" step="0.05">'+
-      '<input id="trk-f-ay" type="number" placeholder="Lagen" min="1" max="3" step="1" title="Lagenzahl im Laderaum (etwa 2 bei festem Zwischenboden)">'+
-      '<input id="trk-f-p" type="number" placeholder="Nutzlast t" min="0.5" max="60" step="0.5">'+
+      '<input id="trk-f-name" type="text" placeholder="Bezeichnung" aria-label="Bezeichnung" maxlength="40">'+
+      '<input id="trk-f-l" type="number" placeholder="Länge m" aria-label="Länge m" min="3" max="30" step="0.1">'+
+      '<input id="trk-f-b" type="number" placeholder="Breite m" aria-label="Breite m" min="1.5" max="3.5" step="0.05">'+
+      '<input id="trk-f-h" type="number" placeholder="Höhe m" aria-label="Höhe m" min="1.8" max="4.5" step="0.05">'+
+      '<input id="trk-f-ay" type="number" placeholder="Lagen" aria-label="Lagen" min="1" max="3" step="1" title="Lagenzahl im Laderaum (etwa 2 bei festem Zwischenboden)">'+
+      '<input id="trk-f-p" type="number" placeholder="Nutzlast t" aria-label="Nutzlast t" min="0.5" max="60" step="0.5">'+
       '<button class="btn acc" id="btn-trk-add">Hinzufügen</button>'+
       '</div>';
     box.innerHTML=html;
@@ -2625,19 +2621,19 @@ function renderPalletMD(){
     html+='<tr'+(k===(S.lhmDefault||"euro")?' style="background:#eff6ff"':'')+'>'+
       '<td>'+escH(p.label)+(own?' <span class="hint">(eigener Typ)</span>':'')+'</td>'+
       '<td>'+p.l+' × '+p.b+' mm</td>'+
-      '<td><input type="number" data-lhm-ov="h" data-lhm-key="'+k+'" value="'+p.h+'" min="100" max="3000" step="10" style="width:64px"> <span class="hint">Ref: '+base.h+' mm</span>'+rbtn("h")+'</td>'+
-      '<td><input type="number" data-lhm-ov="g" data-lhm-key="'+k+'" value="'+p.g+'" min="0" step="10" style="width:64px"> <span class="hint">Ref: '+base.g+' kg</span>'+rbtn("g")+'</td>'+
+      '<td><input type="number" data-lhm-ov="h" data-lhm-key="'+k+'" aria-label="Höhe '+escH(p.label)+' in mm" value="'+p.h+'" min="100" max="3000" step="10" style="width:64px"> <span class="hint">Ref: '+base.h+' mm</span>'+rbtn("h")+'</td>'+
+      '<td><input type="number" data-lhm-ov="g" data-lhm-key="'+k+'" aria-label="Gewicht '+escH(p.label)+' in kg" value="'+p.g+'" min="0" step="10" style="width:64px"> <span class="hint">Ref: '+base.g+' kg</span>'+rbtn("g")+'</td>'+
       '<td>1+ <input type="number" data-lhm-ov="stack" data-lhm-key="'+k+'" value="'+Math.max(0,p.stack-1)+'" min="0" max="30" step="1" style="width:42px" title="x des Stapelfaktors in der Notation 1+x (x zusätzliche Paletten auf der untersten Palette)"> <span class="hint">Ref: 1+'+(refStack-1)+'</span>'+rbtn("stack")+'</td>'+
       '<td>'+(own?'<button class="btn" data-lhm-del="'+k+'">Löschen</button>':'')+'</td></tr>';
   }
   html+='</tbody></table>';
   html+='<div class="lhmform">'+
-    '<input id="lhm-f-name" type="text" placeholder="Bezeichnung" maxlength="40">'+
-    '<input id="lhm-f-l" type="number" placeholder="Länge mm" min="200" max="3000" step="10">'+
-    '<input id="lhm-f-b" type="number" placeholder="Breite mm" min="200" max="3000" step="10">'+
-    '<input id="lhm-f-h" type="number" placeholder="Höhe mm" min="100" max="3000" step="10">'+
-    '<input id="lhm-f-g" type="number" placeholder="Gewicht kg" min="0" max="100000" step="10">'+
-    '<input id="lhm-f-s" type="number" placeholder="Stapel x (1+x)" min="0" max="11" step="1" title="x des Referenz-Stapelfaktors in der Notation 1+x (x zusätzliche Paletten auf der untersten Palette)">'+
+    '<input id="lhm-f-name" type="text" placeholder="Bezeichnung" aria-label="Bezeichnung" maxlength="40">'+
+    '<input id="lhm-f-l" type="number" placeholder="Länge mm" aria-label="Länge mm" min="200" max="3000" step="10">'+
+    '<input id="lhm-f-b" type="number" placeholder="Breite mm" aria-label="Breite mm" min="200" max="3000" step="10">'+
+    '<input id="lhm-f-h" type="number" placeholder="Höhe mm" aria-label="Höhe mm" min="100" max="3000" step="10">'+
+    '<input id="lhm-f-g" type="number" placeholder="Gewicht kg" aria-label="Gewicht kg" min="0" max="100000" step="10">'+
+    '<input id="lhm-f-s" type="number" placeholder="Stapel x (1+x)" aria-label="Stapel x (1+x)" min="0" max="11" step="1" title="x des Referenz-Stapelfaktors in der Notation 1+x (x zusätzliche Paletten auf der untersten Palette)">'+
     '<button class="btn acc" id="btn-lhm-add">Hinzufügen</button>'+
     '</div>';
   box.innerHTML=html;
@@ -4034,7 +4030,8 @@ function recalc(){
   $("warn-sum").textContent=warn.length?("Hinweise & Plausibilität ("+warn.length+(nSev?", davon "+nSev+" kritisch":"")+")"):"Keine Plausibilitätshinweise – Modell konsistent.";
   const wv=$("kpi-warnv");
   if(wv){
-    if(nSev>0){wv.textContent=nSev+" kritisch";wv.className="v red";}
+    if(!S.items.length){wv.textContent="–";wv.className="v";}
+    else if(nSev>0){wv.textContent=nSev+" kritisch";wv.className="v red";}
     else if(warn.length){wv.textContent=String(warn.length);wv.className="v amber";}
     else{wv.textContent="OK";wv.className="v";}
   }
@@ -4058,7 +4055,8 @@ function recalc(){
       const nHard=warn.filter(w=>w.hard).length;
       const utilOK=S.building.mode==="greenfield"||(hallUtil>=65&&hallUtil<=90);
       let state,label,reason;
-      if(netTotal===0){state="red";label="Rot · nicht bewertbar";reason="Kein Bemessungsbestand vorhanden. Eine Kapazitätsbewertung ist nicht möglich.";}
+      if(!S.items.length){state="neutral";label="Noch keine Positionen";reason="Positionen im Mengengerüst erfassen oder über das Menü Datei eine Eingabedatei laden.";}
+      else if(netTotal===0){state="red";label="Rot · nicht bewertbar";reason="Kein Bemessungsbestand vorhanden. Eine Kapazitätsbewertung ist nicht möglich.";}
       else if(!feasibility.feasible){state="red";label="Rot · im Modell nicht machbar";reason=feasibility.reasons.map(x=>x.text).join(" ");}
       else if(covRack<100){state="red";label="Rot · Unterdeckung Regal";reason="Regalkapazität deckt "+fmt(covRack,0)+" % des Regalbedarfs.";}
       else if(covBlock<100){state="red";label="Rot · Unterdeckung Block";reason="Blockkapazität deckt "+fmt(covBlock,0)+" % des Blockbedarfs.";}
@@ -4067,7 +4065,7 @@ function recalc(){
       else if(warn.length>0){state="amber";label="Gelb · Hinweise offen";reason=warn.length+" Hinweis"+(warn.length===1?"":"e")+" erfordern Prüfung; die Kapazität ist gedeckt.";}
       else{state="green";label="Grün · plausibler Zielbereich";reason="Regal und Block decken den Bedarf mit 100 bis 115 % Kapazität; keine offenen Hinweise.";}
       ampEl.textContent=label;reasonEl.textContent=reason;ampWrap.className="kpi amp-"+state;
-      ampEl.className="v "+(state==="red"?"red":state==="green"?"green":"amber");
+      ampEl.className="v "+(state==="red"?"red":state==="green"?"green":state==="amber"?"amber":"");
       ampEl.title=reason;
     }
   }
@@ -4455,7 +4453,7 @@ function renderItems(){
     const tr=document.createElement("tr");
     const td=document.createElement("td");
     td.colSpan=17;td.className="hint";
-    td.textContent="Keine Positionen vorhanden. Eingabedatei laden, Mengengerüst importieren oder eine Position manuell hinzufügen.";
+    td.textContent="Keine Positionen vorhanden. Position hinzufügen, Mengengerüst aus CSV importieren oder über das Menü Datei eine Eingabedatei laden.";
     tr.appendChild(td);tb.appendChild(tr);
     return;
   }
@@ -4471,14 +4469,15 @@ function renderItems(){
       const mn=(min===undefined)?"":(' min="'+min+'"');
       const p=(ph===undefined)?"":(' placeholder="'+ph+'"');
       const ws=(w===undefined)?"":(' style="width:'+w+'px"');
-      const raw=it[key];
+      const raw=(key==="ppt"&&!it.pptManual)?fillTruck(it.truck||"standard",it):it[key];
       const v=(noZero&&(!raw||raw===0))?"":raw;
       return '<input type="number" step="'+step+'"'+mn+p+ws+' data-i="'+idx+'" data-k="'+key+'" value="'+escH(v===undefined?"":v)+'">';
     };
+    const heads=[...document.querySelectorAll("#items-table thead th")].map(th=>th.textContent.trim());
     const frow=(label,inputHtml,title)=>'<div class="bedrow"'+(title?' title="'+title+'"':"")+'><span>'+label+'</span>'+inputHtml+'</div>';
     const lhmAll=allLhm();
     const selLhm='<select data-i="'+idx+'" data-k="lhm">'+Object.keys(lhmAll).map(k=>'<option value="'+escH(k)+'"'+(it.lhm===k?" selected":"")+'>'+escH(lhmAll[k].label)+'</option>').join("")+'</select>';
-    const selTruck='<select data-i="'+idx+'" data-k="truck" title="Füllmenge laut Kreuztabelle für diese Positionsmaße: '+fillTruck(it.truck||"standard",it)+' Paletten je Fahrzeug (Registerkarte Parameter, Paletten & LKW).">'+Object.keys(allTrucks()).map(k=>'<option value="'+escH(k)+'"'+(it.truck===k?" selected":"")+'>'+escH(allTrucks()[k].label)+'</option>').join("")+'</select>';
+    const selTruck='<select data-i="'+idx+'" data-k="truck" title="Füllmenge laut Kreuztabelle für diese Positionsmaße: '+fillTruck(it.truck||"standard",it)+' Paletten je Fahrzeug (Register Vorgaben, Stammdaten).">'+Object.keys(allTrucks()).map(k=>'<option value="'+escH(k)+'"'+(it.truck===k?" selected":"")+'>'+escH(allTrucks()[k].label)+'</option>').join("")+'</select>';
     const dem=it.demand||"truck";
     const selDemand='<select data-i="'+idx+'" data-k="demand">'+
       '<option value="truck"'+(dem==="truck"?" selected":"")+'>LKW/Tag × LKW-Typ</option>'+
@@ -4495,7 +4494,7 @@ function renderItems(){
     else if(dem==="stock")bed=frow("Ziel-Bestand",num("targetStock","1",0,"Paletten",76,true),"Vorgegebener Bestand in Paletten")+frow("LKW-Typ",selTruck,"Dient der Herleitung von LKW/Tag aus Paletten/Tag und Füllmenge");
     else bed=frow("LKW/Tag",num("trucks","0.5",0,"LKW",56,true),"Ankünfte je Tag, 0,5er Schritte zulässig")+
       frow("LKW-Typ",selTruck)+
-      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Automatisch aus der Kreuztabelle (Registerkarte Parameter, Paletten & LKW) nach Maßen, Gewicht und Stapelfaktor. Ein eigener Wert überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.");
+      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Automatisch aus der Kreuztabelle (Register Vorgaben, Stammdaten) nach Maßen, Gewicht und Stapelfaktor. Ein eigener Wert überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.");
     const nameIn='<input type="text" data-i="'+idx+'" data-k="name" value="'+escH(it.name)+'">';
     tr.appendChild(mk('<input type="checkbox" class="sel-cb" data-sel="'+idx+'" aria-label="Position '+(idx+1)+' auswählen">'));
     tr.appendChild(mk(String(idx+1)));
@@ -4515,8 +4514,15 @@ function renderItems(){
     const blkShown=it.net>0?Math.round((it.blockNet||0)/it.net*100):0;
     const btd=mk(showBlock?num("blockShare","5",0):'<span class="calc-blk" data-i="'+idx+'">'+blkShown+' %</span>',showBlock?"num col-block":"calc col-block");
     tr.appendChild(btd);
-    tr.appendChild(mk('<span class="del" data-del="'+idx+'">×</span>'));
+    tr.appendChild(mk('<span class="del" data-del="'+idx+'" role="button" tabindex="0" aria-label="Position '+(idx+1)+' löschen">×</span>'));
     tb.appendChild(tr);
+    // Beschriftung je Feld: Zeilenbeschriftung der Bedarfseingabe oder Spaltenkopf
+    tr.querySelectorAll("input,select").forEach(el=>{
+      if(el.getAttribute("aria-label"))return;
+      const row=el.closest(".bedrow");
+      const head=row?row.querySelector("span").textContent:(heads[el.closest("td").cellIndex]||"Feld");
+      el.setAttribute("aria-label",head+" · Position "+(idx+1));
+    });
   });
 }
 function initItems(){
@@ -4566,6 +4572,9 @@ function initItems(){
   });
   tb.addEventListener("change",ev=>{
     if(ev.target.classList&&ev.target.classList.contains("sel-cb"))updateSelCount();
+  });
+  tb.addEventListener("keydown",ev=>{
+    if((ev.key==="Enter"||ev.key===" ")&&ev.target.dataset&&ev.target.dataset.del!==undefined){ev.preventDefault();ev.target.click();}
   });
   const sa=$("sel-all");
   if(sa)sa.addEventListener("change",ev=>{
@@ -5095,7 +5104,7 @@ function renderBOM(){
     const tr=document.createElement("tr");
     tr.innerHTML='<td>'+escH(r.label)+'</td><td class="hint">'+escH(r.spec)+'</td>'+
       '<td class="num">'+fmt(r.qty)+'</td><td>'+escH(r.unit)+'</td>'+
-      '<td><input type="number" step="0.5" data-price="'+escH(r.key)+'" value="'+escH(S.prices[r.key]||0)+'"></td>'+
+      '<td><input type="number" step="0.5" data-price="'+escH(r.key)+'" aria-label="Einheitspreis '+escH(r.label)+' in Euro" value="'+escH(S.prices[r.key]||0)+'"></td>'+
       '<td class="num" id="sum-'+escH(r.key)+'">–</td>';
     tb.appendChild(tr);
   }
@@ -5505,7 +5514,9 @@ let OPTIMIZATION_PROGRESS_HOOK=null;
 function setOptimizationStatus(text,running){
   const out=$('opt-run-status');if(out)out.textContent=text;
   const start=$('btn-optimize');if(start)start.disabled=!!running;
-  const cancel=$('btn-opt-cancel');if(cancel)cancel.disabled=!running;
+  const cancel=$('btn-opt-cancel');if(cancel){cancel.disabled=!running;cancel.hidden=!running;}
+  const dismiss=$('btn-opt-dismiss');if(dismiss)dismiss.hidden=!!running;
+  const panel=$('opt-run-panel');if(panel)panel.hidden=false;
 }
 function releaseOptimizationJob(job){
   if(!job)return;
@@ -6137,7 +6148,7 @@ function buildReportInternHtml(){
   h+='<h3>Sensitivität</h3>';
   h+=(SENSI&&SENSI.rows.length)
     ?'<p>Größte Treiber: '+SENSI.rows.slice(0,3).map(x=>escH(x.label)+" ("+(Math.abs(x.dA)>=Math.abs(x.dC)?"Fläche "+sgnPct(x.dA):"CAPEX "+sgnPct(x.dC))+")").join(", ")+'.</p>'
-    :'<p class="hint">Noch nicht ausgeführt (Tab 8, Sensitivität).</p>';
+    :'<p class="hint">Noch nicht ausgeführt (Register Sensitivität).</p>';
   h+='<h3>Freigabestatus</h3>';
   h+='<p>Status: Vorplanung, nicht freigegeben.</p>';
   h+='<ul style="margin:4px 0 10px;padding-left:18px">'+
@@ -6177,7 +6188,7 @@ function buildReportKundeHtml(){
   h+=scens.length
     ?'<table><thead><tr><th>Slot</th><th>Projektstand</th><th>Netto Pal.</th><th>Deckung %</th><th>CAPEX</th></tr></thead><tbody>'+
       scens.map((s,i)=>'<tr><td>'+(i+1)+'</td><td>'+escH(s.projekt||"–")+'</td><td class="num">'+fmt(s.metrics.netto)+'</td><td class="num">'+(s.metrics.deck==null?"–":s.metrics.deck)+'</td><td class="num">'+eur(s.metrics.capex)+'</td></tr>').join("")+'</tbody></table>'
-    :'<p class="hint">Keine Vergleichsvarianten gespeichert (Tab 6).</p>';
+    :'<p class="hint">Keine Vergleichsvarianten gespeichert (Register Varianten).</p>';
   h+='<h3>Annahmen</h3>';
   const setP=PARAM_DEFS.filter(pd=>JSON.stringify(getP(S,pd.p))!==JSON.stringify(getP(defaults(),pd.p)));
   h+=setP.length
@@ -6220,7 +6231,7 @@ function openPrintWindow(title,inner){
 
 /* ============================ Projekte & Import ============================ */
 const HINT_JSON="Die Datei wurde zum Download angeboten. Alternativ können Sie den JSON-Text unten kopieren oder eine bestehende Planungsdatei hier einfügen und laden.";
-const HINT_INPUT="Inhalt der Eingabedatei. Speichern Sie diesen Text als tender-input.js oder JSON-Datei und laden Sie sie über Eingabedatei laden. Legacy-Zuweisungen window.TENDER_INPUT = {...}; werden als Datentext geparst und niemals ausgeführt.";
+const HINT_INPUT="Inhalt der Eingabedatei. Speichern Sie diesen Text als tender-input.js oder JSON-Datei und laden Sie sie über Datei › Eingabedatei laden. Legacy-Zuweisungen window.TENDER_INPUT = {...}; werden als Datentext geparst und niemals ausgeführt.";
 
 function jsLiteralToJson(code){
   // Reiner Datenparser: keine Ausfuehrung, keine Ausdruecke oder Funktionsaufrufe.
@@ -6358,7 +6369,7 @@ function exportInputFile(){
   const js="window.TENDER_INPUT = "+JSON.stringify(data,null,2)+";";
   $("jsonArea").value=js;
   $("json-hint").textContent=HINT_INPUT;
-  (window.openAccessibleModal?window.openAccessibleModal("modal-json",$("btn-save")):$("modal-json").classList.add("on"));
+  (window.openAccessibleModal?window.openAccessibleModal("modal-json",$("btn-dd-file")):$("modal-json").classList.add("on"));
   try{downloadBlob(new Blob([js],{type:"text/javascript"}),"tender-input.js");}
   catch(e){console.warn("Download der Eingabedatei fehlgeschlagen:",e);}
 }
@@ -6366,7 +6377,7 @@ function saveProject(){
   const json=JSON.stringify({...S,meta:Object.assign({},S.meta,{toolVersion:APP_VERSION})},null,2);
   $("jsonArea").value=json;
   $("json-hint").textContent=HINT_JSON;
-  (window.openAccessibleModal?window.openAccessibleModal("modal-json",$("btn-save")):$("modal-json").classList.add("on"));
+  (window.openAccessibleModal?window.openAccessibleModal("modal-json",$("btn-dd-file")):$("modal-json").classList.add("on"));
   try{
     const filename=(S.meta.name||"projekt").replace(/[^\w\-]+/g,"_")+".json";
     downloadBlob(new Blob([json],{type:"application/json"}),filename);
@@ -6706,27 +6717,125 @@ function initBinds(){
     updateTotals(true);
   });
 }
+/* Navigation: Phasen (Start, Eingabe, Konzept, Bewertung, Ergebnis) und ihre Register */
+const LAST_TAB_OF_PHASE={};
+function showTab(n){
+  const btn=document.querySelector('#tabs [data-tab="'+n+'"]');
+  if(!btn)return;
+  const phase=btn.dataset.phase;
+  for(const b of document.querySelectorAll("#tabs [data-tab]")){
+    const on=b===btn;
+    b.classList.toggle("on",on);
+    if(b.getAttribute("role")==="tab"){b.setAttribute("aria-selected",on?"true":"false");b.tabIndex=on?0:-1;b.hidden=b.dataset.phase!==phase;}
+  }
+  for(const ph of document.querySelectorAll("#tabs .phase")){
+    const on=ph.dataset.phase===phase;
+    ph.classList.toggle("on",on);
+    if(on)ph.setAttribute("aria-current","step");else ph.removeAttribute("aria-current");
+  }
+  const sub=document.querySelector("#tabs .sub-row");if(sub)sub.hidden=phase==="start";
+  document.querySelectorAll(".panel").forEach(x=>x.classList.toggle("on",x.id==="panel-"+n));
+  LAST_TAB_OF_PHASE[phase]=String(n);
+  if(String(n)==="3")drawLayout();
+  if(String(n)==="4"){drawSection();drawBlockSection();}
+}
 function initTabs(){
-  document.querySelectorAll("#tabs button").forEach(b=>{
-    b.addEventListener("click",()=>{
-      document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("on"));
-      document.querySelectorAll(".panel").forEach(x=>x.classList.remove("on"));
-      b.classList.add("on");
-      $("panel-"+b.dataset.tab).classList.add("on");
-      if(b.dataset.tab==="3")drawLayout();
-      if(b.dataset.tab==="4"){drawSection();drawBlockSection();}
-    });
+  document.querySelectorAll("#tabs [data-tab]").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+  document.querySelectorAll('#tabs .phase:not([data-tab])').forEach(ph=>ph.addEventListener("click",()=>{
+    const first=document.querySelector('#tabs [role="tab"][data-phase="'+ph.dataset.phase+'"]');
+    showTab(LAST_TAB_OF_PHASE[ph.dataset.phase]||(first&&first.dataset.tab));
+  }));
+  // Pfeiltasten wechseln innerhalb der sichtbaren Register einer Phase
+  const sub=document.querySelector("#tabs .sub-row");
+  if(sub)sub.addEventListener("keydown",ev=>{
+    if(!["ArrowLeft","ArrowRight","Home","End"].includes(ev.key))return;
+    const tabs=[...sub.querySelectorAll('[role="tab"]:not([hidden])')];
+    const i=tabs.indexOf(document.activeElement);if(i<0)return;
+    ev.preventDefault();
+    const j=ev.key==="Home"?0:ev.key==="End"?tabs.length-1:(i+(ev.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;
+    showTab(tabs[j].dataset.tab);tabs[j].focus();
   });
+  // Sprungziele (Kennzahlen, Startseite): Klick oder Eingabetaste wechselt ins Register
+  document.addEventListener("click",ev=>{
+    const t=ev.target.closest&&ev.target.closest("[data-goto]");
+    if(t)showTab(t.dataset.goto);
+  });
+  document.querySelectorAll("#kpis [data-goto]").forEach(el=>{
+    el.tabIndex=0;el.setAttribute("role","link");
+    el.title=el.title||"Zum zuständigen Register";
+    el.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();showTab(el.dataset.goto);}});
+  });
+  showTab(0);
+}
+function initDropdowns(){
+  const dds=[...document.querySelectorAll(".dd")];
+  const toggleOf=dd=>dd.querySelector(":scope > button");
+  const close=(dd,focus)=>{
+    if(!dd.classList.contains("open"))return;
+    dd.classList.remove("open");
+    const t=toggleOf(dd);if(t){t.setAttribute("aria-expanded","false");if(focus)t.focus();}
+  };
+  for(const dd of dds){
+    const t=toggleOf(dd);if(!t)continue;
+    t.addEventListener("click",ev=>{
+      ev.stopPropagation();
+      const open=!dd.classList.contains("open");
+      dds.forEach(x=>close(x));
+      if(!open)return;
+      dd.classList.add("open");t.setAttribute("aria-expanded","true");
+      const first=dd.querySelector('[role="menuitem"]');if(first)first.focus();
+    });
+    dd.addEventListener("keydown",ev=>{
+      if(ev.key==="Escape"&&dd.classList.contains("open")){ev.preventDefault();ev.stopPropagation();close(dd,true);return;}
+      if(ev.key!=="ArrowDown"&&ev.key!=="ArrowUp")return;
+      const items=[...dd.querySelectorAll('[role="menuitem"]:not(:disabled)')];
+      const i=items.indexOf(document.activeElement);if(i<0)return;
+      ev.preventDefault();items[(i+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length].focus();
+    });
+    dd.querySelectorAll('[role="menuitem"]').forEach(it=>it.addEventListener("click",()=>close(dd)));
+  }
+  document.addEventListener("click",ev=>dds.forEach(dd=>{if(!dd.contains(ev.target))close(dd);}));
+}
+const KPIS_COLLAPSED_KEY="trbp-kpis-collapsed";
+function updateKpiToggle(){
+  const app=$("app"),btn=$("btn-kpis-toggle");
+  if(!app||!btn)return;
+  const collapsed=app.classList.contains("kpis-collapsed");
+  // Breit: Leiste rechts (Pfeil seitlich); schmal: Leiste unten (Pfeil senkrecht)
+  const narrow=window.matchMedia&&window.matchMedia("(max-width:1100px)").matches;
+  btn.setAttribute("aria-expanded",collapsed?"false":"true");
+  btn.textContent=collapsed?(narrow?"▾":"›"):(narrow?"▴":"‹");
+  btn.title=collapsed?"Kennzahlen-Leiste ausklappen":"Kennzahlen-Leiste einklappen";
+}
+function setKpisCollapsed(collapsed,persist){
+  const app=$("app");if(!app)return;
+  app.classList.toggle("kpis-collapsed",collapsed);
+  updateKpiToggle();
+  if(persist){try{localStorage.setItem(KPIS_COLLAPSED_KEY,collapsed?"1":"0");}catch(e){}}
+  drawLayout();drawSection();drawBlockSection();
+}
+function initKpiPanel(){
+  const btn=$("btn-kpis-toggle");if(!btn)return;
+  let collapsed=false;
+  try{collapsed=localStorage.getItem(KPIS_COLLAPSED_KEY)==="1";}catch(e){}
+  if(collapsed)setKpisCollapsed(true,false);else updateKpiToggle();
+  btn.addEventListener("click",()=>setKpisCollapsed(!$("app").classList.contains("kpis-collapsed"),true));
 }
 function initPTabs(){
   const wrap=$("ptabs");
   if(!wrap)return;
   const btns=Array.prototype.slice.call(wrap.querySelectorAll("button[data-pg]"));
   const show=id=>{
-    btns.forEach(b=>b.classList.toggle("on",b.dataset.pg===id));
+    btns.forEach(b=>{const on=b.dataset.pg===id;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false");b.tabIndex=on?0:-1;});
     document.querySelectorAll("#pgroups .pgroup").forEach(g=>g.classList.toggle("on",g.id==="pg-"+id));
   };
   btns.forEach(b=>b.addEventListener("click",()=>show(b.dataset.pg)));
+  wrap.addEventListener("keydown",ev=>{
+    if(ev.key!=="ArrowLeft"&&ev.key!=="ArrowRight")return;
+    const i=btns.indexOf(document.activeElement);if(i<0)return;
+    ev.preventDefault();const j=(i+(ev.key==="ArrowRight"?1:-1)+btns.length)%btns.length;
+    show(btns[j].dataset.pg);btns[j].focus();
+  });
   show("gbp");
 }
 function initButtons(){
@@ -6738,9 +6847,8 @@ function initButtons(){
     renderItems();recalc();setStatus("Manuell berechnet");
     showCalcToast(performance.now()-t0);
   });
-  $("btn-optimize").addEventListener("click",()=>{$("dd-opt").classList.remove("open");startOptimizationRun();});
-  $("btn-dd-opt").addEventListener("click",ev=>{ev.stopPropagation();$("dd-opt").classList.toggle("open");});
-  document.addEventListener("click",ev=>{const dd=$("dd-opt");if(dd&&!dd.contains(ev.target))dd.classList.remove("open");});
+  $("btn-optimize").addEventListener("click",()=>{$("dd-opt").classList.remove("open");$("btn-dd-opt").setAttribute("aria-expanded","false");startOptimizationRun();});
+  const dismissOpt=$("btn-opt-dismiss");if(dismissOpt)dismissOpt.addEventListener("click",()=>{$("opt-run-panel").hidden=true;});
   fillTruckSel();
   $("btn-sel-del").addEventListener("click",()=>{
     const idx=selectedIdx().sort((a,b)=>b-a);
@@ -6837,10 +6945,6 @@ function initButtons(){
   $("btn-print-int").addEventListener("click",()=>openPrintWindow("Interner Bericht – "+(S.meta.name||"Projekt"),buildReportInternHtml()+buildStorageResolutionHtml()+buildFeasibilityHtml()+buildDesignBasisHtml()+buildParameterSourcesHtml()));
   $("btn-print-cust").addEventListener("click",()=>openPrintWindow("Grobkonzeptbericht – "+(S.meta.name||"Projekt"),buildReportKundeHtml()+buildFeasibilityHtml()+buildDesignBasisHtml()+buildParameterSourcesHtml()));
   $("btn-print-gap").addEventListener("click",()=>openPrintWindow("Fragekatalog Kundenangaben – "+(S.meta.name||"Projekt"),buildGapQuestionnaireHtml()));
-  $("kpi-warn").addEventListener("click",()=>{
-    const tb=document.querySelector('#tabs button[data-tab="10"]');
-    if(tb)tb.click();
-  });
   initPTabs();
   const cvL=$("cv-layout");
   if(cvL){
@@ -6882,15 +6986,6 @@ function initButtons(){
       VIEW.zoom=z;VIEW.px=px;VIEW.py=py;
       drawLayout();
     });
-  }
-  const KPI_TABS={"kpi-net":2,"kpi-trucks":2,"kpi-rack":3,"kpi-block":4,"kpi-cap":3,"kpi-capb":4,"kpi-cov":3,"kpi-ampel":10,"kpi-area":3,"kpi-eff":3,"kpi-capex":5};
-  for(const [kId,kTab] of Object.entries(KPI_TABS)){
-    const el=$(kId);
-    if(el){
-      el.style.cursor="pointer";
-      el.title="Zur zuständigen Registerkarte wechseln";
-      el.addEventListener("click",()=>{const tb=document.querySelector('#tabs button[data-tab="'+kTab+'"]');if(tb)tb.click();});
-    }
   }
   $("btn-bom-csv").addEventListener("click",()=>{
     const bom=R.bom||[];
@@ -6939,6 +7034,10 @@ function initButtons(){
     rd.readAsText(f);ev.target.value="";
   });
   $("btn-export-input").addEventListener("click",exportInputFile);
+  $("btn-menu-csv").addEventListener("click",()=>$("csvFile").click());
+  $("btn-menu-bom-csv").addEventListener("click",()=>$("btn-bom-csv").click());
+  // Die Zeichnung braucht sichtbare Maße; deshalb erst ins Register Layout wechseln.
+  $("btn-menu-layout-png").addEventListener("click",()=>{showTab(3);requestAnimationFrame(()=>$("btn-layout-png").click());});
   const scenPicker=$("sel-scenario-load"),scenLoadBtn=$("btn-scenario-load");
   if(scenPicker)scenPicker.addEventListener("change",()=>{if(scenLoadBtn)scenLoadBtn.disabled=!scenPicker.value;});
   if(scenLoadBtn)scenLoadBtn.addEventListener("click",()=>{const slot=Number(scenPicker&&scenPicker.value);if(slot)restoreScenario(slot);});
@@ -6952,6 +7051,7 @@ function initButtons(){
   });
 }
 window.addEventListener("resize",()=>{drawLayout();drawSection();drawBlockSection();});
+window.addEventListener("resize",updateKpiToggle);
 
 
   function enhanceAccessibility(){
@@ -6969,6 +7069,7 @@ window.addEventListener("resize",()=>{drawLayout();drawSection();drawBlockSectio
     ["in-buffer-trucks","in-buffer-pallets","in-buffer-dwell","in-buffer-factor"].forEach(id=>toggle(id,process));
     const transit=!!S.volume.transitBufferOn;["in-transit-days","in-transit-area"].forEach(id=>toggle(id,transit));
     toggle("in-fieldWidth",S.ffz.fieldMode==="fix");
+    toggle("out-dim",S.building.mode==="greenfield");
     toggle("chk-vna-pnd",(S.ffz.rackFFZ||[]).indexOf("vna")>=0);
     toggle("in-quota",S.block.mode==="quota");
     ["in-aVol","in-bVol","in-minFill"].forEach(id=>toggle(id,S.block.mode==="sku"));
@@ -7022,7 +7123,7 @@ function syncVersionLabels(){
     ["bufferMode","bufferTrucks","bufferPallets","bufferDwell","bufferFactor"].forEach(k=>{if(S.building[k]!=null)S.volume[k]=S.building[k];});
   }
   enhanceAccessibility();
-  initBinds();initTabs();initButtons();initItems();
+  initBinds();initTabs();initDropdowns();initKpiPanel();initButtons();initItems();
   document.addEventListener("input",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
   document.addEventListener("change",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
   bindFieldUndoTracking();
