@@ -182,6 +182,7 @@ test("Sichtbarkeit aus dem Schema: Prozesspuffer nur im Prozessmodus", async (pa
 
 test("Annahmenregister: alle Parameter mit lesbarer Bezeichnung", async (page) => {
   await withData(page);
+  await page.evaluate(() => showTab(7));
   const labels = await page.$$eval("#reg-params tr", (rows) => rows.map((r) => r.cells[0].textContent.trim()));
   assert.ok(labels.length >= 80, "Zeilen: " + labels.length);
   assert.deepEqual(labels.filter((l) => /^[a-zA-Z]+(\.[a-zA-Z]+)+$/.test(l)), []);
