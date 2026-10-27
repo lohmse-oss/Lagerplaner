@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.15</title>
+<title>Lagerplaner V2.16</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -150,6 +150,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .fld input[type=number],.fld input[type=text],.fld select{width:100%;background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:6px;font-size:12px}
 .fld input[type=number],.fld input[type=text],.fld input[type=month],.fld select{min-height:30px;padding:4px 8px}
 .fld input[type=number]:focus,.fld input[type=text]:focus,.fld select:focus{outline:none;border-color:var(--acc)}
+.fld input.is-invalid,.bomfoot input.is-invalid,td input.is-invalid{border-color:var(--red);background:#fef2f2;outline:2px solid #fecaca}
 .fld input[type=range]{width:100%;accent-color:var(--acc)}
 .fld input[type=checkbox]{justify-self:start;width:15px;height:15px;accent-color:var(--acc)}
 .fld .val{grid-column:3;justify-self:start;text-align:left;white-space:nowrap;color:var(--mut);font-weight:400;font-size:11.5px}
@@ -317,6 +318,7 @@ details.obs[open] summary{margin-bottom:4px}
 .toast{position:fixed;right:18px;bottom:18px;z-index:95;background:var(--card);border:1px solid var(--acc);border-left:4px solid var(--acc);border-radius:10px;box-shadow:0 10px 28px rgba(15,23,42,.25);padding:11px 15px;font-size:12px;color:var(--ink);max-width:430px;cursor:pointer;transition:opacity .35s}
 .toast b{display:block;margin-bottom:4px;color:var(--ink)}
 .toast ul{margin:0;padding-left:16px;line-height:1.6;color:var(--mut)}
+.toast.notice{white-space:pre-line;border-color:var(--amber);border-left-color:var(--amber)}
 
 /* ============================ Schmale Bildschirme ============================ */
 @media(max-width:1250px){
@@ -363,7 +365,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.15</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.16</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -584,187 +586,7 @@ details.obs[open] summary{margin-bottom:4px}
             <button type="button" role="tab" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">7 Kosten &amp; Optionen</button>
           </div>
           <div id="pgroups">
-            <div class="pgroup on" id="pg-gbp" role="tabpanel" aria-labelledby="ptab-gbp">
-              <h3>
-                Gebäude &amp; Flächen
-                <span
-                  class="tt"
-                  data-tip="Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden."
-                  tabindex="0"
-                >
-                  ⓘ
-                </span>
-              </h3>
-              <div class="param-intro">
-                <div>
-                  <b>Baulicher Rahmen</b>
-                  <span>
-                    Abmessungen, Tore, Zonen und Raster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen &amp;
-                    Puffer.
-                  </span>
-                </div>
-              </div>
-              <div class="grp">
-                <div class="fld">
-                  <label>Berechnete Halle (Greenfield)</label>
-                  <span class="val calc" id="out-dim" style="grid-column: 2/4; justify-self: end">–</span>
-                </div>
-              </div>
-              <section class="param-section">
-                <h3>
-                  Gebäude
-                  <small>Bestand oder Greenfield</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="sel-mode">Modus</label>
-                    <select id="sel-mode">
-                      <option value="box-fit">Bestandshalle (Box-Fit)</option>
-                      <option value="greenfield">Greenfield (Flächenberechnung)</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-L">
-                      Hallenlänge
-                      <span id="lbl-L-mode"></span>
-                    </label>
-                    <input id="in-L" type="number" step="1" min="10" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-W">
-                      Hallenbreite
-                      <span id="lbl-W-mode">(Bestand)</span>
-                    </label>
-                    <input id="in-W" type="number" step="0.5" min="6" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="sel-ratio">Seitenverhältnis (Greenfield)</label>
-                    <select
-                      id="sel-ratio"
-                      title="Verhältnis Hallenlänge zu Hallenbreite. Im Greenfield-Modus werden bei gewähltem Verhältnis beide Hallenmaße aus dem Bedarf berechnet."
-                    >
-                      <option value="0">Frei (Länge vorgegeben)</option>
-                      <option value="1">1 : 1</option>
-                      <option value="1.5">3 : 2</option>
-                      <option value="0.6667">2 : 3</option>
-                      <option value="2">2 : 1</option>
-                      <option value="0.5">1 : 2</option>
-                      <option value="3">3 : 1</option>
-                      <option value="0.3333">1 : 3</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-ukb">Unterkante Binder (UKB)</label>
-                    <input id="in-ukb" type="number" step="0.1" min="3" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-rent">Miete Halle</label>
-                    <input id="in-rent" type="number" step="0.5" min="0" />
-                    <span class="val">€/m²·Monat</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Tore und Zonen
-                  <small>Bauliche Anordnung</small>
-                </h3>
-                <div class="grp">
-                  <div class="zone-grid">
-                    <span>Zone Nord</span>
-                    <label>
-                      <input type="checkbox" id="in-zone-N-we" />
-                      WE
-                    </label>
-                    <label>
-                      <input type="checkbox" id="in-zone-N-wa" />
-                      WA
-                    </label>
-                    <span>Zone Ost</span>
-                    <label>
-                      <input type="checkbox" id="in-zone-O-we" />
-                      WE
-                    </label>
-                    <label>
-                      <input type="checkbox" id="in-zone-O-wa" />
-                      WA
-                    </label>
-                    <span>Zone Süd</span>
-                    <label>
-                      <input type="checkbox" id="in-zone-S-we" />
-                      WE
-                    </label>
-                    <label>
-                      <input type="checkbox" id="in-zone-S-wa" />
-                      WA
-                    </label>
-                    <span>Zone West</span>
-                    <label>
-                      <input type="checkbox" id="in-zone-W-we" />
-                      WE
-                    </label>
-                    <label>
-                      <input type="checkbox" id="in-zone-W-wa" />
-                      WA
-                    </label>
-                  </div>
-                  <div class="fld">
-                    <label for="in-doors-N">Tore Nord</label>
-                    <input id="in-doors-N" type="number" min="0" step="1" />
-                  </div>
-                  <div class="fld">
-                    <label for="in-doors-O">Tore Ost</label>
-                    <input id="in-doors-O" type="number" min="0" step="1" />
-                  </div>
-                  <div class="fld">
-                    <label for="in-doors-S">Tore Süd</label>
-                    <input id="in-doors-S" type="number" min="0" step="1" />
-                  </div>
-                  <div class="fld">
-                    <label for="in-doors-W">Tore West</label>
-                    <input id="in-doors-W" type="number" min="0" step="1" />
-                  </div>
-                  <div class="fld">
-                    <label for="in-weDepth">Tiefe WE-Zonen</label>
-                    <input id="in-weDepth" type="number" step="0.5" min="0" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-waDepth">Tiefe WA-Zonen</label>
-                    <input id="in-waDepth" type="number" step="0.5" min="0" />
-                    <span class="val">m</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Gebäuderaster
-                  <small>Layoutvorgaben</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="sel-orient">Regal-Ausrichtung</label>
-                    <select id="sel-orient">
-                      <option value="quer">orthogonal zu Toren (Reihen längs)</option>
-                      <option value="laengs">parallel zu Toren (Gänge zu Toren)</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-gridX">Stützenraster X</label>
-                    <input id="in-gridX" type="number" step="0.5" min="3" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-gridY">Stützenraster Y</label>
-                    <input id="in-gridY" type="number" step="0.5" min="3" />
-                    <span class="val">m</span>
-                  </div>
-                </div>
-              </section>
-            </div>
+            <div class="pgroup on" id="pg-gbp" role="tabpanel" aria-labelledby="ptab-gbp"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
             <div class="pgroup" id="pg-pal" role="tabpanel" aria-labelledby="ptab-pal">
               <h3>
@@ -813,604 +635,14 @@ details.obs[open] summary{margin-bottom:4px}
               </div>
             </div>
 
-            <div class="pgroup" id="pg-vol" role="tabpanel" aria-labelledby="ptab-vol">
-              <h3>
-                Volumen &amp; Puffer
-                <span
-                  class="tt"
-                  data-tip="Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung."
-                  tabindex="0"
-                >
-                  ⓘ
-                </span>
-              </h3>
-              <div class="param-intro">
-                <div>
-                  <b>Bemessungsgrößen</b>
-                  <span>Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf.</span>
-                </div>
-              </div>
+            <div class="pgroup" id="pg-vol" role="tabpanel" aria-labelledby="ptab-vol"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-              <section class="param-section">
-                <h3>
-                  Bestandsbemessung
-                  <small>Menge und Reichweite</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld wide">
-                    <label for="in-range">
-                      Lagerreichweite
-                      <span class="val calc" id="out-range" style="float: right"></span>
-                    </label>
-                    <input id="in-range" type="range" min="0.5" max="56" step="0.5" />
-                    <span style="display: flex; gap: 6px; align-items: center">
-                      <input id="num-range" aria-label="Lagerreichweite in Tagen" type="number" min="0.5" max="56" step="0.5" style="width: 64px" />
-                      <span class="val">Tage</span>
-                    </span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-peak">Peak-Faktor</label>
-                    <input
-                      id="in-peak"
-                      type="number"
-                      min="1"
-                      max="3"
-                      step="0.05"
-                      title="Faktor auf Durchschnitts- oder Zielbestand. Neutraler Wert 1,00."
-                    />
-                    <span class="val">×</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-safety">Sicherheitsbestand</label>
-                    <input
-                      id="in-safety"
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="1"
-                      title="Prozentualer Zuschlag nach Peak-Faktor. Neutraler Wert 0 Prozent."
-                    />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-planning-years">Planungshorizont</label>
-                    <input id="in-planning-years" type="number" min="0" max="30" step="1" />
-                    <span class="val">Jahre</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-growth-rate">Mengenwachstum</label>
-                    <input id="in-growth-rate" type="number" min="0" max="100" step="0.5" />
-                    <span class="val">% p. a.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-sku-growth">Artikelwachstum</label>
-                    <input id="in-sku-growth" type="number" min="0" max="100" step="0.5" />
-                    <span class="val">% p. a.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-strategic-reserve">Strategische Kapazitätsreserve</label>
-                    <input id="in-strategic-reserve" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-blocked-places">Temporär gesperrte Plätze</label>
-                    <input id="in-blocked-places" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-fillRack">Füllgrad Regal</label>
-                    <input id="in-fillRack" type="number" min="50" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-fillBlock">Füllgrad Blocklager</label>
-                    <input id="in-fillBlock" type="number" min="40" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section" id="sec-buffer">
-                <h3>
-                  WE-Puffer
-                  <small>Durchsatzbezogene Bemessung</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="sel-buffer-mode">Berechnung des WE-Pufferbedarfs</label>
-                    <select id="sel-buffer-mode">
-                      <option value="simple">Einfach / geometrisch</option>
-                      <option value="process">Prozessbezogen</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-buffer-trucks">LKW-Ankünfte in der Spitzenstunde</label>
-                    <input id="in-buffer-trucks" type="number" min="0" step="0.1" />
-                    <span class="val">LKW/h</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-buffer-pallets">Mittlere Palettenzahl je LKW</label>
-                    <input id="in-buffer-pallets" type="number" min="0" step="1" />
-                    <span class="val">Pal.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-buffer-dwell">Mittlere Pufferverweildauer</label>
-                    <input id="in-buffer-dwell" type="number" min="0" step="0.1" />
-                    <span class="val">h</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-buffer-factor">Zugangs- und Verkehrsflächenfaktor</label>
-                    <input id="in-buffer-factor" type="number" min="1" max="5" step="0.1" />
-                    <span class="val">×</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-peak-hour-share">Spitzenstundenanteil am Tagesvolumen</label>
-                    <input id="in-peak-hour-share" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-we-share">Anteil Wareneingang</label>
-                    <input id="in-we-share" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-simultaneity">Gleichzeitigkeitsfaktor WE/WA</label>
-                    <input id="in-simultaneity" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Transit- und Cross-Dock-Puffer
-                  <small>Nur bei separater Pufferfläche</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-transit">Transit-/Cross-Dock-Anteil</label>
-                    <input id="in-transit" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="chk-transit-buf">Separaten Cross-Dock-Puffer einrechnen</label>
-                    <input
-                      id="chk-transit-buf"
-                      type="checkbox"
-                      title="Flächenzuschlag für Transit-Paletten in der Brutto-Lagerfläche. Nur zuschalten, wenn Cross-Docking nicht innerhalb der dimensionierten WE-/WA-Zonen abgewickelt wird; sonst Doppelberechnung."
-                    />
-                  </div>
-                  <div class="fld">
-                    <label for="in-transit-days">Standzeit Transit-Puffer</label>
-                    <input id="in-transit-days" type="number" min="0" step="0.1" />
-                    <span class="val">Tage</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-transit-area">Fläche je Transitpalette</label>
-                    <input id="in-transit-area" type="number" min="0" step="0.1" />
-                    <span class="val">m²/Pal.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-operational-area">Operative Nebenfläche</label>
-                    <input id="in-operational-area" type="number" min="0" step="1" />
-                    <span class="val">m²</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Leergut
-                  <small>Verdichtete Bodenstapelung</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-empty-on">Leergutbereich einplanen</label>
-                    <input id="in-empty-on" type="checkbox" />
-                  </div>
-                  <div class="fld">
-                    <label for="sel-empty-mode">Mengenbasis</label>
-                    <select id="sel-empty-mode">
-                      <option value="percent">Anteil am Brutto-Bestand</option>
-                      <option value="abs">Absolute Palettenzahl</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-empty-value">Menge</label>
-                    <input id="in-empty-value" type="number" step="0.5" min="0" />
-                    <span class="val" id="out-empty-unit">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-empty-stack">Stapelhöhe Leerpaletten (1+x)</label>
-                    <input id="in-empty-stack" type="number" min="0" max="30" step="1" />
-                    <span class="val">Pal.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-empty-reserve">Zugangsreserve</label>
-                    <input id="in-empty-reserve" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                </div>
-              </section>
-            </div>
+            <div class="pgroup" id="pg-blk" role="tabpanel" aria-labelledby="ptab-blk"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-blk" role="tabpanel" aria-labelledby="ptab-blk">
-              <h3>
-                Blocklager
-                <span
-                  class="tt"
-                  data-tip="Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren."
-                  tabindex="0"
-                >
-                  ⓘ
-                </span>
-              </h3>
-              <div class="param-intro">
-                <div>
-                  <b>Blocklagerauslegung</b>
-                  <span>Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt.</span>
-                </div>
-              </div>
-              <section class="param-section">
-                <h3>
-                  Zuordnungsmodell
-                  <small>Regal- oder Blockanteil</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="sel-blockmode">Verteilungsmethode</label>
-                    <select id="sel-blockmode">
-                      <option value="sku">Schätzmodell (ABC-Pareto-Prüfung)</option>
-                      <option value="quota">Pauschale Volumenquote</option>
-                      <option value="manual">Manueller Override (Spalte Blockanteil)</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-quota">Volumenquote Block (Modus Quote)</label>
-                    <input id="in-quota" type="number" min="0" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-aVol">ABC: A-Volumenanteil</label>
-                    <input id="in-aVol" type="number" min="10" max="95" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-bVol">ABC: B-Volumenanteil</label>
-                    <input id="in-bVol" type="number" min="2" max="40" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-minFill">Mindest-Kanalfüllgrad</label>
-                    <input id="in-minFill" type="number" min="30" max="100" step="1" />
-                    <span class="val">%</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Kanalgeometrie
-                  <small>Kapazität und Abmessungen</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-channelDepth">Kanaltiefe</label>
-                    <input id="in-channelDepth" type="number" min="2" max="20" step="1" />
-                    <span class="val">Pal.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-stackH">max. Stapelhöhe (1+x; Nachweis erforderlich)</label>
-                    <input id="in-stackH" type="number" min="0" max="8" step="1" />
-                    <span class="val">Pal.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="sel-blockorient">Blockausrichtung</label>
-                    <select id="sel-blockorient">
-                      <option value="N">Kanäle quer · Zugang Nord</option>
-                      <option value="W">Kanäle längs · Zugang West</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-maxTop">Oberkante Lagergut Block</label>
-                    <input id="in-maxTop" type="number" min="2" max="12" step="0.1" />
-                    <span class="val">m</span>
-                  </div>
-                </div>
-              </section>
-            </div>
+            <div class="pgroup" id="pg-ffz" role="tabpanel" aria-labelledby="ptab-ffz"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-ffz" role="tabpanel" aria-labelledby="ptab-ffz">
-              <h3>
-                Lagertechnik
-                <span
-                  class="tt"
-                  data-tip="Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&amp;D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen."
-                  tabindex="0"
-                >
-                  ⓘ
-                </span>
-              </h3>
-              <div class="param-intro">
-                <div>
-                  <b>Technische Auslegung</b>
-                  <span>
-                    Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis.
-                  </span>
-                </div>
-              </div>
-              <section class="param-section">
-                <h3>
-                  Flurförderzeuge
-                  <small>Einsatz nach Lagerbereich</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld wide">
-                    <label>FFZ Regallager</label>
-                    <div class="ffz-checks">
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="vna" />
-                        Schmalgangstapler/VNA (1,9 m)
-                      </label>
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="schubmast" />
-                        Schubmaststapler (2,8 m)
-                      </label>
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="front" />
-                        Frontstapler (3,5 m)
-                      </label>
-                    </div>
-                  </div>
-                  <div class="fld wide">
-                    <label>FFZ Blocklager / Leergut</label>
-                    <div class="ffz-checks">
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="front" />
-                        Frontstapler (3,5 m)
-                      </label>
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="schubmast" />
-                        Schubmaststapler (2,8 m)
-                      </label>
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="hochhub" />
-                        Hochhubwagen (2,4 m)
-                      </label>
-                    </div>
-                  </div>
-                  <div class="fld wide">
-                    <label>FFZ WE/WA &amp; Vorzone</label>
-                    <div class="ffz-checks">
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="ameise" />
-                        Mitgänger/Schnellläufer
-                      </label>
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="front" />
-                        Frontstapler
-                      </label>
-                      <label class="ck">
-                        <input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="schubmast" />
-                        Schubmaststapler
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Arbeitsgänge
-                  <small>Aus Fahrzeugauswahl abgeleitet und übersteuerbar</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-aisle">Erforderliche Arbeitsgangbreite Regal</label>
-                    <input id="in-aisle" type="number" step="0.1" min="1.2" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-aisle-block">Erforderliche Arbeitsgangbreite Blocklager</label>
-                    <input id="in-aisle-block" type="number" step="0.1" min="1.2" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="chk-vna-pnd">P&amp;D-Plätze an Regalstirnseiten (bei VNA)</label>
-                    <input
-                      id="chk-vna-pnd"
-                      type="checkbox"
-                      title="Bei VNA im Regallager: P&amp;D-Aufsetzplätze an den Regalstirnseiten berücksichtigen (je Stirnseite 1,0 m Aufsetzplatz und 1,0 m Anfahrabstand; vermindert die nutzbare Regallänge je Reihe um 4,0 m)."
-                    />
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Regalsystem
-                  <small>Geometrische Vorbemessung</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="sel-rackbase">Bemessungsbasis der Regalgeometrie</label>
-                    <select id="sel-rackbase">
-                      <option value="lead">Leitartikel nach größtem Brutto-Regalbedarf</option>
-                      <option value="envelope">Hüllkurve (Maximalmaße und -gewicht aller Regalpositionen)</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="sel-fieldmode">Lichte Feldweite</label>
-                    <select id="sel-fieldmode">
-                      <option value="auto">Auto-Plausibilität</option>
-                      <option value="fix">Festes Maß 1.800–3.600 mm</option>
-                    </select>
-                  </div>
-                  <div class="fld">
-                    <label for="in-fieldWidth">Feldweite (fix)</label>
-                    <input id="in-fieldWidth" type="number" min="1800" max="3600" step="100" />
-                    <span class="val">mm</span>
-                  </div>
-                  <div class="fld">
-                    <label for="chk-floorbeam">Bodenebene auf Traverse</label>
-                    <input id="chk-floorbeam" type="checkbox" />
-                  </div>
-                  <div class="fld">
-                    <label for="chk-singlerows">Einzelreihen ergänzen</label>
-                    <input
-                      id="chk-singlerows"
-                      type="checkbox"
-                      title="Wand- und Restflächen nutzen, sobald Doppelreihen nicht mehr passen."
-                    />
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Höhenbegrenzung
-                  <small>Gebäude und Stapler wirken als unabhängige Grenzen</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-liftheight">Maximale Hubhöhe des Regal-FFZ</label>
-                    <input
-                      id="in-liftheight"
-                      type="number"
-                      min="1"
-                      max="20"
-                      step="0.1"
-                      title="Begrenzt die Oberkante der letzten Traversenebene."
-                    />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-liftreserve">Bedienreserve unter maximaler Hubhöhe</label>
-                    <input
-                      id="in-liftreserve"
-                      type="number"
-                      min="0"
-                      max="1000"
-                      step="50"
-                      title="Abzug von der maximalen Hubhöhe für Handhabungsreserve."
-                    />
-                    <span class="val">mm</span>
-                  </div>
-                </div>
-                <div class="height-balance" id="height-balance"></div>
-              </section>
-            </div>
-
-            <div class="pgroup" id="pg-fir" role="tabpanel" aria-labelledby="ptab-fir">
-              <h3>Sicherheit &amp; Abstände</h3>
-              <div class="param-intro">
-                <div>
-                  <b>Vorgaben und Nachweise</b>
-                  <span>Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise.</span>
-                </div>
-              </div>
-              <section class="param-section">
-                <h3>
-                  Brandschutz
-                  <small>Geometrische Vorgaben</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-sprinkler">Sprinkler-Freiraum unter UKB</label>
-                    <input id="in-sprinkler" type="number" min="0" step="50" />
-                    <span class="val">mm</span>
-                  </div>
-                  <div class="fld">
-                    <label for="chk-inrack">In-Rack-Sprinklerung</label>
-                    <input id="chk-inrack" type="checkbox" title="Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe." />
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Fluchtwege
-                  <small>Vorplanungswerte</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-tunnelint">Fluchttunnel-Intervall</label>
-                    <input id="in-tunnelint" type="number" min="0" step="1" />
-                    <span class="val">m</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-tunnelclear">lichte Durchgangshöhe Tunnel</label>
-                    <input id="in-tunnelclear" type="number" min="2" step="0.1" />
-                    <span class="val">m</span>
-                  </div>
-                </div>
-              </section>
-            </div>
-            <div class="pgroup" id="pg-cost" role="tabpanel" aria-labelledby="ptab-cost">
-              <h3>Kosten &amp; Optionen</h3>
-              <div class="param-intro">
-                <div>
-                  <b>Preis- und Kalkulationsbasis</b>
-                  <span>
-                    Die Mengenermittlung bleibt in Kosten &amp; Equipment. Hier werden Preisstand, Quelle, Unsicherheit und
-                    Einrechnungsoptionen gepflegt.
-                  </span>
-                </div>
-              </div>
-              <section class="param-section">
-                <h3>
-                  Preisbasis
-                  <small>Dokumentation und Bandbreite</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld">
-                    <label for="in-price-date">Preisstand</label>
-                    <input id="in-price-date" type="month" />
-                  </div>
-                  <div class="fld">
-                    <label for="in-price-source">Preisquelle</label>
-                    <input id="in-price-source" type="text" placeholder="Richtpreis oder Angebot" />
-                  </div>
-                  <div class="fld">
-                    <label for="in-cost-unc">Kostenunsicherheit</label>
-                    <input id="in-cost-unc" type="number" min="0" max="100" step="1" />
-                    <span class="val">± %</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-realization-years">Jahre bis Realisierung</label>
-                    <input id="in-realization-years" type="number" min="0" max="30" step="1" />
-                    <span class="val">Jahre</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-price-escalation">Preissteigerung</label>
-                    <input id="in-price-escalation" type="number" min="0" max="100" step="0.5" />
-                    <span class="val">% p. a.</span>
-                  </div>
-                  <div class="fld">
-                    <label for="in-project-overhead">Projektnebenkosten</label>
-                    <input id="in-project-overhead" type="number" min="0" max="100" step="0.5" />
-                    <span class="val">%</span>
-                  </div>
-                </div>
-              </section>
-              <section class="param-section">
-                <h3>
-                  Einrechnungsoptionen
-                  <small>Wirkung auf die Stückliste</small>
-                </h3>
-                <div class="grp">
-                  <div class="fld" style="max-width: 480px">
-                    <label for="chk-push">Durchschubsicherungen je Fach einrechnen</label>
-                    <input id="chk-push" type="checkbox" />
-                  </div>
-                  <div class="fld" style="max-width: 480px">
-                    <label for="chk-grating">Gitterroste je Fluchttunnel einrechnen</label>
-                    <input id="chk-grating" type="checkbox" />
-                  </div>
-                  <div class="fld" style="max-width: 480px">
-                    <label for="chk-demount">Rückbau &amp; Demontage einrechnen (Pauschale auf Bauteilsumme)</label>
-                    <input id="chk-demount" type="checkbox" />
-                  </div>
-                </div>
-                <p class="dependency-note">
-                  Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Hauptregister
-                  <b>Kosten &amp; Equipment</b>
-                  .
-                </p>
-              </section>
-            </div>
+            <div class="pgroup" id="pg-fir" role="tabpanel" aria-labelledby="ptab-fir"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup" id="pg-cost" role="tabpanel" aria-labelledby="ptab-cost"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
           </div>
         </div>
         <div class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10">
@@ -2217,7 +1449,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.15 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.16 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -2524,7 +1756,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.15";
+const APP_VERSION="V2.16";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2554,6 +1786,319 @@ function defaults(){
 }
 let S=defaults();
 let R={ok:false,bom:[]};
+
+/* ============================ Parameterschema ============================ */
+/* Einzige Quelle je Planungsparameter. Formular, Bindung, Grenzen (Eingabe und Import),
+   Annahmenregister, Dateivergleich, Kundenbericht und Sensitivität lesen diese Einträge.
+   type: num | range | plusx (Anzeige x, gespeichert 1+x) | select | check | text | month | ffz | zone
+   bind:false  Steuerelement hat eigene Bindung (Stammdaten, Stückliste) oder fehlt
+   render:false Steuerelement steht außerhalb des erzeugten Formulars (statisches Markup)
+   eff         Wirkungstext; Parameter mit eff erscheinen im Kundenbericht unter Annahmen */
+const RATIO_OPTIONS=[[0,"Frei (Länge vorgegeben)"],[1,"1 : 1"],[1.5,"3 : 2"],[0.6667,"2 : 3"],[2,"2 : 1"],[0.5,"1 : 2"],[3,"3 : 1"],[0.3333,"1 : 3"]];
+const yesNo=(yes,no)=>v=>v?yes:no;
+const PARAMS=[
+  /* Gebäude & Flächen */
+  {p:"building.mode",id:"sel-mode",type:"select",label:"Modus",short:"Hallenmodus",options:[["box-fit","Bestandshalle (Box-Fit)"],["greenfield","Greenfield (Flächenberechnung)"]],onChange:()=>refreshModeUI()},
+  {p:"building.L",id:"in-L",type:"num",label:"Hallenlänge",labelHtml:'Hallenlänge <span id="lbl-L-mode"></span>',unit:"m",min:10,max:1000,step:1,dec:1,eff:"Bestimmt Regallänge und Zahl der Felder je Reihe."},
+  {p:"building.W",id:"in-W",type:"num",label:"Hallenbreite",labelHtml:'Hallenbreite <span id="lbl-W-mode">(Bestand)</span>',unit:"m",min:6,max:1000,step:0.5,dec:1,eff:"Begrenzt die Zahl der Doppelreihen; im Greenfield wird sie berechnet."},
+  {p:"building.ratio",id:"sel-ratio",type:"select",num:true,label:"Seitenverhältnis (Greenfield)",short:"Seitenverhältnis Halle",options:RATIO_OPTIONS,min:0,max:5,
+    title:"Verhältnis Hallenlänge zu Hallenbreite. Im Greenfield-Modus werden bei gewähltem Verhältnis beide Hallenmaße aus dem Bedarf berechnet.",
+    show:v=>{const o=RATIO_OPTIONS.find(x=>x[0]===+v);return !+v?"frei":o?o[1]:fmt(v,2);},onChange:()=>refreshModeUI(),
+    eff:"Im Greenfield-Modus mit festem Verhältnis sucht das Werkzeug im begrenzten 5-m-Raster und verfeinert den ersten Treffer lokal auf 0,5 m. Kein globaler Minimalitätsnachweis."},
+  {p:"building.ukb",id:"in-ukb",type:"num",label:"Unterkante Binder (UKB)",unit:"m",min:3,max:40,step:0.1,dec:1,eff:"Bestimmt die Ebenenzahl und damit die Regalkapazität."},
+  {p:"building.rent",id:"in-rent",type:"num",label:"Miete Halle",unit:"€/m²·Monat",min:0,max:100,step:0.5,dec:1,eff:"Berechnet die monatlichen und jährlichen Mietkosten der Hallenfläche; 0 schaltet die Ausweisung aus."},
+  {p:"building.zones",id:"zone-grid",type:"zone",label:"Zonenrollen",bind:false,diff:false,show:v=>zoneRolesLabel(v)},
+  ...["N","O","S","W"].map(side=>({p:"building.zones."+side,type:"select",label:"Zonenrolle "+{N:"Nord",O:"Ost",S:"Süd",W:"West"}[side],render:false,bind:false,diff:false,
+    options:[["none","keine"],["we","WE"],["wa","WA"],["wewa","WE und WA"]]})),
+  ...[["N","Nord"],["O","Ost"],["S","Süd"],["W","West"]].map(([side,name])=>({p:"building.doors."+side,id:"in-doors-"+side,type:"num",int:true,label:"Tore "+name,min:0,max:50,step:1,dec:0})),
+  {p:"building.weDepth",id:"in-weDepth",type:"num",label:"Tiefe WE-Zonen",unit:"m",min:0,max:60,step:0.5,dec:1,eff:"Mindert die verfügbare Fläche an allen Seiten mit der Rolle WE; bei Kombination mit WA an derselben Seite gilt der größere Einzelwert (Flächen nebeneinander)."},
+  {p:"building.waDepth",id:"in-waDepth",type:"num",label:"Tiefe WA-Zonen",unit:"m",min:0,max:60,step:0.5,dec:1,eff:"Mindert die verfügbare Fläche an allen Seiten mit der Rolle WA; bei Kombination mit WE an derselben Seite gilt der größere Einzelwert (Flächen nebeneinander)."},
+  {p:"building.orient",id:"sel-orient",type:"select",label:"Regal-Ausrichtung",options:[["quer","orthogonal zu Toren (Reihen längs)"],["laengs","parallel zu Toren (Gänge zu Toren)"]]},
+  {p:"building.gridX",id:"in-gridX",type:"num",label:"Stützenraster X",unit:"m",min:3,max:50,step:0.5,dec:1},
+  {p:"building.gridY",id:"in-gridY",type:"num",label:"Stützenraster Y",unit:"m",min:3,max:50,step:0.5,dec:1},
+  /* Volumen & Puffer */
+  {p:"volume.range",id:"in-range",type:"range",label:"Lagerreichweite",unit:"Tage",min:0.5,max:56,step:0.5,dec:1,eff:"Skaliert den Netto-Bestand und damit den Regal- und Blockbedarf direkt.",onChange:()=>refreshModeUI()},
+  {p:"volume.peak",id:"in-peak",type:"num",label:"Peak-Faktor",unit:"×",min:1,max:3,step:0.05,dec:2,title:"Faktor auf Durchschnitts- oder Zielbestand. Neutraler Wert 1,00."},
+  {p:"volume.safety",id:"in-safety",type:"num",label:"Sicherheitsbestand",unit:"%",min:0,max:100,step:1,dec:0,title:"Prozentualer Zuschlag nach Peak-Faktor. Neutraler Wert 0 Prozent."},
+  {p:"volume.planningYears",id:"in-planning-years",type:"num",int:true,label:"Planungshorizont",unit:"Jahre",min:0,max:30,step:1,dec:0,eff:"Bestimmt die Zahl der Wachstumsperioden."},
+  {p:"volume.growthRate",id:"in-growth-rate",type:"num",label:"Mengenwachstum",unit:"% p. a.",min:0,max:100,step:0.5,dec:1,eff:"Skaliert den Mengenbedarf über den Planungshorizont."},
+  {p:"volume.skuGrowthRate",id:"in-sku-growth",type:"num",label:"Artikelwachstum",unit:"% p. a.",min:0,max:100,step:0.5,dec:1,eff:"Skaliert die Artikelanzahl über den Planungshorizont."},
+  {p:"volume.strategicReserve",id:"in-strategic-reserve",type:"num",label:"Strategische Kapazitätsreserve",short:"Strategische Reserve",unit:"%",min:0,max:100,step:1,dec:0,eff:"Erhöht den Kapazitätsbedarf."},
+  {p:"volume.blockedPlaces",id:"in-blocked-places",type:"num",label:"Temporär gesperrte Plätze",short:"Gesperrte Plätze",unit:"%",min:0,max:99,step:1,dec:0,eff:"Verringert die nutzbare Kapazität."},
+  {p:"volume.fillRack",id:"in-fillRack",type:"num",label:"Füllgrad Regal",unit:"%",min:40,max:100,step:1,dec:0,eff:"Bestimmt die Brutto-Regalplätze aus dem Netto-Bestand."},
+  {p:"volume.fillBlock",id:"in-fillBlock",type:"num",label:"Füllgrad Blocklager",unit:"%",min:40,max:100,step:1,dec:0,eff:"Bestimmt die Brutto-Blockplätze und die Kanalzahl."},
+  {p:"volume.bufferMode",id:"sel-buffer-mode",type:"select",label:"Berechnung des WE-Pufferbedarfs",short:"WE-Pufferbemessung",options:[["simple","Einfach / geometrisch"],["process","Prozessbezogen"]]},
+  {p:"volume.bufferTrucks",id:"in-buffer-trucks",type:"num",label:"LKW-Ankünfte in der Spitzenstunde",unit:"LKW/h",min:0,max:100,step:0.1,dec:1,visibleIf:s=>s.volume.bufferMode==="process"},
+  {p:"volume.bufferPallets",id:"in-buffer-pallets",type:"num",label:"Mittlere Palettenzahl je LKW",unit:"Pal.",min:0,max:100,step:1,dec:0,visibleIf:s=>s.volume.bufferMode==="process"},
+  {p:"volume.bufferDwell",id:"in-buffer-dwell",type:"num",label:"Mittlere Pufferverweildauer",unit:"h",min:0,max:72,step:0.1,dec:1,visibleIf:s=>s.volume.bufferMode==="process"},
+  {p:"volume.bufferFactor",id:"in-buffer-factor",type:"num",label:"Zugangs- und Verkehrsflächenfaktor",unit:"×",min:1,max:5,step:0.1,dec:1,visibleIf:s=>s.volume.bufferMode==="process"},
+  {p:"volume.peakHourShare",id:"in-peak-hour-share",type:"num",label:"Spitzenstundenanteil am Tagesvolumen",unit:"%",min:0,max:100,step:1,dec:0},
+  {p:"volume.weShare",id:"in-we-share",type:"num",label:"Anteil Wareneingang",unit:"%",min:0,max:100,step:1,dec:0},
+  {p:"volume.simultaneity",id:"in-simultaneity",type:"num",label:"Gleichzeitigkeitsfaktor WE/WA",unit:"%",min:0,max:100,step:1,dec:0},
+  {p:"volume.transit",id:"in-transit",type:"num",label:"Transit-/Cross-Dock-Anteil",unit:"%",min:0,max:100,step:1,dec:0,
+    eff:"Mindert den bestandsrelevanten Bedarf um den Durchschub-Anteil. Der separate Cross-Dock-Puffer ist abschaltbar; nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche (Standard 0,5 Tage Standzeit, 1,5 m² je Palette) in der Brutto-Lagerfläche."},
+  {p:"volume.transitBufferOn",id:"chk-transit-buf",type:"check",label:"Separaten Cross-Dock-Puffer einrechnen",short:"Separater Cross-Dock-Puffer",show:yesNo("eingerechnet","aus"),
+    title:"Flächenzuschlag für Transit-Paletten in der Brutto-Lagerfläche. Nur zuschalten, wenn Cross-Docking nicht innerhalb der dimensionierten WE-/WA-Zonen abgewickelt wird; sonst Doppelberechnung."},
+  {p:"volume.transitDays",id:"in-transit-days",type:"num",label:"Standzeit Transit-Puffer",unit:"Tage",min:0,max:30,step:0.1,dec:1,visibleIf:s=>!!s.volume.transitBufferOn},
+  {p:"volume.transitAreaPerPal",id:"in-transit-area",type:"num",label:"Fläche je Transitpalette",unit:"m²/Pal.",min:0,max:10,step:0.1,dec:1,visibleIf:s=>!!s.volume.transitBufferOn},
+  {p:"volume.operationalArea",id:"in-operational-area",type:"num",label:"Operative Nebenfläche",unit:"m²",min:0,max:1000000,step:1,dec:0,eff:"Erhöht den Flächenbedarf."},
+  {p:"empty.on",id:"in-empty-on",type:"check",label:"Leergutbereich einplanen",short:"Leergutbereich",show:yesNo("eingeplant","aus"),
+    eff:"Schaltet den verdichteten Leergutband zwischen Blocklager und Regalzone ein; er verbraucht Fläche und erhöht keine Lagerkapazität."},
+  {p:"empty.mode",id:"sel-empty-mode",type:"select",label:"Mengenbasis",short:"Leergut-Mengenbasis",options:[["percent","Anteil am Brutto-Bestand"],["abs","Absolute Palettenzahl"]],visibleIf:s=>!!s.empty.on},
+  {p:"empty.value",id:"in-empty-value",type:"num",label:"Menge",short:"Leergutmenge",unitId:"out-empty-unit",unit:"%",min:0,max:100000,step:0.5,dec:1,visibleIf:s=>!!s.empty.on,
+    show:v=>fmt(v,1)+(S.empty.mode==="abs"?" Pal.":" % Brutto"),
+    eff:"Bestimmt die Zahl der Leerpaletten (absolut oder als Anteil am Brutto-Bestand) und damit die Fläche des Leergutbands."},
+  {p:"empty.stack",id:"in-empty-stack",type:"plusx",label:"Stapelhöhe Leerpaletten (1+x)",short:"Stapelhöhe Leerpaletten",unit:"Pal.",min:1,max:31,visibleIf:s=>!!s.empty.on},
+  {p:"empty.reserve",id:"in-empty-reserve",type:"num",label:"Zugangsreserve",short:"Leergut-Zugangsreserve",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>!!s.empty.on},
+  /* Blocklager */
+  {p:"block.mode",id:"sel-blockmode",type:"select",label:"Verteilungsmethode",options:[["sku","Schätzmodell (ABC-Pareto-Prüfung)"],["quota","Pauschale Volumenquote"],["manual","Manueller Override (Spalte Blockanteil)"]],onChange:()=>renderItems()},
+  {p:"block.quota",id:"in-quota",type:"num",label:"Volumenquote Block (Modus Quote)",short:"Volumenquote Block",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="quota",eff:"Anteil des Bestands im Blocklager im Quotenmodus."},
+  {p:"block.aVol",id:"in-aVol",type:"num",label:"ABC: A-Volumenanteil",unit:"%",min:10,max:95,step:1,dec:0,visibleIf:s=>s.block.mode==="sku"},
+  {p:"block.bVol",id:"in-bVol",type:"num",label:"ABC: B-Volumenanteil",unit:"%",min:2,max:40,step:1,dec:0,visibleIf:s=>s.block.mode==="sku"},
+  {p:"block.minFill",id:"in-minFill",type:"num",label:"Mindest-Kanalfüllgrad",unit:"%",min:30,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="sku",eff:"Qualifikationsschwelle für das Blocklager im artikelbasierten Modus."},
+  {p:"block.channelDepth",id:"in-channelDepth",type:"num",int:true,label:"Kanaltiefe",unit:"Pal.",min:1,max:20,step:1,dec:0,eff:"Bestimmt die Kapazität je Kanal und die Blockfläche."},
+  {p:"block.stackH",id:"in-stackH",type:"plusx",label:"max. Stapelhöhe (1+x; Nachweis erforderlich)",short:"Max. Stapelhöhe Block (1+x)",unit:"Pal.",min:1,max:9,
+    eff:"Begrenzt den nutzbaren Stapelfaktor je Position und bestimmt die Kanalkapazität im Blocklager."},
+  {p:"block.orient",id:"sel-blockorient",type:"select",label:"Blockausrichtung",options:[["N","Kanäle quer · Zugang Nord"],["W","Kanäle längs · Zugang West"]]},
+  {p:"block.maxTop",id:"in-maxTop",type:"num",label:"Oberkante Lagergut Block",unit:"m",min:2,max:12,step:0.1,dec:1,
+    eff:"Globale Grenze des nutzbaren Stapelfaktors je Position im Blocklager; die Kippgrenze 6:1 wird je Position aufgerundet als Hinweis ausgewiesen."},
+  /* Lagertechnik */
+  {p:"ffz.rackFFZ",id:"ffz-rackFFZ",type:"ffz",label:"FFZ Regallager",items:[["vna","Schmalgangstapler/VNA (1,9 m)"],["schubmast","Schubmaststapler (2,8 m)"],["front","Frontstapler (3,5 m)"]],bind:false,show:v=>ffzList(v),
+    eff:"Mehrfachauswahl der Flurförderzeuge im Regalbereich; die Regal-Gangbreite wird auf das Maximum der gewählten Typen vorbelegt."},
+  {p:"ffz.blockFFZ",id:"ffz-blockFFZ",type:"ffz",label:"FFZ Blocklager / Leergut",items:[["front","Frontstapler (3,5 m)"],["schubmast","Schubmaststapler (2,8 m)"],["hochhub","Hochhubwagen (2,4 m)"]],bind:false,show:v=>ffzList(v),
+    eff:"Mehrfachauswahl der Flurförderzeuge im Blocklager; die Block-Gangbreite wird auf das Maximum der gewählten Typen vorbelegt."},
+  {p:"ffz.zoneFFZ",id:"ffz-zoneFFZ",type:"ffz",label:"FFZ WE/WA & Vorzone",items:[["ameise","Mitgänger/Schnellläufer"],["front","Frontstapler"],["schubmast","Schubmaststapler"]],bind:false,show:v=>ffzList(v),
+    eff:"Mehrfachauswahl der Flurförderzeuge für den Horizontaltransport zwischen WE/WA und Regal bzw. P&D-Platz."},
+  {p:"ffz.aisle",id:"in-aisle",type:"num",label:"Erforderliche Arbeitsgangbreite Regal",short:"Arbeitsgangbreite Regal",unit:"m",min:1.2,max:6,step:0.1,dec:1,eff:"Bestimmt Reihebreite, Raster und Flächenbedarf im Regalbereich."},
+  {p:"ffz.aisleBlock",id:"in-aisle-block",type:"num",label:"Erforderliche Arbeitsgangbreite Blocklager",short:"Arbeitsgangbreite Block",unit:"m",min:1.2,max:6,step:0.1,dec:1,
+    eff:"Bestimmt die Gassen zwischen den Blockbändern und die westliche Längsgasse im Blocklager."},
+  {p:"ffz.vnaPnD",id:"chk-vna-pnd",type:"check",label:"P&D-Plätze an Regalstirnseiten (bei VNA)",short:"P&D-Plätze bei VNA",show:yesNo("berücksichtigt","nicht berücksichtigt"),visibleIf:s=>(s.ffz.rackFFZ||[]).indexOf("vna")>=0,
+    title:"Bei VNA im Regallager: P&D-Aufsetzplätze an den Regalstirnseiten berücksichtigen (je Stirnseite 1,0 m Aufsetzplatz und 1,0 m Anfahrabstand; vermindert die nutzbare Regallänge je Reihe um 4,0 m)."},
+  {p:"ffz.rackBase",id:"sel-rackbase",type:"select",label:"Bemessungsbasis der Regalgeometrie",short:"Regal-Auslegungsbasis",options:[["lead","Leitartikel nach größtem Brutto-Regalbedarf"],["envelope","Hüllkurve (Maximalmaße und -gewicht aller Regalpositionen)"]],
+    eff:"Leitartikel dimensioniert Fachhöhe und Fachlast nach der Position mit dem größten Brutto-Regalbedarf; Hüllkurve nach den Maximalmaßen und dem Maximalgewicht aller Regalpositionen."},
+  {p:"ffz.fieldMode",id:"sel-fieldmode",type:"select",label:"Lichte Feldweite",short:"Feldweite-Modus",options:[["auto","Auto-Plausibilität"],["fix","Festes Maß 1.800–3.600 mm"]]},
+  {p:"ffz.fieldWidth",id:"in-fieldWidth",type:"num",label:"Feldweite (fix)",unit:"mm",min:1800,max:3600,step:100,dec:0,visibleIf:s=>s.ffz.fieldMode==="fix",eff:"Bestimmt Paletten je Feld, Rahmenzahl und CAPEX."},
+  {p:"ffz.floorOnBeam",id:"chk-floorbeam",type:"check",label:"Bodenebene auf Traverse"},
+  {p:"ffz.singleRows",id:"chk-singlerows",type:"check",label:"Einzelreihen ergänzen",title:"Wand- und Restflächen nutzen, sobald Doppelreihen nicht mehr passen."},
+  {p:"ffz.liftHeight",id:"in-liftheight",type:"num",label:"Maximale Hubhöhe des Regal-FFZ",short:"Maximale Hubhöhe",unit:"m",min:1,max:20,step:0.1,dec:1,title:"Begrenzt die Oberkante der letzten Traversenebene."},
+  {p:"ffz.liftReserve",id:"in-liftreserve",type:"num",label:"Bedienreserve unter maximaler Hubhöhe",short:"Bedienreserve Hubhöhe",unit:"mm",min:0,max:1000,step:50,dec:0,title:"Abzug von der maximalen Hubhöhe für Handhabungsreserve."},
+  /* Sicherheit & Abstände */
+  {p:"fire.sprinkler",id:"in-sprinkler",type:"num",label:"Sprinkler-Freiraum unter UKB",short:"Sprinkler-Freiraum",unit:"mm",min:0,max:2000,step:50,dec:0,eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
+  {p:"fire.inRack",id:"chk-inrack",type:"check",label:"In-Rack-Sprinklerung",title:"Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe."},
+  {p:"fire.tunnelInterval",id:"in-tunnelint",type:"num",label:"Fluchttunnel-Intervall",unit:"m",min:0,max:200,step:1,dec:0,eff:"Fachplätze in Tunnelzonen erhöhen den Platzbedarf."},
+  {p:"fire.tunnelClear",id:"in-tunnelclear",type:"num",label:"lichte Durchgangshöhe Tunnel",short:"Durchgangshöhe Tunnel",unit:"m",min:2,max:6,step:0.1,dec:1},
+  /* Kosten & Optionen */
+  {p:"costMeta.date",id:"in-price-date",type:"month",label:"Preisstand"},
+  {p:"costMeta.source",id:"in-price-source",type:"text",label:"Preisquelle",placeholder:"Richtpreis oder Angebot",maxLength:200},
+  {p:"costMeta.uncertainty",id:"in-cost-unc",type:"num",label:"Kostenunsicherheit",unit:"± %",min:0,max:100,step:1,dec:0},
+  {p:"costMeta.realizationYears",id:"in-realization-years",type:"num",int:true,label:"Jahre bis Realisierung",unit:"Jahre",min:0,max:30,step:1,dec:0},
+  {p:"costMeta.priceEscalation",id:"in-price-escalation",type:"num",label:"Preissteigerung",unit:"% p. a.",min:0,max:100,step:0.5,dec:1,eff:"Erhöht den CAPEX bis zur Realisierung."},
+  {p:"costMeta.projectOverhead",id:"in-project-overhead",type:"num",label:"Projektnebenkosten",unit:"%",min:0,max:100,step:0.5,dec:1,eff:"Erhöht den eskalierten CAPEX."},
+  {p:"bom.pushThrough",id:"chk-push",type:"check",label:"Durchschubsicherungen je Fach einrechnen",short:"Durchschubsicherungen",show:yesNo("eingerechnet","aus")},
+  {p:"bom.grating",id:"chk-grating",type:"check",label:"Gitterroste je Fluchttunnel einrechnen",short:"Gitterroste",show:yesNo("eingerechnet","aus")},
+  {p:"bom.demount",id:"chk-demount",type:"check",label:"Rückbau & Demontage einrechnen (Pauschale auf Bauteilsumme)",short:"Rückbau & Demontage",show:yesNo("eingeplant","aus")},
+  /* Außerhalb des erzeugten Formulars: Stückliste und Stammdaten */
+  {p:"prices.mount",id:"pr-mount",type:"num",render:false,apply:"totals",label:"Montageanteil",unit:"%",min:0,max:100,step:0.5,dec:1,eff:"Zuschlag auf die Stücklistensumme."},
+  {p:"prices.demountPct",id:"pr-demount",type:"num",render:false,apply:"totals",label:"Rückbau- und Demontage-Pauschale",unit:"%",min:0,max:100,step:0.5,dec:1,
+    eff:"Zuschlag auf die Stücklistensumme, wenn Rückbau & Demontage in der Stückliste aktiviert ist."},
+  ...[["frame","Rahmen (Ständerpaar)"],["beamPair","Traversenpaar"],["grating","Gitterrost"],["protector","Anfahrschutz"],["pushThrough","Durchschubsicherung"],["marking","Bodenmarkierung je m"],["backMesh","Rückwandgitter"],["markingRack","Markierungsmaterial Regale"],["acceptance","Regalprüfung Erstabnahme je Reihe"]]
+    .map(([key,name])=>({p:"prices."+key,type:"num",render:false,bind:false,label:"Einheitspreis "+name,unit:"€",min:0,max:1000000000,step:0.5,dec:2,
+      eff:key==="frame"?"Zentraler Stücklisten-Treiber des Regal-CAPEX.":undefined})),
+  {p:"lhmDefault",id:"sel-deflhm",type:"select",render:false,bind:false,label:"Standardpalette",options:[],show:v=>{const b=lhmBase(v);return b?b.label:String(v);},
+    eff:"Bestimmt Grundmaß, Höhe, Gewicht und Referenz-Stapelfaktor neuer Positionen; bestehende Positionen bleiben unverändert."}
+];
+/* Pfade aus defaults(), die bewusst kein Planungsparameter sind */
+const PARAM_INTERNAL_PATHS=["ffz.type"];
+const PARAM_BY_PATH=new Map(PARAMS.map(d=>[d.p,d]));
+const isRangedParam=d=>d.type==="num"||d.type==="range"||d.type==="plusx"||(d.type==="select"&&d.num);
+function paramLabel(d){return d.short||d.label;}
+function paramShow(d,v){
+  if(d.show)return d.show(v);
+  if(d.type==="check")return v?"Ja":"Nein";
+  if(d.type==="select"){const o=d.options.find(x=>x[0]===v);return o?o[1]:String(v==null?"–":v);}
+  if(d.type==="plusx")return "1+"+(Math.max(1,v||1)-1);
+  if(typeof v==="number")return fmt(v,d.dec||0)+(d.unit?" "+d.unit:"");
+  return v==null||v===""?"–":String(v);
+}
+/* Wertebereich als [min,max] auf den gespeicherten Wert bezogen */
+function paramRange(d){return [d.min==null?-Infinity:d.min,d.max==null?Infinity:d.max];}
+/* Begrenzt Zahlenwerte eines vollständigen Planungsstands auf die Schemagrenzen. Liefert die Änderungen. */
+function repairParamRanges(state){
+  const fixed=[];
+  for(const d of PARAMS){
+    if(!isRangedParam(d))continue;
+    const v=getP(state,d.p);
+    if(typeof v!=="number"||!Number.isFinite(v))continue;
+    const [mn,mx]=paramRange(d);
+    let nv=clamp(v,mn,mx);
+    if(d.int||d.type==="plusx")nv=clamp(Math.round(nv),mn,mx);
+    if(nv!==v){setP(state,d.p,nv);fixed.push({path:d.p,label:paramLabel(d),from:paramShow(d,v),to:paramShow(d,nv)});}
+  }
+  return fixed;
+}
+function describeRepairs(fixed){
+  return fixed.map(x=>"· "+x.label+": "+x.from+" → "+x.to).join("\n");
+}
+/* Typprüfung beim Import; Bereichsgrenzen repariert repairParamRanges mit Hinweis */
+function validateParamTypes(obj,label){
+  for(const d of PARAMS){
+    if(d.type==="zone"||d.type==="ffz"||d.p==="lhmDefault"||d.p.startsWith("prices."))continue;
+    const v=getP(obj,d.p);
+    if(v===undefined)continue;
+    const where=label+"."+d.p;
+    if(isRangedParam(d)){if(typeof v!=="number"||!Number.isFinite(v))throw new Error(where+" muss eine endliche Zahl sein.");}
+    else if(d.type==="check"){if(typeof v!=="boolean")throw new Error(where+" muss wahr/falsch sein.");}
+    else if(d.type==="select"){if(!d.options.some(o=>o[0]===v))throw new Error(label+": ungültige Auslegungsoption "+d.p.split(".").pop()+".");}
+    else if(typeof v!=="string"||v.length>(d.maxLength||200))throw new Error(where+" muss Text mit höchstens "+(d.maxLength||200)+" Zeichen sein.");
+  }
+}
+
+/* Gliederung der Vorgaben: Bereiche (Unterregister) und Abschnitte. Stammdaten (pal) bleiben statisches Markup. */
+const PARAM_LAYOUT=[
+  {id:"gbp",title:"Gebäude & Flächen",intro:["Baulicher Rahmen","Abmessungen, Tore, Zonen und Raster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer."],sections:[
+    {title:"Gebäude",sub:"Bestand oder Greenfield",items:["building.mode","building.L","building.W","building.ratio",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"},"building.ukb","building.rent"]},
+    {title:"Tore und Zonen",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
+      items:["building.zones","building.doors.N","building.doors.O","building.doors.S","building.doors.W","building.weDepth","building.waDepth"]},
+    {title:"Gebäuderaster",sub:"Layoutvorgaben",items:["building.orient","building.gridX","building.gridY"]}]},
+  {id:"vol",title:"Volumen & Puffer",intro:["Bemessungsgrößen","Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf."],sections:[
+    {title:"Bestandsbemessung",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety","volume.planningYears","volume.growthRate","volume.skuGrowthRate","volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
+    {id:"sec-buffer",title:"WE-Puffer",sub:"Durchsatzbezogene Bemessung",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor","volume.peakHourShare","volume.weShare","volume.simultaneity"]},
+    {title:"Transit- und Cross-Dock-Puffer",sub:"Nur bei separater Pufferfläche",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal","volume.operationalArea"]},
+    {title:"Leergut",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
+      items:["empty.on","empty.mode","empty.value","empty.stack","empty.reserve"]}]},
+  {id:"ffz",title:"Lagertechnik",tip:"Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen.",
+    intro:["Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis."],sections:[
+    {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
+    {title:"Arbeitsgänge",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
+    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows"]},
+    {title:"Höhenbegrenzung",sub:"Gebäude und Stapler wirken als unabhängige Grenzen",items:["ffz.liftHeight","ffz.liftReserve"],after:'<div class="height-balance" id="height-balance"></div>'}]},
+  {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
+    intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
+    {title:"Zuordnungsmodell",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
+    {title:"Kanalgeometrie",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient","block.maxTop"]}]},
+  {id:"fir",title:"Sicherheit & Abstände",intro:["Vorgaben und Nachweise","Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise."],sections:[
+    {title:"Brandschutz",sub:"Geometrische Vorgaben",items:["fire.sprinkler","fire.inRack"]},
+    {title:"Fluchtwege",sub:"Vorplanungswerte",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
+  {id:"cost",title:"Kosten & Optionen",intro:["Preis- und Kalkulationsbasis","Die Mengenermittlung steht im Register Stückliste & CAPEX. Hier werden Preisstand, Quelle, Unsicherheit und Einrechnungsoptionen gepflegt."],sections:[
+    {title:"Preisbasis",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
+    {title:"Einrechnungsoptionen",sub:"Wirkung auf die Stückliste",items:["bom.pushThrough","bom.grating","bom.demount"],
+      after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Register <b>Stückliste &amp; CAPEX</b>.</p>'}]}
+];
+const tipHtml=t=>t?' <span class="tt" data-tip="'+escH(t)+'" tabindex="0">ⓘ</span>':'';
+function paramFieldHtml(d){
+  const label=d.labelHtml||escH(d.label);
+  const title=d.title?' title="'+escH(d.title)+'"':'';
+  const unit=(d.unit||d.unitId)?'<span class="val"'+(d.unitId?' id="'+d.unitId+'"':'')+'>'+escH(d.unit||"")+'</span>':'';
+  const lim=(mn,mx,st)=>' min="'+mn+'" max="'+mx+'" step="'+st+'"';
+  switch(d.type){
+    case "select":
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><select id="'+d.id+'"'+title+'>'+
+        d.options.map(o=>'<option value="'+escH(o[0])+'">'+escH(o[1])+'</option>').join("")+'</select></div>';
+    case "check":
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="checkbox"'+title+'></div>';
+    case "text": case "month":
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="'+d.type+'"'+(d.placeholder?' placeholder="'+escH(d.placeholder)+'"':'')+(d.maxLength?' maxlength="'+d.maxLength+'"':'')+title+'></div>';
+    case "range":
+      return '<div class="fld wide"><label for="'+d.id+'">'+label+' <span class="val calc" id="out-range" style="float: right"></span></label>'+
+        '<input id="'+d.id+'" type="range"'+lim(d.min,d.max,d.step)+'>'+
+        '<span style="display: flex; gap: 6px; align-items: center"><input id="num-range" aria-label="'+escH(d.label)+' in '+escH(d.unit)+'" type="number"'+lim(d.min,d.max,d.step)+' style="width: 64px"> '+unit+'</span></div>';
+    case "plusx":
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="number"'+lim(d.min-1,d.max-1,1)+title+'>'+unit+'</div>';
+    case "ffz":
+      return '<div class="fld wide" id="'+d.id+'"><label>'+label+'</label><div class="ffz-checks" role="group" aria-label="'+escH(d.label)+'">'+
+        d.items.map(([key,text])=>'<label class="ck"><input type="checkbox" data-ffzgrp="'+d.p.split(".")[1]+'" data-ffz="'+key+'"> '+escH(text)+'</label>').join("")+'</div></div>';
+    case "zone":
+      return '<div class="zone-grid" id="'+d.id+'" role="group" aria-label="Zonenrollen je Seite">'+[["N","Nord"],["O","Ost"],["S","Süd"],["W","West"]].map(([s,n])=>
+        '<span>Zone '+n+'</span><label><input type="checkbox" id="in-zone-'+s+'-we"> WE</label><label><input type="checkbox" id="in-zone-'+s+'-wa"> WA</label>').join("")+'</div>';
+    default:
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="number"'+lim(d.min,d.max,d.step)+title+'>'+unit+'</div>';
+  }
+}
+function renderParamForm(){
+  for(const g of PARAM_LAYOUT){
+    const host=$("pg-"+g.id);if(!host)continue;
+    let h='<h3>'+escH(g.title)+tipHtml(g.tip)+'</h3>';
+    if(g.intro)h+='<div class="param-intro"><div><b>'+escH(g.intro[0])+'</b><span>'+escH(g.intro[1])+'</span></div></div>';
+    for(const sec of g.sections){
+      h+='<section class="param-section"'+(sec.id?' id="'+sec.id+'"':'')+'><h3>'+escH(sec.title)+(sec.sub?' <small>'+escH(sec.sub)+'</small>':'')+tipHtml(sec.tip)+'</h3><div class="grp">';
+      for(const it of sec.items){
+        if(typeof it==="string"){const d=PARAM_BY_PATH.get(it);if(!d)throw new Error("Parameter fehlt im Schema: "+it);h+=paramFieldHtml(d);}
+        else if(it.output)h+='<div class="fld"><label>'+escH(it.label)+'</label><span class="val calc" id="'+it.output+'" style="grid-column: 2/4; justify-self: end">–</span></div>';
+      }
+      h+='</div>'+(sec.after||'')+'</section>';
+    }
+    host.innerHTML=h;
+  }
+}
+/* Bindung der Formularfelder an S mit Grenzprüfung bei der Eingabe */
+function readParamControl(d,el){
+  if(d.type==="check")return {ok:true,value:el.checked};
+  if(d.type==="text"||d.type==="month")return {ok:true,value:String(el.value).slice(0,d.maxLength||200)};
+  if(d.type==="select")return {ok:true,value:d.num?Number(el.value):el.value};
+  const raw=String(el.value).trim().replace(",",".");
+  let v=raw===""?NaN:Number(raw);
+  if(!Number.isFinite(v))return {ok:false,value:NaN};
+  if(d.type==="plusx")v=Math.round(v)+1;else if(d.int)v=Math.round(v);
+  const [mn,mx]=paramRange(d);
+  return {ok:v>=mn&&v<=mx,value:v};
+}
+function writeParamControl(d,el,v){
+  if(!el)return;
+  if(d.type==="check")el.checked=!!v;
+  else if(d.type==="plusx")el.value=Math.max(0,(Number(v)||1)-1);
+  else el.value=v==null?"":v;
+}
+function markParamInvalid(d,el,invalid){
+  el.classList.toggle("is-invalid",invalid);
+  if(invalid){
+    const [mn,mx]=paramRange(d),off=d.type==="plusx"?1:0;
+    el.setAttribute("aria-invalid","true");
+    el.title="Zulässig: "+fmt(mn-off,d.dec||0)+" bis "+fmt(mx-off,d.dec||0)+(d.unit?" "+d.unit:"")+". Beim Verlassen des Felds wird der Wert begrenzt.";
+  }else{el.removeAttribute("aria-invalid");el.title=d.title||"";if(!el.title)el.removeAttribute("title");}
+}
+function setParamValue(d,v){
+  const prev=JSON.stringify(getP(S,d.p));
+  setP(S,d.p,v);
+  if(S.parameterSources&&S.parameterSources[d.p]&&prev!==JSON.stringify(v))S.parameterSources[d.p].confirmed=false;
+  if(d.onChange)d.onChange(v);
+  if(d.apply==="totals")updateTotals(true);else scheduleRecalc();
+}
+function bindParams(){
+  for(const d of PARAMS){
+    if(d.bind===false||!d.id)continue;
+    const controls=[$(d.id)].concat(d.type==="range"?[$("num-range")]:[]).filter(Boolean);
+    for(const el of controls)bindParamElement(d,el,controls);
+  }
+}
+function bindParamElement(d,el,controls){
+  controls=controls||[el];
+  const mirror=()=>{for(const other of controls)if(other!==el)writeParamControl(d,other,getP(S,d.p));};
+  el.addEventListener("input",()=>{
+    const r=readParamControl(d,el);
+    const ranged=isRangedParam(d)&&d.type!=="select";
+    if(ranged)markParamInvalid(d,el,!r.ok);
+    if(!r.ok)return;
+    setParamValue(d,r.value);mirror();
+  });
+  if(isRangedParam(d)&&d.type!=="select")el.addEventListener("change",()=>{
+    const r=readParamControl(d,el);
+    if(r.ok){markParamInvalid(d,el,false);return;}
+    const [mn,mx]=paramRange(d),cur=getP(S,d.p);
+    let v=Number.isFinite(r.value)?clamp(r.value,mn,mx):cur;
+    if(d.int||d.type==="plusx")v=Math.round(v);
+    writeParamControl(d,el,v);markParamInvalid(d,el,false);
+    if(v!==cur)setParamValue(d,v);
+    mirror();
+  });
+}
+function syncParamControls(){
+  for(const d of PARAMS){
+    if(d.bind===false||!d.id)continue;
+    const v=getP(S,d.p);
+    for(const el of [$(d.id)].concat(d.type==="range"?[$("num-range")]:[]))
+      if(el&&document.activeElement!==el){writeParamControl(d,el,v);markParamInvalid(d,el,false);}
+  }
+}
 
 /* ============================ Rückgängig ============================ */
 const UNDO=[];
@@ -2739,6 +2284,13 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.16",date:"27.10.2026",items:[
+    "Parameterschema als einzige Quelle: Formular, Bindung, Grenzen, Importprüfung, Annahmenregister, Dateivergleich, Kundenbericht und Sensitivität lesen dieselben Einträge.",
+    "Datenverlust behoben: Eine Eingabe außerhalb der zulässigen Grenzen (etwa Füllgrad Regal 30 %, negativer Einheitspreis, Palettenlänge 0) verwarf beim nächsten Öffnen den gesamten Planungsstand. Eingaben werden jetzt markiert und beim Verlassen des Felds begrenzt.",
+    "Planungs- und Eingabedateien sowie der Browserspeicher mit Werten außerhalb der Grenzen werden angepasst statt abgelehnt; ein Hinweis nennt jede Anpassung. Falsche Datentypen werden weiterhin abgelehnt.",
+    "Annahmenregister mit lesbaren Bezeichnungen für alle Parameter, auch Tore, Zonenrollen und Einheitspreise.",
+    "Grenzen vereinheitlicht: Füllgrad Regal ab 40 %, Kanaltiefe ab 1 Palette, gesperrte Plätze bis 99 %; Obergrenzen für alle Zahlenfelder."
+  ]},
   {v:"V2.15",date:"27.10.2026",items:[
     "Navigation in vier Phasen (Eingabe, Konzept, Bewertung, Ergebnis) mit einheitlichen Registernamen; Pfeiltasten wechseln das Register.",
     "Kopfzeile mit Menü Datei für Öffnen, Speichern, Import und Export.",
@@ -3178,6 +2730,24 @@ function assertSafeImportTree(value,depth){
     }
   }
 }
+/* Eingabegrenzen der Artikeltabelle; entsprechen den Regeln von validatePositionArray */
+const ITEM_INPUT_LIMITS={l:{min:1,max:100000},b:{min:1,max:100000},h:{min:1,max:100000},g:{min:0,max:100000},
+  trucks:{min:0,max:1e9},ppt:{min:0,max:1e9},palletsDay:{min:0,max:1e9},pcsDay:{min:0,max:1e9},pcsPerKlt:{min:0,max:1e9},
+  kltPerPallet:{min:0,max:1e9},targetStock:{min:0,max:1e9},skus:{min:0,max:1e7,int:true},blockShare:{min:0,max:100}};
+/* Sicherheitsnetz für den Browserspeicher: Positionswerte in die Grenzen bringen statt den Stand zu verwerfen */
+function repairPositions(items){
+  let n=0;
+  for(const it of Array.isArray(items)?items:[]){
+    if(!isPlainObject(it))continue;
+    for(const [key,lim] of Object.entries(ITEM_INPUT_LIMITS)){
+      const v=it[key];if(typeof v!=="number"||!Number.isFinite(v))continue;
+      let nv=clamp(v,lim.min,lim.max);if(lim.int)nv=Math.round(nv);
+      if(nv!==v){it[key]=nv;n++;}
+    }
+    if(typeof it.stack==="number"&&Number.isFinite(it.stack)){const st=clamp(Math.round(it.stack),1,31);if(st!==it.stack){it.stack=st;n++;}}
+  }
+  return n;
+}
 const ITEM_NUMERIC_FIELDS=["blockSkus","trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus","l","b","h","g","stack","blockShare","net","trucksDay","blockNet","rackNet","blockGross","rackGross"];
 function validatePositionArray(items,label){
   if(!Array.isArray(items))throw new Error(label+" muss eine Liste sein.");
@@ -3274,62 +2844,12 @@ function validateLhmOverrides(dict,label){
     }
   }
 }
-function validateNumberFields(group,fields,label,minZero){
-  if(group==null)return;
-  if(!isPlainObject(group))throw new Error(label+" muss ein Objekt sein.");
-  for(const field of fields){
-    const v=group[field];
-    if(v===undefined)continue;
-    if(typeof v!=="number"||!Number.isFinite(v))throw new Error(label+"."+field+" muss eine endliche Zahl sein.");
-    if(minZero&&v<0)throw new Error(label+"."+field+" darf nicht negativ sein.");
-  }
-}
-function validateBoolFields(group,fields,label){
-  if(group==null)return;
-  for(const field of fields)if(group[field]!==undefined&&typeof group[field]!=="boolean")throw new Error(label+"."+field+" muss wahr/falsch sein.");
-}
 function validatePlannerStateFields(obj,label){
-  const numeric={
-    building:["L","W","ukb","weDepth","waDepth","gridX","gridY","ratio","rent"],
-    volume:["range","peak","safety","planningYears","growthRate","skuGrowthRate","peakHourShare","weShare","simultaneity","strategicReserve","blockedPlaces","operationalArea","bufferTrucks","bufferPallets","bufferDwell","bufferFactor","fillRack","fillBlock","transit","transitDays","transitAreaPerPal"],
-    block:["quota","channelDepth","stackH","aVol","bVol","minFill","maxTop"],
-    ffz:["aisle","aisleBlock","fieldWidth","liftHeight","liftReserve"],
-    fire:["sprinkler","tunnelInterval","tunnelClear"],
-    empty:["value","stack","reserve"],
-      costMeta:["uncertainty","realizationYears","priceEscalation","projectOverhead"]
-  };
-  for(const [group,fields] of Object.entries(numeric))validateNumberFields(obj[group],fields,label+"."+group,true);
-  validateBoolFields(obj.volume,["transitBufferOn"],label+".volume");
-    if(obj.volume&&obj.volume.bufferMode!==undefined&&!["simple","process"].includes(obj.volume.bufferMode))throw new Error(label+".volume.bufferMode ist ungültig.");
-    if(obj.volume){
-      const ranges={range:[0.5,56],peak:[1,3],safety:[0,100],fillRack:[40,100],fillBlock:[40,100],transit:[0,100],planningYears:[0,30],growthRate:[0,100],skuGrowthRate:[0,100],peakHourShare:[0,100],weShare:[0,100],simultaneity:[0,100],strategicReserve:[0,100],blockedPlaces:[0,99],operationalArea:[0,1000000],bufferFactor:[1,5]};
-      for(const [field,lim] of Object.entries(ranges)){const v=obj.volume[field];if(v!==undefined&&(v<lim[0]||v>lim[1]))throw new Error(label+".volume."+field+" liegt außerhalb "+lim[0]+" bis "+lim[1]+".");}
-    }
-    if(obj.ffz){if(obj.ffz.liftHeight!==undefined&&(obj.ffz.liftHeight<1||obj.ffz.liftHeight>20))throw new Error(label+".ffz.liftHeight liegt außerhalb 1 bis 20 m.");if(obj.ffz.liftReserve!==undefined&&(obj.ffz.liftReserve<0||obj.ffz.liftReserve>1000))throw new Error(label+".ffz.liftReserve liegt außerhalb 0 bis 1.000 mm.");}
-    if(obj.costMeta){if(typeof obj.costMeta!=="object")throw new Error(label+".costMeta muss ein Objekt sein.");if(obj.costMeta.uncertainty!==undefined&&(obj.costMeta.uncertainty<0||obj.costMeta.uncertainty>100))throw new Error(label+".costMeta.uncertainty liegt außerhalb 0 bis 100.");if(obj.costMeta.realizationYears!==undefined&&(obj.costMeta.realizationYears<0||obj.costMeta.realizationYears>30))throw new Error(label+".costMeta.realizationYears liegt außerhalb 0 bis 30.");if(obj.costMeta.priceEscalation!==undefined&&(obj.costMeta.priceEscalation<0||obj.costMeta.priceEscalation>100))throw new Error(label+".costMeta.priceEscalation liegt außerhalb 0 bis 100.");if(obj.costMeta.projectOverhead!==undefined&&(obj.costMeta.projectOverhead<0||obj.costMeta.projectOverhead>100))throw new Error(label+".costMeta.projectOverhead liegt außerhalb 0 bis 100.");}
-  validateBoolFields(obj.fire,["inRack"],label+".fire");
-  validateBoolFields(obj.ffz,["vnaPnD","floorOnBeam","singleRows"],label+".ffz");
-  validateBoolFields(obj.empty,["on"],label+".empty");
-  validateBoolFields(obj.bom,["pushThrough","grating","demount"],label+".bom");
-  const enumRules=[
-    [obj.building,"mode",["box-fit","greenfield"]],
-    [obj.building,"orient",["quer","laengs"]],
-    [obj.block,"mode",["sku","quota","manual"]],
-    [obj.block,"orient",["N","W"]],
-    [obj.ffz,"fieldMode",["auto","fix"]],
-    [obj.ffz,"rackBase",["lead","envelope"]],
-    [obj.empty,"mode",["percent","abs"]]
-  ];
-  for(const [group,field,allowed] of enumRules){
-    if(group&&group[field]!==undefined&&!allowed.includes(group[field]))throw new Error(label+": ungültige Auslegungsoption "+field+".");
-  }
-  if(obj.building&&obj.building.doors){
-    validateNumberFields(obj.building.doors,["N","S","O","W"],label+".building.doors",true);
-  }
-  if(obj.building&&obj.building.zones){
-    if(!isPlainObject(obj.building.zones))throw new Error(label+".building.zones muss ein Objekt sein.");
-    for(const side of ["N","S","O","W"]){const v=obj.building.zones[side];if(v!==undefined&&!(["none","we","wa","wewa"].includes(v)))throw new Error(label+".building.zones."+side+" ist ungültig.");}
-  }
+  if(obj.costMeta!=null&&!isPlainObject(obj.costMeta))throw new Error(label+".costMeta muss ein Objekt sein.");
+  // Typen und Auswahlwerte aus dem Parameterschema; Bereichsgrenzen repariert repairParamRanges beim Übernehmen
+  validateParamTypes(obj,label);
+  if(obj.building&&obj.building.doors!==undefined&&!isPlainObject(obj.building.doors))throw new Error(label+".building.doors muss ein Objekt sein.");
+  if(obj.building&&obj.building.zones!==undefined&&!isPlainObject(obj.building.zones))throw new Error(label+".building.zones muss ein Objekt sein.");
   if(obj.ffz){
     for(const field of ["rackFFZ","blockFFZ","zoneFFZ"]){
       if(obj.ffz[field]!==undefined&&(!Array.isArray(obj.ffz[field])||obj.ffz[field].some(v=>typeof v!=="string"||v.length>40)))throw new Error(label+".ffz."+field+" muss eine Liste von Typkennungen sein.");
@@ -3430,18 +2950,9 @@ function syncAll(){
     const v=getP(S,b.path);
     if(b.kind==="check")b.el.checked=!!v;else b.el.value=v;
   }
-  const shEl=$("in-stackH");
-  if(shEl&&document.activeElement!==shEl)shEl.value=Math.max(0,(S.block.stackH||1)-1);
-  const esEl=$("in-empty-stack");
-  if(esEl&&document.activeElement!==esEl)esEl.value=Math.max(0,(S.empty.stack||1)-1);
+  syncParamControls();
   syncZones();
   syncFFZChecks();
-  {
-    const on=!!S.volume.transitBufferOn;
-    const d=$("in-transit-days"),a=$("in-transit-area");
-    if(d)d.disabled=!on;
-    if(a)a.disabled=!on;
-  }
   const dl=$("sel-deflhm");
   if(dl&&dl.value!==(S.lhmDefault||"euro"))dl.value=S.lhmDefault||"euro";
   renderPalletMD();renderTruckMD();
@@ -3933,6 +3444,16 @@ function applyCalculatedItems(calculatedItems){
   if(!Array.isArray(calculatedItems))return;
   for(let i=0;i<Math.min(S.items.length,calculatedItems.length);i++)Object.assign(S.items[i],calculatedItems[i]);
 }
+function showNotice(text,ms){
+  const el=document.createElement("div");
+  el.className="toast notice";el.setAttribute("role","status");
+  el.textContent=text;el.title="Klicken zum Schließen";
+  el.addEventListener("click",()=>el.remove());
+  document.body.appendChild(el);
+  setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el);},ms||15000);
+  return el;
+}
+const repairNotice=(context,fixed)=>{if(fixed.length)showNotice(context+": "+fixed.length+(fixed.length===1?" Wert lag":" Werte lagen")+" außerhalb des zulässigen Bereichs und "+(fixed.length===1?"wurde":"wurden")+" angepasst.\n"+describeRepairs(fixed));};
 function setStatus(actionLabel){
   const el=$("calc-status");
   if(!el)return;
@@ -4560,7 +4081,14 @@ function initItems(){
       S.items[i].pptManual=false;S.items[i].ppt=fillTruck(t.value,S.items[i]);
       renderItems();recalc();return;
     }
-    const v=(t.type==="number")?(parseFloat(String(t.value).replace(",","."))||0):t.value;
+    let v=(t.type==="number")?(parseFloat(String(t.value).replace(",","."))||0):t.value;
+    const lim=ITEM_INPUT_LIMITS[t.dataset.k];
+    if(lim&&t.type==="number"){
+      if(lim.int)v=Math.round(v);
+      const ok=v>=lim.min&&v<=lim.max;
+      t.classList.toggle("is-invalid",!ok);
+      if(ok)t.removeAttribute("aria-invalid");else{t.setAttribute("aria-invalid","true");t.title="Zulässig: "+fmt(lim.min)+" bis "+fmt(lim.max)+". Beim Verlassen des Felds gilt wieder der letzte gültige Wert.";return;}
+    }
     S.items[i][t.dataset.k]=v;
     // Eigener Wert > 0 überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.
     if(t.dataset.k==="ppt")S.items[i].pptManual=v>0;
@@ -4581,6 +4109,14 @@ function initItems(){
   });
   tb.addEventListener("keydown",ev=>{
     if((ev.key==="Enter"||ev.key===" ")&&ev.target.dataset&&ev.target.dataset.del!==undefined){ev.preventDefault();ev.target.click();}
+  });
+  // Ungültige Zahl beim Verlassen verwerfen: letzter gültiger Wert wird wieder angezeigt
+  tb.addEventListener("change",ev=>{
+    const t=ev.target;
+    if(!t.classList||!t.classList.contains("is-invalid"))return;
+    const it=S.items[+t.dataset.i];if(!it)return;
+    t.value=it[t.dataset.k]==null?"":it[t.dataset.k];
+    t.classList.remove("is-invalid");t.removeAttribute("aria-invalid");t.removeAttribute("title");
   });
   const sa=$("sel-all");
   if(sa)sa.addEventListener("change",ev=>{
@@ -5115,10 +4651,8 @@ function renderBOM(){
     tb.appendChild(tr);
   }
   tb.querySelectorAll("input[data-price]").forEach(inp=>{
-    inp.addEventListener("input",()=>{
-      S.prices[inp.dataset.price]=parseFloat(String(inp.value).replace(",","."))||0;
-      updateTotals(true);
-    });
+    const d=PARAM_BY_PATH.get("prices."+inp.dataset.price);
+    if(d)bindParamElement(Object.assign({},d,{apply:"totals"}),inp);
   });
   updateTotals();
 }
@@ -5237,7 +4771,9 @@ function restoreScenario(i){
   if(Array.isArray(sc.data.items))S.items=sc.data.items.map(item=>deepMerge(newItem(),item));
   S.scenarios=keep;
   if(sc.data&&Object.prototype.hasOwnProperty.call(sc.data,"customTrucks"))S.customTrucks=sc.data.customTrucks||{};
+  const fixed=repairParamRanges(S);
   syncAll();refreshModeUI();renderItems();recalc();
+  repairNotice("Szenario "+i+" geladen",fixed);
 }
 function clearScenario(i){
   const ex=S.scenarios[i-1];
@@ -5305,62 +4841,8 @@ function renderScenarios(){
 }
 
 /* ============================ Planungs-Diff (Vergleich zweier Stände) ============================ */
-const DIFF_PARAMS=[
-  {p:"building.mode",label:"Modus",f:v=>v==="greenfield"?"Greenfield":"Bestandshalle"},
-  {p:"building.L",label:"Hallenlänge",f:v=>fmt(v,1)+" m"},
-  {p:"building.W",label:"Hallenbreite",f:v=>fmt(v,1)+" m"},
-  {p:"building.ukb",label:"Unterkante Binder",f:v=>fmt(v,1)+" m"},
-  {p:"building.ratio",label:"Seitenverhältnis",f:v=>{const m={1:"1 : 1",1.5:"3 : 2",0.6667:"2 : 3",2:"2 : 1",0.5:"1 : 2",3:"3 : 1",0.3333:"1 : 3"};return v?(m[+v]||fmt(v,2)):"frei";}},
-  {p:"building.doors.N",label:"Tore Nord",f:v=>fmt(v)},
-  {p:"building.doors.O",label:"Tore Ost",f:v=>fmt(v)},
-  {p:"building.doors.S",label:"Tore Süd",f:v=>fmt(v)},
-  {p:"building.doors.W",label:"Tore West",f:v=>fmt(v)},
-  {p:"building.orient",label:"Regal-Ausrichtung",f:v=>v==="quer"?"orthogonal zu Toren":"parallel zu Toren"},
-  {p:"building.gridX",label:"Stützraster X",f:v=>fmt(v,1)+" m"},
-  {p:"building.gridY",label:"Stützraster Y",f:v=>fmt(v,1)+" m"},
-  {p:"building.weDepth",label:"Tiefe WE-Zonen",f:v=>fmt(v,1)+" m"},
-  {p:"building.waDepth",label:"Tiefe WA-Zonen",f:v=>fmt(v,1)+" m"},
-  {p:"building.rent",label:"Miete Halle",f:v=>fmt(v,1)+" €/m²·Monat"},
-  {p:"volume.range",label:"Lagerreichweite",f:v=>fmt(v,1)+" Tage"},
-  {p:"volume.planningYears",label:"Planungshorizont",f:v=>fmt(v)+" Jahre"},
-  {p:"volume.growthRate",label:"Mengenwachstum",f:v=>fmt(v,1)+" % p. a."},
-  {p:"volume.skuGrowthRate",label:"Artikelwachstum",f:v=>fmt(v,1)+" % p. a."},
-  {p:"volume.strategicReserve",label:"Strategische Reserve",f:v=>fmt(v)+" %"},
-  {p:"volume.blockedPlaces",label:"Gesperrte Plätze",f:v=>fmt(v)+" %"},
-  {p:"volume.operationalArea",label:"Operative Nebenfläche",f:v=>fmt(v,1)+" m²"},
-  {p:"costMeta.priceEscalation",label:"Preissteigerung",f:v=>fmt(v,1)+" % p. a."},
-  {p:"costMeta.projectOverhead",label:"Projektnebenkosten",f:v=>fmt(v,1)+" %"},
-  {p:"volume.fillRack",label:"Füllgrad Regal",f:v=>fmt(v)+" %"},
-  {p:"volume.fillBlock",label:"Füllgrad Block",f:v=>fmt(v)+" %"},
-  {p:"volume.transit",label:"Transit-/Cross-Dock-Anteil",f:v=>fmt(v)+" %"},
-  {p:"block.mode",label:"Verteilungsmethode",f:v=>({sku:"artikelbasiert",quota:"Volumenquote",manual:"manueller Override"})[v]||v},
-  {p:"block.quota",label:"Volumenquote Block",f:v=>fmt(v)+" %"},
-  {p:"block.channelDepth",label:"Kanaltiefe",f:v=>fmt(v)+" Pal."},
-  {p:"block.stackH",label:"Max. Stapelhöhe",f:v=>"1+"+(Math.max(1,v)-1)},
-  {p:"block.orient",label:"Blockausrichtung",f:v=>v==="W"?"Kanäle längs (Zugang West)":"Kanäle quer (Zugang Nord)"},
-  {p:"block.maxTop",label:"Oberkante Lagergut",f:v=>fmt(v,1)+" m"},
-  {p:"block.minFill",label:"Mindest-Kanalfüllgrad",f:v=>fmt(v)+" %"},
-  {p:"ffz.rackFFZ",label:"FFZ Regallager",f:v=>ffzList(v)},
-  {p:"ffz.blockFFZ",label:"FFZ Blocklager / Leergut",f:v=>ffzList(v)},
-  {p:"ffz.zoneFFZ",label:"FFZ WE/WA & Vorzone",f:v=>ffzList(v)},
-  {p:"ffz.vnaPnD",label:"P&D-Plätze bei VNA",f:v=>v?"berücksichtigt":"nicht berücksichtigt"},
-  {p:"ffz.rackBase",label:"Regal-Auslegungsbasis",f:v=>v==="envelope"?"Hüllkurve":"Leitartikel"},
-  {p:"ffz.aisle",label:"Arbeitsgangbreite Regal",f:v=>fmt(v,1)+" m"},
-  {p:"ffz.aisleBlock",label:"Arbeitsgangbreite Block",f:v=>fmt(v,1)+" m"},
-  {p:"ffz.fieldMode",label:"Feldweite-Modus",f:v=>v==="fix"?"fest":"Auto-Plausibilität"},
-  {p:"ffz.fieldWidth",label:"Feldweite (fix)",f:v=>fmt(v)+" mm"},
-  {p:"fire.sprinkler",label:"Sprinkler-Freiraum",f:v=>fmt(v)+" mm"},
-  {p:"fire.tunnelInterval",label:"Fluchttunnel-Intervall",f:v=>fmt(v)+" m"},
-  {p:"fire.tunnelClear",label:"Durchgangshöhe Tunnel",f:v=>fmt(v,1)+" m"},
-  {p:"empty.on",label:"Leergutbereich",f:v=>v?"eingeplant":"aus"},
-  {p:"empty.mode",label:"Leergut-Mengenbasis",f:v=>v==="abs"?"absolute Palettenzahl":"Anteil am Brutto-Bestand"},
-  {p:"empty.value",label:"Leergutmenge",f:v=>fmt(v)},
-  {p:"empty.stack",label:"Stapelhöhe Leerpaletten",f:v=>"1+"+v},
-  {p:"empty.reserve",label:"Leergut-Zugangsreserve",f:v=>fmt(v)+" %"},
-  {p:"bom.demount",label:"Rückbau & Demontage",f:v=>v?"eingeplant":"aus"},
-  {p:"prices.mount",label:"Montageanteil",f:v=>fmt(v)+" %"},
-  {p:"prices.demountPct",label:"Rückbau-Pauschale",f:v=>fmt(v)+" %"}
-];
+// Globale Parameter des Dateivergleichs: alle Schemaeinträge außer den Zonen (eigene Zeile in renderDiff)
+const DIFF_PARAMS=PARAMS.filter(d=>d.diff!==false).map(d=>({p:d.p,label:paramLabel(d),f:v=>paramShow(d,v)}));
 const DIFF_ITEM_FIELDS=[
   ["name","Bezeichnung",v=>v],
   ["demand","Ermittlung",v=>v],
@@ -5792,47 +5274,6 @@ function renderOptResults(rows,best,goal){
 
 /* ============================ Annahmenregister · Sensitivität · Berichte ============================ */
 function escH(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
-const PARAM_DEFS=[
-  {p:"volume.planningYears",label:"Planungshorizont",unit:"Jahre",eff:"Bestimmt die Zahl der Wachstumsperioden."},
-  {p:"volume.growthRate",label:"Mengenwachstum",unit:"% p. a.",eff:"Skaliert den Mengenbedarf über den Planungshorizont."},
-  {p:"volume.skuGrowthRate",label:"Artikelwachstum",unit:"% p. a.",eff:"Skaliert die Artikelanzahl über den Planungshorizont."},
-  {p:"volume.strategicReserve",label:"Strategische Reserve",unit:"%",eff:"Erhöht den Kapazitätsbedarf."},
-  {p:"volume.blockedPlaces",label:"Gesperrte Plätze",unit:"%",eff:"Verringert die nutzbare Kapazität."},
-  {p:"volume.operationalArea",label:"Operative Nebenfläche",unit:"m²",eff:"Erhöht den Flächenbedarf."},
-  {p:"costMeta.priceEscalation",label:"Preissteigerung",unit:"% p. a.",eff:"Erhöht den CAPEX bis zur Realisierung."},
-  {p:"costMeta.projectOverhead",label:"Projektnebenkosten",unit:"%",eff:"Erhöht den eskalierten CAPEX."},
-  {p:"building.L",label:"Hallenlänge",unit:" m",eff:"Bestimmt Regallänge und Zahl der Felder je Reihe."},
-  {p:"building.W",label:"Hallenbreite",unit:" m",eff:"Begrenzt die Zahl der Doppelreihen; im Greenfield wird sie berechnet."},
-  {p:"building.ukb",label:"Unterkante Binder",unit:" m",eff:"Bestimmt die Ebenenzahl und damit die Regalkapazität."},
-  {p:"building.weDepth",label:"Tiefe WE-Zonen",unit:" m",eff:"Mindert die verfügbare Fläche an allen Seiten mit der Rolle WE; bei Kombination mit WA an derselben Seite gilt der größere Einzelwert (Flächen nebeneinander)."},
-  {p:"building.waDepth",label:"Tiefe WA-Zonen",unit:" m",eff:"Mindert die verfügbare Fläche an allen Seiten mit der Rolle WA; bei Kombination mit WE an derselben Seite gilt der größere Einzelwert (Flächen nebeneinander)."},
-  {p:"building.rent",label:"Miete Halle",unit:" €/m²·Monat",eff:"Berechnet die monatlichen und jährlichen Mietkosten der Hallenfläche; 0 schaltet die Ausweisung aus."},
-  {p:"building.ratio",label:"Seitenverhältnis Halle",unit:"",show:cur=>{const r=+cur;if(!r)return "frei";const m={1:"1 : 1",1.5:"3 : 2",0.6667:"2 : 3",2:"2 : 1",0.5:"1 : 2",3:"3 : 1",0.3333:"1 : 3"};return m[r]||fmt(r,2);},eff:"Im Greenfield-Modus mit festem Verhältnis sucht das Werkzeug im begrenzten 5-m-Raster und verfeinert den ersten Treffer lokal auf 0,5 m. Kein globaler Minimalitätsnachweis."},
-  {p:"empty.on",label:"Leergutbereich",unit:"",show:cur=>cur?"eingeplant":"aus",eff:"Schaltet den verdichteten Leergutband zwischen Blocklager und Regalzone ein; er verbraucht Fläche und erhöht keine Lagerkapazität."},
-  {p:"empty.value",label:"Leergutmenge",unit:"",show:cur=>fmt(cur)+(S.empty.mode==="abs"?" Pal.":" % Brutto"),eff:"Bestimmt die Zahl der Leerpaletten (absolut oder als Anteil am Brutto-Bestand) und damit die Fläche des Leergutbands."},
-  {p:"lhmDefault",label:"Standardpalette",unit:"",show:cur=>getLhm(cur).label,eff:"Bestimmt Grundmaß, Höhe, Gewicht und Referenz-Stapelfaktor neuer Positionen; bestehende Positionen bleiben unverändert."},
-  {p:"volume.range",label:"Lagerreichweite",unit:" Tage",eff:"Skaliert den Netto-Bestand und damit den Regal- und Blockbedarf direkt."},
-  {p:"volume.fillRack",label:"Füllgrad Regal",unit:" %",eff:"Bestimmt die Brutto-Regalplätze aus dem Netto-Bestand."},
-  {p:"volume.fillBlock",label:"Füllgrad Block",unit:" %",eff:"Bestimmt die Brutto-Blockplätze und die Kanalzahl."},
-  {p:"volume.transit",label:"Transit-/Cross-Dock-Anteil",unit:" %",eff:"Mindert den bestandsrelevanten Bedarf um den Durchschub-Anteil. Der separate Cross-Dock-Puffer ist abschaltbar; nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche (Standard 0,5 Tage Standzeit, 1,5 m² je Palette) in der Brutto-Lagerfläche."},
-  {p:"block.quota",label:"Volumenquote Block",unit:" %",eff:"Anteil des Bestands im Blocklager im Quotenmodus."},
-  {p:"block.channelDepth",label:"Kanaltiefe",unit:" Pal.",eff:"Bestimmt die Kapazität je Kanal und die Blockfläche."},
-  {p:"block.stackH",label:"Max. Stapelhöhe Block (1+x)",unit:"",show:cur=>"1+"+(Math.max(1,cur)-1),eff:"Begrenzt den nutzbaren Stapelfaktor je Position und bestimmt die Kanalkapazität im Blocklager."},
-  {p:"block.maxTop",label:"Oberkante Lagergut",unit:" m",eff:"Globale Grenze des nutzbaren Stapelfaktors je Position im Blocklager; die Kippgrenze 6:1 wird je Position aufgerundet als Hinweis ausgewiesen."},
-  {p:"block.minFill",label:"Mindest-Kanalfüllgrad",unit:" %",eff:"Qualifikationsschwelle für das Blocklager im artikelbasierten Modus."},
-  {p:"ffz.aisle",label:"Arbeitsgangbreite Regal",unit:" m",eff:"Bestimmt Reihebreite, Raster und Flächenbedarf im Regalbereich."},
-  {p:"ffz.aisleBlock",label:"Arbeitsgangbreite Block",unit:" m",eff:"Bestimmt die Gassen zwischen den Blockbändern und die westliche Längsgasse im Blocklager."},
-  {p:"ffz.rackFFZ",label:"FFZ Regallager",unit:"",show:cur=>ffzList(cur),eff:"Mehrfachauswahl der Flurförderzeuge im Regalbereich; die Regal-Gangbreite wird auf das Maximum der gewählten Typen vorbelegt."},
-  {p:"ffz.blockFFZ",label:"FFZ Blocklager / Leergut",unit:"",show:cur=>ffzList(cur),eff:"Mehrfachauswahl der Flurförderzeuge im Blocklager; die Block-Gangbreite wird auf das Maximum der gewählten Typen vorbelegt."},
-  {p:"ffz.zoneFFZ",label:"FFZ WE/WA & Vorzone",unit:"",show:cur=>ffzList(cur),eff:"Mehrfachauswahl der Flurförderzeuge für den Horizontaltransport zwischen WE/WA und Regal bzw. P&D-Platz."},
-  {p:"ffz.rackBase",label:"Regal-Auslegungsbasis",unit:"",show:cur=>cur==="envelope"?"Hüllkurve":"Leitartikel nach größtem Brutto-Regalbedarf",eff:"Leitartikel dimensioniert Fachhöhe und Fachlast nach der Position mit dem größten Brutto-Regalbedarf; Hüllkurve nach den Maximalmaßen und dem Maximalgewicht aller Regalpositionen."},
-  {p:"ffz.fieldWidth",label:"Feldweite",unit:" mm",eff:"Bestimmt Paletten je Feld, Rahmenzahl und CAPEX."},
-  {p:"fire.sprinkler",label:"Sprinkler-Freiraum",unit:" mm",eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
-  {p:"fire.tunnelInterval",label:"Fluchttunnel-Intervall",unit:" m",eff:"Fachlätze in Tunnelzonen erhöhen den Platzbedarf."},
-  {p:"prices.frame",label:"Kalkulationspreis Rahmen",unit:" €",eff:"Zentraler Stücklisten-Treiber des Regal-CAPEX."},
-  {p:"prices.mount",label:"Montageanteil",unit:" %",eff:"Zuschlag auf die Stücklistensumme."},
-  {p:"prices.demountPct",label:"Rückbau- und Demontage-Pauschale",unit:" %",eff:"Zuschlag auf die Stücklistensumme, wenn Rückbau & Demontage in der Stückliste aktiviert ist."}
-];
 function itemGap(it){
   if((it.net||0)>0){
     if(S.block.mode==="sku"&&!(it.skus>0))return "Artikelanzahl fehlt; die Position läuft vollständig über das Regal.";
@@ -5908,18 +5349,19 @@ function setParameterSource(path,source,confirmed,reference){
   persistState();renderRegister();renderReports();return entry;
 }
 function parameterRegisterRows(){
-  const rows=new Map(PARAM_DEFS.map(x=>[x.p,x]));
+  const rows=new Map();
+  for(const d of PARAMS)if(isParameterSourcePath(d.p))rows.set(d.p,{p:d.p,label:paramLabel(d),def:d,eff:d.eff||'Parameterwert; Herkunft separat dokumentieren.'});
   const visit=(value,path)=>{
-    if(isParameterSourcePath(path)){if(!rows.has(path))rows.set(path,{p:path,label:path,eff:'Parameterwert; Herkunft separat dokumentieren.'});return;}
+    if(isParameterSourcePath(path)){if(!rows.has(path)&&!PARAM_INTERNAL_PATHS.includes(path))rows.set(path,{p:path,label:path,eff:'Parameterwert; Herkunft separat dokumentieren.'});return;}
     if(value&&typeof value==='object'&&!Array.isArray(value))for(const [key,child] of Object.entries(value))visit(child,path+'.'+key);
   };
   const baseline=PARAMETER_SOURCE_DEFAULTS;for(const group of ['building','volume','block','ffz','fire','prices','bom','empty','costMeta'])visit(baseline[group],group);
-  for(const bind of BINDS)if(isParameterSourcePath(bind.path)&&!rows.has(bind.path))rows.set(bind.path,{p:bind.path,label:bind.path,eff:'Parameterwert; Herkunft separat dokumentieren.'});
   for(const path of Object.keys(S.parameterSources||{}))if(isParameterSourcePath(path)&&!rows.has(path))rows.set(path,{p:path,label:path,eff:'Explizit dokumentierte Parameterquelle.'});
   return [...rows.values()];
 }
 function formatParameterRegisterValue(pd){
   const value=getP(S,pd.p);
+  if(pd.def)return paramShow(pd.def,value);
   return pd.show?pd.show(value):typeof value==='boolean'?(value?'Ja':'Nein'):typeof value==='object'?JSON.stringify(value):String(value)+(pd.unit?' '+pd.unit.trim():'');
 }
 function renderParameterSourceRows(){
@@ -5982,23 +5424,27 @@ function runSensitivityCore(){
   const baseM=computeModel();
   const baseA=modelArea(baseM),baseC=bomCapex(baseM.bom);
   if(baseA<=0&&baseC<=0){hint("Die Analyse benötigt ein darstellbares Layout mit Stücklistenwerten.");return;}
+  // Treiber: Beschriftung, Anzeige und Grenzen aus dem Parameterschema; lo/hi legen die Variation fest
   const defs=[
-    {label:"Lagerreichweite",get:()=>S.volume.range,set:v=>S.volume.range=v,lo:b=>b*0.9,hi:b=>b*1.1,show:v=>fmt(v,1)+" Tage"},
-    {label:"Füllgrad Regal",get:()=>S.volume.fillRack,set:v=>S.volume.fillRack=v,lo:b=>clamp(b-5,50,100),hi:b=>clamp(b+5,50,100),show:v=>fmt(v)+" %"},
-    {label:"Füllgrad Block",get:()=>S.volume.fillBlock,set:v=>S.volume.fillBlock=v,lo:b=>clamp(b-10,40,100),hi:b=>clamp(b+10,40,100),show:v=>fmt(v)+" %"},
-    {label:"Volumenquote Block",on:()=>S.block.mode==="quota",get:()=>S.block.quota,set:v=>S.block.quota=v,lo:b=>clamp(b-10,0,100),hi:b=>clamp(b+10,0,100),show:v=>fmt(v)+" %"},
-    {label:"Kanaltiefe",get:()=>S.block.channelDepth,set:v=>S.block.channelDepth=v,lo:b=>clamp(b-2,2,20),hi:b=>clamp(b+2,2,20),show:v=>fmt(v)+" Pal."},
-    {label:"Max. Stapelhöhe Block",get:()=>S.block.stackH,set:v=>S.block.stackH=v,lo:b=>clamp(b-1,1,8),hi:b=>clamp(b+1,1,8),show:v=>"1+"+(Math.max(1,v)-1)+" Pal."},
-    {label:"Oberkante Lagergut",get:()=>S.block.maxTop,set:v=>S.block.maxTop=Math.round(v*10)/10,lo:b=>clamp(Math.round((b-1)*10)/10,2,12),hi:b=>clamp(Math.round((b+1)*10)/10,2,12),show:v=>fmt(v,1)+" m"},
-    {label:"Mindest-Kanalfüllgrad",on:()=>S.block.mode==="sku",get:()=>S.block.minFill,set:v=>S.block.minFill=v,lo:b=>clamp(b-10,30,100),hi:b=>clamp(b+10,30,100),show:v=>fmt(v)+" %"},
-    {label:"Arbeitsgangbreite",get:()=>S.ffz.aisle,set:v=>S.ffz.aisle=v,lo:b=>Math.max(1.2,b-0.3),hi:b=>b+0.3,show:v=>fmt(v,1)+" m"},
-    {label:"UKB (nutzbare Höhe)",get:()=>S.building.ukb,set:v=>S.building.ukb=v,lo:b=>Math.max(3,b-0.5),hi:b=>b+0.5,show:v=>fmt(v,1)+" m"},
-    {label:"Feldweite",on:()=>S.ffz.fieldMode==="fix",get:()=>S.ffz.fieldWidth,set:v=>S.ffz.fieldWidth=v,lo:b=>clamp(b-300,1800,3600),hi:b=>clamp(b+300,1800,3600),show:v=>fmt(v)+" mm"},
-    {label:"Kalkulationspreis Rahmen",get:()=>S.prices.frame,set:v=>S.prices.frame=v,lo:b=>b*0.8,hi:b=>b*1.2,show:v=>eur(v)},
-    {label:"Montageanteil",get:()=>S.prices.mount,set:v=>S.prices.mount=v,lo:b=>clamp(b-5,0,100),hi:b=>clamp(b+5,0,100),show:v=>fmt(v)+" %"},
-    {label:"Transit-/Cross-Dock-Anteil",get:()=>S.volume.transit,set:v=>S.volume.transit=v,lo:b=>clamp(b-5,0,100),hi:b=>clamp(b+5,0,100),show:v=>fmt(v)+" %"},
-    {label:"Rückbau-Pauschale",on:()=>!!S.bom.demount,get:()=>S.prices.demountPct,set:v=>S.prices.demountPct=v,lo:b=>clamp(b-2,0,100),hi:b=>clamp(b+2,0,100),show:v=>fmt(v)+" %"}
-  ];
+    {p:"volume.range",lo:b=>b*0.9,hi:b=>b*1.1},
+    {p:"volume.fillRack",lo:b=>b-5,hi:b=>b+5},
+    {p:"volume.fillBlock",lo:b=>b-10,hi:b=>b+10},
+    {p:"block.quota",on:()=>S.block.mode==="quota",lo:b=>b-10,hi:b=>b+10},
+    {p:"block.channelDepth",lo:b=>b-2,hi:b=>b+2},
+    {p:"block.stackH",lo:b=>b-1,hi:b=>b+1},
+    {p:"block.maxTop",lo:b=>Math.round((b-1)*10)/10,hi:b=>Math.round((b+1)*10)/10},
+    {p:"block.minFill",on:()=>S.block.mode==="sku",lo:b=>b-10,hi:b=>b+10},
+    {p:"ffz.aisle",lo:b=>b-0.3,hi:b=>b+0.3},
+    {p:"building.ukb",lo:b=>b-0.5,hi:b=>b+0.5},
+    {p:"ffz.fieldWidth",on:()=>S.ffz.fieldMode==="fix",lo:b=>b-300,hi:b=>b+300},
+    {p:"prices.frame",lo:b=>b*0.8,hi:b=>b*1.2},
+    {p:"prices.mount",lo:b=>b-5,hi:b=>b+5},
+    {p:"volume.transit",lo:b=>b-5,hi:b=>b+5},
+    {p:"prices.demountPct",on:()=>!!S.bom.demount,lo:b=>b-2,hi:b=>b+2}
+  ].map(x=>{
+    const d=PARAM_BY_PATH.get(x.p),[mn,mx]=paramRange(d),lim=v=>clamp(v,mn,mx);
+    return {label:paramLabel(d),on:x.on,get:()=>getP(S,x.p),set:v=>setP(S,x.p,v),lo:b=>lim(x.lo(b)),hi:b=>lim(x.hi(b)),show:v=>paramShow(d,v)};
+  });
   const rows=[];
   for(const d of defs){
     if(d.on&&!d.on())continue;
@@ -6196,9 +5642,10 @@ function buildReportKundeHtml(){
       scens.map((s,i)=>'<tr><td>'+(i+1)+'</td><td>'+escH(s.projekt||"–")+'</td><td class="num">'+fmt(s.metrics.netto)+'</td><td class="num">'+(s.metrics.deck==null?"–":s.metrics.deck)+'</td><td class="num">'+eur(s.metrics.capex)+'</td></tr>').join("")+'</tbody></table>'
     :'<p class="hint">Keine Vergleichsvarianten gespeichert (Register Varianten).</p>';
   h+='<h3>Annahmen</h3>';
-  const setP=PARAM_DEFS.filter(pd=>JSON.stringify(getP(S,pd.p))!==JSON.stringify(getP(defaults(),pd.p)));
-  h+=setP.length
-    ?'<ul style="margin:4px 0 10px;padding-left:18px">'+setP.map(pd=>'<li>'+pd.label+': '+(pd.show?pd.show(getP(S,pd.p)):fmt(getP(S,pd.p))+' '+(pd.unit||""))+' (Planerannahme)</li>').join("")+'</ul>'
+  const base=defaults();
+  const changed=PARAMS.filter(d=>d.eff&&JSON.stringify(getP(S,d.p))!==JSON.stringify(getP(base,d.p)));
+  h+=changed.length
+    ?'<ul style="margin:4px 0 10px;padding-left:18px">'+changed.map(d=>'<li>'+escH(paramLabel(d))+': '+escH(paramShow(d,getP(S,d.p)))+' (Planerannahme)</li>').join("")+'</ul>'
     :'<p class="hint">Die Planung beruht auf den dokumentierten Standardannahmen des Werkzeugs; das vollständige Register ist auf Anfrage verfügbar.</p>';
   h+='<p class="hint">'+reg.assu.length+' von '+(reg.assu.length+reg.cust.length)+' Positionen beruhen auf Planerannahmen und sind vom Kunden zu bestätigen.</p>';
   h+='<h3>Leistungsgrenzen</h3>';
@@ -6338,10 +5785,12 @@ function applyInputFile(inp,isInit){
     }
     if(!isPlainObject(next.meta))next.meta={name:"Neues Tender-Projekt",kunde:""};
     if(!isPlainObject(next.building)||!isPlainObject(next.volume)||!isPlainObject(next.block)||!isPlainObject(next.ffz)||!isPlainObject(next.fire))throw new Error("Erforderliche Parametergruppen fehlen oder sind ungültig.");
+    const fixed=repairParamRanges(next);
     if(!isInit)pushUndo("Eingabedatei geladen ("+inp.positionen.length+" Positionen)");
     snapshot.changed=true;S=next;
     migrateFFZ(inp.parameter&&inp.parameter.ffz);
     syncAll();refreshModeUI();renderItems();recalc();
+    repairNotice("Eingabedatei geladen",fixed);
     return true;
   }catch(e){
     restoreImportState(snapshot);
@@ -6402,6 +5851,7 @@ function applyJson(txt){
     else if(Array.isArray(obj.positionen))next.items=obj.positionen.map(p=>deepMerge(newItem(),p));
     if(obj&&Object.prototype.hasOwnProperty.call(obj,"customTrucks"))next.customTrucks=deepMerge({},obj.customTrucks||{});
     if(obj&&Object.prototype.hasOwnProperty.call(obj,"customLhm"))next.customLhm=deepMerge({},obj.customLhm||{});
+    const fixed=repairParamRanges(next);
     pushUndo("Projektdatei geladen");
     snapshot.changed=true;S=next;
     migrateFFZ(S.ffz);
@@ -6409,6 +5859,7 @@ function applyJson(txt){
     const chipQ=$("src-chip");
     if(chipQ){chipQ.textContent="Datenquelle: Projektdatei (geladen)";chipQ.classList.remove("on");}
     $("modal-json").classList.remove("on");
+    repairNotice("Planungsdatei geladen",fixed);
   }catch(e){
     restoreImportState(snapshot);
     alert("Planungsdatei wurde nicht übernommen: "+e.message);
@@ -6565,18 +6016,8 @@ function parseCsv(text){
 function initBinds(){
   reg("in-projname","meta.name","text");
   reg("in-kunde","meta.kunde","text");
-  reg("sel-mode","building.mode","text",()=>refreshModeUI());
-  reg("in-L","building.L","num");
-  reg("in-W","building.W","num");
-  reg("in-ukb","building.ukb","num");
-  reg("in-doors-N","building.doors.N","num");
-  reg("in-doors-S","building.doors.S","num");
-  reg("in-doors-O","building.doors.O","num");
-  reg("in-doors-W","building.doors.W","num");
-  reg("sel-orient","building.orient","text");
-  reg("in-weDepth","building.weDepth","num");
-  reg("in-waDepth","building.waDepth","num");
-  reg("in-rent","building.rent","num");
+  bindParams();
+  // Zonenrollen: zwei Kontrollkästchen je Seite ergeben einen Wert
   for(const side of ["N","O","S","W"]){
     ["we","wa"].forEach(role=>{
       const el=$("in-zone-"+side+"-"+role);
@@ -6587,8 +6028,6 @@ function initBinds(){
       });
     });
   }
-  reg("in-gridX","building.gridX","num");
-  reg("in-gridY","building.gridY","num");
   const sdl=$("sel-deflhm");
   if(sdl){
     fillLhmSel();
@@ -6597,88 +6036,7 @@ function initBinds(){
       renderPalletMD();recalc();
     });
   }
-  reg("in-range","volume.range","num",()=>{
-    const nr=$("num-range");if(nr)nr.value=S.volume.range;
-    refreshModeUI();
-  });
-  const nrEl=$("num-range");
-  if(nrEl){
-    nrEl.addEventListener("input",()=>{
-      const v=parseFloat(String(nrEl.value).replace(",","."));
-      if(isFinite(v)&&v>=0.5&&v<=56){
-        S.volume.range=v;
-        $("in-range").value=v;
-        refreshModeUI();recalc();
-      }
-    });
-    nrEl.addEventListener("change",()=>{
-      let v=parseFloat(String(nrEl.value).replace(",","."))||0;
-      v=clamp(Math.round(v*2)/2,0.5,56);
-      S.volume.range=v;
-      nrEl.value=v;
-      $("in-range").value=v;
-      refreshModeUI();recalc();
-    });
-  }
-  reg("in-fillRack","volume.fillRack","num");
-  reg("in-fillBlock","volume.fillBlock","num");
-  reg("in-transit","volume.transit","num");
-  reg("chk-transit-buf","volume.transitBufferOn","check",()=>{
-    const on=!!S.volume.transitBufferOn;
-    const d=$("in-transit-days"),a=$("in-transit-area");
-    if(d)d.disabled=!on;
-    if(a)a.disabled=!on;
-  });
-  reg("in-transit-days","volume.transitDays","num");
-  reg("in-transit-area","volume.transitAreaPerPal","num");
-  reg("sel-blockmode","block.mode","text",()=>renderItems());
-  reg("in-quota","block.quota","num");
-  reg("in-channelDepth","block.channelDepth","num");
-  const shEl=$("in-stackH");
-  if(shEl)shEl.addEventListener("input",()=>{
-    const v=parseFloat(String(shEl.value).replace(",","."));
-    if(isFinite(v))S.block.stackH=clamp(Math.round(v)+1,1,9);
-    recalc();
-  });
-  reg("sel-blockorient","block.orient","text");
-  reg("in-maxTop","block.maxTop","num");
-  reg("in-aVol","block.aVol","num");
-  reg("in-bVol","block.bVol","num");
-  reg("in-minFill","block.minFill","num");
-  reg("in-empty-on","empty.on","check");
-  reg("sel-empty-mode","empty.mode","text",()=>{
-    const u=$("out-empty-unit");if(u)u.textContent=(S.empty.mode==="abs"?"Pal.":"%");
-    const iv=$("in-empty-value");if(iv)iv.step=(S.empty.mode==="abs"?"1":"0.5");
-  });
-  reg("in-empty-value","empty.value","num");
-  reg("in-empty-reserve","empty.reserve","num");
-  const eStk=$("in-empty-stack");
-  if(eStk)eStk.addEventListener("input",()=>{
-    const v=parseFloat(String(eStk.value).replace(",","."))||0;
-    S.empty.stack=clamp(Math.round(v)+1,1,31);
-    recalc();
-  });
-  reg("sel-ratio","building.ratio","num",()=>refreshModeUI());
-  reg("in-peak","volume.peak","num");
-  reg("in-safety","volume.safety","num");
-    reg("in-planning-years","volume.planningYears","num");
-    reg("in-growth-rate","volume.growthRate","num");
-    reg("in-sku-growth","volume.skuGrowthRate","num");
-    reg("in-strategic-reserve","volume.strategicReserve","num");
-    reg("in-blocked-places","volume.blockedPlaces","num");
-    reg("in-peak-hour-share","volume.peakHourShare","num");
-    reg("in-we-share","volume.weShare","num");
-    reg("in-simultaneity","volume.simultaneity","num");
-    reg("in-operational-area","volume.operationalArea","num");
-  reg("sel-buffer-mode","volume.bufferMode","text");
-  reg("in-buffer-trucks","volume.bufferTrucks","num");
-  reg("in-buffer-pallets","volume.bufferPallets","num");
-  reg("in-buffer-dwell","volume.bufferDwell","num");
-  reg("in-buffer-factor","volume.bufferFactor","num");
-  reg("in-aisle","ffz.aisle","num");
-  reg("in-aisle-block","ffz.aisleBlock","num");
-  reg("chk-vna-pnd","ffz.vnaPnD","check");
-  reg("sel-rackbase","ffz.rackBase","text");
+  // FFZ-Mehrfachauswahl; Regal- und Block-FFZ belegen die Gangbreite vor
   for(const cb of document.querySelectorAll("input[data-ffzgrp]")){
     cb.addEventListener("change",()=>{
       const grp=cb.getAttribute("data-ffzgrp"),key=cb.getAttribute("data-ffz");
@@ -6693,35 +6051,6 @@ function initBinds(){
       recalc();
     });
   }
-  reg("sel-fieldmode","ffz.fieldMode","text");
-  reg("in-fieldWidth","ffz.fieldWidth","num");
-  reg("in-liftheight","ffz.liftHeight","num");
-  reg("in-liftreserve","ffz.liftReserve","num");
-  reg("chk-floorbeam","ffz.floorOnBeam","check");
-  reg("in-sprinkler","fire.sprinkler","num");
-  reg("in-tunnelint","fire.tunnelInterval","num");
-  reg("in-tunnelclear","fire.tunnelClear","num");
-  reg("chk-inrack","fire.inRack","check");
-  reg("chk-push","bom.pushThrough","check");
-  reg("chk-grating","bom.grating","check");
-  reg("chk-demount","bom.demount","check");
-  reg("chk-singlerows","ffz.singleRows","check");
-  if($("in-price-date"))reg("in-price-date","costMeta.date","text");
-  if($("in-price-source"))reg("in-price-source","costMeta.source","text");
-  if($("in-cost-unc"))reg("in-cost-unc","costMeta.uncertainty","num");
-    if($("in-realization-years"))reg("in-realization-years","costMeta.realizationYears","num");
-    if($("in-price-escalation"))reg("in-price-escalation","costMeta.priceEscalation","num");
-    if($("in-project-overhead"))reg("in-project-overhead","costMeta.projectOverhead","num");
-  BINDS.push({el:$("pr-mount"),path:"prices.mount",kind:"num"});
-  $("pr-mount").addEventListener("input",()=>{
-    S.prices.mount=parseFloat(String($("pr-mount").value).replace(",","."))||0;
-    updateTotals(true);
-  });
-  BINDS.push({el:$("pr-demount"),path:"prices.demountPct",kind:"num"});
-  $("pr-demount").addEventListener("input",()=>{
-    S.prices.demountPct=parseFloat(String($("pr-demount").value).replace(",","."))||0;
-    updateTotals(true);
-  });
 }
 /* Navigation: Phasen (Start, Eingabe, Konzept, Bewertung, Ergebnis) und ihre Register */
 const LAST_TAB_OF_PHASE={};
@@ -7071,15 +6400,12 @@ window.addEventListener("resize",updateKpiToggle);
     }
   function updateParameterVisibility(){
     const toggle=(id,on)=>{const e=$(id);const row=e&&e.closest(".fld");if(row)row.classList.toggle("conditional-off",!on)};
-    const process=S.volume.bufferMode==="process";
-    ["in-buffer-trucks","in-buffer-pallets","in-buffer-dwell","in-buffer-factor"].forEach(id=>toggle(id,process));
-    const transit=!!S.volume.transitBufferOn;["in-transit-days","in-transit-area"].forEach(id=>toggle(id,transit));
-    toggle("in-fieldWidth",S.ffz.fieldMode==="fix");
-    toggle("out-dim",S.building.mode==="greenfield");
-    toggle("chk-vna-pnd",(S.ffz.rackFFZ||[]).indexOf("vna")>=0);
-    toggle("in-quota",S.block.mode==="quota");
-    ["in-aVol","in-bVol","in-minFill"].forEach(id=>toggle(id,S.block.mode==="sku"));
-    ["sel-empty-mode","in-empty-value","in-empty-stack","in-empty-reserve"].forEach(id=>toggle(id,!!S.empty.on));
+    for(const d of PARAMS)if(d.visibleIf&&d.id)toggle(d.id,!!d.visibleIf(S));
+    for(const g of PARAM_LAYOUT)for(const sec of g.sections)for(const it of sec.items)if(it.output&&it.visibleIf)toggle(it.output,!!it.visibleIf(S));
+    // Einheit und Schrittweite der Leergutmenge folgen der Mengenbasis
+    const abs=S.empty.mode==="abs";
+    const u=$("out-empty-unit");if(u)u.textContent=abs?"Pal.":"%";
+    const iv=$("in-empty-value");if(iv)iv.step=abs?"1":"0.5";
   }
   function renderHeightBalance(){
     const box=$("height-balance");if(!box)return;
@@ -7099,6 +6425,7 @@ function syncVersionLabels(){
 (function init(){
   syncVersionLabels();
   const hasInput=(typeof window!=="undefined")&&typeof window.TENDER_INPUT!=="undefined"&&!!window.TENDER_INPUT;
+  let storedRepairs=[];
   if(!hasInput){
     let saved=null;
     try{
@@ -7110,9 +6437,12 @@ function syncVersionLabels(){
       try{
         const parsedState=JSON.parse(saved);
         if(!isPlainObject(parsedState))throw new Error("Ungültiger gespeicherter Zustand.");
+        const repairedItems=repairPositions(parsedState.items);
         validateImportedPayload(parsedState,"project");
         const restored=deepMerge(defaults(),parsedState);
         if(Array.isArray(parsedState.items))restored.items=parsedState.items.map(item=>deepMerge(newItem(),item));
+        storedRepairs=repairParamRanges(restored);
+        if(repairedItems)storedRepairs.push({label:"Positionswerte",from:repairedItems+" außerhalb",to:"begrenzt"});
         S=restored;
         migrateFFZ(parsedState.ffz);
         persistState();
@@ -7128,6 +6458,7 @@ function syncVersionLabels(){
   if(S.volume.bufferMode==null&&S.building&&S.building.bufferMode!=null){
     ["bufferMode","bufferTrucks","bufferPallets","bufferDwell","bufferFactor"].forEach(k=>{if(S.building[k]!=null)S.volume[k]=S.building[k];});
   }
+  renderParamForm();
   enhanceAccessibility();
   initBinds();initTabs();initDropdowns();initKpiPanel();initButtons();initItems();
   document.addEventListener("input",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
@@ -7140,6 +6471,7 @@ function syncVersionLabels(){
   inputStatus();
   recalc();
   updateParameterVisibility();renderHeightBalance();
+  repairNotice("Gespeicherter Planungsstand",storedRepairs);
 })();
 </script>
 </body>
