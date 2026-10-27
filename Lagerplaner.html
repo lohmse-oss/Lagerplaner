@@ -319,550 +319,1920 @@ details.obs[open] summary{margin-bottom:4px}
 </head>
 <body>
 <div id="app">
-<header>
-  <h1>Lagerplaner <span class="v" id="app-ver" title="Änderungslog öffnen">V2.14</span></h1>
-  <input id="in-projname" type="text" placeholder="Projektname" style="width:180px">
-  <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" style="width:200px">
-  <div class="hdr-actions">
-    <span class="chip" id="src-chip">Datenquelle: –</span>
-    <button class="btn acc" id="btn-calc" title="Erzwingt den vollständigen Durchlauf aller zwölf Rechenschritte, baut die Artikeltabelle neu auf und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.">Berechnung aktualisieren</button>
-    <div class="dd" id="dd-opt">
-      <button class="btn" id="btn-dd-opt" title="Ziel und veränderbare Parameter des Optimierungslaufs">Varianten ermitteln ▾</button>
-      <div class="dd-menu">
-        <div class="dd-row"><label for="sel-goal">Ziel</label><select id="sel-goal">
-          <option value="combined">Kombiniert (CAPEX &amp; Fahrwege)</option>
-          <option value="capex">Minimum CAPEX</option>
-          <option value="aisle">Minimum Gangfläche (Fahrwege)</option>
-          <option value="area">Minimum benötigte Hallenfläche</option></select></div>
-        <div class="dd-checks">
-          <label class="ck"><input type="checkbox" id="chk-opt-field" checked> Feldweite</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-orient" checked> Regalausrichtung</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-borient"> Blockausrichtung</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-aisle"> Gangbreite</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-block"> Kanaltiefe &amp; Stapelhöhe</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-tunnel"> Tunnel-Intervall</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-zone"> Zonentiefen</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-grid"> Stützraster</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-roles"> Zonenrollen (WE/WA je Wand)</label>
-          <label class="ck"><input type="checkbox" id="chk-opt-quota"> Blockquote</label>
+  <header>
+    <h1>
+      Lagerplaner
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.14</span>
+    </h1>
+    <input id="in-projname" type="text" placeholder="Projektname" style="width: 180px" />
+    <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" style="width: 200px" />
+    <div class="hdr-actions">
+      <span class="chip" id="src-chip">Datenquelle: –</span>
+      <button
+        class="btn acc"
+        id="btn-calc"
+        title="Erzwingt den vollständigen Durchlauf aller zwölf Rechenschritte, baut die Artikeltabelle neu auf und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet."
+      >
+        Berechnung aktualisieren
+      </button>
+      <div class="dd" id="dd-opt">
+        <button class="btn" id="btn-dd-opt" title="Ziel und veränderbare Parameter des Optimierungslaufs">Varianten ermitteln ▾</button>
+        <div class="dd-menu">
+          <div class="dd-row">
+            <label for="sel-goal">
+              Ziel
+              <span
+                class="tt"
+                data-tip="Suchstufen: Feldweite 1.800–3.600 mm · Ausrichtung quer/längs · Gangbreite VNA 1,9 / Schubmast 2,8 / Front 3,5 m · Kanaltiefe 4/6/8 · Stapelhöhe 1+1/1+2/1+3/1+5 · Fluchttunnel-Intervall 30/40/50 m · Zonentiefen 4–8 m (WE und WA gemeinsam) · Stützraster (Paarungen 5×10 bis 12,5×25 m) · Zonenrollen (WE- und WA-Seite je Wand, 16 Kombinationen) · Blockquote 20–60 Prozent (nur Quotenmodus). Ziel Mindestfläche: benötigte Hallenbreite bei voller Bedarfsdeckung; die Bestandshalle bleibt unverändert, die Tabelle weist die Reserve aus. Der Lauf teilt sich in Stufen: erst die Layoutparameter, dann bei zugeschalteten Kontrollkästchen Stützraster und Zonenrollen, dann die Feinsuche der Layoutparameter. Mit allen zugeschalteten Parametern durchläuft das Werkzeug über 80.000 Varianten; der Lauf dauert dann bis zu etwa einer Minute."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </label>
+            <select id="sel-goal">
+              <option value="combined">Kombiniert (CAPEX &amp; Fahrwege)</option>
+              <option value="capex">Minimum CAPEX</option>
+              <option value="aisle">Minimum Gangfläche (Fahrwege)</option>
+              <option value="area">Minimum benötigte Hallenfläche</option>
+            </select>
+          </div>
+          <div class="dd-checks">
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-field" checked="" />
+              Feldweite
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-orient" checked="" />
+              Regalausrichtung
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-borient" />
+              Blockausrichtung
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-aisle" />
+              Gangbreite
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-block" />
+              Kanaltiefe &amp; Stapelhöhe
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-tunnel" />
+              Tunnel-Intervall
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-zone" />
+              Zonentiefen
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-grid" />
+              Stützraster
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-roles" />
+              Zonenrollen (WE/WA je Wand)
+            </label>
+            <label class="ck">
+              <input type="checkbox" id="chk-opt-quota" />
+              Blockquote
+            </label>
+          </div>
+          <button class="btn acc" id="btn-optimize">Optimierungslauf starten</button>
         </div>
-        <button class="btn acc" id="btn-optimize">Optimierungslauf starten</button>
-
-        <p class="hint" style="margin:2px 0 0">Suchstufen: Feldweite 1.800–3.600 mm · Ausrichtung quer/längs · Gangbreite VNA 1,9 / Schubmast 2,8 / Front 3,5 m · Kanaltiefe 4/6/8 · Stapelhöhe 1+1/1+2/1+3/1+5 · Fluchttunnel-Intervall 30/40/50 m · Zonentiefen 4–8 m (WE und WA gemeinsam) · Stützraster (Paarungen 5×10 bis 12,5×25 m) · Zonenrollen (WE- und WA-Seite je Wand, 16 Kombinationen) · Blockquote 20–60 Prozent (nur Quotenmodus). Ziel Mindestfläche: benötigte Hallenbreite bei voller Bedarfsdeckung; die Bestandshalle bleibt unverändert, die Tabelle weist die Reserve aus. Der Lauf teilt sich in Stufen: erst die Layoutparameter, dann bei zugeschalteten Kontrollkästchen Stützraster und Zonenrollen, dann die Feinsuche der Layoutparameter. Mit allen zugeschalteten Parametern durchläuft das Werkzeug über 80.000 Varianten; der Lauf dauert dann bis zu etwa einer Minute.</p>
       </div>
+      <span class="hdr-sep"></span>
+      <button
+        class="btn"
+        id="btn-undo"
+        disabled=""
+        title="Rückgängig: stellt den Planungsstand vor der letzten strukturellen Änderung wieder her. Bis zu 20 Schritte, nur während dieser Sitzung."
+      >
+        Rückgängig
+      </button>
+      <button class="btn" id="btn-new">Neu</button>
+      <button class="btn" id="btn-load">Öffnen</button>
+      <button class="btn" id="btn-save">Speichern</button>
+      <span class="hdr-sep"></span>
+      <button class="btn" id="btn-reload-input">Daten importieren</button>
+      <button class="btn" id="btn-help" title="Kurzhilfe, häufige Fragen und Handbuch">Hilfe</button>
+      <input type="file" id="jsonFile" accept=".json,application/json" style="display: none" />
+      <input type="file" id="csvFile" accept=".csv,text/csv" style="display: none" />
+      <input type="file" id="inputFile" accept=".js,.json,.txt" style="display: none" />
     </div>
-    <span class="hdr-sep"></span>
-    <button class="btn" id="btn-undo" disabled title="Rückgängig: stellt den Planungsstand vor der letzten strukturellen Änderung wieder her. Bis zu 20 Schritte, nur während dieser Sitzung.">Rückgängig</button>
-    <button class="btn" id="btn-new">Neu</button>
-    <button class="btn" id="btn-load">Öffnen</button>
-    <button class="btn" id="btn-save">Speichern</button>
-    <span class="hdr-sep"></span>
-    <button class="btn" id="btn-reload-input">Daten importieren</button>
-    <button class="btn" id="btn-help" title="Kurzhilfe, häufige Fragen und Handbuch">Hilfe</button>
-    <input type="file" id="jsonFile" accept=".json,application/json" style="display:none">
-    <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
-    <input type="file" id="inputFile" accept=".js,.json,.txt" style="display:none">
+  </header>
+
+  <div id="body">
+    <main>
+      <div class="card" id="opt-run-panel">
+        <button class="btn" id="btn-opt-cancel" type="button" disabled="">Optimierung abbrechen</button>
+        <span id="opt-run-status" class="hint" role="status" aria-live="polite">Kein Optimierungslauf aktiv.</span>
+      </div>
+
+      <div id="tabs">
+        <button data-tab="0" class="tc-info on" title="Willkommensseite: Einstieg, Arbeitsablauf und Registerübersicht.">Start</button>
+        <button data-tab="1" class="tc-in" title="Eingaberegister: Dateneingabe und Planungsvorgaben.">Projekt &amp; Vorgaben</button>
+        <button data-tab="2" class="tc-in" title="Eingaberegister: Dateneingabe und Planungsvorgaben.">Mengengerüst</button>
+        <button data-tab="3" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Lagerkonzept</button>
+        <button data-tab="4" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">
+          Regal &amp; Block
+        </button>
+        <button data-tab="5" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">
+          Kosten &amp; Equipment
+        </button>
+        <button data-tab="6" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Varianten</button>
+        <button data-tab="7" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Datenqualität</button>
+        <button data-tab="8" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Sensitivität</button>
+        <button data-tab="9" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Berichte</button>
+        <button data-tab="10" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Ergebnis</button>
+        <button data-tab="11" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Methodik</button>
+      </div>
+
+      <div id="panels">
+        <div class="panel on" id="panel-0">
+          <div class="card">
+            <h3>
+              Willkommen
+              <span
+                class="tt"
+                data-tip="Hilfe, häufige Fragen und Handbuch öffnen über die Schaltfläche Hilfe / FAQ in der Kopfzeile. Der Änderungslog öffnet über die Versionsangabe im Kopf. Der Planungsstand bleibt im lokalen Browserspeicher dieses Geräts erhalten."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <p>
+              Der LOG Lagerplaner unterstützt die Vorplanung eines Kontraktlogistik-Standorts. Das Werkzeug ermittelt aus den
+              Ausschreibungspositionen den Palettenbedarf, verteilt ihn auf Regal- und Blocklager, plant das 2D-Hallenlayout und leitet
+              Stückliste und CAPEX ab. Alle Berechnungen laufen lokal im Browser. Die Ergebnisse sind indikativ für die Vorplanung und
+              ersetzen keine Ausführungsplanung.
+            </p>
+          </div>
+          <div class="card">
+            <h3>
+              Arbeitsablauf
+              <span
+                class="tt"
+                data-tip="Blau kennzeichnet die Dateneingabe, Grün die Hallenplanung und Modellierung, Violett die Auswertung und Dokumentation. Nach jeder Eingabe rechnet das Werkzeug automatisch nach; die Schaltfläche Berechnung aktualisieren erzwingt einen vollständigen Lauf aller zwölf Rechenschritte."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <div class="flow">
+              <div class="fs p-in">
+                <b>1 Parameter</b>
+                <small>Vorgaben pflegen</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-in">
+                <b>2 Input</b>
+                <small>Positionen erfassen</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-in">
+                <b>Neu berechnen</b>
+                <small>Ergebnisse erzeugen</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-eng">
+                <b>3 Layout</b>
+                <small>Halle prüfen</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-eng">
+                <b>4 Regal &amp; Block</b>
+                <small>Struktur prüfen</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-eng">
+                <b>5 Equipment</b>
+                <small>Stückliste und CAPEX</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-eng">
+                <b>6 Szenarien</b>
+                <small>Varianten vergleichen</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-rep">
+                <b>7 Annahmen · 8 Sensitivität</b>
+                <small>Prüfen und bewerten</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-rep">
+                <b>9 Berichte · 10 Report</b>
+                <small>Dokumentieren</small>
+              </div>
+              <div class="fa">→</div>
+              <div class="fs p-rep">
+                <b>Speichern</b>
+                <small>Planungsdatei (JSON)</small>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Registerübersicht</h3>
+            <div class="reggrid">
+              <div>
+                <b>0 · Info</b>
+                Diese Willkommensseite mit Arbeitsablauf und Registerübersicht. Sie öffnet beim Start.
+              </div>
+              <div>
+                <b>1 · Parameter</b>
+                Planungsvorgaben pflegen: Gebäude &amp; Flächen, Volumen &amp; Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit
+                &amp; Abstände sowie Kosten &amp; Optionen.
+              </div>
+              <div>
+                <b>2 · Input</b>
+                Ausschreibungspositionen erfassen, per CSV importieren oder die Eingabedatei laden. Je Position die Bedarfsermittlung
+                wählen. Über Batch-Änderungen markierten Positionen LKW-Typ, LHM-Typ, Blockanteil und Datenbasis zuweisen.
+              </div>
+              <div>
+                <b>3 · Layout</b>
+                2D-Hallenlayout mit Zonen und Toren prüfen. Flächenbedarfsrechnung und Wegestrecken lesen. Bei Bedarf die Layout-Optimierung
+                starten.
+              </div>
+              <div>
+                <b>4 · Regal &amp; Block</b>
+                Regalschnitt mit Ebenen prüfen. Blockstruktur mit Kanaltiefe und Stapelhöhe kontrollieren.
+              </div>
+              <div>
+                <b>5 · Equipment</b>
+                Stückliste und CAPEX prüfen. Einheitspreise anpassen und die Stückliste exportieren.
+              </div>
+              <div>
+                <b>6 · Szenarien</b>
+                Bis zu drei Varianten speichern und vergleichen. Gespeicherte Planungsdateien per Diff gegenüberstellen.
+              </div>
+              <div>
+                <b>7 · Annahmen</b>
+                Datenbasis und Datenlücken prüfen. Fragekatalog für den Kunden erzeugen.
+              </div>
+              <div>
+                <b>8 · Sensitivität</b>
+                Wirksamste Treiber auf Fläche und CAPEX erkennen. Das Tornado-Diagramm zeigt die Wirkung je Treiber.
+              </div>
+              <div>
+                <b>9 · Berichte</b>
+                Internen Bericht und kundenfähigen Grobkonzeptbericht öffnen und drucken.
+              </div>
+              <div>
+                <b>10 · Report</b>
+                Quick-Report und Hinweise lesen. Der Hinweiszähler der Seitenleiste springt hierher.
+              </div>
+              <div>
+                <b>11 · Berechnungsfolge</b>
+                Jeden Rechenschritt mit Formeln und Eingabefeldern nachvollziehen.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel" id="panel-1">
+          <div class="ptabs" id="ptabs">
+            <button data-pg="gbp" class="on">1 Gebäude &amp; Flächen</button>
+            <button data-pg="vol">2 Volumen &amp; Puffer</button>
+            <button data-pg="pal">3 Stammdaten</button>
+            <button data-pg="ffz">4 Lagertechnik</button>
+            <button data-pg="blk">5 Blocklager</button>
+            <button data-pg="fir">6 Sicherheit &amp; Abstände</button>
+            <button data-pg="cost">7 Kosten &amp; Optionen</button>
+          </div>
+          <div id="pgroups">
+            <div class="pgroup on" id="pg-gbp">
+              <h3>
+                Gebäude &amp; Flächen
+                <span
+                  class="tt"
+                  data-tip="Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="param-intro">
+                <div>
+                  <b>Baulicher Rahmen</b>
+                  <span>
+                    Abmessungen, Tore, Zonen und Raster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen &amp;
+                    Puffer.
+                  </span>
+                </div>
+              </div>
+              <div class="grp">
+                <div class="fld">
+                  <label>Berechnete Halle (Greenfield)</label>
+                  <span class="val calc" id="out-dim" style="grid-column: 2/4; justify-self: end">–</span>
+                </div>
+              </div>
+              <section class="param-section">
+                <h3>
+                  Gebäude
+                  <small>Bestand oder Greenfield</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="sel-mode">Modus</label>
+                    <select id="sel-mode">
+                      <option value="box-fit">Bestandshalle (Box-Fit)</option>
+                      <option value="greenfield">Greenfield (Flächenberechnung)</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-L">
+                      Hallenlänge
+                      <span id="lbl-L-mode"></span>
+                    </label>
+                    <input id="in-L" type="number" step="1" min="10" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-W">
+                      Hallenbreite
+                      <span id="lbl-W-mode">(Bestand)</span>
+                    </label>
+                    <input id="in-W" type="number" step="0.5" min="6" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="sel-ratio">Seitenverhältnis (Greenfield)</label>
+                    <select
+                      id="sel-ratio"
+                      title="Verhältnis Hallenlänge zu Hallenbreite. Im Greenfield-Modus werden bei gewähltem Verhältnis beide Hallenmaße aus dem Bedarf berechnet."
+                    >
+                      <option value="0">Frei (Länge vorgegeben)</option>
+                      <option value="1">1 : 1</option>
+                      <option value="1.5">3 : 2</option>
+                      <option value="0.6667">2 : 3</option>
+                      <option value="2">2 : 1</option>
+                      <option value="0.5">1 : 2</option>
+                      <option value="3">3 : 1</option>
+                      <option value="0.3333">1 : 3</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-ukb">Unterkante Binder (UKB)</label>
+                    <input id="in-ukb" type="number" step="0.1" min="3" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-rent">Miete Halle</label>
+                    <input id="in-rent" type="number" step="0.5" min="0" />
+                    <span class="val">€/m²·Monat</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Tore und Zonen
+                  <small>Bauliche Anordnung</small>
+                </h3>
+                <div class="grp">
+                  <div class="zone-grid">
+                    <span>Zone Nord</span>
+                    <label>
+                      <input type="checkbox" id="in-zone-N-we" />
+                      WE
+                    </label>
+                    <label>
+                      <input type="checkbox" id="in-zone-N-wa" />
+                      WA
+                    </label>
+                    <span>Zone Ost</span>
+                    <label>
+                      <input type="checkbox" id="in-zone-O-we" />
+                      WE
+                    </label>
+                    <label>
+                      <input type="checkbox" id="in-zone-O-wa" />
+                      WA
+                    </label>
+                    <span>Zone Süd</span>
+                    <label>
+                      <input type="checkbox" id="in-zone-S-we" />
+                      WE
+                    </label>
+                    <label>
+                      <input type="checkbox" id="in-zone-S-wa" />
+                      WA
+                    </label>
+                    <span>Zone West</span>
+                    <label>
+                      <input type="checkbox" id="in-zone-W-we" />
+                      WE
+                    </label>
+                    <label>
+                      <input type="checkbox" id="in-zone-W-wa" />
+                      WA
+                    </label>
+                  </div>
+                  <div class="fld">
+                    <label for="in-doors-N">Tore Nord</label>
+                    <input id="in-doors-N" type="number" min="0" step="1" />
+                  </div>
+                  <div class="fld">
+                    <label for="in-doors-O">Tore Ost</label>
+                    <input id="in-doors-O" type="number" min="0" step="1" />
+                  </div>
+                  <div class="fld">
+                    <label for="in-doors-S">Tore Süd</label>
+                    <input id="in-doors-S" type="number" min="0" step="1" />
+                  </div>
+                  <div class="fld">
+                    <label for="in-doors-W">Tore West</label>
+                    <input id="in-doors-W" type="number" min="0" step="1" />
+                  </div>
+                  <div class="fld">
+                    <label for="in-weDepth">Tiefe WE-Zonen</label>
+                    <input id="in-weDepth" type="number" step="0.5" min="0" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-waDepth">Tiefe WA-Zonen</label>
+                    <input id="in-waDepth" type="number" step="0.5" min="0" />
+                    <span class="val">m</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Gebäuderaster
+                  <small>Layoutvorgaben</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="sel-orient">Regal-Ausrichtung</label>
+                    <select id="sel-orient">
+                      <option value="quer">orthogonal zu Toren (Reihen längs)</option>
+                      <option value="laengs">parallel zu Toren (Gänge zu Toren)</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-gridX">Stützenraster X</label>
+                    <input id="in-gridX" type="number" step="0.5" min="3" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-gridY">Stützenraster Y</label>
+                    <input id="in-gridY" type="number" step="0.5" min="3" />
+                    <span class="val">m</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="pgroup" id="pg-pal">
+              <h3>
+                Paletten- und LKW-Stammdaten
+                <span
+                  class="tt"
+                  data-tip="Die Stammdaten führen Grundmaß, Höhe, Gewicht und Referenz-Stapelfaktor je Palettentyp. Die Höhe ist als Standardwert 1,0 m angesetzt (Referenz EPal 1.200 × 800 × 1.000 mm BTH). Höhe, Gewicht und Stapelfaktor sind je Typ direkt überschreibbar; der Referenzwert (Ref) bleibt daneben sichtbar, und die Schaltfläche ↺ setzt die Überschreibung zurück. Positionen dieses Typs werden synchronisiert, solange ihre Werte noch dem bisherigen Stammdatenwert entsprechen. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar. Bestehende Positionen bleiben unverändert. Eigenen Palettentyp anlegen: Bezeichnung, Grundmaß, Höhe, Gewicht und Referenz-Stapelfaktor (Notation 1+x) eingeben und hinzufügen. Eigene Typen stehen in der Artikeltabelle, als Standardpalette und im Leergutbereich zur Wahl. Sie sind Bestandteil der gespeicherten Planung. Der Kennzeichnungszugang bleibt den Werkzeug-Typen vorbehalten."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="grp">
+                <div class="fld">
+                  <label for="sel-deflhm">Standardpalette</label>
+                  <select id="sel-deflhm"></select>
+                </div>
+
+                <div id="pallet-md"></div>
+              </div>
+              <h3>
+                LKW-Stammdaten
+                <span
+                  class="tt"
+                  data-tip="Eigenen LKW-Typ anlegen (etwa Sondermaß): Bezeichnung, Laderaumlänge und -breite, Innenhöhe, Lagenzahl und Nutzlast eingeben. Eigene Typen stehen an jeder Position und im Bulk-Zuweisen zur Wahl und sind Bestandteil der gespeicherten Planung. Die Typnamen sind frei von Füllmengenangaben; die Füllmenge ergibt sich je Palettentyp aus Grundfläche, Höhe (Lagen) und Gewicht (Nutzlast) und weist die Kreuztabelle aus."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="grp">
+                <div id="truck-md"></div>
+              </div>
+              <h3>
+                Füllmenge je LKW und Palettentyp (Kreuztabelle)
+                <span
+                  class="tt"
+                  data-tip="Berechnet aus beiden Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht. Die Zellwerte gelten für die Stammdaten-Referenzmaße; Positionen mit abweichenden Maßen rechnen mit ihren Positionsmaßen. Die Werte dienen als Vorbelegung des Eingabefelds Paletten je LKW und bleiben je Position überschreibbar."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="grp">
+                <div id="truck-cross"></div>
+              </div>
+            </div>
+
+            <div class="pgroup" id="pg-vol">
+              <h3>
+                Volumen &amp; Puffer
+                <span
+                  class="tt"
+                  data-tip="Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="param-intro">
+                <div>
+                  <b>Bemessungsgrößen</b>
+                  <span>Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf.</span>
+                </div>
+              </div>
+
+              <section class="param-section">
+                <h3>
+                  Bestandsbemessung
+                  <small>Menge und Reichweite</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld wide">
+                    <label for="in-range">
+                      Lagerreichweite
+                      <span class="val calc" id="out-range" style="float: right"></span>
+                    </label>
+                    <input id="in-range" type="range" min="0.5" max="56" step="0.5" />
+                    <span style="display: flex; gap: 6px; align-items: center">
+                      <input id="num-range" type="number" min="0.5" max="56" step="0.5" style="width: 64px" />
+                      <span class="val">Tage</span>
+                    </span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-peak">Peak-Faktor</label>
+                    <input
+                      id="in-peak"
+                      type="number"
+                      min="1"
+                      max="3"
+                      step="0.05"
+                      title="Faktor auf Durchschnitts- oder Zielbestand. Neutraler Wert 1,00."
+                    />
+                    <span class="val">×</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-safety">Sicherheitsbestand</label>
+                    <input
+                      id="in-safety"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      title="Prozentualer Zuschlag nach Peak-Faktor. Neutraler Wert 0 Prozent."
+                    />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-planning-years">Planungshorizont</label>
+                    <input id="in-planning-years" type="number" min="0" max="30" step="1" />
+                    <span class="val">Jahre</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-growth-rate">Mengenwachstum</label>
+                    <input id="in-growth-rate" type="number" min="0" max="100" step="0.5" />
+                    <span class="val">% p. a.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-sku-growth">Artikelwachstum</label>
+                    <input id="in-sku-growth" type="number" min="0" max="100" step="0.5" />
+                    <span class="val">% p. a.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-strategic-reserve">Strategische Kapazitätsreserve</label>
+                    <input id="in-strategic-reserve" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-blocked-places">Temporär gesperrte Plätze</label>
+                    <input id="in-blocked-places" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-fillRack">Füllgrad Regal</label>
+                    <input id="in-fillRack" type="number" min="50" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-fillBlock">Füllgrad Blocklager</label>
+                    <input id="in-fillBlock" type="number" min="40" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section" id="sec-buffer">
+                <h3>
+                  WE-Puffer
+                  <small>Durchsatzbezogene Bemessung</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="sel-buffer-mode">Berechnung des WE-Pufferbedarfs</label>
+                    <select id="sel-buffer-mode">
+                      <option value="simple">Einfach / geometrisch</option>
+                      <option value="process">Prozessbezogen</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-buffer-trucks">LKW-Ankünfte in der Spitzenstunde</label>
+                    <input id="in-buffer-trucks" type="number" min="0" step="0.1" />
+                    <span class="val">LKW/h</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-buffer-pallets">Mittlere Palettenzahl je LKW</label>
+                    <input id="in-buffer-pallets" type="number" min="0" step="1" />
+                    <span class="val">Pal.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-buffer-dwell">Mittlere Pufferverweildauer</label>
+                    <input id="in-buffer-dwell" type="number" min="0" step="0.1" />
+                    <span class="val">h</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-buffer-factor">Zugangs- und Verkehrsflächenfaktor</label>
+                    <input id="in-buffer-factor" type="number" min="1" max="5" step="0.1" />
+                    <span class="val">×</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-peak-hour-share">Spitzenstundenanteil am Tagesvolumen</label>
+                    <input id="in-peak-hour-share" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-we-share">Anteil Wareneingang</label>
+                    <input id="in-we-share" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-simultaneity">Gleichzeitigkeitsfaktor WE/WA</label>
+                    <input id="in-simultaneity" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Transit- und Cross-Dock-Puffer
+                  <small>Nur bei separater Pufferfläche</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-transit">Transit-/Cross-Dock-Anteil</label>
+                    <input id="in-transit" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="chk-transit-buf">Separaten Cross-Dock-Puffer einrechnen</label>
+                    <input
+                      id="chk-transit-buf"
+                      type="checkbox"
+                      title="Flächenzuschlag für Transit-Paletten in der Brutto-Lagerfläche. Nur zuschalten, wenn Cross-Docking nicht innerhalb der dimensionierten WE-/WA-Zonen abgewickelt wird; sonst Doppelberechnung."
+                    />
+                  </div>
+                  <div class="fld">
+                    <label for="in-transit-days">Standzeit Transit-Puffer</label>
+                    <input id="in-transit-days" type="number" min="0" step="0.1" />
+                    <span class="val">Tage</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-transit-area">Fläche je Transitpalette</label>
+                    <input id="in-transit-area" type="number" min="0" step="0.1" />
+                    <span class="val">m²/Pal.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-operational-area">Operative Nebenfläche</label>
+                    <input id="in-operational-area" type="number" min="0" step="1" />
+                    <span class="val">m²</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Leergut
+                  <small>Verdichtete Bodenstapelung</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-empty-on">Leergutbereich einplanen</label>
+                    <input id="in-empty-on" type="checkbox" />
+                  </div>
+                  <div class="fld">
+                    <label for="sel-empty-mode">Mengenbasis</label>
+                    <select id="sel-empty-mode">
+                      <option value="percent">Anteil am Brutto-Bestand</option>
+                      <option value="abs">Absolute Palettenzahl</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-empty-value">Menge</label>
+                    <input id="in-empty-value" type="number" step="0.5" min="0" />
+                    <span class="val" id="out-empty-unit">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-empty-stack">Stapelhöhe Leerpaletten (1+x)</label>
+                    <input id="in-empty-stack" type="number" min="0" max="30" step="1" />
+                    <span class="val">Pal.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-empty-reserve">Zugangsreserve</label>
+                    <input id="in-empty-reserve" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="pgroup" id="pg-blk">
+              <h3>
+                Blocklager
+                <span
+                  class="tt"
+                  data-tip="Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="param-intro">
+                <div>
+                  <b>Blocklagerauslegung</b>
+                  <span>Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt.</span>
+                </div>
+              </div>
+              <section class="param-section">
+                <h3>
+                  Zuordnungsmodell
+                  <small>Regal- oder Blockanteil</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="sel-blockmode">Verteilungsmethode</label>
+                    <select id="sel-blockmode">
+                      <option value="sku">Schätzmodell (ABC-Pareto-Prüfung)</option>
+                      <option value="quota">Pauschale Volumenquote</option>
+                      <option value="manual">Manueller Override (Spalte Blockanteil)</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-quota">Volumenquote Block (Modus Quote)</label>
+                    <input id="in-quota" type="number" min="0" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-aVol">ABC: A-Volumenanteil</label>
+                    <input id="in-aVol" type="number" min="10" max="95" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-bVol">ABC: B-Volumenanteil</label>
+                    <input id="in-bVol" type="number" min="2" max="40" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-minFill">Mindest-Kanalfüllgrad</label>
+                    <input id="in-minFill" type="number" min="30" max="100" step="1" />
+                    <span class="val">%</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Kanalgeometrie
+                  <small>Kapazität und Abmessungen</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-channelDepth">Kanaltiefe</label>
+                    <input id="in-channelDepth" type="number" min="2" max="20" step="1" />
+                    <span class="val">Pal.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-stackH">max. Stapelhöhe (1+x; Nachweis erforderlich)</label>
+                    <input id="in-stackH" type="number" min="0" max="8" step="1" />
+                    <span class="val">Pal.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="sel-blockorient">Blockausrichtung</label>
+                    <select id="sel-blockorient">
+                      <option value="N">Kanäle quer · Zugang Nord</option>
+                      <option value="W">Kanäle längs · Zugang West</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-maxTop">Oberkante Lagergut Block</label>
+                    <input id="in-maxTop" type="number" min="2" max="12" step="0.1" />
+                    <span class="val">m</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="pgroup" id="pg-ffz">
+              <h3>
+                Lagertechnik
+                <span
+                  class="tt"
+                  data-tip="Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&amp;D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen."
+                  tabindex="0"
+                >
+                  ⓘ
+                </span>
+              </h3>
+              <div class="param-intro">
+                <div>
+                  <b>Technische Auslegung</b>
+                  <span>
+                    Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis.
+                  </span>
+                </div>
+              </div>
+              <section class="param-section">
+                <h3>
+                  Flurförderzeuge
+                  <small>Einsatz nach Lagerbereich</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld wide">
+                    <label>FFZ Regallager</label>
+                    <div class="ffz-checks">
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="vna" />
+                        Schmalgangstapler/VNA (1,9 m)
+                      </label>
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="schubmast" />
+                        Schubmaststapler (2,8 m)
+                      </label>
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="front" />
+                        Frontstapler (3,5 m)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="fld wide">
+                    <label>FFZ Blocklager / Leergut</label>
+                    <div class="ffz-checks">
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="front" />
+                        Frontstapler (3,5 m)
+                      </label>
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="schubmast" />
+                        Schubmaststapler (2,8 m)
+                      </label>
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="hochhub" />
+                        Hochhubwagen (2,4 m)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="fld wide">
+                    <label>FFZ WE/WA &amp; Vorzone</label>
+                    <div class="ffz-checks">
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="ameise" />
+                        Mitgänger/Schnellläufer
+                      </label>
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="front" />
+                        Frontstapler
+                      </label>
+                      <label class="ck">
+                        <input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="schubmast" />
+                        Schubmaststapler
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Arbeitsgänge
+                  <small>Aus Fahrzeugauswahl abgeleitet und übersteuerbar</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-aisle">Erforderliche Arbeitsgangbreite Regal</label>
+                    <input id="in-aisle" type="number" step="0.1" min="1.2" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-aisle-block">Erforderliche Arbeitsgangbreite Blocklager</label>
+                    <input id="in-aisle-block" type="number" step="0.1" min="1.2" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="chk-vna-pnd">P&amp;D-Plätze an Regalstirnseiten (bei VNA)</label>
+                    <input
+                      id="chk-vna-pnd"
+                      type="checkbox"
+                      title="Bei VNA im Regallager: P&amp;D-Aufsetzplätze an den Regalstirnseiten berücksichtigen (je Stirnseite 1,0 m Aufsetzplatz und 1,0 m Anfahrabstand; vermindert die nutzbare Regallänge je Reihe um 4,0 m)."
+                    />
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Regalsystem
+                  <small>Geometrische Vorbemessung</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="sel-rackbase">Bemessungsbasis der Regalgeometrie</label>
+                    <select id="sel-rackbase">
+                      <option value="lead">Leitartikel nach größtem Brutto-Regalbedarf</option>
+                      <option value="envelope">Hüllkurve (Maximalmaße und -gewicht aller Regalpositionen)</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="sel-fieldmode">Lichte Feldweite</label>
+                    <select id="sel-fieldmode">
+                      <option value="auto">Auto-Plausibilität</option>
+                      <option value="fix">Festes Maß 1.800–3.600 mm</option>
+                    </select>
+                  </div>
+                  <div class="fld">
+                    <label for="in-fieldWidth">Feldweite (fix)</label>
+                    <input id="in-fieldWidth" type="number" min="1800" max="3600" step="100" />
+                    <span class="val">mm</span>
+                  </div>
+                  <div class="fld">
+                    <label for="chk-floorbeam">Bodenebene auf Traverse</label>
+                    <input id="chk-floorbeam" type="checkbox" />
+                  </div>
+                  <div class="fld">
+                    <label for="chk-singlerows">Einzelreihen ergänzen</label>
+                    <input
+                      id="chk-singlerows"
+                      type="checkbox"
+                      title="Wand- und Restflächen nutzen, sobald Doppelreihen nicht mehr passen."
+                    />
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Höhenbegrenzung
+                  <small>Gebäude und Stapler wirken als unabhängige Grenzen</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-liftheight">Maximale Hubhöhe des Regal-FFZ</label>
+                    <input
+                      id="in-liftheight"
+                      type="number"
+                      min="1"
+                      max="20"
+                      step="0.1"
+                      title="Begrenzt die Oberkante der letzten Traversenebene."
+                    />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-liftreserve">Bedienreserve unter maximaler Hubhöhe</label>
+                    <input
+                      id="in-liftreserve"
+                      type="number"
+                      min="0"
+                      max="1000"
+                      step="50"
+                      title="Abzug von der maximalen Hubhöhe für Handhabungsreserve."
+                    />
+                    <span class="val">mm</span>
+                  </div>
+                </div>
+                <div class="height-balance" id="height-balance"></div>
+              </section>
+            </div>
+
+            <div class="pgroup" id="pg-fir">
+              <h3>Sicherheit &amp; Abstände</h3>
+              <div class="param-intro">
+                <div>
+                  <b>Vorgaben und Nachweise</b>
+                  <span>Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise.</span>
+                </div>
+              </div>
+              <section class="param-section">
+                <h3>
+                  Brandschutz
+                  <small>Geometrische Vorgaben</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-sprinkler">Sprinkler-Freiraum unter UKB</label>
+                    <input id="in-sprinkler" type="number" min="0" step="50" />
+                    <span class="val">mm</span>
+                  </div>
+                  <div class="fld">
+                    <label for="chk-inrack">In-Rack-Sprinklerung</label>
+                    <input id="chk-inrack" type="checkbox" title="Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe." />
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Fluchtwege
+                  <small>Vorplanungswerte</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-tunnelint">Fluchttunnel-Intervall</label>
+                    <input id="in-tunnelint" type="number" min="0" step="1" />
+                    <span class="val">m</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-tunnelclear">lichte Durchgangshöhe Tunnel</label>
+                    <input id="in-tunnelclear" type="number" min="2" step="0.1" />
+                    <span class="val">m</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="pgroup" id="pg-cost">
+              <h3>Kosten &amp; Optionen</h3>
+              <div class="param-intro">
+                <div>
+                  <b>Preis- und Kalkulationsbasis</b>
+                  <span>
+                    Die Mengenermittlung bleibt in Kosten &amp; Equipment. Hier werden Preisstand, Quelle, Unsicherheit und
+                    Einrechnungsoptionen gepflegt.
+                  </span>
+                </div>
+              </div>
+              <section class="param-section">
+                <h3>
+                  Preisbasis
+                  <small>Dokumentation und Bandbreite</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld">
+                    <label for="in-price-date">Preisstand</label>
+                    <input id="in-price-date" type="month" />
+                  </div>
+                  <div class="fld">
+                    <label for="in-price-source">Preisquelle</label>
+                    <input id="in-price-source" type="text" placeholder="Richtpreis oder Angebot" />
+                  </div>
+                  <div class="fld">
+                    <label for="in-cost-unc">Kostenunsicherheit</label>
+                    <input id="in-cost-unc" type="number" min="0" max="100" step="1" />
+                    <span class="val">± %</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-realization-years">Jahre bis Realisierung</label>
+                    <input id="in-realization-years" type="number" min="0" max="30" step="1" />
+                    <span class="val">Jahre</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-price-escalation">Preissteigerung</label>
+                    <input id="in-price-escalation" type="number" min="0" max="100" step="0.5" />
+                    <span class="val">% p. a.</span>
+                  </div>
+                  <div class="fld">
+                    <label for="in-project-overhead">Projektnebenkosten</label>
+                    <input id="in-project-overhead" type="number" min="0" max="100" step="0.5" />
+                    <span class="val">%</span>
+                  </div>
+                </div>
+              </section>
+              <section class="param-section">
+                <h3>
+                  Einrechnungsoptionen
+                  <small>Wirkung auf die Stückliste</small>
+                </h3>
+                <div class="grp">
+                  <div class="fld" style="max-width: 480px">
+                    <label for="chk-push">Durchschubsicherungen je Fach einrechnen</label>
+                    <input id="chk-push" type="checkbox" />
+                  </div>
+                  <div class="fld" style="max-width: 480px">
+                    <label for="chk-grating">Gitterroste je Fluchttunnel einrechnen</label>
+                    <input id="chk-grating" type="checkbox" />
+                  </div>
+                  <div class="fld" style="max-width: 480px">
+                    <label for="chk-demount">Rückbau &amp; Demontage einrechnen (Pauschale auf Bauteilsumme)</label>
+                    <input id="chk-demount" type="checkbox" />
+                  </div>
+                </div>
+                <p class="dependency-note">
+                  Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Hauptregister
+                  <b>Kosten &amp; Equipment</b>
+                  .
+                </p>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div class="panel" id="panel-10">
+          <div id="qreport">
+            <details open="">
+              <summary id="qr-sum">Quick-Report</summary>
+              <div id="qr-body">
+                <p class="hint" style="margin: 2px 0">
+                  Die Ergebniszusammenfassung erscheint nach der ersten Berechnung mit Positionen und Bedarfsangaben.
+                </p>
+              </div>
+            </details>
+          </div>
+          <div id="warnbox">
+            <details id="warn-det" open="">
+              <summary id="warn-sum">Hinweise</summary>
+              <ul id="warn-list"></ul>
+            </details>
+          </div>
+          <div class="card">
+            <h3>
+              Bedeutung der Hinweise
+              <span
+                class="tt"
+                data-tip="Kritische Hinweise sind rot gekennzeichnet und vor jeder Weitergabe der Planung zu klären. Übrige Hinweise sind Plausibilitätsbemerkungen. Der Hinweiszähler in der Status-Seitenleiste öffnet diese Registerkarte."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+          </div>
+        </div>
+        <div class="panel" id="panel-11">
+          <div class="card">
+            <h3>
+              Berechnungsfolge: Auflösung der Rechenschritte
+              <span
+                class="tt"
+                data-tip="Alle Ergebnisse sind indikativ für die Vorplanung. Der Optimierungslauf variiert die Parameter der Schritte 6 bis 9 und bewertet jede Variante mit den Schritten 10 und 11; die Sensitivitätsanalyse variiert zentrale Treiber einzeln. Formeln und Grenzwerte stehen im jeweiligen Schritt; die Hinweise der Registerkarte Report nennen Abweichungen und Plausibilitätsbefunde."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            <div style="overflow: auto; max-height: 64vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 34px">Nr.</th>
+                    <th style="width: 220px">Schritt</th>
+                    <th>Eingabefelder</th>
+                    <th>Rechenweg (Ergebnisgröße)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Bedarf je Position</td>
+                    <td>Tab 2: Ermittlung, Bedarfseingabe, LKW-Typ, Paletten je LKW</td>
+                    <td>
+                      LKW/Tag: Paletten/Tag = LKW/Tag × Paletten je LKW (Vorbelegung aus der Kreuztabelle, überschreibbar) · Paletten/Tag:
+                      direkte Eingabe · Stückbasis: Paletten/Tag = Stück/Tag ÷ Stück je KLT ÷ KLT je Palette · Ziel-Bestand: Bestand direkt
+                      vorgegeben, Paletten/Tag = Ziel-Bestand ÷ Reichweite (Paletten/Tag je Position)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>LKW-Volumen je Tag</td>
+                    <td>aus Schritt 1 und Füllmenge der Kreuztabelle</td>
+                    <td>
+                      LKW/Tag = Paletten/Tag ÷ Füllmenge des LKW-Typs; im Modus LKW/Tag direkte Eingabe (Kachel LKW/Tag der
+                      Status-Seitenleiste)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Netto-Bestand je Position</td>
+                    <td>Tab 1: Lagerreichweite, Transit-/Cross-Dock-Anteil</td>
+                    <td>
+                      Bemessungsbestand = Paletten/Tag × Reichweite × Peak-Faktor × (1 + Sicherheitsbestand ÷ 100) × (1 − Transitanteil ÷
+                      100); im Modus Ziel-Bestand: Netto = Ziel-Bestand × (1 − Transitanteil ÷ 100). Transitpaletten verbrauchen keine
+                      Stellfläche; nur bei zugeschaltetem separatem Puffer entsteht eine Bodenfläche (Standzeit × Fläche je Palette)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>Blockverteilung je Position</td>
+                    <td>
+                      Tab 1: Verteilungsmethode, Volumenquote, ABC-Anteile, Mindest-Kanalfüllgrad; Tab 2: Artikel, Stapel 1+x, Blockanteil
+                    </td>
+                    <td>
+                      Quote: Blockpaletten = Netto × Quote · Manuell: Blockpaletten = Netto × Blockanteil · Artikelbasiert: drei
+                      Artikelklassen (obere 20 Prozent der Artikel erhalten A-Volumenanteil, mittlere 30 Prozent den B-Anteil, untere 50
+                      Prozent den Rest); eine Klasse qualifiziert sich, wenn der Artikel stapelbar ist (mindestens 1+1) und das Volumen je
+                      Artikel die Mindestfüllung eines Kanals erreicht. Nutzbarer Stapel = Minimum aus Artikel-Stapel, max. Stapelhöhe und
+                      OK Lagergut ÷ Palettenhöhe; die Kippgrenze 6:1 wird als Hinweis ausgewiesen. Effektiver Blockanteil = Blockpaletten ÷
+                      Netto (Spalte Block %)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>Brutto-Bedarf</td>
+                    <td>Tab 1: Füllgrad Regal, Füllgrad Block</td>
+                    <td>
+                      Brutto Regal = Aufrunden(Regalpaletten ÷ Füllgrad Regal) · Brutto Block = Aufrunden(Blockpaletten ÷ Füllgrad Block)
+                      (Bedarf an Regal- und Blockplätzen)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>Regalgeometrie</td>
+                    <td>Tab 1: Auslegungsbasis, Feldweite, Bodenebene, Brandschutz; Gebäude: UKB</td>
+                    <td>
+                      Leitartikel oder Hüllkurve legen Palette und Fachlast fest; Fachlast bestimmt Ständer- und Traversenprofil (100/120 mm
+                      bzw. 120/140 mm) · Feldweite automatisch aus den Kandidaten 1.800, 2.250, 2.700, 3.100, 3.600 mm (kleinster Kandidat
+                      mit mindestens drei Paletten je Feld) oder fest · Ebenen = 1 + Abrunden((Minimum aus (Gebäudegrenze minus
+                      Ladeeinheitenhöhe) und nutzbarer Hubhöhe, danach minus Bodenoffset) ÷ Ebenenraster); passt keine Ebene, entsteht keine
+                      Regalkapazität; Raster = Palettenhöhe + 150 mm Hubspiel + Traversenprofil, bei In-Rack-Sprinklerung +100 mm je Ebene
+                      (Felder, Ebenen, Paletten je Feld, Regalhöhe)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>Blockgeometrie</td>
+                    <td>Tab 1: Kanaltiefe, max. Stapelhöhe, Blockausrichtung; Tab 4: Block-Leitartikel</td>
+                    <td>
+                      Kanalbreite = breiteste Palettenbreite + 150 mm · Kanaltiefe = (längste Palettenlänge + 50 mm) × Kanaltiefe in
+                      Paletten (konservative Maßhüllkurve über die Positionen) · wirksame Stapelhöhe je Position = Minimum aus
+                      Artikel-Stapelfaktor, max. Stapelhöhe und Oberkante Lagergut ÷ Palettenhöhe · Kanalkapazität je Position = Kanaltiefe
+                      × wirksame Stapelhöhe · Kanäle = Summe je Position aus Aufrunden(Brutto Block je Position ÷ Kanalkapazität je
+                      Position) · Bänder und Bandabstand folgen aus der Ausrichtung; der Bandabstand entspricht der Block-Gangbreite
+                      (Kanäle, Bänder, Blocktiefe)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>Leergut</td>
+                    <td>Tab 1: Volumen &amp; Puffer (Menge, Stapelhöhe, Zugangsreserve)</td>
+                    <td>
+                      Leerpaletten = Anteil am Brutto-Bedarf oder absolute Zahl · Stapel = Aufrunden(Leerpaletten ÷ Stapelhöhe) · Bandtiefe
+                      = Stapelfläche × (1 + Zugangsreserve) ÷ nutzbare Länge, aufgerundet auf 10 mm; das Band verbraucht Fläche und erhöht
+                      keine Kapazität
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td>Layout und Kapazität</td>
+                    <td>
+                      Tab 1: Gebäude, Tore, Zonen, Stützraster, FFZ, Gangbreiten, VNA-P&amp;D, Fluchttunnel, Einzelreihen;
+                      Greenfield-Parameter
+                    </td>
+                    <td>
+                      Nutzbare Länge = Hallenlänge − 2 × 1,0 m Randgang − Ost-/Westzonen; bei VNA-P&amp;D abzüglich 4,0 m je Reihe · Vor der
+                      ersten Doppelreihe liegt ein Führungsgang in Regal-Gangbreite; jede Regalreihe ist über einen realen Fahrgang
+                      bedienbar · Doppelreihen = Minimum(passende Anzahl, Aufrunden(Regalbedarf ÷ (2 × Kapazität je Reihe))); Kapazität je
+                      Reihe = Felder × Paletten je Feld × Ebenen − Fluchttunnelverlust · Einzelreihen füllen Restbedarf auf Wand- und
+                      Restflächen · Hallenstützen werden geprüft; im Bestandsmodus werden je kollidierender Stütze in einem Regal die Plätze
+                      eines Felds abgezogen · Greenfield: benötigte Hallenbreite = WE-Zone + Block + Abstand + Leergut + Führungsgang +
+                      Doppelreihen × Raster + WA-Zone (Kapazität Regal/Block, Deckungsgrad, Kollisionshinweise)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>Brutto-Lagerfläche</td>
+                    <td>aus Schritt 6 bis 9</td>
+                    <td>
+                      Summe aus Regalstellflächen, Regal-Arbeitsgängen, Blockstellflächen, Blockgassen, WE-/WA-Zonen, Abstandsflächen,
+                      Leergutband und Transitpuffer; gegenübergestellt der Hallenfläche mit freier Fläche und Nutzungsgrad
+                      (Flächenbedarfsrechnung unter dem Layout)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>Stückliste und CAPEX</td>
+                    <td>Tab 5: Einheitspreise, Montagepauschale, Rückbau, Durchschubsicherungen, Gitterroste</td>
+                    <td>
+                      Rahmen je Reihe × (Felder + 1) · Traversenpaare = Reihen × Felder × Ebenen · Gitterroste und Anfahrschutz je
+                      Fluchttunnel · Rückwandgitter je Feld bei Einzelreihen · Durchschubsicherungen je Fach bei Rücken-an-Rücken-Reihen ·
+                      Bodenmarkierung nach Gang- und Bandlängen · Bauteilsumme × Einheitspreise + Montagepauschale + Rückbau = CAPEX; CAPEX
+                      ÷ Bruttostellplätze = Kosten je Stellplatz
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>12</td>
+                    <td>Kennzahlen und Ampel</td>
+                    <td>aus Schritt 5 und 9</td>
+                    <td>
+                      Deckungsgrad = Kapazität ÷ Bedarf, je Regal und Block und gesamt · Ampel in drei Stufen: 🔴 Hard Stop bei Deckungsgrad
+                      unter 100 Prozent, fehlendem Bestand oder harten Kollisionen (Hallenstützen zerstören Regalplätze oder Blockkanäle;
+                      Stütze blockiert die Zugangsgasse des Blocklagers) · 🟡 Optimierungspotenzial bei Deckungsgrad über 115 Prozent,
+                      Hallennutzung unter 65 oder über 90 Prozent oder vorhandenen Plausibilitätshinweisen (etwa knappe WE-Pufferfläche,
+                      Kippgrenze 6:1, durch Verschieben von Gängen lösbare Stützenkollisionen) · 🟢 Zielbereich bei 100 bis 115 Prozent
+                      Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise; im Greenfield-Modus gilt die Hallennutzung als erfüllt,
+                      weil die Halle aus dem Bedarf abgeleitet wird (Status-Seitenleiste und Register 10)
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="panel" id="panel-2">
+          <div class="rowbtns">
+            <button class="btn acc" id="btn-add-item">+ Position</button>
+            <button class="btn" id="btn-csv">Mengengerüst importieren (CSV)</button>
+            <button class="btn" id="btn-export-input">Eingabedatei erzeugen</button>
+          </div>
+          <div class="card">
+            <h3>Artikelgruppen / Ausschreibungspositionen</h3>
+            <p style="margin: 0 0 4px; font-weight: 600; font-size: 12px">Batch-Änderungen</p>
+            <div class="selbar" role="group" aria-label="Batch-Änderungen">
+              <span id="sel-count">0 Positionen ausgewählt</span>
+              <button class="btn" id="btn-sel-del" disabled="">Auswahl löschen</button>
+              <label for="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird">LKW-Typ:</label>
+              <select id="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird"></select>
+              <button class="btn" id="btn-sel-truck" disabled="">LKW-Typ zuweisen</button>
+              <label
+                for="sel-lhm"
+                title="Palettentyp, der den ausgewählten Positionen zugewiesen wird; Maße und Stapelfaktor werden mit übernommen"
+              >
+                LHM-Typ:
+              </label>
+              <select
+                id="sel-lhm"
+                title="Palettentyp, der den ausgewählten Positionen zugewiesen wird; Maße und Stapelfaktor werden mit übernommen"
+              ></select>
+              <button class="btn" id="btn-sel-lhm" disabled="">LHM-Typ zuweisen</button>
+              <input type="number" id="sel-block" min="0" max="100" step="5" style="width: 60px" />
+              <span>%</span>
+              <button class="btn" id="btn-sel-block" disabled="">Blockanteil zuweisen</button>
+              <label for="sel-basis" title="Datenbasis, die den ausgewählten Positionen zugewiesen wird">Basis:</label>
+              <select id="sel-basis" title="Datenbasis, die den ausgewählten Positionen zugewiesen wird">
+                <option value="customer">Kundenangabe</option>
+                <option value="assumption">Planerannahme</option>
+              </select>
+              <button class="btn" id="btn-sel-basis" disabled="">Basis zuweisen</button>
+            </div>
+            <div class="table-width-tools">
+              <span>Spalten an den Trennlinien ziehen</span>
+              <button class="btn" type="button" id="btn-cols-auto">Breiten automatisch</button>
+              <button class="btn" type="button" id="btn-cols-reset">Standardbreiten</button>
+            </div>
+            <div class="items-table-scroll" role="region" aria-label="Artikeltabelle">
+              <table id="items-table" style="width: 1820px">
+                <caption class="sr-only">Ausschreibungspositionen mit Bedarfsangaben</caption>
+                <thead>
+                  <tr>
+                    <th scope="col"><input type="checkbox" id="sel-all" aria-label="Alle Positionen auswählen" /></th>
+                    <th scope="col">Pos</th>
+                    <th scope="col">Bezeichnung</th>
+                    <th scope="col">Ermittlung</th>
+                    <th scope="col" class="bed">Bedarfseingabe</th>
+                    <th
+                      scope="col"
+                      title="Anzahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Wirksam nur im artikelbasierten Modus der Blockverteilung."
+                    >
+                      Artikel
+                    </th>
+                    <th scope="col" title="Herkunft der Mengenangabe dieser Position: Kundenangabe oder Planerannahme.">Basis</th>
+                    <th scope="col">LHM-Typ</th>
+                    <th scope="col">Länge mm</th>
+                    <th scope="col">Breite mm</th>
+                    <th scope="col">Höhe mm</th>
+                    <th scope="col">Gewicht kg</th>
+                    <th
+                      scope="col"
+                      title="Stapelfaktor Blocklager in der Notation 1+x: x gibt die zusätzlich auf der untersten Palette gestapelten Paletten an (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf). Hart begrenzt durch max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut; die Kippgrenze 6:1 wird je Position aufgerundet als Hinweis ausgewiesen. Im Regal steht je Fach und Ebene eine Palette."
+                    >
+                      Stapel 1+x
+                    </th>
+                    <th scope="col">Pal./Tag</th>
+                    <th scope="col">Netto Pal.</th>
+                    <th
+                      scope="col"
+                      class="col-block"
+                      title="Modus Manuell: Eingabe des Blockanteils. Allen anderen Modi: berechneter effektiver Blockanteil laut Verteilungslogik (Blockpaletten am Netto-Bestand der Position)."
+                    >
+                      Block %
+                    </th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-3">
+          <div class="card" id="opt-card" style="display: none">
+            <details id="opt-details" open="">
+              <summary id="opt-summary" style="cursor: pointer; font-weight: 600">Optimierungsvarianten</summary>
+              <div style="overflow: auto; max-height: 38vh">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Ausrichtung Regal · Block</th>
+                      <th>Feldweite</th>
+                      <th>Doppelreihen</th>
+                      <th>Kapazität</th>
+                      <th>Deckungsgrad</th>
+                      <th>Gangfläche</th>
+                      <th>Min.-Breite</th>
+                      <th>Min.-Fläche</th>
+                      <th>CAPEX</th>
+                      <th>CAPEX / Stellplatz</th>
+                      <th>Stützraster m</th>
+                      <th>Zonenrollen</th>
+                    </tr>
+                  </thead>
+                  <tbody id="opt-body"></tbody>
+                </table>
+              </div>
+              <p class="hint" id="opt-note"></p>
+            </details>
+          </div>
+          <div class="rowbtns" style="margin: 0 0 8px">
+            <button class="btn" id="btn-zoom-in">Vergrößern</button>
+            <button class="btn" id="btn-zoom-out">Verkleinern</button>
+            <button class="btn" id="btn-zoom-reset">Ansicht zurücksetzen</button>
+            <button class="btn" id="btn-layout-png">Layout als PNG speichern</button>
+          </div>
+          <div class="canvas-wrap split">
+            <canvas id="cv-layout" style="flex: 1 1 auto; height: 75vh"></canvas>
+            <div class="legend side">
+              <span>
+                <i style="background: #d1fae5; border: 1px solid #10b981"></i>
+                WE-Zone
+              </span>
+              <span>
+                <i style="background: #ffedd5; border: 1px solid #f97316"></i>
+                WA-Zone
+              </span>
+              <span>
+                <i style="background: #fef3c7; border: 1px solid #f59e0b"></i>
+                Blockkanal
+              </span>
+              <span>
+                <i style="background: #dbeafe; border: 1px solid #2563eb"></i>
+                Regalfeld
+              </span>
+              <span>
+                <i style="background: #e2e8f0; border: 1px solid #64748b"></i>
+                Leergut (verdichtet)
+              </span>
+              <span>
+                <i style="background: #fff; border: 1px solid #94a3b8"></i>
+                Fluchttunnel
+              </span>
+              <span>
+                <i style="background: #94a3b8"></i>
+                Stütze
+              </span>
+              <span>
+                <i style="background: #f8fafc; border: 1px dashed #94a3b8"></i>
+                Fahrgang (Mittelachse)
+              </span>
+              <span>
+                <i style="background: #2563eb"></i>
+                Zugriff Regal ·
+                <i style="background: #d97706"></i>
+                Einschub Block
+              </span>
+              <span>
+                <i style="background: #dc2626"></i>
+                Kollision Fahrgang
+              </span>
+              <span>
+                <i style="background: #f97316"></i>
+                Kollision Regal/Kanal
+              </span>
+            </div>
+          </div>
+          <div class="card" id="area-card" style="display: none">
+            <h3>Flächenbedarf und Flächenstruktur</h3>
+            <div id="area-viz" class="area-viz" aria-label="Visualisierung der Flächenanteile"></div>
+            <div style="overflow: auto; max-height: 32vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Position</th>
+                    <th>Fläche m²</th>
+                    <th>Anteil Halle</th>
+                  </tr>
+                </thead>
+                <tbody id="area-body"></tbody>
+              </table>
+            </div>
+            <p class="hint" id="area-note"></p>
+          </div>
+          <div class="card" id="ways-card" style="display: none">
+            <h3>Wegestrecken (Grundlage MTM)</h3>
+            <div style="overflow: auto; max-height: 30vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Strecke</th>
+                    <th>Von – Nach</th>
+                    <th>Länge</th>
+                  </tr>
+                </thead>
+                <tbody id="ways-body"></tbody>
+              </table>
+            </div>
+            <p class="hint" id="ways-note"></p>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-4">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch">
+            <div class="canvas-wrap" style="flex: 1 1 460px">
+              <canvas id="cv-section" style="height: 68vh"></canvas>
+              <div class="legend">
+                <span>
+                  <i style="background: #dbeafe; border: 1px solid #2563eb"></i>
+                  Palettenfach
+                </span>
+                <span>
+                  <i style="background: #94a3b8"></i>
+                  Traverse
+                </span>
+                <span>
+                  <i style="background: #334155"></i>
+                  Ständer
+                </span>
+                <span>
+                  <i style="background: #fee2e2"></i>
+                  Sprinkler-Freiraum
+                </span>
+                <span>
+                  <i style="background: #fff; border: 1px dashed #dc2626"></i>
+                  UKB
+                </span>
+                <span>
+                  <i style="background: #ecfdf5; border: 1px solid #16a34a"></i>
+                  Tunnelfeld
+                </span>
+              </div>
+            </div>
+            <div class="canvas-wrap" style="flex: 1 1 460px">
+              <canvas id="cv-block" style="height: 68vh"></canvas>
+              <div class="legend">
+                <span>
+                  <i style="background: #fef3c7; border: 1px solid #f59e0b"></i>
+                  Palettenzelle
+                </span>
+                <span>
+                  <i style="background: #ffedd5; border: 1px solid #f97316"></i>
+                  WE-Zugang
+                </span>
+                <span>
+                  <i style="background: #e2e8f0"></i>
+                  Arbeitsgang
+                </span>
+                <span>
+                  <i style="background: #fff; border: 1px dashed #dc2626"></i>
+                  max. Stapelhöhe
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-5">
+          <div class="card">
+            <h3>Stückliste (BOM)</h3>
+            <div class="rowbtns" style="margin: 0 0 8px">
+              <button class="btn" id="btn-bom-csv">Stückliste als CSV exportieren</button>
+            </div>
+            <div style="overflow: auto; max-height: 50vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Komponente</th>
+                    <th>Spezifikation</th>
+                    <th style="width: 90px">Menge</th>
+                    <th style="width: 60px">EH</th>
+                    <th style="width: 100px">EP €</th>
+                    <th style="width: 110px">GP €</th>
+                  </tr>
+                </thead>
+                <tbody id="bomBody"></tbody>
+              </table>
+            </div>
+            <div class="bomfoot">
+              <span>
+                Zwischensumme:
+                <b id="bom-sub">0 €</b>
+              </span>
+              <span>
+                Montage &amp; Ingenieur-Pauschale
+                <input id="pr-mount" type="number" step="0.5" />
+                %:
+                <b id="bom-mount">0 €</b>
+              </span>
+              <span>
+                Rückbau &amp; Demontage
+                <input id="pr-demount" type="number" step="0.5" />
+                %:
+                <b id="bom-demount">0 €</b>
+              </span>
+              <span>
+                CAPEX gesamt:
+                <span class="big" id="bom-total">0 €</span>
+              </span>
+              <span>
+                € / Bedarfsplatz:
+                <b id="bom-perplace">–</b>
+              </span>
+              <span>
+                € / geplantem Platz:
+                <b id="bom-perbuilt">–</b>
+              </span>
+              <span>
+                € / verfügbarem Platz (ggf. vorläufig):
+                <b id="bom-perusable">–</b>
+              </span>
+            </div>
+          </div>
+          <div class="card">
+            <h3>
+              Kalkulationsgrundlagen
+              <span
+                class="tt"
+                data-tip="Alle Einheitspreise sind Standard-Richtwerte und je Position editierbar. Die Montagepauschale (Standard 18 %) wird auf die Bauteilsumme geschlagen. Mengen folgen aus dem Layout: Rahmen je Reihe (Feldanzahl + 1), Traversenpaare je Feld und Ebene, Gitterroste (optional) und Anfahrschutz je Fluchttunnel, Durchschubsicherungen je Fach (optional, nur Rücken-an-Rücken-Reihen), Rückwandgitter je Feld bei Einzelreihen, Markierungsmaterial Regale je Rahmenlinie, Bodenmarkierung nach Gang- und Bandlängen (auch bei reinem Blocklager), Regalprüfung Erstabnahme je Reihe."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <div class="grp"></div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-6">
+          <div class="card">
+            <h3>
+              Szenarien speichern und aufrufen
+              <span
+                class="tt"
+                data-tip="Beim Aufrufen wird der aktuelle Arbeitsstand durch das gespeicherte Szenario ersetzt. Die drei gespeicherten Slots bleiben erhalten. Vor dem Laden erfolgt eine Sicherheitsabfrage."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <div class="grp" style="grid-template-columns: minmax(260px, 1fr) auto; align-items: end">
+              <div class="fld">
+                <label for="sel-scenario-load">Gespeichertes Szenario auswählen</label>
+                <select id="sel-scenario-load">
+                  <option value="">Kein gespeichertes Szenario</option>
+                </select>
+              </div>
+              <div class="rowbtns" style="margin: 0">
+                <button class="btn acc" id="btn-scenario-load" disabled="">Szenario aufrufen</button>
+              </div>
+            </div>
+
+            <h3 style="margin-top: 16px">
+              Szenario-Vergleich
+              <span
+                class="tt"
+                data-tip="Ein Slot speichert die vollständige Planung (Parameter und Positionen) samt Ergebniskennzahlen. Die Schaltfläche Laden stellt den gespeicherten Stand wieder her. Die Slots sind Bestandteil der gespeicherten Planung und der Browser-Sitzung."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <div class="scenbar" id="scenbar"></div>
+            <div style="overflow: auto; max-height: 55vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 220px">Metrik</th>
+                    <th>Aktuell</th>
+                    <th>Slot 1</th>
+                    <th>Slot 2</th>
+                    <th>Slot 3</th>
+                  </tr>
+                </thead>
+                <tbody id="scen-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3>
+              Planungsstände vergleichen (Diff)
+              <span
+                class="tt"
+                data-tip="Laden Sie eine gespeicherte Planungsdatei (JSON). Das Werkzeug vergleicht deren Parameter und Positionen mit dem aktuellen Stand und weist nur Abweichungen aus. Neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            <div class="rowbtns">
+              <button class="btn acc" id="btn-diff-load">Planungsdatei zum Vergleich laden</button>
+              <button class="btn" id="btn-diff-clear" disabled="">Vergleich zurücksetzen</button>
+              <input type="file" id="diffFile" accept=".json,application/json" style="display: none" />
+            </div>
+            <div id="diff-out"><p class="hint" style="margin: 2px 0">Der Vergleich erscheint nach dem Laden einer Planungsdatei.</p></div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-7">
+          <div class="card">
+            <h3>
+              Annahmenregister
+              <span
+                class="tt"
+                data-tip="Das Register weist aus, welche Eingaben auf Kundendaten und welche auf Annahmen beruhen. Die Quelle je Parameter wird ausdrücklich dokumentiert. Gleiche Zahlenwerte belegen keine Herkunft. Änderungen am Bezugswert machen eine Bestätigung ungültig. Die Datenbasis je Position wird in der Artikeltabelle (Tab 2) gesetzt."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            <div id="reg-srcs"></div>
+          </div>
+          <div class="card">
+            <h3>
+              Datenlücken
+              <span
+                class="tt"
+                data-tip="Der Fragekatalog übersetzt die offenen Datenlücken in Kundenfragen und ergänzt die Artikelstammdaten der Positionen auf Annahmebasis. Er öffnet sich als Druckansicht."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <div id="reg-gaps"></div>
+            <div class="rowbtns"><button class="btn acc" id="btn-print-gap">Fragekatalog für den Kunden erzeugen</button></div>
+          </div>
+          <div class="card">
+            <h3>Globale Parameter: Wert, Quelle und Auswirkung</h3>
+            <div style="overflow: auto; max-height: 42vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parameter</th>
+                    <th>Wert</th>
+                    <th>Quelle</th>
+                    <th>Auswirkung auf das Ergebnis</th>
+                  </tr>
+                </thead>
+                <tbody id="reg-params"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-8">
+          <div class="card">
+            <h3>
+              Sensitivitätsanalyse: Fläche &amp; CAPEX
+              <span
+                class="tt"
+                data-tip="Welche Annahme verändert den erforderlichen Flächenbedarf und den CAPEX am stärksten? Die Rangfolge unterstützt die gezielte Klärung beim Kunden bei begrenzter Planungszeit."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            <div class="rowbtns"><button class="btn acc" id="btn-sensi">Sensitivitätsanalyse ausführen</button></div>
+            <div id="sensi-out" class="rep">
+              <p class="hint" style="margin: 2px 0">
+                Die Analyse erscheint nach dem Ausführen. Voraussetzung ist eine berechnete Planung mit Bedarfsangaben.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-9">
+          <div class="card">
+            <h3>
+              Interner Bericht
+              <span
+                class="tt"
+                data-tip="Datenqualität, Kostenrisiken, Sensitivität und Freigabestatus. Für die interne Verwendung; nicht an den Kunden aushändigen."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            <div class="rowbtns"><button class="btn" id="btn-print-int">Im Druckfenster öffnen</button></div>
+            <div id="rep-int-body" class="rep"></div>
+          </div>
+          <div class="card">
+            <h3>
+              Kundenfähiger Grobkonzeptbericht
+              <span
+                class="tt"
+                data-tip="Ergebnis, Varianten, explizite Annahmen und Leistungsgrenzen. Geeignet als Anlage zur Angebotsunterlage, mit Kennzeichnung der Annahmen."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            <div class="rowbtns"><button class="btn" id="btn-print-cust">Im Druckfenster öffnen</button></div>
+            <div id="rep-cust-body" class="rep"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <aside id="kpis">
+      <div class="kpi kpi-work">
+        <div class="l">Arbeitsstatus</div>
+        <div class="v" id="calc-status" role="status" aria-live="polite">–</div>
+      </div>
+      <div class="kpi kpi-method">
+        <div class="l">Methodischer Status</div>
+        <div class="v small" id="kpi-method">–</div>
+      </div>
+      <div class="kpi" id="kpi-ampel-wrap">
+        <div class="l">Planungsampel</div>
+        <div class="v" id="kpi-ampel">–</div>
+      </div>
+      <div class="kpi" id="kpi-reason-wrap">
+        <div class="l">Begründung</div>
+        <div class="v small" id="kpi-reason">–</div>
+      </div>
+      <div class="kpi" id="kpi-warn" style="cursor: pointer" title="Zur Registerkarte Hinweise">
+        <div class="l">Hinweise</div>
+        <div class="v" id="kpi-warnv">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Datenqualität</div>
+        <div class="v" id="kpi-dataquality">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Regal Bedarf</div>
+        <div class="v" id="kpi-rack-need">0</div>
+      </div>
+      <div class="kpi capacity-card" id="kpi-rack-is-wrap">
+        <div class="l">Regal Ist</div>
+        <div class="v" id="kpi-rack-is">0</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Block Bedarf</div>
+        <div class="v" id="kpi-block-need">0</div>
+      </div>
+      <div class="kpi capacity-card" id="kpi-block-is-wrap">
+        <div class="l">Block Ist</div>
+        <div class="v" id="kpi-block-is">0</div>
+      </div>
+      <div class="kpi" title="LKW-Ankünfte je Tag">
+        <div class="l">LKW/Tag</div>
+        <div class="v" id="kpi-trucks">0</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Peak Pal./h WE</div>
+        <div class="v" id="kpi-peak-we">0</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Peak Pal./h WA</div>
+        <div class="v" id="kpi-peak-wa">0</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Netto-Bestand</div>
+        <div class="v" id="kpi-net">0</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Hallenfläche</div>
+        <div class="v" id="kpi-hall-area">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Lagerfläche</div>
+        <div class="v" id="kpi-area">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">CAPEX min.</div>
+        <div class="v" id="kpi-capex-min">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">CAPEX max.</div>
+        <div class="v" id="kpi-capex-max">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">m² pro Palette</div>
+        <div class="v" id="kpi-eff">–</div>
+      </div>
+      <div class="kpi">
+        <div class="l">Nutzungsgrad</div>
+        <div class="v" id="kpi-util">–</div>
+      </div>
+      <div id="kpi-cov" hidden=""></div>
+      <div id="kpi-cap" hidden=""></div>
+      <div id="kpi-capb" hidden=""></div>
+      <div id="kpi-rack" hidden=""></div>
+      <div id="kpi-block" hidden=""></div>
+      <div id="kpi-capex" hidden=""></div>
+      <div id="kpi-capex-range" hidden=""></div>
+      <i id="kpi-utilbar" hidden=""></i>
+    </aside>
   </div>
-</header>
 
-<div id="body">
-
-<main>
-<div class="card" id="opt-run-panel"><button class="btn" id="btn-opt-cancel" type="button" disabled>Optimierung abbrechen</button><span id="opt-run-status" class="hint" role="status" aria-live="polite">Kein Optimierungslauf aktiv.</span></div>
-
-  <div id="tabs">
-    <button data-tab="0" class="tc-info on" title="Willkommensseite: Einstieg, Arbeitsablauf und Registerübersicht.">Start</button>
-    <button data-tab="1" class="tc-in" title="Eingaberegister: Dateneingabe und Planungsvorgaben.">Projekt & Vorgaben</button>
-    <button data-tab="2" class="tc-in" title="Eingaberegister: Dateneingabe und Planungsvorgaben.">Mengengerüst</button>
-    <button data-tab="3" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Lagerkonzept</button>
-    <button data-tab="4" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Regal &amp; Block</button>
-    <button data-tab="5" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Kosten &amp; Equipment</button>
-    <button data-tab="6" class="tc-eng" title="Engineering-Register: Hallenplanung, Modellierung und Varianten.">Varianten</button>
-    <button data-tab="7" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Datenqualität</button>
-    <button data-tab="8" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Sensitivität</button>
-    <button data-tab="9" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Berichte</button>
-    <button data-tab="10" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Ergebnis</button>
-    <button data-tab="11" class="tc-rep" title="Auswertungsregister: Prüfung, Analyse und Dokumentation.">Methodik</button>
-  </div>
-
-  <div id="panels">
-    <div class="panel on" id="panel-0">
-      <div class="card">
-        <h3>Willkommen</h3>
-        <p>Der LOG Lagerplaner unterstützt die Vorplanung eines Kontraktlogistik-Standorts. Das Werkzeug ermittelt aus den Ausschreibungspositionen den Palettenbedarf, verteilt ihn auf Regal- und Blocklager, plant das 2D-Hallenlayout und leitet Stückliste und CAPEX ab. Alle Berechnungen laufen lokal im Browser. Die Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungsplanung.</p>
-        <p class="hint" style="margin:0">Hilfe, häufige Fragen und Handbuch öffnen über die Schaltfläche Hilfe / FAQ in der Kopfzeile. Der Änderungslog öffnet über die Versionsangabe im Kopf. Der Planungsstand bleibt im lokalen Browserspeicher dieses Geräts erhalten.</p>
-      </div>
-      <div class="card">
-        <h3>Arbeitsablauf</h3>
-        <div class="flow">
-          <div class="fs p-in"><b>1 Parameter</b><small>Vorgaben pflegen</small></div><div class="fa">→</div>
-          <div class="fs p-in"><b>2 Input</b><small>Positionen erfassen</small></div><div class="fa">→</div>
-          <div class="fs p-in"><b>Neu berechnen</b><small>Ergebnisse erzeugen</small></div><div class="fa">→</div>
-          <div class="fs p-eng"><b>3 Layout</b><small>Halle prüfen</small></div><div class="fa">→</div>
-          <div class="fs p-eng"><b>4 Regal &amp; Block</b><small>Struktur prüfen</small></div><div class="fa">→</div>
-          <div class="fs p-eng"><b>5 Equipment</b><small>Stückliste und CAPEX</small></div><div class="fa">→</div>
-          <div class="fs p-eng"><b>6 Szenarien</b><small>Varianten vergleichen</small></div><div class="fa">→</div>
-          <div class="fs p-rep"><b>7 Annahmen · 8 Sensitivität</b><small>Prüfen und bewerten</small></div><div class="fa">→</div>
-          <div class="fs p-rep"><b>9 Berichte · 10 Report</b><small>Dokumentieren</small></div><div class="fa">→</div>
-          <div class="fs p-rep"><b>Speichern</b><small>Planungsdatei (JSON)</small></div>
-        </div>
-        <p class="hint" style="margin:8px 0 0">Blau kennzeichnet die Dateneingabe, Grün die Hallenplanung und Modellierung, Violett die Auswertung und Dokumentation. Nach jeder Eingabe rechnet das Werkzeug automatisch nach; die Schaltfläche Berechnung aktualisieren erzwingt einen vollständigen Lauf aller zwölf Rechenschritte.</p>
-      </div>
-      <div class="card">
-        <h3>Registerübersicht</h3>
-        <div class="reggrid">
-          <div><b>0 · Info</b>Diese Willkommensseite mit Arbeitsablauf und Registerübersicht. Sie öffnet beim Start.</div>
-          <div><b>1 · Parameter</b>Planungsvorgaben pflegen: Gebäude & Flächen, Volumen & Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit & Abstände sowie Kosten & Optionen.</div>
-          <div><b>2 · Input</b>Ausschreibungspositionen erfassen, per CSV importieren oder die Eingabedatei laden. Je Position die Bedarfsermittlung wählen. Über Batch-Änderungen markierten Positionen LKW-Typ, LHM-Typ, Blockanteil und Datenbasis zuweisen.</div>
-          <div><b>3 · Layout</b>2D-Hallenlayout mit Zonen und Toren prüfen. Flächenbedarfsrechnung und Wegestrecken lesen. Bei Bedarf die Layout-Optimierung starten.</div>
-          <div><b>4 · Regal &amp; Block</b>Regalschnitt mit Ebenen prüfen. Blockstruktur mit Kanaltiefe und Stapelhöhe kontrollieren.</div>
-          <div><b>5 · Equipment</b>Stückliste und CAPEX prüfen. Einheitspreise anpassen und die Stückliste exportieren.</div>
-          <div><b>6 · Szenarien</b>Bis zu drei Varianten speichern und vergleichen. Gespeicherte Planungsdateien per Diff gegenüberstellen.</div>
-          <div><b>7 · Annahmen</b>Datenbasis und Datenlücken prüfen. Fragekatalog für den Kunden erzeugen.</div>
-          <div><b>8 · Sensitivität</b>Wirksamste Treiber auf Fläche und CAPEX erkennen. Das Tornado-Diagramm zeigt die Wirkung je Treiber.</div>
-          <div><b>9 · Berichte</b>Internen Bericht und kundenfähigen Grobkonzeptbericht öffnen und drucken.</div>
-          <div><b>10 · Report</b>Quick-Report und Hinweise lesen. Der Hinweiszähler der Seitenleiste springt hierher.</div>
-          <div><b>11 · Berechnungsfolge</b>Jeden Rechenschritt mit Formeln und Eingabefeldern nachvollziehen.</div>
-        </div>
-      </div>
-    </div>
-    <div class="panel" id="panel-1">
-      <div class="ptabs" id="ptabs">
-        <button data-pg="gbp" class="on">Gebäude &amp; Flächen</button>
-        <button data-pg="pal">Paletten &amp; LKW</button>
-        <button data-pg="vol">Volumen &amp; Puffer</button>
-        <button data-pg="blk">Blocklager</button>
-        <button data-pg="ffz">Lagertechnik</button>
-        <button data-pg="fir">Sicherheit &amp; Abstände</button>
-      </div>
-      <div id="pgroups">
-    <div class="pgroup on" id="pg-gbp">
-      <h3>Gebäude &amp; Flächen</h3>
-      <div class="grp">
-    <div class="fld"><label>Modus</label><select id="sel-mode">
-      <option value="box-fit">Bestandshalle (Box-Fit)</option>
-      <option value="greenfield">Greenfield (Flächenberechnung)</option></select></div>
-    <div class="fld"><label>Hallenlänge <span id="lbl-L-mode"></span></label><input id="in-L" type="number" step="1" min="10"><span class="val">m</span></div>
-    <div class="fld"><label>Hallenbreite <span id="lbl-W-mode">(Bestand)</span></label><input id="in-W" type="number" step="0.5" min="6"><span class="val">m</span></div>
-    <div class="fld"><label>Seitenverhältnis (Greenfield)</label><select id="sel-ratio" title="Verhältnis Hallenlänge zu Hallenbreite. Im Greenfield-Modus werden bei gewähltem Verhältnis beide Hallenmaße aus dem Bedarf berechnet.">
-      <option value="0">Frei (Länge vorgegeben)</option>
-      <option value="1">1 : 1</option>
-      <option value="1.5">3 : 2</option>
-      <option value="0.6667">2 : 3</option>
-      <option value="2">2 : 1</option>
-      <option value="0.5">1 : 2</option>
-      <option value="3">3 : 1</option>
-      <option value="0.3333">1 : 3</option></select></div>
-    <div class="fld"><label>Berechnete Halle (Greenfield)</label><span class="val calc" id="out-dim" style="grid-column:2/4;justify-self:end">–</span></div>
-    <div class="fld"><label>Unterkante Binder (UKB)</label><input id="in-ukb" type="number" step="0.1" min="3"><span class="val">m</span></div>
-    <div class="fld"><label>Tore Nord</label><input id="in-doors-N" type="number" min="0" step="1"></div>
-    <div class="fld"><label>Tore Süd</label><input id="in-doors-S" type="number" min="0" step="1"></div>
-    <div class="fld"><label>Tore Ost</label><input id="in-doors-O" type="number" min="0" step="1"></div>
-    <div class="fld"><label>Tore West</label><input id="in-doors-W" type="number" min="0" step="1"></div>
-    <div class="fld"><label>Regal-Ausrichtung</label><select id="sel-orient">
-      <option value="quer">orthogonal zu Toren (Reihen längs)</option>
-      <option value="laengs">parallel zu Toren (Gänge zu Toren)</option></select></div>
-    <div class="zone-grid">
-      <span>Zone Nord</span><label><input type="checkbox" id="in-zone-N-we">WE</label><label><input type="checkbox" id="in-zone-N-wa">WA</label>
-      <span>Zone Ost</span><label><input type="checkbox" id="in-zone-O-we">WE</label><label><input type="checkbox" id="in-zone-O-wa">WA</label>
-      <span>Zone Süd</span><label><input type="checkbox" id="in-zone-S-we">WE</label><label><input type="checkbox" id="in-zone-S-wa">WA</label>
-      <span>Zone West</span><label><input type="checkbox" id="in-zone-W-we">WE</label><label><input type="checkbox" id="in-zone-W-wa">WA</label>
-    </div>
-    <div class="fld"><label>Tiefe WE-Zonen</label><input id="in-weDepth" type="number" step="0.5" min="0"><span class="val">m</span></div>
-    <div class="fld"><label>WE-Pufferbemessung</label><select id="sel-buffer-mode"><option value="simple">Einfach / geometrisch</option><option value="process">Prozessbezogen</option></select></div>
-    <div class="fld"><label>Spitzen-LKW je Stunde</label><input id="in-buffer-trucks" type="number" min="0" step="0.1"><span class="val">LKW/h</span></div>
-    <div class="fld"><label>Paletten je Spitzen-LKW</label><input id="in-buffer-pallets" type="number" min="0" step="1"><span class="val">Pal.</span></div>
-    <div class="fld"><label>Standzeit im Puffer</label><input id="in-buffer-dwell" type="number" min="0" step="0.1"><span class="val">h</span></div>
-    <div class="fld"><label>Puffer-Flächenfaktor</label><input id="in-buffer-factor" type="number" min="1" max="5" step="0.1"><span class="val">×</span></div>
-    <div class="fld"><label>Tiefe WA-Zonen</label><input id="in-waDepth" type="number" step="0.5" min="0"><span class="val">m</span></div>
-    <div class="fld"><label>Miete Halle</label><input id="in-rent" type="number" step="0.5" min="0"><span class="val">€/m²·Monat</span></div>
-    <p class="hint">Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.</p>
-    <div class="fld"><label>Stützenraster X</label><input id="in-gridX" type="number" step="0.5" min="3"><span class="val">m</span></div>
-    <div class="fld"><label>Stützenraster Y</label><input id="in-gridY" type="number" step="0.5" min="3"><span class="val">m</span></div>
-      </div>
-    </div>
-
-    <div class="pgroup" id="pg-pal">
-      <h3>Paletten-Stammdaten</h3>
-      <div class="grp">
-    <div class="fld"><label>Standardpalette</label><select id="sel-deflhm"></select></div>
-    <p class="hint">Die Stammdaten führen Grundmaß, Höhe, Gewicht und Referenz-Stapelfaktor je Palettentyp. Die Höhe ist als Standardwert 1,0 m angesetzt (Referenz EPal 1.200 × 800 × 1.000 mm BTH). Höhe, Gewicht und Stapelfaktor sind je Typ direkt überschreibbar; der Referenzwert (Ref) bleibt daneben sichtbar, und die Schaltfläche ↺ setzt die Überschreibung zurück. Positionen dieses Typs werden synchronisiert, solange ihre Werte noch dem bisherigen Stammdatenwert entsprechen. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar. Bestehende Positionen bleiben unverändert.</p>
-    <div id="pallet-md"></div>
-      </div>
-      <h3>LKW-Stammdaten</h3>
-      <div class="grp">
-    <div id="truck-md"></div>
-      </div>
-      <h3>Füllmenge je LKW und Palettentyp (Kreuztabelle)</h3>
-      <div class="grp">
-    <div id="truck-cross"></div>
-      </div>
-    </div>
-
-    <div class="pgroup" id="pg-vol">
-      <h3>Volumen &amp; Reichweite</h3>
-      <div class="grp">
-    <div class="fld wide"><label>Lagerreichweite <span class="val calc" id="out-range" style="float:right"></span></label>
-      <input id="in-range" type="range" min="0.5" max="56" step="0.5">
-      <span style="display:flex;gap:6px;align-items:center"><input id="num-range" type="number" min="0.5" max="56" step="0.5" style="width:64px"> <span class="val">Tage</span></span></div>
-    <div class="fld"><label>Peak-Faktor</label><input id="in-peak" type="number" min="1" max="3" step="0.05" title="Faktor auf Durchschnitts- oder Zielbestand. Neutraler Wert 1,00."><span class="val">×</span></div>
-    <div class="fld"><label>Sicherheitsbestand</label><input id="in-safety" type="number" min="0" max="100" step="1" title="Prozentualer Zuschlag nach Peak-Faktor. Neutraler Wert 0 Prozent."><span class="val">%</span></div>
-      <div class="fld"><label>Planungshorizont</label><input id="in-planning-years" type="number" min="0" max="30" step="1"><span class="val">Jahre</span></div>
-      <div class="fld"><label>Mengenwachstum</label><input id="in-growth-rate" type="number" min="0" max="100" step="0.5"><span class="val">% p. a.</span></div>
-      <div class="fld"><label>Artikelwachstum</label><input id="in-sku-growth" type="number" min="0" max="100" step="0.5"><span class="val">% p. a.</span></div>
-      <div class="fld"><label>Strategische Kapazitätsreserve</label><input id="in-strategic-reserve" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-      <div class="fld"><label>Temporär gesperrte Plätze</label><input id="in-blocked-places" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-      <div class="fld"><label>Spitzenstundenanteil am Tagesvolumen</label><input id="in-peak-hour-share" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-      <div class="fld"><label>Anteil Wareneingang</label><input id="in-we-share" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-      <div class="fld"><label>Gleichzeitigkeitsfaktor WE/WA</label><input id="in-simultaneity" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-      <div class="fld"><label>Operative Nebenfläche</label><input id="in-operational-area" type="number" min="0" step="1"><span class="val">m²</span></div>
-
-    <div class="fld"><label>Füllgrad Regal</label><input id="in-fillRack" type="number" min="50" max="100" step="1"><span class="val">%</span></div>
-    <div class="fld"><label>Füllgrad Blocklager</label><input id="in-fillBlock" type="number" min="40" max="100" step="1"><span class="val">%</span></div>
-    <div class="fld"><label>Transit-/Cross-Dock-Anteil</label><input id="in-transit" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-    <div class="fld"><label>Separaten Cross-Dock-Puffer einrechnen</label><input id="chk-transit-buf" type="checkbox" title="Flächenzuschlag für Transit-Paletten in der Brutto-Lagerfläche. Nur zuschalten, wenn Cross-Docking nicht innerhalb der dimensionierten WE-/WA-Zonen abgewickelt wird; sonst Doppelberechnung."></div>
-    <div class="fld"><label>Standzeit Transit-Puffer</label><input id="in-transit-days" type="number" min="0" step="0.1"><span class="val">Tage</span></div>
-    <div class="fld"><label>Fläche je Transitpalette</label><input id="in-transit-area" type="number" min="0" step="0.1"><span class="val">m²/Pal.</span></div>
-  </div>
-      <h3>Leergut (verdichtet)</h3>
-      <div class="grp">
-    <div class="fld"><label>Leergutbereich einplanen</label><input id="in-empty-on" type="checkbox"></div>
-    <div class="fld"><label>Mengenbasis</label><select id="sel-empty-mode">
-      <option value="percent">Anteil am Brutto-Bestand</option>
-      <option value="abs">Absolute Palettenzahl</option></select></div>
-    <div class="fld"><label>Menge</label><input id="in-empty-value" type="number" step="0.5" min="0"><span class="val" id="out-empty-unit">%</span></div>
-    <div class="fld"><label>Stapelhöhe Leerpaletten (1+x)</label><input id="in-empty-stack" type="number" min="0" max="30" step="1"><span class="val">Pal.</span></div>
-    <div class="fld"><label>Zugangsreserve</label><input id="in-empty-reserve" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-    <p class="hint">Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.</p>
-  </div>
-    </div>
-
-    <div class="pgroup" id="pg-blk">
-      <h3>Blocklager &amp; ABC/XYZ-Logik</h3>
-      <div class="grp">
-    <div class="fld"><label>Verteilungsmethode</label><select id="sel-blockmode">
-      <option value="sku">Schätzmodell (ABC-Pareto-Prüfung)</option>
-      <option value="quota">Pauschale Volumenquote</option>
-      <option value="manual">Manueller Override (Spalte Blockanteil)</option></select></div>
-    <div class="fld"><label>Volumenquote Block (Modus Quote)</label><input id="in-quota" type="number" min="0" max="100" step="1"><span class="val">%</span></div>
-    <div class="fld"><label>Kanaltiefe</label><input id="in-channelDepth" type="number" min="2" max="20" step="1"><span class="val">Pal.</span></div>
-    <div class="fld"><label>max. Stapelhöhe (1+x; Nachweis erforderlich)</label><input id="in-stackH" type="number" min="0" max="8" step="1"><span class="val">Pal.</span></div>
-    <div class="fld"><label>Blockausrichtung</label><select id="sel-blockorient">
-      <option value="N">Kanäle quer · Zugang Nord</option>
-      <option value="W">Kanäle längs · Zugang West</option></select></div>
-    <div class="fld"><label>Oberkante Lagergut Block</label><input id="in-maxTop" type="number" min="2" max="12" step="0.1"><span class="val">m</span></div>
-    <div class="fld"><label>ABC: A-Volumenanteil</label><input id="in-aVol" type="number" min="10" max="95" step="1"><span class="val">%</span></div>
-    <div class="fld"><label>ABC: B-Volumenanteil</label><input id="in-bVol" type="number" min="2" max="40" step="1"><span class="val">%</span></div>
-    <div class="fld"><label>Mindest-Kanalfüllgrad</label><input id="in-minFill" type="number" min="30" max="100" step="1"><span class="val">%</span></div>
-    <p class="hint">Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.</p>
-  </div>
-    </div>
-
-    <div class="pgroup" id="pg-ffz">
-      <h3>Lagertechniktechnik</h3>
-      <div class="grp">
-    <div class="fld wide"><label>FFZ Regallager</label>
-      <div class="ffz-checks">
-        <label class="ck"><input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="vna"> Schmalgangstapler/VNA (1,9 m)</label>
-        <label class="ck"><input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="schubmast"> Schubmaststapler (2,8 m)</label>
-        <label class="ck"><input type="checkbox" data-ffzgrp="rackFFZ" data-ffz="front"> Frontstapler (3,5 m)</label>
-      </div></div>
-    <div class="fld wide"><label>FFZ Blocklager / Leergut</label>
-      <div class="ffz-checks">
-        <label class="ck"><input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="front"> Frontstapler (3,5 m)</label>
-        <label class="ck"><input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="schubmast"> Schubmaststapler (2,8 m)</label>
-        <label class="ck"><input type="checkbox" data-ffzgrp="blockFFZ" data-ffz="hochhub"> Hochhubwagen (2,4 m)</label>
-      </div></div>
-    <div class="fld wide"><label>FFZ WE/WA &amp; Vorzone</label>
-      <div class="ffz-checks">
-        <label class="ck"><input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="ameise"> Mitgänger/Schnellläufer</label>
-        <label class="ck"><input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="front"> Frontstapler</label>
-        <label class="ck"><input type="checkbox" data-ffzgrp="zoneFFZ" data-ffz="schubmast"> Schubmaststapler</label>
-      </div></div>
-    <div class="fld"><label>Arbeitsgangbreite Regal A<sub>st</sub></label><input id="in-aisle" type="number" step="0.1" min="1.2"><span class="val">m</span></div>
-    <div class="fld"><label>Arbeitsgangbreite Block</label><input id="in-aisle-block" type="number" step="0.1" min="1.2"><span class="val">m</span></div>
-    <div class="fld"><label>P&amp;D-Plätze an Regalstirnseiten (bei VNA)</label><input id="chk-vna-pnd" type="checkbox" title="Bei VNA im Regallager: P&amp;D-Aufsetzplätze an den Regalstirnseiten berücksichtigen (je Stirnseite 1,0 m Aufsetzplatz und 1,0 m Anfahrabstand; vermindert die nutzbare Regallänge je Reihe um 4,0 m)."></div>
-    <div class="fld"><label>Regal-Auslegungsbasis</label><select id="sel-rackbase">
-      <option value="lead">Leitartikel nach größtem Brutto-Regalbedarf</option>
-      <option value="envelope">Hüllkurve (Maximalmaße und -gewicht aller Regalpositionen)</option></select></div>
-    <div class="fld"><label>Lichte Feldweite</label><select id="sel-fieldmode">
-      <option value="auto">Auto-Plausibilität</option>
-      <option value="fix">Festes Maß 1.800–3.600 mm</option></select></div>
-    <div class="fld"><label>Feldweite (fix)</label><input id="in-fieldWidth" type="number" min="1800" max="3600" step="100"><span class="val">mm</span></div>
-    <div class="fld"><label>Maximale Hubhöhe Stapler</label><input id="in-liftheight" type="number" min="1" max="20" step="0.1" title="Begrenzt die Oberkante der letzten Traversenebene."><span class="val">m</span></div>
-    <div class="fld"><label>Hubhöhen-Sicherheitsabzug</label><input id="in-liftreserve" type="number" min="0" max="1000" step="50" title="Abzug von der maximalen Hubhöhe für Handhabungsreserve."><span class="val">mm</span></div>
-    <div class="fld"><label>Bodenebene auf Traverse</label><input id="chk-floorbeam" type="checkbox"></div>
-    <div class="fld"><label>Einzelreihen ergänzen</label><input id="chk-singlerows" type="checkbox" title="Wand- und Restflächen nutzen, sobald Doppelreihen nicht mehr passen."></div>
-    <p class="hint">Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&amp;D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen.</p>
-  </div>
-    </div>
-
-    <div class="pgroup" id="pg-fir">
-      <h3>Brandschutz &amp; Sicherheit</h3>
-      <div class="grp">
-    <div class="fld"><label>Sprinkler-Freiraum unter UKB</label><input id="in-sprinkler" type="number" min="0" step="50"><span class="val">mm</span></div>
-    <div class="fld"><label>Fluchttunnel-Intervall</label><input id="in-tunnelint" type="number" min="0" step="1"><span class="val">m</span></div>
-    <div class="fld"><label>lichte Durchgangshöhe Tunnel</label><input id="in-tunnelclear" type="number" min="2" step="0.1"><span class="val">m</span></div>
-    <div class="fld"><label>In-Rack-Sprinklerung</label><input id="chk-inrack" type="checkbox" title="Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe."></div>
-  </div>
-    </div>
-      </div>
-    </div>
-    <div class="panel" id="panel-10">
-      <div id="qreport"><details open><summary id="qr-sum">Quick-Report</summary><div id="qr-body"><p class="hint" style="margin:2px 0">Die Ergebniszusammenfassung erscheint nach der ersten Berechnung mit Positionen und Bedarfsangaben.</p></div></details></div>
-      <div id="warnbox"><details id="warn-det" open><summary id="warn-sum">Hinweise</summary><ul id="warn-list"></ul></details></div>
-      <div class="card"><h3>Bedeutung der Hinweise</h3><p class="hint">Kritische Hinweise sind rot gekennzeichnet und vor jeder Weitergabe der Planung zu klären. Übrige Hinweise sind Plausibilitätsbemerkungen. Der Hinweiszähler in der Status-Seitenleiste öffnet diese Registerkarte.</p></div>
-    </div>
-    <div class="panel" id="panel-11">
-      <div class="card"><h3>Berechnungsfolge: Auflösung der Rechenschritte</h3>
-        <p class="hint">Dieses Register löst die Berechnung in ihrer tatsächlichen Reihenfolge auf. Jeder Schritt nennt seine Eingabefelder und seine Formel. Die Schaltfläche Berechnung aktualisieren durchläuft alle Schritte vollständig; Zwischenergebnisse erscheinen in der Artikeltabelle, im Layout, in den Berichten und in der Status-Seitenleiste.</p>
-        <div style="overflow:auto;max-height:64vh">
-        <table><thead><tr><th style="width:34px">Nr.</th><th style="width:220px">Schritt</th><th>Eingabefelder</th><th>Rechenweg (Ergebnisgröße)</th></tr></thead><tbody>
-          <tr><td>1</td><td>Bedarf je Position</td><td>Tab 2: Ermittlung, Bedarfseingabe, LKW-Typ, Paletten je LKW</td><td>LKW/Tag: Paletten/Tag = LKW/Tag × Paletten je LKW (Vorbelegung aus der Kreuztabelle, überschreibbar) · Paletten/Tag: direkte Eingabe · Stückbasis: Paletten/Tag = Stück/Tag ÷ Stück je KLT ÷ KLT je Palette · Ziel-Bestand: Bestand direkt vorgegeben, Paletten/Tag = Ziel-Bestand ÷ Reichweite (Paletten/Tag je Position)</td></tr>
-          <tr><td>2</td><td>LKW-Volumen je Tag</td><td>aus Schritt 1 und Füllmenge der Kreuztabelle</td><td>LKW/Tag = Paletten/Tag ÷ Füllmenge des LKW-Typs; im Modus LKW/Tag direkte Eingabe (Kachel LKW/Tag der Status-Seitenleiste)</td></tr>
-          <tr><td>3</td><td>Netto-Bestand je Position</td><td>Tab 1: Lagerreichweite, Transit-/Cross-Dock-Anteil</td><td>Bemessungsbestand = Paletten/Tag × Reichweite × Peak-Faktor × (1 + Sicherheitsbestand ÷ 100) × (1 − Transitanteil ÷ 100); im Modus Ziel-Bestand: Netto = Ziel-Bestand × (1 − Transitanteil ÷ 100). Transitpaletten verbrauchen keine Stellfläche; nur bei zugeschaltetem separatem Puffer entsteht eine Bodenfläche (Standzeit × Fläche je Palette)</td></tr>
-          <tr><td>4</td><td>Blockverteilung je Position</td><td>Tab 1: Verteilungsmethode, Volumenquote, ABC-Anteile, Mindest-Kanalfüllgrad; Tab 2: Artikel, Stapel 1+x, Blockanteil</td><td>Quote: Blockpaletten = Netto × Quote · Manuell: Blockpaletten = Netto × Blockanteil · Artikelbasiert: drei Artikelklassen (obere 20 Prozent der Artikel erhalten A-Volumenanteil, mittlere 30 Prozent den B-Anteil, untere 50 Prozent den Rest); eine Klasse qualifiziert sich, wenn der Artikel stapelbar ist (mindestens 1+1) und das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Nutzbarer Stapel = Minimum aus Artikel-Stapel, max. Stapelhöhe und OK Lagergut ÷ Palettenhöhe; die Kippgrenze 6:1 wird als Hinweis ausgewiesen. Effektiver Blockanteil = Blockpaletten ÷ Netto (Spalte Block %)</td></tr>
-          <tr><td>5</td><td>Brutto-Bedarf</td><td>Tab 1: Füllgrad Regal, Füllgrad Block</td><td>Brutto Regal = Aufrunden(Regalpaletten ÷ Füllgrad Regal) · Brutto Block = Aufrunden(Blockpaletten ÷ Füllgrad Block) (Bedarf an Regal- und Blockplätzen)</td></tr>
-          <tr><td>6</td><td>Regalgeometrie</td><td>Tab 1: Auslegungsbasis, Feldweite, Bodenebene, Brandschutz; Gebäude: UKB</td><td>Leitartikel oder Hüllkurve legen Palette und Fachlast fest; Fachlast bestimmt Ständer- und Traversenprofil (100/120 mm bzw. 120/140 mm) · Feldweite automatisch aus den Kandidaten 1.800, 2.250, 2.700, 3.100, 3.600 mm (kleinster Kandidat mit mindestens drei Paletten je Feld) oder fest · Ebenen = 1 + Abrunden((Minimum aus (Gebäudegrenze minus Ladeeinheitenhöhe) und nutzbarer Hubhöhe, danach minus Bodenoffset) ÷ Ebenenraster); passt keine Ebene, entsteht keine Regalkapazität; Raster = Palettenhöhe + 150 mm Hubspiel + Traversenprofil, bei In-Rack-Sprinklerung +100 mm je Ebene (Felder, Ebenen, Paletten je Feld, Regalhöhe)</td></tr>
-          <tr><td>7</td><td>Blockgeometrie</td><td>Tab 1: Kanaltiefe, max. Stapelhöhe, Blockausrichtung; Tab 4: Block-Leitartikel</td><td>Kanalbreite = breiteste Palettenbreite + 150 mm · Kanaltiefe = (längste Palettenlänge + 50 mm) × Kanaltiefe in Paletten (konservative Maßhüllkurve über die Positionen) · wirksame Stapelhöhe je Position = Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe und Oberkante Lagergut ÷ Palettenhöhe · Kanalkapazität je Position = Kanaltiefe × wirksame Stapelhöhe · Kanäle = Summe je Position aus Aufrunden(Brutto Block je Position ÷ Kanalkapazität je Position) · Bänder und Bandabstand folgen aus der Ausrichtung; der Bandabstand entspricht der Block-Gangbreite (Kanäle, Bänder, Blocktiefe)</td></tr>
-          <tr><td>8</td><td>Leergut</td><td>Tab 1: Volumen &amp; Puffer (Menge, Stapelhöhe, Zugangsreserve)</td><td>Leerpaletten = Anteil am Brutto-Bedarf oder absolute Zahl · Stapel = Aufrunden(Leerpaletten ÷ Stapelhöhe) · Bandtiefe = Stapelfläche × (1 + Zugangsreserve) ÷ nutzbare Länge, aufgerundet auf 10 mm; das Band verbraucht Fläche und erhöht keine Kapazität</td></tr>
-          <tr><td>9</td><td>Layout und Kapazität</td><td>Tab 1: Gebäude, Tore, Zonen, Stützraster, FFZ, Gangbreiten, VNA-P&amp;D, Fluchttunnel, Einzelreihen; Greenfield-Parameter</td><td>Nutzbare Länge = Hallenlänge − 2 × 1,0 m Randgang − Ost-/Westzonen; bei VNA-P&amp;D abzüglich 4,0 m je Reihe · Vor der ersten Doppelreihe liegt ein Führungsgang in Regal-Gangbreite; jede Regalreihe ist über einen realen Fahrgang bedienbar · Doppelreihen = Minimum(passende Anzahl, Aufrunden(Regalbedarf ÷ (2 × Kapazität je Reihe))); Kapazität je Reihe = Felder × Paletten je Feld × Ebenen − Fluchttunnelverlust · Einzelreihen füllen Restbedarf auf Wand- und Restflächen · Hallenstützen werden geprüft; im Bestandsmodus werden je kollidierender Stütze in einem Regal die Plätze eines Felds abgezogen · Greenfield: benötigte Hallenbreite = WE-Zone + Block + Abstand + Leergut + Führungsgang + Doppelreihen × Raster + WA-Zone (Kapazität Regal/Block, Deckungsgrad, Kollisionshinweise)</td></tr>
-          <tr><td>10</td><td>Brutto-Lagerfläche</td><td>aus Schritt 6 bis 9</td><td>Summe aus Regalstellflächen, Regal-Arbeitsgängen, Blockstellflächen, Blockgassen, WE-/WA-Zonen, Abstandsflächen, Leergutband und Transitpuffer; gegenübergestellt der Hallenfläche mit freier Fläche und Nutzungsgrad (Flächenbedarfsrechnung unter dem Layout)</td></tr>
-          <tr><td>11</td><td>Stückliste und CAPEX</td><td>Tab 5: Einheitspreise, Montagepauschale, Rückbau, Durchschubsicherungen, Gitterroste</td><td>Rahmen je Reihe × (Felder + 1) · Traversenpaare = Reihen × Felder × Ebenen · Gitterroste und Anfahrschutz je Fluchttunnel · Rückwandgitter je Feld bei Einzelreihen · Durchschubsicherungen je Fach bei Rücken-an-Rücken-Reihen · Bodenmarkierung nach Gang- und Bandlängen · Bauteilsumme × Einheitspreise + Montagepauschale + Rückbau = CAPEX; CAPEX ÷ Bruttostellplätze = Kosten je Stellplatz</td></tr>
-          <tr><td>12</td><td>Kennzahlen und Ampel</td><td>aus Schritt 5 und 9</td><td>Deckungsgrad = Kapazität ÷ Bedarf, je Regal und Block und gesamt · Ampel in drei Stufen: 🔴 Hard Stop bei Deckungsgrad unter 100 Prozent, fehlendem Bestand oder harten Kollisionen (Hallenstützen zerstören Regalplätze oder Blockkanäle; Stütze blockiert die Zugangsgasse des Blocklagers) · 🟡 Optimierungspotenzial bei Deckungsgrad über 115 Prozent, Hallennutzung unter 65 oder über 90 Prozent oder vorhandenen Plausibilitätshinweisen (etwa knappe WE-Pufferfläche, Kippgrenze 6:1, durch Verschieben von Gängen lösbare Stützenkollisionen) · 🟢 Zielbereich bei 100 bis 115 Prozent Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise; im Greenfield-Modus gilt die Hallennutzung als erfüllt, weil die Halle aus dem Bedarf abgeleitet wird (Status-Seitenleiste und Register 10)</td></tr>
-        </tbody></table></div>
-        <p class="hint">Alle Ergebnisse sind indikativ für die Vorplanung. Der Optimierungslauf variiert die Parameter der Schritte 6 bis 9 und bewertet jede Variante mit den Schritten 10 und 11; die Sensitivitätsanalyse variiert zentrale Treiber einzeln. Formeln und Grenzwerte stehen im jeweiligen Schritt; die Hinweise der Registerkarte Report nennen Abweichungen und Plausibilitätsbefunde.</p>
-      </div>
-    </div>
-    <div class="panel" id="panel-2">
-      <div class="rowbtns">
-        <button class="btn acc" id="btn-add-item">+ Position</button>
-        <button class="btn" id="btn-csv">Mengengerüst importieren (CSV)</button>
-        <button class="btn" id="btn-export-input">Eingabedatei erzeugen</button>
-      </div>
-      <div class="card"><h3>Artikelgruppen / Ausschreibungspositionen</h3>
-        <p style="margin:0 0 4px;font-weight:600;font-size:12px">Batch-Änderungen</p>
-        <div class="selbar" role="group" aria-label="Batch-Änderungen">
-          <span id="sel-count">0 Positionen ausgewählt</span>
-          <button class="btn" id="btn-sel-del" disabled>Auswahl löschen</button>
-          <label for="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird">LKW-Typ:</label>
-          <select id="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird"></select>
-          <button class="btn" id="btn-sel-truck" disabled>LKW-Typ zuweisen</button>
-          <label for="sel-lhm" title="Palettentyp, der den ausgewählten Positionen zugewiesen wird; Maße und Stapelfaktor werden mit übernommen">LHM-Typ:</label>
-          <select id="sel-lhm" title="Palettentyp, der den ausgewählten Positionen zugewiesen wird; Maße und Stapelfaktor werden mit übernommen"></select>
-          <button class="btn" id="btn-sel-lhm" disabled>LHM-Typ zuweisen</button>
-          <input type="number" id="sel-block" min="0" max="100" step="5" style="width:60px"> <span>%</span>
-          <button class="btn" id="btn-sel-block" disabled>Blockanteil zuweisen</button>
-          <label for="sel-basis" title="Datenbasis, die den ausgewählten Positionen zugewiesen wird">Basis:</label>
-          <select id="sel-basis" title="Datenbasis, die den ausgewählten Positionen zugewiesen wird"><option value="customer">Kundenangabe</option><option value="assumption">Planerannahme</option></select>
-          <button class="btn" id="btn-sel-basis" disabled>Basis zuweisen</button>
-        </div>
-        <div class="table-width-tools"><span>Spalten an den Trennlinien ziehen</span><button class="btn" type="button" id="btn-cols-auto">Breiten automatisch</button><button class="btn" type="button" id="btn-cols-reset">Standardbreiten</button></div>
-        <div class="items-table-scroll" role="region" aria-label="Artikeltabelle">
-        <table id="items-table"><caption class="sr-only">Ausschreibungspositionen mit Bedarfsangaben</caption><thead><tr>
-          <th scope="col"><input type="checkbox" id="sel-all" aria-label="Alle Positionen auswählen"></th>
-          <th scope="col">Pos</th><th scope="col">Bezeichnung</th>
-          <th scope="col">Ermittlung</th><th scope="col" class="bed">Bedarfseingabe</th>
-          <th scope="col" title="Anzahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Wirksam nur im artikelbasierten Modus der Blockverteilung.">Artikel</th>
-          <th scope="col" title="Herkunft der Mengenangabe dieser Position: Kundenangabe oder Planerannahme.">Basis</th><th scope="col">LHM-Typ</th>
-          <th scope="col">Länge mm</th><th scope="col">Breite mm</th><th scope="col">Höhe mm</th>
-          <th scope="col">Gewicht kg</th>
-          <th scope="col" title="Stapelfaktor Blocklager in der Notation 1+x: x gibt die zusätzlich auf der untersten Palette gestapelten Paletten an (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf). Hart begrenzt durch max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut; die Kippgrenze 6:1 wird je Position aufgerundet als Hinweis ausgewiesen. Im Regal steht je Fach und Ebene eine Palette.">Stapel 1+x</th>
-          <th scope="col">Pal./Tag</th><th scope="col">Netto Pal.</th><th scope="col" class="col-block" title="Modus Manuell: Eingabe des Blockanteils. Allen anderen Modi: berechneter effektiver Blockanteil laut Verteilungslogik (Blockpaletten am Netto-Bestand der Position).">Block %</th><th scope="col"></th>
-        </tr></thead><tbody id="itemsBody"></tbody></table></div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-3">
-      <div class="card" id="opt-card" style="display:none"><details id="opt-details" open><summary id="opt-summary" style="cursor:pointer;font-weight:600">Optimierungsvarianten</summary>
-        <div style="overflow:auto;max-height:38vh">
-        <table><thead><tr>
-          <th>Ausrichtung Regal · Block</th><th>Feldweite</th><th>Doppelreihen</th><th>Kapazität</th>
-          <th>Deckungsgrad</th><th>Gangfläche</th><th>Min.-Breite</th><th>Min.-Fläche</th><th>CAPEX</th><th>CAPEX / Stellplatz</th>
-          <th>Stützraster m</th><th>Zonenrollen</th>
-        </tr></thead><tbody id="opt-body"></tbody></table></div>
-        <p class="hint" id="opt-note"></p>
-      </details></div>
-      <div class="rowbtns" style="margin:0 0 8px">
-        <button class="btn" id="btn-zoom-in">Vergrößern</button>
-        <button class="btn" id="btn-zoom-out">Verkleinern</button>
-        <button class="btn" id="btn-zoom-reset">Ansicht zurücksetzen</button>
-        <button class="btn" id="btn-layout-png">Layout als PNG speichern</button>
-      </div>
-      <div class="canvas-wrap split"><canvas id="cv-layout" style="flex:1 1 auto;height:75vh"></canvas>
-        <div class="legend side">
-          <span><i style="background:#d1fae5;border:1px solid #10b981"></i>WE-Zone</span>
-          <span><i style="background:#ffedd5;border:1px solid #f97316"></i>WA-Zone</span>
-          <span><i style="background:#fef3c7;border:1px solid #f59e0b"></i>Blockkanal</span>
-          <span><i style="background:#dbeafe;border:1px solid #2563eb"></i>Regalfeld</span>
-          <span><i style="background:#e2e8f0;border:1px solid #64748b"></i>Leergut (verdichtet)</span>
-          <span><i style="background:#fff;border:1px solid #94a3b8"></i>Fluchttunnel</span>
-          <span><i style="background:#94a3b8"></i>Stütze</span>
-          <span><i style="background:#f8fafc;border:1px dashed #94a3b8"></i>Fahrgang (Mittelachse)</span>
-          <span><i style="background:#2563eb"></i>Zugriff Regal · <i style="background:#d97706"></i>Einschub Block</span>
-          <span><i style="background:#dc2626"></i>Kollision Fahrgang</span>
-          <span><i style="background:#f97316"></i>Kollision Regal/Kanal</span>
-        </div>
-      </div>
-      <div class="card" id="area-card" style="display:none"><h3>Flächenbedarf und Flächenstruktur</h3><div id="area-viz" class="area-viz" aria-label="Visualisierung der Flächenanteile"></div>
-        <div style="overflow:auto;max-height:32vh">
-        <table><thead><tr><th>Position</th><th>Fläche m²</th><th>Anteil Halle</th></tr></thead><tbody id="area-body"></tbody></table></div>
-        <p class="hint" id="area-note"></p>
-      </div>
-      <div class="card" id="ways-card" style="display:none"><h3>Wegestrecken (Grundlage MTM)</h3>
-        <div style="overflow:auto;max-height:30vh">
-        <table><thead><tr><th>Strecke</th><th>Von – Nach</th><th>Länge</th></tr></thead><tbody id="ways-body"></tbody></table></div>
-        <p class="hint" id="ways-note"></p>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-4">
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
-      <div class="canvas-wrap" style="flex:1 1 460px"><canvas id="cv-section" style="height:68vh"></canvas>
-        <div class="legend">
-          <span><i style="background:#dbeafe;border:1px solid #2563eb"></i>Palettenfach</span>
-          <span><i style="background:#94a3b8"></i>Traverse</span>
-          <span><i style="background:#334155"></i>Ständer</span>
-          <span><i style="background:#fee2e2"></i>Sprinkler-Freiraum</span>
-          <span><i style="background:#fff;border:1px dashed #dc2626"></i>UKB</span>
-          <span><i style="background:#ecfdf5;border:1px solid #16a34a"></i>Tunnelfeld</span>
-        </div>
-      </div>
-      <div class="canvas-wrap" style="flex:1 1 460px"><canvas id="cv-block" style="height:68vh"></canvas>
-        <div class="legend">
-          <span><i style="background:#fef3c7;border:1px solid #f59e0b"></i>Palettenzelle</span>
-          <span><i style="background:#ffedd5;border:1px solid #f97316"></i>WE-Zugang</span>
-          <span><i style="background:#e2e8f0"></i>Arbeitsgang</span>
-          <span><i style="background:#fff;border:1px dashed #dc2626"></i>max. Stapelhöhe</span>
-        </div>
-      </div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-5">
-      <div class="card"><h3>Stückliste (BOM)</h3>
-        <div class="rowbtns" style="margin:0 0 8px">
-          <button class="btn" id="btn-bom-csv">Stückliste als CSV exportieren</button>
-        </div>
-        <div style="overflow:auto;max-height:50vh">
-        <table><thead><tr><th>Komponente</th><th>Spezifikation</th><th style="width:90px">Menge</th><th style="width:60px">EH</th><th style="width:100px">EP €</th><th style="width:110px">GP €</th></tr></thead>
-        <tbody id="bomBody"></tbody></table></div>
-        <div class="bomfoot">
-          <span>Zwischensumme: <b id="bom-sub">0 €</b></span>
-          <span>Montage &amp; Ingenieur-Pauschale <input id="pr-mount" type="number" step="0.5"> %: <b id="bom-mount">0 €</b></span>
-          <span>Rückbau &amp; Demontage <input id="pr-demount" type="number" step="0.5"> %: <b id="bom-demount">0 €</b></span>
-          <span>CAPEX gesamt: <span class="big" id="bom-total">0 €</span></span>
-          <span>€ / Bedarfsplatz: <b id="bom-perplace">–</b></span>
-          <span>€ / geplantem Platz: <b id="bom-perbuilt">–</b></span>
-          <span>€ / verfügbarem Platz (ggf. vorläufig): <b id="bom-perusable">–</b></span>
-        </div>
-      </div>
-      <div class="card"><h3>Kalkulationsgrundlagen</h3>
-        <div class="grp">
-          <div class="fld"><label>Preisstand</label><input id="in-price-date" type="month"></div>
-          <div class="fld"><label>Preisquelle</label><input id="in-price-source" type="text" placeholder="Richtpreis oder Angebot"></div>
-          <div class="fld"><label>Kostenunsicherheit</label><input id="in-cost-unc" type="number" min="0" max="100" step="1"><span class="val">± %</span></div>
-            <div class="fld"><label>Jahre bis Realisierung</label><input id="in-realization-years" type="number" min="0" max="30" step="1"><span class="val">Jahre</span></div>
-            <div class="fld"><label>Preissteigerung</label><input id="in-price-escalation" type="number" min="0" max="100" step="0.5"><span class="val">% p. a.</span></div>
-            <div class="fld"><label>Projektnebenkosten</label><input id="in-project-overhead" type="number" min="0" max="100" step="0.5"><span class="val">%</span></div>
-        </div>
-        <p class="hint">Alle Einheitspreise sind Standard-Richtwerte und je Position editierbar. Die Montagepauschale (Standard 18 %) wird auf die Bauteilsumme geschlagen. Mengen folgen aus dem Layout: Rahmen je Reihe (Feldanzahl + 1), Traversenpaare je Feld und Ebene, Gitterroste (optional) und Anfahrschutz je Fluchttunnel, Durchschubsicherungen je Fach (optional, nur Rücken-an-Rücken-Reihen), Rückwandgitter je Feld bei Einzelreihen, Markierungsmaterial Regale je Rahmenlinie, Bodenmarkierung nach Gang- und Bandlängen (auch bei reinem Blocklager), Regalprüfung Erstabnahme je Reihe.</p>
-        <div class="fld" style="max-width:480px"><label>Durchschubsicherungen je Fach einrechnen</label><input id="chk-push" type="checkbox"></div>
-        <div class="fld" style="max-width:480px"><label>Gitterroste je Fluchttunnel einrechnen</label><input id="chk-grating" type="checkbox"></div>
-        <div class="fld" style="max-width:480px"><label>Rückbau &amp; Demontage einrechnen (Pauschale auf Bauteilsumme)</label><input id="chk-demount" type="checkbox"></div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-6">
-      <div class="card"><h3>Szenarien speichern und aufrufen</h3>
-        <div class="grp" style="grid-template-columns:minmax(260px,1fr) auto;align-items:end">
-          <div class="fld"><label>Gespeichertes Szenario auswählen</label><select id="sel-scenario-load"><option value="">Kein gespeichertes Szenario</option></select></div>
-          <div class="rowbtns" style="margin:0"><button class="btn acc" id="btn-scenario-load" disabled>Szenario aufrufen</button></div>
-        </div>
-        <p class="hint">Beim Aufrufen wird der aktuelle Arbeitsstand durch das gespeicherte Szenario ersetzt. Die drei gespeicherten Slots bleiben erhalten. Vor dem Laden erfolgt eine Sicherheitsabfrage.</p>
-        <h3 style="margin-top:16px">Szenario-Vergleich</h3>
-        <div class="scenbar" id="scenbar"></div>
-        <div style="overflow:auto;max-height:55vh">
-        <table><thead><tr>
-          <th style="width:220px">Metrik</th><th>Aktuell</th><th>Slot 1</th><th>Slot 2</th><th>Slot 3</th>
-        </tr></thead><tbody id="scen-body"></tbody></table></div>
-        <p class="hint">Ein Slot speichert die vollständige Planung (Parameter und Positionen) samt Ergebniskennzahlen. Die Schaltfläche Laden stellt den gespeicherten Stand wieder her. Die Slots sind Bestandteil der gespeicherten Planung und der Browser-Sitzung.</p>
-      </div>
-      <div class="card"><h3>Planungsstände vergleichen (Diff)</h3>
-        <p class="hint">Laden Sie eine gespeicherte Planungsdatei (JSON). Das Werkzeug vergleicht deren Parameter und Positionen mit dem aktuellen Stand und weist nur Abweichungen aus. Neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
-        <div class="rowbtns">
-          <button class="btn acc" id="btn-diff-load">Planungsdatei zum Vergleich laden</button>
-          <button class="btn" id="btn-diff-clear" disabled>Vergleich zurücksetzen</button>
-          <input type="file" id="diffFile" accept=".json,application/json" style="display:none">
-        </div>
-        <div id="diff-out"><p class="hint" style="margin:2px 0">Der Vergleich erscheint nach dem Laden einer Planungsdatei.</p></div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-7">
-      <div class="card"><h3>Annahmenregister</h3>
-        <p class="hint">Das Register weist aus, welche Eingaben auf Kundendaten und welche auf Annahmen beruhen. Die Quelle je Parameter wird ausdrücklich dokumentiert. Gleiche Zahlenwerte belegen keine Herkunft. Änderungen am Bezugswert machen eine Bestätigung ungültig. Die Datenbasis je Position wird in der Artikeltabelle (Tab 2) gesetzt.</p>
-        <div id="reg-srcs"></div>
-      </div>
-      <div class="card"><h3>Datenlücken</h3>
-        <div id="reg-gaps"></div>
-        <div class="rowbtns"><button class="btn acc" id="btn-print-gap">Fragekatalog für den Kunden erzeugen</button></div>
-        <p class="hint">Der Fragekatalog übersetzt die offenen Datenlücken in Kundenfragen und ergänzt die Artikelstammdaten der Positionen auf Annahmebasis. Er öffnet sich als Druckansicht.</p>
-      </div>
-      <div class="card"><h3>Globale Parameter: Wert, Quelle und Auswirkung</h3>
-        <div style="overflow:auto;max-height:42vh">
-        <table><thead><tr><th>Parameter</th><th>Wert</th><th>Quelle</th><th>Auswirkung auf das Ergebnis</th></tr></thead><tbody id="reg-params"></tbody></table></div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-8">
-      <div class="card"><h3>Sensitivitätsanalyse: Fläche &amp; CAPEX</h3>
-        <p class="hint">Welche Annahme verändert den erforderlichen Flächenbedarf und den CAPEX am stärksten? Die Rangfolge unterstützt die gezielte Klärung beim Kunden bei begrenzter Planungszeit.</p>
-        <div class="rowbtns"><button class="btn acc" id="btn-sensi">Sensitivitätsanalyse ausführen</button></div>
-        <div id="sensi-out" class="rep"><p class="hint" style="margin:2px 0">Die Analyse erscheint nach dem Ausführen. Voraussetzung ist eine berechnete Planung mit Bedarfsangaben.</p></div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel-9">
-      <div class="card"><h3>Interner Bericht</h3>
-        <p class="hint">Datenqualität, Kostenrisiken, Sensitivität und Freigabestatus. Für die interne Verwendung; nicht an den Kunden aushändigen.</p>
-        <div class="rowbtns"><button class="btn" id="btn-print-int">Im Druckfenster öffnen</button></div>
-        <div id="rep-int-body" class="rep"></div>
-      </div>
-      <div class="card"><h3>Kundenfähiger Grobkonzeptbericht</h3>
-        <p class="hint">Ergebnis, Varianten, explizite Annahmen und Leistungsgrenzen. Geeignet als Anlage zur Angebotsunterlage, mit Kennzeichnung der Annahmen.</p>
-        <div class="rowbtns"><button class="btn" id="btn-print-cust">Im Druckfenster öffnen</button></div>
-        <div id="rep-cust-body" class="rep"></div>
-      </div>
-    </div>
-  </div>
-</main>
-<aside id="kpis">
-  <div class="kpi kpi-work"><div class="l">Arbeitsstatus</div><div class="v" id="calc-status">–</div></div>
-  <div class="kpi kpi-method"><div class="l">Methodischer Status</div><div class="v small" id="kpi-method">–</div></div>
-  <div class="kpi" id="kpi-ampel-wrap"><div class="l">Planungsampel</div><div class="v" id="kpi-ampel">–</div></div>
-  <div class="kpi" id="kpi-reason-wrap"><div class="l">Begründung</div><div class="v small" id="kpi-reason">–</div></div>
-  <div class="kpi" id="kpi-warn" style="cursor:pointer" title="Zur Registerkarte Hinweise"><div class="l">Hinweise</div><div class="v" id="kpi-warnv">–</div></div>
-  <div class="kpi"><div class="l">Datenqualität</div><div class="v" id="kpi-dataquality">–</div></div>
-  <div class="kpi"><div class="l">Regal Bedarf</div><div class="v" id="kpi-rack-need">0</div></div>
-  <div class="kpi capacity-card" id="kpi-rack-is-wrap"><div class="l">Regal Ist</div><div class="v" id="kpi-rack-is">0</div></div>
-  <div class="kpi"><div class="l">Block Bedarf</div><div class="v" id="kpi-block-need">0</div></div>
-  <div class="kpi capacity-card" id="kpi-block-is-wrap"><div class="l">Block Ist</div><div class="v" id="kpi-block-is">0</div></div>
-  <div class="kpi" title="LKW-Ankünfte je Tag"><div class="l">LKW/Tag</div><div class="v" id="kpi-trucks">0</div></div>
-    <div class="kpi"><div class="l">Peak Pal./h WE</div><div class="v" id="kpi-peak-we">0</div></div>
-    <div class="kpi"><div class="l">Peak Pal./h WA</div><div class="v" id="kpi-peak-wa">0</div></div>
-  <div class="kpi"><div class="l">Netto-Bestand</div><div class="v" id="kpi-net">0</div></div>
-  <div class="kpi"><div class="l">Hallenfläche</div><div class="v" id="kpi-hall-area">–</div></div>
-  <div class="kpi"><div class="l">Lagerfläche</div><div class="v" id="kpi-area">–</div></div>
-  <div class="kpi"><div class="l">CAPEX min.</div><div class="v" id="kpi-capex-min">–</div></div>
-  <div class="kpi"><div class="l">CAPEX max.</div><div class="v" id="kpi-capex-max">–</div></div>
-  <div class="kpi"><div class="l">m² pro Palette</div><div class="v" id="kpi-eff">–</div></div>
-  <div class="kpi"><div class="l">Nutzungsgrad</div><div class="v" id="kpi-util">–</div></div>
-  <div id="kpi-cov" hidden></div><div id="kpi-cap" hidden></div><div id="kpi-capb" hidden></div><div id="kpi-rack" hidden></div><div id="kpi-block" hidden></div><div id="kpi-capex" hidden></div><div id="kpi-capex-range" hidden></div><i id="kpi-utilbar" hidden></i>
-</aside>
-</div>
-
-<footer id="app-footer">Lagerplaner V2.14 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip: tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">
+    Lagerplaner V2.14 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip:
+    tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit
+    · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-,
+    Statik- oder Brandschutzplanung
+  </footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -1048,7 +2418,6 @@ function renderTruckMD(){
         '<td>'+(own?'<button class="btn" data-trk-del="'+k+'">Löschen</button>':'')+'</td></tr>';
     }
     html+='</tbody></table>';
-    html+='<p class="hint" style="margin:8px 0 2px">Eigenen LKW-Typ anlegen (etwa Sondermaß): Bezeichnung, Laderaumlänge und -breite, Innenhöhe, Lagenzahl und Nutzlast eingeben. Eigene Typen stehen an jeder Position und im Bulk-Zuweisen zur Wahl und sind Bestandteil der gespeicherten Planung. Die Typnamen sind frei von Füllmengenangaben; die Füllmenge ergibt sich je Palettentyp aus Grundfläche, Höhe (Lagen) und Gewicht (Nutzlast) und weist die Kreuztabelle aus.</p>';
     html+='<div class="lhmform">'+
       '<input id="trk-f-name" type="text" placeholder="Bezeichnung" maxlength="40">'+
       '<input id="trk-f-l" type="number" placeholder="Länge m" min="3" max="30" step="0.1">'+
@@ -1076,10 +2445,8 @@ function renderTruckMD(){
       html+='</tr>';
     }
     html+='</tbody></table></div>';
-    html+='<p class="hint" style="margin:6px 0 0">Berechnet aus beiden Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht. Die Zellwerte gelten für die Stammdaten-Referenzmaße; Positionen mit abweichenden Maßen rechnen mit ihren Positionsmaßen. Die Werte dienen als Vorbelegung des Eingabefelds Paletten je LKW und bleiben je Position überschreibbar.</p>';
     cross.innerHTML=html;
   }
-  foldHints();
   fillTruckSel();
 }
 const LHM={
@@ -1251,40 +2618,6 @@ function updateUndoBtn(){
 }
 
 /* ============================ Paletten-Stammdaten ============================ */
-function foldHints(){
-  const keep=["qr-body","diff-out","sensi-out","rep-int-body","rep-cust-body","reg-gaps","reg-srcs"];
-  document.querySelectorAll("p.hint").forEach(p=>{
-    const txt=(p.textContent||"").trim();
-    if(!txt||p.id||p.closest(".modal"))return;
-    if(keep.some(id=>p.closest("#"+id)))return;
-    let host=null;
-    if(p.closest(".dd-menu"))host=document.querySelector('.dd-menu label[for="sel-goal"]')||$("btn-optimize");
-    if(!host){
-      let node=p;
-      while(node&&node!==document.body){
-        for(let s=node.previousElementSibling;s;s=s.previousElementSibling){
-          if(s.tagName==="H3"){host=s;break;}
-        }
-        if(host)break;
-        node=node.parentElement;
-      }
-    }
-    if(!host){
-      const grp=p.closest(".pgroup")||p.closest(".card");
-      if(grp)host=grp.querySelector("h3");
-    }
-    if(!host)return;
-    const ex=host.querySelector(".tt");
-    if(ex){ex.setAttribute("data-tip",txt);p.remove();return;}
-    const tip=document.createElement("span");
-    tip.className="tt";
-    tip.textContent="ⓘ";
-    tip.setAttribute("data-tip",txt);
-    tip.setAttribute("tabindex","0");
-    host.appendChild(tip);
-    p.remove();
-  });
-}
 function renderPalletMD(){
   const box=$("pallet-md");
   if(!box)return;
@@ -1306,7 +2639,6 @@ function renderPalletMD(){
       '<td>'+(own?'<button class="btn" data-lhm-del="'+k+'">Löschen</button>':'')+'</td></tr>';
   }
   html+='</tbody></table>';
-  html+='<p class="hint" style="margin:8px 0 2px">Eigenen Palettentyp anlegen: Bezeichnung, Grundmaß, Höhe, Gewicht und Referenz-Stapelfaktor (Notation 1+x) eingeben und hinzufügen. Eigene Typen stehen in der Artikeltabelle, als Standardpalette und im Leergutbereich zur Wahl. Sie sind Bestandteil der gespeicherten Planung. Der Kennzeichnungszugang bleibt den Werkzeug-Typen vorbehalten.</p>';
   html+='<div class="lhmform">'+
     '<input id="lhm-f-name" type="text" placeholder="Bezeichnung" maxlength="40">'+
     '<input id="lhm-f-l" type="number" placeholder="Länge mm" min="200" max="3000" step="10">'+
@@ -1360,7 +2692,6 @@ function renderPalletMD(){
       renderPalletMD();renderTruckMD();renderItems();recalc();
     });
   });
-  foldHints();
   fillLhmSel();
   applyColWidths();
 }
@@ -5640,62 +6971,6 @@ window.addEventListener("resize",()=>{drawLayout();drawSection();drawBlockSectio
       window.openAccessibleModal=openModal;window.closeAccessibleModal=closeModal;
       document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;const m=document.querySelector(".modal.on");if(m){e.preventDefault();closeModal(m.id);}});
     }
-  function restructureParameterUI(){
-    const tabs=$("ptabs"), groups=$("pgroups");
-    if(!tabs||!groups)return; if($("pg-cost"))$("pg-cost").remove();
-    const labels={gbp:"1 Gebäude & Flächen",vol:"2 Volumen & Puffer",pal:"3 Stammdaten",ffz:"4 Lagertechnik",blk:"5 Blocklager",fir:"6 Sicherheit & Abstände",cost:"7 Kosten & Optionen"};
-    tabs.innerHTML=Object.keys(labels).map((k,i)=>'<button data-pg="'+k+'"'+(i===0?' class="on"':'')+'>'+labels[k]+'</button>').join("");
-    const pgG=$("pg-gbp"),pgV=$("pg-vol"),pgP=$("pg-pal"),pgF=$("pg-ffz"),pgB=$("pg-blk"),pgS=$("pg-fir");
-    pgG.querySelector("h3").textContent="Gebäude & Flächen";
-    pgV.querySelector("h3").textContent="Volumen & Puffer";
-    pgP.querySelector("h3").textContent="Paletten- und LKW-Stammdaten";
-    pgF.querySelector("h3").textContent="Lagertechnik";
-    pgB.querySelector("h3").textContent="Blocklager";
-    pgS.querySelector("h3").textContent="Sicherheit & Abstände";
-    const intro=(pg,title,text)=>{const d=document.createElement("div");d.className="param-intro";d.innerHTML='<div><b>'+title+'</b><span>'+text+'</span></div>';pg.insertBefore(d,pg.children[1]||null);};
-    intro(pgG,"Baulicher Rahmen","Abmessungen, Tore, Zonen und Raster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer.");
-    intro(pgV,"Bemessungsgrößen","Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf.");
-    intro(pgF,"Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis.");
-    intro(pgB,"Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt.");
-    intro(pgS,"Vorgaben und Nachweise","Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise.");
-    const fld=id=>{const e=$(id);return e?e.closest(".fld"):null};
-    const section=(pg,title,subtitle,ids)=>{const c=document.createElement("section");c.className="param-section";c.innerHTML='<h3>'+title+(subtitle?' <small>'+subtitle+'</small>':'')+'</h3><div class="grp"></div>';const g=c.querySelector(".grp");ids.forEach(id=>{const e=fld(id);if(e)g.appendChild(e)});pg.appendChild(c);return c};
-    // Gebäude: only physical/geometric parameters
-    section(pgG,"Gebäude","Bestand oder Greenfield",["sel-mode","in-L","in-W","sel-ratio","in-ukb","in-rent"]);
-    section(pgG,"Tore und Zonen","Bauliche Anordnung",["in-doors-N","in-doors-O","in-doors-S","in-doors-W","in-weDepth","in-waDepth"]);
-    const zg=pgG.querySelector(".zone-grid");if(zg){const sec=pgG.lastElementChild;sec.querySelector(".grp").insertBefore(zg,sec.querySelector(".grp").firstChild)}
-    section(pgG,"Gebäuderaster","Layoutvorgaben",["sel-orient","in-gridX","in-gridY"]);
-    // Volume: move buffer controls from building
-    section(pgV,"Bestandsbemessung","Menge und Reichweite",["in-range","in-peak","in-safety","in-planning-years","in-growth-rate","in-sku-growth","in-strategic-reserve","in-blocked-places","in-fillRack","in-fillBlock"]);
-    const buf=section(pgV,"WE-Puffer","Durchsatzbezogene Bemessung",["sel-buffer-mode","in-buffer-trucks","in-buffer-pallets","in-buffer-dwell","in-buffer-factor","in-peak-hour-share","in-we-share","in-simultaneity"]);buf.id="sec-buffer";
-    section(pgV,"Transit- und Cross-Dock-Puffer","Nur bei separater Pufferfläche",["in-transit","chk-transit-buf","in-transit-days","in-transit-area","in-operational-area"]);
-    const emptyTitle=Array.from(pgV.querySelectorAll("h3")).find(x=>x.textContent.includes("Leergut"));
-    const emptyFields=["in-empty-on","sel-empty-mode","in-empty-value","in-empty-stack","in-empty-reserve"].map(fld).filter(Boolean);
-    const emp=section(pgV,"Leergut","Verdichtete Bodenstapelung",[]);emptyFields.forEach(e=>emp.querySelector(".grp").appendChild(e));if(emptyTitle)emptyTitle.remove();
-    // FFZ / rack
-    section(pgF,"Flurförderzeuge","Einsatz nach Lagerbereich",[]);
-    const ffzWide=Array.from(pgF.querySelectorAll(".fld.wide"));ffzWide.forEach(e=>pgF.lastElementChild.querySelector(".grp").appendChild(e));
-    section(pgF,"Arbeitsgänge","Aus Fahrzeugauswahl abgeleitet und übersteuerbar",["in-aisle","in-aisle-block","chk-vna-pnd"]);
-    section(pgF,"Regalsystem","Geometrische Vorbemessung",["sel-rackbase","sel-fieldmode","in-fieldWidth","chk-floorbeam","chk-singlerows"]);
-    const hs=section(pgF,"Höhenbegrenzung","Gebäude und Stapler wirken als unabhängige Grenzen",["in-liftheight","in-liftreserve"]);
-    const hb=document.createElement("div");hb.className="height-balance";hb.id="height-balance";hs.appendChild(hb);
-    // Block
-    section(pgB,"Zuordnungsmodell","Regal- oder Blockanteil",["sel-blockmode","in-quota","in-aVol","in-bVol","in-minFill"]);
-    section(pgB,"Kanalgeometrie","Kapazität und Abmessungen",["in-channelDepth","in-stackH","sel-blockorient","in-maxTop"]);
-    // Safety
-    section(pgS,"Brandschutz","Geometrische Vorgaben",["in-sprinkler","chk-inrack"]);
-    section(pgS,"Fluchtwege","Vorplanungswerte",["in-tunnelint","in-tunnelclear"]);
-    // Cost parameter group; pricing table remains in Costs & Equipment
-    const pgC=document.createElement("div");pgC.className="pgroup";pgC.id="pg-cost";pgC.innerHTML='<h3>Kosten & Optionen</h3><div class="param-intro"><div><b>Preis- und Kalkulationsbasis</b><span>Die Mengenermittlung bleibt in Kosten & Equipment. Hier werden Preisstand, Quelle, Unsicherheit und Einrechnungsoptionen gepflegt.</span></div></div>';groups.appendChild(pgC);
-    const costSec=section(pgC,"Preisbasis","Dokumentation und Bandbreite",["in-price-date","in-price-source","in-cost-unc","in-realization-years","in-price-escalation","in-project-overhead"]);
-    const optionSec=section(pgC,"Einrechnungsoptionen","Wirkung auf die Stückliste",["chk-push","chk-grating","chk-demount"]);
-    const jump=document.createElement("p");jump.className="dependency-note";jump.innerHTML='Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Hauptregister <b>Kosten & Equipment</b>.';optionSec.appendChild(jump);
-    // Rename labels precisely
-    const ren={"in-buffer-trucks":"LKW-Ankünfte in der Spitzenstunde","in-buffer-pallets":"Mittlere Palettenzahl je LKW","in-buffer-dwell":"Mittlere Pufferverweildauer","in-buffer-factor":"Zugangs- und Verkehrsflächenfaktor","sel-buffer-mode":"Berechnung des WE-Pufferbedarfs","in-liftheight":"Maximale Hubhöhe des Regal-FFZ","in-liftreserve":"Bedienreserve unter maximaler Hubhöhe","in-aisle":"Erforderliche Arbeitsgangbreite Regal","in-aisle-block":"Erforderliche Arbeitsgangbreite Blocklager","sel-rackbase":"Bemessungsbasis der Regalgeometrie"};
-    Object.keys(ren).forEach(id=>{const e=fld(id);if(e&&e.querySelector("label"))e.querySelector("label").textContent=ren[id]});
-    // remove empty legacy wrappers/headings
-    [pgG,pgV,pgF,pgB,pgS].forEach(pg=>Array.from(pg.children).forEach(ch=>{if(ch.classList&&ch.classList.contains("grp")&&!ch.children.length)ch.remove()}));
-  }
   function updateParameterVisibility(){
     const toggle=(id,on)=>{const e=$(id);const row=e&&e.closest(".fld");if(row)row.classList.toggle("conditional-off",!on)};
     const process=S.volume.bufferMode==="process";
@@ -5754,13 +7029,12 @@ function syncVersionLabels(){
   if(S.volume.bufferMode==null&&S.building&&S.building.bufferMode!=null){
     ["bufferMode","bufferTrucks","bufferPallets","bufferDwell","bufferFactor"].forEach(k=>{if(S.building[k]!=null)S.volume[k]=S.building[k];});
   }
-  restructureParameterUI();
   enhanceAccessibility();
   initBinds();initTabs();initButtons();initItems();
   document.addEventListener("input",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
   document.addEventListener("change",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
   bindFieldUndoTracking();
-  applyColWidths();initColResize();foldHints();
+  applyColWidths();initColResize();
   if(hasInput)applyInputFile(window.TENDER_INPUT,true);
   migrateFFZ((typeof window!=="undefined"&&window.TENDER_INPUT&&window.TENDER_INPUT.parameter&&window.TENDER_INPUT.parameter.ffz)||null);
   syncAll();refreshModeUI();renderItems();
