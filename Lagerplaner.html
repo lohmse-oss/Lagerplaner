@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.17</title>
+<title>Lagerplaner V2.18</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -365,7 +365,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.17</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.18</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -798,8 +798,7 @@ details.obs[open] summary{margin-bottom:4px}
                       ersten Doppelreihe liegt ein Führungsgang in Regal-Gangbreite; jede Regalreihe ist über einen realen Fahrgang
                       bedienbar · Doppelreihen = Minimum(passende Anzahl, Aufrunden(Regalbedarf ÷ (2 × Kapazität je Reihe))); Kapazität je
                       Reihe = Felder × Paletten je Feld × Ebenen − Fluchttunnelverlust · Einzelreihen füllen Restbedarf auf Wand- und
-                      Restflächen · Hallenstützen werden geprüft; im Bestandsmodus werden je kollidierender Stütze in einem Regal die Plätze
-                      eines Felds abgezogen · Greenfield: benötigte Hallenbreite = WE-Zone + Block + Abstand + Leergut + Führungsgang +
+                      Restflächen · Hallenstützen werden geprüft; im Bestandsmodus werden getroffene Regalfelder entfernt und durch zusätzliche Doppelreihen ausgeglichen, getroffene Blockkanalplätze übersprungen und durch Ersatzplätze ersetzt; im Greenfield-Modus nur Hinweis · Greenfield: benötigte Hallenbreite = WE-Zone + Block + Abstand + Leergut + Führungsgang +
                       Doppelreihen × Raster + WA-Zone (Kapazität Regal/Block, Deckungsgrad, Kollisionshinweise)
                     </td>
                   </tr>
@@ -830,10 +829,9 @@ details.obs[open] summary{margin-bottom:4px}
                     <td>aus Schritt 5 und 9</td>
                     <td>
                       Deckungsgrad = Kapazität ÷ Bedarf, je Regal und Block und gesamt · Ampel in drei Stufen: 🔴 Hard Stop bei Deckungsgrad
-                      unter 100 Prozent, fehlendem Bestand oder harten Kollisionen (Hallenstützen zerstören Regalplätze oder Blockkanäle;
-                      Stütze blockiert die Zugangsgasse des Blocklagers) · 🟡 Optimierungspotenzial bei Deckungsgrad über 115 Prozent,
+                      unter 100 Prozent, fehlendem Bestand oder harten Kollisionen (im Bestandsmodus Stützen in Gängen oder in der Zugangsgasse des Blocklagers) · 🟡 Optimierungspotenzial bei Deckungsgrad über 115 Prozent,
                       Hallennutzung unter 65 oder über 90 Prozent oder vorhandenen Plausibilitätshinweisen (etwa knappe WE-Pufferfläche,
-                      Kippgrenze 6:1, durch Verschieben von Gängen lösbare Stützenkollisionen) · 🟢 Zielbereich bei 100 bis 115 Prozent
+                      Kippgrenze 6:1, Stützenausgleich, Stützenhinweise im Greenfield-Modus) · 🟢 Zielbereich bei 100 bis 115 Prozent
                       Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise; im Greenfield-Modus gilt die Hallennutzung als erfüllt,
                       weil die Halle aus dem Bedarf abgeleitet wird (Kennzahlen-Leiste und Register Übersicht)
                     </td>
@@ -1449,7 +1447,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.17 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.18 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -1513,8 +1511,8 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Warum liegt der Deckungsgrad nur knapp über 100 Prozent?</b> Die Regalreihenzahl folgt dem Bedarf und springt in ganzen Doppelreihen. Der Deckungsgrad ist daher reihengranular.</p>
       <p><b>Warum enthält das Werkzeug keine Personal- und Betriebskosten?</b> Der Umfang ist bewusst auf Fläche, Kapazität, Durchsatzspitzen und CAPEX begrenzt. Personalplanung und Personalkosten sind kein Bestandteil des Werkzeugs.</p>
       <p><b>Warum greift der Blockzugang standardmäßig von der Nordseite?</b> In der Grundeinstellung laufen die Kanäle quer mit Zugang von der Nordseite; die Zone Nord ist dafür als WE-Zone zu konfigurieren. Wird die Blockausrichtung auf Kanäle längs gestellt, wechselt der Zugang auf die Westseite über die Längsgasse; dann ist die Zone West als WE-Zone zu konfigurieren. Der Report weist eine nicht passende Zonenrolle als Hinweis aus.</p>
-      <p><b>Werden Kollisionen mit Hallenstützen von der Kapazität abgezogen?</b> Jede Stütze wird gegen Regale, Blockkanäle und Arbeitsgänge geprüft. Im Bestandsmodus werden je kollidierender Stütze in einem Regal die Plätze eines Felds (Paletten je Feld × Ebenen) von der Regalkapazität abgezogen; blockierte Blockkanäle werden mit mindestens ihrer Kanalkapazität im Hinweis ausgewiesen. Im Greenfield-Modus erfolgt kein Abzug, weil das Stützenraster dort mit der Hallenplanung abzustimmen ist. Das Optimierungsziel Mindestfläche bleibt nominal, da der Flächenbedarf ohne Stützenabzug ermittelt wird.</p>
-      <p><b>Wann zeigt die Planungs-Ampel Rot?</b> Rot ist Hard Stops vorbehalten: Deckungsgrad unter 100 Prozent, fehlender Bestand oder harte Kollisionen. Hart sind Stützen, die Regalplätze oder Blockkanäle zerstören, sowie Stützen in der Zugangsgasse des Blocklagers. Kritische Hinweise ohne harte Kollision führen zu Gelb. Gelb meldet ebenfalls Deckungsgrade über 115 Prozent sowie Hallennutzung unter 65 oder über 90 Prozent. Grün gilt bei 100 bis 115 Prozent Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise.</p>
+      <p><b>Werden Kollisionen mit Hallenstützen von der Kapazität abgezogen?</b> Jede Stütze wird gegen Regale, Blockkanäle und Arbeitsgänge geprüft. Im Bestandsmodus sind die Stützen gesetzt: Regalfelder, die eine Stütze trifft, werden entfernt (Feldgrenzen betreffen beide Nachbarfelder), und fehlende Regalkapazität wird durch zusätzliche Doppelreihen ausgeglichen, solange sie in die Halle passen. Blockkanalplätze, die eine Stütze trifft, werden übersprungen; die Kanäle rücken auf den nächsten freien Platz, und am Ende werden Ersatzplätze angehängt. Ein Hinweis nennt den Ausgleich. Stützen in Gängen oder in der Zugangsgasse des Blocklagers bleiben harte Konflikte. Im Greenfield-Modus erfolgt kein Abzug, weil das Stützenraster dort mit der Hallenplanung abzustimmen ist; Kollisionen erscheinen als Hinweis und in der Zeichnung.</p>
+      <p><b>Wann zeigt die Planungs-Ampel Rot?</b> Rot ist Hard Stops vorbehalten: Deckungsgrad unter 100 Prozent, fehlender Bestand oder harte Kollisionen. Hart sind im Bestandsmodus Stützen in Gängen oder in der Zugangsgasse des Blocklagers; von Stützen getroffene Regalfelder und Kanalplätze werden ausgeglichen, soweit Platz ist, sonst bleibt eine Unterdeckung. Kritische Hinweise ohne harte Kollision führen zu Gelb. Gelb meldet ebenfalls Deckungsgrade über 115 Prozent sowie Hallennutzung unter 65 oder über 90 Prozent. Grün gilt bei 100 bis 115 Prozent Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise.</p>
       <p><b>Wofür wird die Spalte Artikel benötigt?</b> Die Artikelanzahl ist die Zahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Sie wirkt ausschließlich im artikelbasierten Modus der Blockverteilung: Der Bestand wird in drei Artikelklassen geteilt (obere 20 Prozent der Artikel, mittlere 30, untere 50), denen je ein Volumenanteil zugeordnet wird. Eine Klasse qualifiziert sich für das Blocklager, wenn das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Ohne Artikelangabe qualifiziert sich die Position nicht und läuft vollständig über das Regal; der Report weist dies als Datenlücke aus. In den Modi Volumenquote und Manuell bestimmt sie die Mindestzahl der Blockkanäle: Kanäle sind artikelrein, die Artikel im Block werden anteilig zum Blockvolumen angesetzt.</p>
       <p><b>Was bedeutet der Prozentwert in der Spalte Blockanteil?</b> Im manuellen Modus ist er die Eingabe. In allen anderen Modi zeigt er den berechneten effektiven Blockanteil: Blockpaletten der Position im Verhältnis zum Netto-Bestand der Position, gerundet auf ganze Prozent.</p>
       <p><b>Was ist die Brutto-Lagerfläche?</b> Sie ist der Flächenbedarf des eigentlichen Lagers: Regalstellflächen, Regal-Arbeitsgänge, Blockstellflächen, Blockgassen, Leergutband, WE-/WA-Zonen und Abstandsflächen. Die Hallenfläche aus den Gebäudeangaben ist meist größer, weil Randwege, Technik- und Sozialflächen sowie Fehlflächen außerhalb des Werkzeugs liegen. Die Flächenbedarfsrechnung unter dem Hallenlayout weist beide Größen, die freie Fläche und den Nutzungsgrad aus.</p>
@@ -1756,7 +1754,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.17";
+const APP_VERSION="V2.18";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2284,6 +2282,12 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.18",date:"27.10.2026",items:[
+    "Greenfield-Hallensuche findet wieder Hallen, wenn das Stützenraster Gänge, Regalfelder oder Blockkanäle trifft. Im Greenfield-Modus wird das Stützenraster mit der Hallenplanung abgestimmt: Kollisionen sind Hinweis und mindern keine Kapazität (wie in der Hilfe beschrieben).",
+    "Bestandsmodus, Stützenausgleich: Von Stützen getroffene Blockkanalplätze werden übersprungen, die Kanäle rücken auf den nächsten freien Platz, Ersatzplätze werden angehängt. Entfernte Regalfelder werden durch zusätzliche Doppelreihen ausgeglichen, solange sie in die Halle passen. Ein Hinweis nennt den Ausgleich.",
+    "Stützen in Gängen und in der Zugangsgasse des Blocklagers bleiben im Bestandsmodus harte Konflikte. Methodik und Hilfe entsprechend korrigiert.",
+    "Zeichnung: übersprungene Kanalplätze rot, ungenutzte Ersatzplätze grau. Interner Bericht nennt die übersprungenen Plätze."
+  ]},
   {v:"V2.17",date:"27.10.2026",items:[
     "Nach einer Eingabe wird nur das sichtbare Register neu gezeichnet; die übrigen beim Öffnen. Neuberechnung bei 300 Positionen rund 25 statt 240 ms, mit geöffneten Berichten 32 ms statt über 2 Sekunden.",
     "Rechenmodell arbeitet ohne Kopie der Szenario-Snapshots; Greenfield-Hallensuche mit gespeicherten Szenarien etwa doppelt so schnell.",
@@ -3130,19 +3134,22 @@ function buildRackInventory(strips,rack,bays,tunnels,step,orientation,columns,do
     plannedCapacity:planned,capacity:available,lostCapacity:planned-available,beamPairs,pushThrough,backMesh,activeTunnels,runs,activeStrips,groundArea:ground};
 }
 function assignBlockChannels(block,lanes,columns){
-  const assignments=[];let index=0;
+  // Kanalplätze, die eine Stütze trifft, werden übersprungen; der Kanal rückt auf den nächsten freien Platz
+  const laneInfo=lanes.map(rect=>({rect,blocked:columns.some(c=>c.x>=rect.x&&c.x<=rect.x+rect.w&&c.y>=rect.y&&c.y<=rect.y+rect.h),channel:null}));
+  const assignments=[];let index=0,next=0;
   for(let group=0;group<(block?block.channelGroups.length:0);group++){
     const g=block.channelGroups[group];
     for(let k=0;k<g.channels;k++,index++){
-      const rect=lanes[index];
-      const blocked=!!rect&&columns.some(c=>c.x>=rect.x&&c.x<=rect.x+rect.w&&c.y>=rect.y&&c.y<=rect.y+rect.h);
-      assignments.push({channel:index,group,groupChannel:k,itemName:g.item.name||'',capacity:g.laneCapacity,placed:!!rect,blocked,rect:rect||null});
+      while(next<laneInfo.length&&laneInfo[next].blocked)next++;
+      const lane=next<laneInfo.length?next++:null;
+      if(lane!==null)laneInfo[lane].channel=index;
+      assignments.push({channel:index,group,groupChannel:k,itemName:g.item.name||'',capacity:g.laneCapacity,placed:lane!==null,lane,rect:lane!==null?laneInfo[lane].rect:null});
     }
   }
-  return {rule:'Positionsgruppen in Eingabereihenfolge; Kanalrechtecke in Zeichenreihenfolge',assignments,
-    capacity:assignments.reduce((n,x)=>n+(x.placed&&!x.blocked?x.capacity:0),0),
-    lostCapacity:assignments.reduce((n,x)=>n+(!x.placed||x.blocked?x.capacity:0),0),
-    blockedCount:assignments.filter(x=>x.blocked).length,unplacedCount:assignments.filter(x=>!x.placed).length};
+  return {rule:'Positionsgruppen in Eingabereihenfolge; Kanalplätze in Zeichenreihenfolge, von Stützen blockierte Plätze übersprungen',assignments,lanes:laneInfo,
+    capacity:assignments.reduce((n,x)=>n+(x.placed?x.capacity:0),0),
+    lostCapacity:assignments.reduce((n,x)=>n+(x.placed?0:x.capacity),0),
+    blockedCount:laneInfo.filter(x=>x.blocked).length,unplacedCount:assignments.filter(x=>!x.placed).length};
 }
 
 function calculateRackHeight(buildingLimit,liftLimit,loadHeight,pitch,offset){
@@ -3708,9 +3715,39 @@ function renderAreas(geo){
 /* ============================ Layout ============================ */
 const GF_TEST={L:0,W:0};
 let GF_SEARCH=false;
+/* Layout mit Stützenausgleich. Greenfield: Das Stützenraster wird mit der Hallenplanung abgestimmt;
+   Kollisionen sind nur Hinweis und mindern keine Kapazität. Bestand: Stützen sind gesetzt; von ihnen
+   blockierte Kanalplätze werden übersprungen (Ersatzkanäle) und entfernte Regalfelder durch zusätzliche
+   Doppelreihen ausgeglichen, solange sie in die Halle passen. Höchstens 8 Durchläufe. */
 function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeDepth){
+  const extra={lanes:0,rows:0};
+  let geo=null,passWarn=[];
+  for(let pass=0;pass<8;pass++){
+    passWarn=[];
+    geo=computeLayoutPass(rack,block,needRack,passWarn,emptyCount,transitA,effectiveWeDepth,extra);
+    if(!geo||geo.columnsAdvisory)break;
+    const plan=geo.blockChannelPlan;
+    const lanes=plan.unplacedCount>0?extra.lanes+plan.unplacedCount:extra.lanes;
+    const rackDeficit=rack?needRack-geo.capacity:0;
+    const rows=(rackDeficit>0&&geo.rackLost>0&&geo.capStrip>0&&geo.nDouble<geo.rowFit)?extra.rows+Math.ceil(rackDeficit/(2*geo.capStrip)):extra.rows;
+    if(lanes===extra.lanes&&rows===extra.rows)break;
+    extra.lanes=lanes;extra.rows=rows;
+  }
+  warn.push(...passWarn);
+  if(geo&&!geo.columnsAdvisory&&(extra.lanes||extra.rows)){
+    const parts=[];
+    if(geo.blockChannelPlan.blockedCount)parts.push(geo.blockChannelPlan.blockedCount+" durch Stützen blockierte Kanalplätze übersprungen ("+extra.lanes+" Ersatzkanäle angehängt)");
+    if(extra.rows)parts.push(extra.rows+" zusätzliche Regaldoppelreihe"+(extra.rows===1?"":"n")+" für entfernte Felder");
+    if(parts.length)warn.push({t:"Stützenausgleich: "+parts.join("; ")+". Lage der Ersatzflächen in der Ausführungsplanung prüfen.",sev:false});
+  }
+  if(geo)geo.compensation={lanes:extra.lanes,rows:extra.rows};
+  return geo;
+}
+function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiveWeDepth,extra){
   const b=S.building;
   if(!rack&&!block)return null;
+  // Blockflächen inklusive Ersatzkanäle für übersprungene Plätze
+  const laneCount=block?block.nL+(extra.lanes||0):0;
   let L=Math.max(6000,b.L*1000);
   let W_in=Math.max(6000,b.W*1000);
   if(GF_TEST.L){L=GF_TEST.L;W_in=GF_TEST.W;}
@@ -3770,12 +3807,12 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
     laneDepthY=block.laneUnit*blockChannelDepth();
     if(bOrient==="N"){
       lanesPerBand=Math.max(1,Math.floor(areaLen/block.laneW));
-      bands=Math.max(1,Math.ceil(block.nL/lanesPerBand));
+      bands=Math.max(1,Math.ceil(laneCount/lanesPerBand));
     }else{
       const maxBands=Math.floor((areaLen-aisleBlk)/(laneDepthY+aisleBlk));
       if(maxBands<1)warn.push({t:"Längsausrichtung: Die nutzbare Länge reicht für keinen Kanalblock (Erfordernis "+fmt((aisleBlk+laneDepthY)/1000,1)+" m). Bitte Kanaltiefe oder Ausrichtung prüfen.",sev:true});
-      lanesPerBand=Math.max(1,Math.ceil(block.nL/Math.max(1,Math.min(block.nL,maxBands))));
-      bands=Math.max(1,Math.ceil(block.nL/lanesPerBand));
+      lanesPerBand=Math.max(1,Math.ceil(laneCount/Math.max(1,Math.min(laneCount,maxBands))));
+      bands=Math.max(1,Math.ceil(laneCount/lanesPerBand));
     }
   }
   const blockDepth=block?(bOrient==="N"?bands*laneDepthY+Math.max(0,bands-1)*aisleBlk:lanesPerBand*block.laneW):0;
@@ -3798,7 +3835,7 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
   const y1=W-waD;
   const regionH=y1-y0;
 
-  let nDouble=0,nSingles=0;
+  let nDouble=0,nSingles=0,capStripUsed=0,rowFit=0;
   const strips=[],aisleRects=[],laneRects=[];
   let capacity=0;
   const rowHeightUsed=rack?(rack.off+rack.la.h+(rack.levels-1)*rack.pitch):0;
@@ -3807,7 +3844,8 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
     if(b.orient==="quer"){
       const capStrip=Math.max(1,perStrip-tunnelLoss);
       const fitDouble=Math.max(0,Math.floor((regionH-aisle)/pitch));
-      nDouble=Math.min(fitDouble,Math.ceil(needRack/(2*capStrip)));
+      nDouble=Math.min(fitDouble,Math.ceil(needRack/(2*capStrip))+(extra.rows||0));
+      capStripUsed=capStrip;rowFit=fitDouble;
       for(let k=0;k<nDouble;k++){
         const y=y0+aisle+k*pitch;
         strips.push({x:xStart,y:y,w:rackLen,h:fd,face:"N"});
@@ -3840,8 +3878,9 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
         const perY=baysY*rack.ppf*rack.levels;
         const lossY=tunY*rack.lowLevels*rack.ppf;
         const capStrip=Math.max(1,perY-lossY);
-        const needDouble=Math.max(1,Math.ceil(needRack/(2*capStrip)));
+        const needDouble=Math.max(1,Math.ceil(needRack/(2*capStrip)))+(extra.rows||0);
         nDouble=Math.min(nMax,needDouble);
+        capStripUsed=capStrip;rowFit=nMax;
         for(let k=0;k<nDouble;k++){
           const x=xStart+aisle+k*pitch;
           strips.push({x:x,y:y0,w:fd,h:rowLen,face:"W"});
@@ -3873,18 +3912,18 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
   if(block){
     let placed=0;
     if(bOrient==="N"){
-      for(let band=0;band<bands&&placed<block.nL;band++){
+      for(let band=0;band<bands&&placed<laneCount;band++){
         const bandTop=weD+band*(laneDepthY+aisleBlk);
-        for(let i=0;i<lanesPerBand&&placed<block.nL;i++,placed++){
+        for(let i=0;i<lanesPerBand&&placed<laneCount;i++,placed++){
           laneRects.push({x:xStart+i*block.laneW,y:bandTop,w:block.laneW-100,h:laneDepthY-100});
         }
         if(band<bands-1)aisleRects.push({x:0,y:bandTop+laneDepthY,w:L,h:aisleBlk});
       }
     }else{
       aisleRects.push({x:xStart,y:weD,w:aisleBlk,h:blockDepth,access:true});
-      for(let band=0;band<bands&&placed<block.nL;band++){
+      for(let band=0;band<bands&&placed<laneCount;band++){
         const bandX=xStart+aisleBlk+band*(laneDepthY+aisleBlk);
-        for(let i=0;i<lanesPerBand&&placed<block.nL;i++,placed++){
+        for(let i=0;i<lanesPerBand&&placed<laneCount;i++,placed++){
           laneRects.push({x:bandX,y:weD+i*block.laneW,w:laneDepthY-100,h:block.laneW-100});
         }
         if(band<bands-1)aisleRects.push({x:bandX+laneDepthY,y:weD,w:aisleBlk,h:blockDepth});
@@ -3926,22 +3965,28 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
       cols.push({x,y,hit});
     }
   }
+  const columnsAdvisory=b.mode==="greenfield";
+  const colsBinding=columnsAdvisory?[]:cols;
   const tunnelStep=rack&&ti>0?Math.max(1,Math.round(ti/rack.fieldW)):0;
-  const rackInventory=rack?buildRackInventory(strips,rack,baysPerRow,tunnelsPerRow,tunnelStep,b.orient,cols,nDouble,!!S.ffz.floorOnBeam):null;
-  const blockChannelPlan=assignBlockChannels(block,laneRects,cols);
+  const rackInventory=rack?buildRackInventory(strips,rack,baysPerRow,tunnelsPerRow,tunnelStep,b.orient,colsBinding,nDouble,!!S.ffz.floorOnBeam):null;
+  const blockChannelPlan=assignBlockChannels(block,laneRects,colsBinding);
   const rackCapacityPlanned=rackInventory?rackInventory.plannedCapacity:0;
   capacity=rackInventory?rackInventory.capacity:0;
   const rackLost=rackInventory?rackInventory.lostCapacity:0;
   const laneLost=blockChannelPlan.blockedCount;
-  const collisionAudit=auditStorageCollisions(strips,laneRects,cols,rack?rack.fieldW:0,baysPerRow,b.orient);
+  const collisionAudit=auditStorageCollisions(strips,laneRects,colsBinding,rack?rack.fieldW:0,baysPerRow,b.orient);
   const storageResolutionApplied=true;
   const accessLost=cols.filter(c=>inAny(c,aisleRects.filter(r=>r.access))).length;
   const nCol=cols.filter(c=>c.hit>0).length;
   if(rackInventory&&rackInventory.removedFieldIds.length)warn.push({t:"D05-A: "+rackInventory.removedFieldIds.length+" kollidierende Regalfelder aus Geometrie und Stueckliste entfernt. Kapazitaetsverlust "+fmt(rackLost)+" Plaetze. Feldgrenzen betreffen beide Nachbarfelder. Rahmen und Standsicherheit gesondert nachweisen.",sev:true});
-  if(laneLost||blockChannelPlan.unplacedCount)warn.push({t:"D06-A: "+laneLost+" blockierte und "+blockChannelPlan.unplacedCount+" nicht platzierte Blockkanaele. Positionsbezogener Kapazitaetsverlust "+fmt(blockChannelPlan.lostCapacity)+" Plaetze. Zuordnung nach Eingabereihenfolge, keine Ist-Belegung.",sev:true});
-  if(accessLost)warn.push({t:accessLost+" Stuetzen blockieren die Zugangsgasse des Blocklagers. Zugang geometrisch korrigieren.",sev:true,hard:true});
+  if(blockChannelPlan.unplacedCount)warn.push({t:"D06-A: "+laneLost+" blockierte Kanalplätze, "+blockChannelPlan.unplacedCount+" nicht platzierte Blockkanaele. Positionsbezogener Kapazitaetsverlust "+fmt(blockChannelPlan.lostCapacity)+" Plaetze. Zuordnung nach Eingabereihenfolge, keine Ist-Belegung.",sev:true});
   const trafficHits=cols.filter(c=>inAny(c,aisleRects)).length;
-  if(trafficHits)warn.push({t:trafficHits+" Stuetzen liegen in Verkehrs-/Arbeitsgaengen. Eine automatische Gangverlagerung erfolgt nicht.",sev:true,hard:true});
+  if(columnsAdvisory){
+    if(nCol)warn.push({t:"Greenfield: "+nCol+" Stützen des Rasters "+fmt(b.gridX,1)+" × "+fmt(b.gridY,1)+" m treffen Gänge oder Lagerflächen. Das Stützenraster ist mit der Hallenplanung abzustimmen; die Kapazität ist ohne Stützenabzug ausgewiesen.",sev:false});
+  }else{
+    if(accessLost)warn.push({t:accessLost+" Stuetzen blockieren die Zugangsgasse des Blocklagers. Zugang geometrisch korrigieren.",sev:true,hard:true});
+    if(trafficHits)warn.push({t:trafficHits+" Stuetzen liegen in Verkehrs-/Arbeitsgaengen. Eine automatische Gangverlagerung erfolgt nicht.",sev:true,hard:true});
+  }
   if(rack&&needRack>capacity)warn.push({t:"Regalkapazitaet unzureichend: Bedarf "+fmt(needRack)+", verfuegbar "+fmt(capacity)+" nach feldgenauer Entfernung.",sev:true,hard:true});
   if(block&&blockChannelPlan.capacity<block.capacityTotal)warn.push({t:"Blockkapazitaet nach kanalgenauen Verlusten: "+fmt(blockChannelPlan.capacity)+" von "+fmt(block.capacityTotal)+" geplanten Plaetzen. Bedarfsdeckung pruefen.",sev:true});
   const markingM=(rack?((nDouble+nSingles)>0?(nDouble+nSingles+1)*areaLen/1000:0):0)+(block?(bOrient==="N"?bands*areaLen/1000:bands*blockDepth/1000):0);
@@ -3950,7 +3995,7 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
   const rowLenA=(b.orient==="quer")?areaLen:Math.max(0,regionH);
   const rackGroundA=rackInventory?rackInventory.groundArea:0;
   const rackAisleA=rack?((nDouble+nSingles)>0?(nDouble+nSingles+1)*aisle*rowLenA:0):0;
-  const blockGroundA=block?block.nL*block.laneW*laneDepthY:0;
+  const blockGroundA=block?laneCount*block.laneW*laneDepthY:0;
   const blockAisleA=block?(bOrient==="N"?Math.max(0,bands-1)*aisleBlk*areaLen:bands*aisleBlk*blockDepth):0;
   const zoneA=(zoneND+zoneSD)*L+(zoneOD+zoneWD)*Math.max(0,W-zoneND-zoneSD);
   const gapA=(block?500:0)*areaLen;
@@ -3981,7 +4026,7 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
 
   return {L,W,y0,regionH,zN,zO,zS,zW,zoneND,zoneOD,zoneSD,zoneWD,zParts:{N:pN,O:pO,S:pS,W:pW},xStart,areaLen,nDouble,nSingles,baysPerRow,tunnelsPerRow,tunnelStep,capacity,rowHeightUsed,
           strips,aisleRects,laneRects,cols,doors,fieldW:rack?rack.fieldW:0,markingM,blockDepth,blockOrient:bOrient,
-          bands,lanesPerBand,pitch,fd,aisle,aisleBlk,rackLost,laneLost,rackCapacityPlanned,collisionAudit,rackInventory,blockChannelPlan,storageResolutionApplied,lgDepth,lgY0,lgSlots,area,ratioApplied,hallSearch};
+          bands,lanesPerBand,pitch,fd,aisle,aisleBlk,rackLost,laneLost,columnsAdvisory,capStrip:capStripUsed,rowFit,rackCapacityPlanned,collisionAudit,rackInventory,blockChannelPlan,storageResolutionApplied,lgDepth,lgY0,lgSlots,area,ratioApplied,hallSearch};
 }
 
 /* ============================ Artikeltabelle ============================ */
@@ -4257,8 +4302,9 @@ function drawLayout(){
   }
   /* Blockkanäle */
   for(const [channelIndex,r] of g.laneRects.entries()){
-    const channel=g.blockChannelPlan&&g.blockChannelPlan.assignments[channelIndex];
-    ctx.fillStyle=channel&&channel.blocked?"#fee2e2":"#fef3c7";ctx.strokeStyle=channel&&channel.blocked?"#dc2626":"#f59e0b";ctx.lineWidth=1;
+    const lane=g.blockChannelPlan&&g.blockChannelPlan.lanes?g.blockChannelPlan.lanes[channelIndex]:null;
+    const blockedLane=!!(lane&&lane.blocked),spareLane=!!(lane&&!lane.blocked&&lane.channel===null);
+    ctx.fillStyle=blockedLane?"#fee2e2":spareLane?"#f1f5f9":"#fef3c7";ctx.strokeStyle=blockedLane?"#dc2626":spareLane?"#94a3b8":"#f59e0b";ctx.lineWidth=1;
     ctx.fillRect(X(r.x),Y(r.y),r.w*sc,r.h*sc);
     ctx.strokeRect(X(r.x),Y(r.y),r.w*sc,r.h*sc);
     const horizLane=r.w>=r.h;
@@ -5703,14 +5749,16 @@ function buildStorageResolutionHtml(){
     // Je Positionsgruppe zusammengefasst; eine Zeile je Kanal ergab bei vielen Artikeln Tabellen mit Tausenden Zeilen
     const groups=new Map();
     for(const a of plan.assignments){
-      const g=groups.get(a.group)||{name:a.itemName,first:a.channel,last:a.channel,capacity:a.capacity,ok:0,blocked:[],unplaced:0};
+      const g=groups.get(a.group)||{name:a.itemName,first:a.channel,last:a.channel,capacity:a.capacity,ok:0,unplaced:0};
       g.last=a.channel;
-      if(!a.placed)g.unplaced++;else if(a.blocked)g.blocked.push(a.channel+1);else g.ok++;
+      if(a.placed)g.ok++;else g.unplaced++;
       groups.set(a.group,g);
     }
-    html+='<p>'+escH(plan.rule)+'</p><table><thead><tr><th>Positionsgruppe</th><th>Artikel</th><th>Kanäle</th><th>Plätze je Kanal</th><th>Verfügbar</th><th>Blockiert (Kanal-Nr.)</th><th>Nicht platziert</th></tr></thead><tbody>';
-    for(const [group,g] of groups)html+='<tr><td>'+(group+1)+'</td><td>'+escH(g.name)+'</td><td>'+(g.first+1)+(g.last>g.first?'–'+(g.last+1):'')+'</td><td>'+g.capacity+'</td><td>'+g.ok+'</td><td>'+(g.blocked.length?g.blocked.length+' ('+g.blocked.join(", ")+')':'0')+'</td><td>'+g.unplaced+'</td></tr>';
+    html+='<p>'+escH(plan.rule)+'</p><table><thead><tr><th>Positionsgruppe</th><th>Artikel</th><th>Kanäle</th><th>Plätze je Kanal</th><th>Platziert</th><th>Nicht platziert</th></tr></thead><tbody>';
+    for(const [group,g] of groups)html+='<tr><td>'+(group+1)+'</td><td>'+escH(g.name)+'</td><td>'+(g.first+1)+(g.last>g.first?'–'+(g.last+1):'')+'</td><td>'+g.capacity+'</td><td>'+g.ok+'</td><td>'+g.unplaced+'</td></tr>';
     html+='</tbody></table>';
+    const skipped=(plan.lanes||[]).map((l,i)=>l.blocked?i+1:0).filter(Boolean);
+    html+='<p>Von Stützen blockierte und übersprungene Kanalplätze: '+(skipped.length?skipped.length+' (Platz-Nr. '+skipped.join(", ")+')':'keine')+'.</p>';
   }
   return html;
 }
