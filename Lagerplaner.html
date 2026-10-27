@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.18</title>
+<title>Lagerplaner V2.19</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -319,12 +319,17 @@ details.obs[open] summary{margin-bottom:4px}
 .toast b{display:block;margin-bottom:4px;color:var(--ink)}
 .toast ul{margin:0;padding-left:16px;line-height:1.6;color:var(--mut)}
 .toast.notice{white-space:pre-line;border-color:var(--amber);border-left-color:var(--amber)}
+/* Meldungen neben der Kennzahlenleiste, damit sie keine Kennzahlenkarte verdecken */
+#app~.toast{right:358px}
+#app.kpis-collapsed~.toast{right:62px}
 
 /* ============================ Schmale Bildschirme ============================ */
 @media(max-width:1250px){
   #kpis{width:300px;flex-basis:300px}
+  #app~.toast{right:318px}
 }
 @media(max-width:1100px){
+  #app~.toast,#app.kpis-collapsed~.toast{right:18px}
   #body{display:block;overflow:auto}
   #kpis,#app.kpis-collapsed #kpis{width:auto;border-left:0;border-top:1px solid var(--line);padding:10px 14px 16px}
   #kpis-body{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
@@ -365,7 +370,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.18</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.19</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -1447,7 +1452,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.18 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.19 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -1754,7 +1759,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.18";
+const APP_VERSION="V2.19";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2282,6 +2287,11 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.19",date:"27.10.2026",items:[
+    "Meldungen nach dem Berechnen erscheinen links neben der Kennzahlenleiste und verdecken keine Kennzahlenkarte mehr.",
+    "Variantenliste: Nach einer gescheiterten Variantenübernahme wird die Liste wieder korrekt angezeigt (bisher Darstellungsabbruch).",
+    "Neue Button-Tests (tests/buttons.test.js): jedes anklickbare Element, Bestätigungsdialoge, Rückgängig sowie paarweise und zufällige Klickfolgen."
+  ]},
   {v:"V2.18",date:"27.10.2026",items:[
     "Greenfield-Hallensuche findet wieder Hallen, wenn das Stützenraster Gänge, Regalfelder oder Blockkanäle trifft. Im Greenfield-Modus wird das Stützenraster mit der Hallenplanung abgestimmt: Kollisionen sind Hinweis und mindern keine Kapazität (wie in der Hilfe beschrieben).",
     "Bestandsmodus, Stützenausgleich: Von Stützen getroffene Blockkanalplätze werden übersprungen, die Kanäle rücken auf den nächsten freien Platz, Ersatzplätze werden angehängt. Entfernte Regalfelder werden durch zusätzliche Doppelreihen ausgeglichen, solange sie in die Halle passen. Ein Hinweis nennt den Ausgleich.",
@@ -5336,6 +5346,8 @@ function renderOptResults(rows,best,goal){
     if(note)note.textContent="";
     return;
   }
+  // Ohne markierte Variante (etwa beim Wiederherstellen nach einer gescheiterten Uebernahme) gilt die erste Zeile
+  best=best||rows[0];
   if(sum)sum.textContent="Optimierungsvarianten (Top "+rows.length+") – Markiert: "+(best.o==="quer"?"orthogonal zu Toren":"parallel zu Toren")+" · "+fmt(best.w)+" mm · CAPEX "+eur(best.capex);
   tb.innerHTML=rows.map((r,i)=>
     '<tr data-opt-idx="'+i+'" style="cursor:pointer'+(r===best?';background:#eff6ff':'')+'">'+
