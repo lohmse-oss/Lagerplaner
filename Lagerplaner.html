@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.21</title>
+<title>Lagerplaner V2.22</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -26,13 +26,21 @@ tr:hover td{background:#f8fafc}
 canvas{width:100%;display:block;border-radius:6px}
 .hint{font-size:11px;color:#64748b;line-height:1.45}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.btn{background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px}
-.btn:hover{background:#334155}
-.btn.acc{background:var(--acc);border-color:var(--acc)}
-.btn.acc:hover{background:#1d4ed8}
+/* Knöpfe in drei Stufen: primär (.acc, blau gefüllt), sekundär (.btn, umrandet), Werkzeug (.btn-quiet, dezent).
+   In der dunklen Kopfzeile behalten sekundäre Knöpfe die dunkle Fläche. */
+.btn{background:#fff;color:#1e293b;border:1px solid #cbd5e1;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:500}
+.btn:hover{background:#f1f5f9;border-color:#94a3b8}
+.btn:disabled{opacity:.45;cursor:default;background:#fff;border-color:#cbd5e1}
+header .btn{background:#1e293b;color:#e2e8f0;border-color:#334155}
+header .btn:hover{background:#334155}
+header .btn:disabled{background:#1e293b;border-color:#334155}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.acc:hover{background:#1d4ed8;border-color:#1d4ed8}
+.btn.danger{color:#b91c1c;border-color:#fecaca}
+.btn.danger:hover{background:#fef2f2;border-color:#f87171}
 .btn:focus-visible,.dd-list button:focus-visible,#tabs button:focus-visible,.ptabs button:focus-visible,.kpis-toggle:focus-visible,.linkbtn:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}
-.btn-quiet{background:transparent;color:#334155;border-color:var(--line)}
-.btn-quiet:hover{background:#f1f5f9}
+.btn.btn-quiet{background:transparent;color:#334155;border-color:transparent}
+.btn.btn-quiet:hover{background:#e2e8f0;border-color:transparent}
 .tag{display:inline-block;border-radius:99px;padding:2px 9px;font-size:10.5px;font-weight:600;margin:1px 2px 1px 0}
 .tag-def{background:#e2e8f0;color:#334155}
 .tag-set{background:#dbeafe;color:#1e40af}
@@ -184,8 +192,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 
 /* ============================ Artikeltabelle ============================ */
 .selbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;font-size:12px;color:#475569}
-.selbar .btn{background:#e2e8f0;color:#334155}
-.selbar .btn:disabled{opacity:.45;cursor:default}
+
 .table-width-tools{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:4px 0 2px;font-size:11px;color:#64748b}
 .table-width-tools button{padding:4px 8px;font-size:11px}
 .items-table-scroll{width:100%;max-width:100%;overflow-x:auto;overflow-y:visible;max-height:none;scrollbar-gutter:stable;margin-top:6px;padding-bottom:4px}
@@ -257,8 +264,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .scenbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .scengrp{display:flex;gap:5px;align-items:center;flex-wrap:wrap;padding:6px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
 .scenlbl{font-size:11.5px;color:#334155;font-weight:600;margin-right:2px}
-.scengrp .btn{background:#e2e8f0;color:#334155}
-.scengrp .btn:disabled{opacity:.45;cursor:default}
+
 
 /* ============================ Kennzahlen-Leiste ============================ */
 #kpis{width:340px;flex:0 0 340px;display:flex;flex-direction:column;gap:8px;padding:10px 12px 16px;background:var(--bg);border-left:1px solid var(--line);overflow-y:auto}
@@ -269,6 +275,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 #kpis-body{display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0}
 .kpi.full,#kpi-ampel-wrap,.kpi-more{grid-column:1/-1}
+.kpi .sub{font-size:11px;color:var(--mut);margin-top:2px}
 .kpi .l{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;line-height:1.25}
 .kpi .v{font-size:15px;font-weight:700;line-height:1.25;margin-top:3px;overflow-wrap:anywhere}
 .kpi .v.small{font-size:11.5px;line-height:1.4;font-weight:600}
@@ -374,7 +381,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.21</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.22</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -818,7 +825,7 @@ details.obs[open] summary{margin-bottom:4px}
             <p style="margin: 0 0 4px; font-weight: 600; font-size: 12px">Batch-Änderungen</p>
             <div class="selbar" role="group" aria-label="Batch-Änderungen">
               <span id="sel-count">0 Positionen ausgewählt</span>
-              <button class="btn" id="btn-sel-del" disabled="">Auswahl löschen</button>
+              <button class="btn danger" id="btn-sel-del" disabled="">Auswahl löschen</button>
               <label for="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird">LKW-Typ:</label>
               <select id="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird"></select>
               <button class="btn" id="btn-sel-truck" disabled="">LKW-Typ zuweisen</button>
@@ -845,8 +852,8 @@ details.obs[open] summary{margin-bottom:4px}
             </div>
             <div class="table-width-tools">
               <span>Spalten an den Trennlinien ziehen</span>
-              <button class="btn" type="button" id="btn-cols-auto">Breiten automatisch</button>
-              <button class="btn" type="button" id="btn-cols-reset">Standardbreiten</button>
+              <button class="btn btn-quiet" type="button" id="btn-cols-auto">Breiten automatisch</button>
+              <button class="btn btn-quiet" type="button" id="btn-cols-reset">Standardbreiten</button>
             </div>
             <div class="items-table-scroll" role="region" aria-label="Artikeltabelle">
               <table id="items-table" style="width: 1820px">
@@ -923,9 +930,9 @@ details.obs[open] summary{margin-bottom:4px}
             </details>
           </div>
           <div class="rowbtns" style="margin: 0 0 8px">
-            <button class="btn" id="btn-zoom-in">Vergrößern</button>
-            <button class="btn" id="btn-zoom-out">Verkleinern</button>
-            <button class="btn" id="btn-zoom-reset">Ansicht zurücksetzen</button>
+            <button class="btn btn-quiet" id="btn-zoom-in">Vergrößern</button>
+            <button class="btn btn-quiet" id="btn-zoom-out">Verkleinern</button>
+            <button class="btn btn-quiet" id="btn-zoom-reset">Ansicht zurücksetzen</button>
             <button class="btn" id="btn-layout-png">Layout als PNG speichern</button>
           </div>
           <div class="canvas-wrap split">
@@ -1353,13 +1360,10 @@ details.obs[open] summary{margin-bottom:4px}
           <div class="l">Hallenfläche</div>
           <div class="v" id="kpi-hall-area">–</div>
         </div>
-        <div class="kpi" data-goto="5">
-          <div class="l">CAPEX min.</div>
-          <div class="v" id="kpi-capex-min">–</div>
-        </div>
-        <div class="kpi" data-goto="5">
-          <div class="l">CAPEX max.</div>
-          <div class="v" id="kpi-capex-max">–</div>
+        <div class="kpi full" data-goto="5" id="kpi-capex-wrap">
+          <div class="l">CAPEX</div>
+          <div class="v" id="kpi-capex">–</div>
+          <div class="sub" id="kpi-capex-range">–</div>
         </div>
         <div class="kpi" data-goto="10" id="kpi-warn">
           <div class="l">Hinweise</div>
@@ -1407,14 +1411,12 @@ details.obs[open] summary{margin-bottom:4px}
         <div id="kpi-capb" hidden=""></div>
         <div id="kpi-rack" hidden=""></div>
         <div id="kpi-block" hidden=""></div>
-        <div id="kpi-capex" hidden=""></div>
-        <div id="kpi-capex-range" hidden=""></div>
         <i id="kpi-utilbar" hidden=""></i>
       </div>
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.21 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.22 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -1464,7 +1466,7 @@ details.obs[open] summary{margin-bottom:4px}
       <ul>
         <li>Bedarfsermittlung je Position wählbar: <code>LKW/Tag × LKW-Typ × Paletten je LKW</code> (Umrechnungswert automatisch aus der Kreuztabelle, überschreibbar), <code>Paletten/Tag</code>, <code>Stückbasis</code> (Stück/Tag ÷ Stück/KLT ÷ KLT/Palette) oder <code>Ziel-Bestand</code>; die Kachel LKW/Tag in der Kennzahlen-Leiste weist das hergeleitete LKW-Volumen aus.</li>
         <li>Der Netto-Bestand ergibt sich aus Paletten/Tag × Lagerreichweite. Im Modus Ziel-Bestand wird der Bestand direkt vorgegeben.</li>
-        <li>Mengengerüst-Import (CSV): Spaltenüberschriften werden automatisch erkannt – <code>Bezeichnung; Ermittlung; LKW-Typ; LKW/Tag; Paletten/Tag; Stueck/Tag; Stueck/KLT; KLT/Palette; Ziel-Bestand; Artikel; LHM; Laenge; Breite; Hoehe; Gewicht; Stapelfaktor; Blockanteil; Datenbasis</code>. Trennzeichen Komma oder Semikolon. Die Spalte Artikel (Anzahl unterschiedlicher Artikel je Position) wird auch über die Überschrift SKU erkannt.</li>
+        <li>Mengengerüst-Import (CSV): Spaltenüberschriften werden automatisch erkannt – <code>Bezeichnung; Ermittlung; LKW-Typ; LKW/Tag; Paletten/Tag; Stück/Tag; Stück/KLT; KLT/Palette; Ziel-Bestand; Artikel; LHM; Länge; Breite; Höhe; Gewicht; Stapelfaktor; Blockanteil; Datenbasis</code>. Trennzeichen Komma oder Semikolon. Die Spalte Artikel (Anzahl unterschiedlicher Artikel je Position) wird auch über die Überschrift SKU erkannt.</li>
         <li>Paletten-Stammdaten: Die Register Vorgaben führt Euro-, Industrie- und Halbpalette mit Grundmaß, Standardhöhe 1,0 m (Referenz EPal 1.200 × 800 × 1.000 mm BTH), Gewicht und Referenz-Stapelfaktor. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar.</li>
         <li>Artikeltabelle: Die Spaltenbreiten passen sich dem Inhalt an; bei Platzbedarf scrollt die Tabelle waagerecht und senkrecht. Die Datenzellen brechen Text nicht um. Ein Griff am rechten Rand der Spaltenüberschrift setzt eine Wunschbreite, ein Doppelklick auf einen Griff stellt alle Standardbreiten wiederher. Die Breiten werden im Browser gespeichert.</li>
         <li>Der Stapelfaktor akzeptiert im CSV-Import die Notation 1+x (etwa 1+2) oder die Gesamtzahl der Paletten je Stapel. Artikeltabelle und Paletten-Stammdaten erfassen das x der Notation 1+x (Eingabefeld mit vorgestelltem 1+); in den gespeicherten Dateien (Eingabedatei und Planungsdatei) wird die Gesamtzahl geführt.</li>
@@ -1598,7 +1600,7 @@ function renderTruckMD(){
         '<td>'+fmt(t.fh,2)+' m</td>'+
         '<td>'+t.layers+'</td>'+
         '<td>'+fmt(t.payload/1000,1)+' t</td>'+
-        '<td>'+(own?'<button class="btn" data-trk-del="'+k+'">Löschen</button>':'')+'</td></tr>';
+        '<td>'+(own?'<button class="btn danger" data-trk-del="'+k+'">Löschen</button>':'')+'</td></tr>';
     }
     html+='</tbody></table>';
     html+='<div class="lhmform">'+
@@ -1721,7 +1723,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.21";
+const APP_VERSION="V2.22";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2162,7 +2164,7 @@ function renderPalletMD(){
       '<td><input type="number" data-lhm-ov="h" data-lhm-key="'+k+'" aria-label="Höhe '+escH(p.label)+' in mm" value="'+p.h+'" min="100" max="3000" step="10" style="width:64px"> <span class="hint">Ref: '+base.h+' mm</span>'+rbtn("h")+'</td>'+
       '<td><input type="number" data-lhm-ov="g" data-lhm-key="'+k+'" aria-label="Gewicht '+escH(p.label)+' in kg" value="'+p.g+'" min="0" step="10" style="width:64px"> <span class="hint">Ref: '+base.g+' kg</span>'+rbtn("g")+'</td>'+
       '<td>1+ <input type="number" data-lhm-ov="stack" data-lhm-key="'+k+'" value="'+Math.max(0,p.stack-1)+'" min="0" max="30" step="1" style="width:42px" title="x des Stapelfaktors in der Notation 1+x (x zusätzliche Paletten auf der untersten Palette)"> <span class="hint">Ref: 1+'+(refStack-1)+'</span>'+rbtn("stack")+'</td>'+
-      '<td>'+(own?'<button class="btn" data-lhm-del="'+k+'">Löschen</button>':'')+'</td></tr>';
+      '<td>'+(own?'<button class="btn danger" data-lhm-del="'+k+'">Löschen</button>':'')+'</td></tr>';
   }
   html+='</tbody></table>';
   html+='<div class="lhmform">'+
@@ -2279,6 +2281,11 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.22",date:"28.10.2026",items:[
+    "Einheitliche Schreibweise: Meldungen, Hinweise, Berichte und Fehlertexte verwenden Umlaute statt ae/oe/ue (über 200 Stellen). Dateinamen und CSV-Spaltennamen bleiben unverändert.",
+    "Knöpfe in drei Stufen: primär (blau gefüllt), sekundär (weiß, umrandet), Werkzeug (dezent, z. B. Zoom und Spaltenbreiten); Löschen und Leeren rot beschriftet. In der Kopfzeile bleiben die Knöpfe dunkel.",
+    "Kennzahlenleiste: CAPEX als Gesamtwert mit Bandbreite (± Kostenunsicherheit) statt getrennter Minimal- und Maximalwerte."
+  ]},
   {v:"V2.21",date:"28.10.2026",items:[
     "Greenfield-Hallenmaße: Statt eines festen Seitenverhältnisses gilt ein zulässiger Bereich (Längsseite zu Schmalseite, Standard 1 : 1 bis 3 : 1) mit optionalen Höchstmaßen für das Grundstück. Das Werkzeug wählt darin die kleinste machbare Halle und prüft beide Lagen der Torseite. Bei vorgegebener Hallenlänge erscheint ein Hinweis, wenn die Proportion über dem Bereich liegt. Ältere Planungsstände werden übernommen (festes Verhältnis wird zu einem Bereich mit gleichen Grenzen).",
     "Gebäude & Flächen neu gegliedert: Halle (Modus, Länge, Breite, Unterkante Binder, Greenfield-Proportion), Höhenkette mit Höhenbilanz (Sprinkler-Freiraum, Hubhöhe, Bedienreserve, Oberkante Lagergut Block), Tore und Zonen als Tabelle je Hallenseite, Stützenraster mit benannten Achsen. Regal-Ausrichtung steht jetzt unter Lagertechnik, die Miete unter Kosten.",
@@ -2334,61 +2341,61 @@ const CHANGELOG=[
   ]},
   {v:"V2.13",date:"27.10.2026",items:[
     "Stufe 7: HTML-Verschachtelung der Lagerreichweite korrigiert. Bestandsparameter stehen als getrennte Zeilen im Bemessungskasten.",
-    "Gesamtregression und gezielte echte Chromium-Pruefungen dokumentiert. Zielumgebungsfreigabe bleibt gesondert."
+    "Gesamtregression und gezielte echte Chromium-Prüfungen dokumentiert. Zielumgebungsfreigabe bleibt gesondert."
   ]},
   {v:"V2.12",date:"27.10.2026",items:[
     "Stufe 6: Laufzeitmessung dokumentiert; Projektkopie und Berechnungsformeln erhalten.",
     "UI-Optimierung in isolierten Blob-Worker verlagert. Abbruch beendet den Worker ohne Projektmutation.",
-    "Fortschritt und Laufstatistik ergaenzt. Geaenderte Projektstaende verwerfen veraltete Ergebnisse.",
-    "Kein blockierender Ersatzlauf bei fehlender Worker-Unterstuetzung oder gesperrtem Blob-Worker.",
-    "Quellenpfad-Vorgaben einmalig unveraenderlich vorbereitet statt wiederholt defaults aufzubauen.",
+    "Fortschritt und Laufstatistik ergänzt. Geänderte Projektstände verwerfen veraltete Ergebnisse.",
+    "Kein blockierender Ersatzlauf bei fehlender Worker-Unterstützung oder gesperrtem Blob-Worker.",
+    "Quellenpfad-Vorgaben einmalig unveränderlich vorbereitet statt wiederholt defaults aufzubauen.",
     "Rechenkern und Worker verwenden dieselbe Einzeldatei. Browserabnahme und Gesamtfreigabe bleiben offen."
   ]},
   {v:"V2.11",date:"27.10.2026",items:[
-    "Stufe 5: Leitartikel nach groesstem Brutto-Regalbedarf eindeutig benannt; Huellkurve erhalten.",
-    "Explizites Quellenregister als zusaetzliches parameterSources-Objekt; bestehende Zahlenfelder unveraendert.",
-    "Quelle, Bestaetigung, Nachweis, Zeitpunkt und Bezugswert werden gespeichert. Wertabweichungen entwerten die Bestaetigung.",
+    "Stufe 5: Leitartikel nach größtem Brutto-Regalbedarf eindeutig benannt; Hüllkurve erhalten.",
+    "Explizites Quellenregister als zusätzliches parameterSources-Objekt; bestehende Zahlenfelder unverändert.",
+    "Quelle, Bestätigung, Nachweis, Zeitpunkt und Bezugswert werden gespeichert. Wertabweichungen entwerten die Bestätigung.",
     "Altdaten ohne Herkunft bleiben nicht dokumentiert. Import-/Export-, Szenario- und Undo-Wege erhalten Quellenangaben.",
     "Register und Berichte verwenden dieselben Quelleninformationen und Bemessungsbegriffe.",
     "Keine neue Berechnungsformel. Browserabnahme und Gesamtfreigabe bleiben offen."
   ]},
   {v:"V2.10",date:"27.10.2026",items:[
-    "Stufe 4: gemeinsame Machbarkeitspruefung fuer Layout, Optimierer, Ampel und Berichte.",
-    "Regal- und Blockbedarf, Hallengrenzen, Flaeche, Zugang und harte Konflikte werden gemeinsam geprueft.",
+    "Stufe 4: gemeinsame Machbarkeitsprüfung für Layout, Optimierer, Ampel und Berichte.",
+    "Regal- und Blockbedarf, Hallengrenzen, Fläche, Zugang und harte Konflikte werden gemeinsam geprüft.",
     "Optimierer bewertet auch reine Blockvarianten. Breiten-/Einzelreihenbewertung verwendet den echten Rechenkern.",
-    "Greenfield-Suche verwendet begrenztes 5-m-Raster mit lokaler 0,5-m-Verfeinerung; kein globaler Minimalitaetsnachweis.",
-    "Varianten werden nur vorgeschlagen. Tabellenklick uebernimmt erst nach erneuter Machbarkeitspruefung.",
+    "Greenfield-Suche verwendet begrenztes 5-m-Raster mit lokaler 0,5-m-Verfeinerung; kein globaler Minimalitätsnachweis.",
+    "Varianten werden nur vorgeschlagen. Tabellenklick übernimmt erst nach erneuter Machbarkeitsprüfung.",
     "Bestandshallen behalten ihre Masse. Browserabnahme und Gesamtfreigabe bleiben offen."
   ]},
   {v:"V2.9",date:"27.10.2026",items:[
     "Stufe 3: D05-A und D06-A umgesetzt. Kollidierende Regalfelder werden geometrisch entfernt.",
-    "Kapazitaet, gemeinsame Rahmen, Traversen und Zubehoer werden aus demselben Feldinventar abgeleitet.",
-    "Tunnelpositionen sind fuer Kapazitaet, Zeichnung und Stueckliste vereinheitlicht; keine doppelte Verlustzaehlung.",
-    "Blockkanaele werden Positionsgruppen in Eingabereihenfolge zugeordnet; Verluste werden kanalgenau berechnet.",
-    "Zuordnung ist eine Planungsregel, keine Ist-Belegung. Punktfoermiges Stuetzenmodell bleibt bestehen.",
+    "Kapazität, gemeinsame Rahmen, Traversen und Zubehör werden aus demselben Feldinventar abgeleitet.",
+    "Tunnelpositionen sind für Kapazität, Zeichnung und Stückliste vereinheitlicht; keine doppelte Verlustzählung.",
+    "Blockkanäle werden Positionsgruppen in Eingabereihenfolge zugeordnet; Verluste werden kanalgenau berechnet.",
+    "Zuordnung ist eine Planungsregel, keine Ist-Belegung. Punktförmiges Stützenmodell bleibt bestehen.",
     "Technischer Zwischenstand; Browserabnahme und Gesamtfreigabe stehen aus."
   ]},
   {v:"V2.8",date:"27.10.2026",items:[
-    "Stufe 3, Teilstand: Gebaeudegrenze fuer OK Ladeeinheit und Hubhoehe fuer OK Traverse getrennt.",
-    "Geometrisch unmoegliche Regalebenen erzeugen keine Kapazitaet und keine Regalstueckliste.",
-    "Geplante und nach Kollisionen verfuegbare Kapazitaet sowie Kostenkennzahlen getrennt.",
-    "Stuetze-/Regalfeld- und Blockkanalkonflikte erhalten eine nachvollziehbare Diagnose.",
+    "Stufe 3, Teilstand: Gebäudegrenze für OK Ladeeinheit und Hubhöhe für OK Traverse getrennt.",
+    "Geometrisch unmögliche Regalebenen erzeugen keine Kapazität und keine Regalstückliste.",
+    "Geplante und nach Kollisionen verfügbare Kapazität sowie Kostenkennzahlen getrennt.",
+    "Stütze-/Regalfeld- und Blockkanalkonflikte erhalten eine nachvollziehbare Diagnose.",
     "B08 bleibt entscheidungsoffen: keine automatische Materialentfernung oder neue Kanalzuordnung.",
     "Kein Abschluss von Stufe 3, keine Browser- oder Gesamtfreigabe."
   ]},
   {v:"V2.7",date:"27.10.2026",items:[
-    "Stufe 2: Importintegritaet. Datenparser fuer JSON und Legacy-Datenliterale ohne Codeausfuehrung.",
-    "CSV und JSON verwenden gemeinsame Positionspruefungen; fehlerhafte Importe werden vollstaendig abgewiesen.",
-    "Fehlerberichte nennen Zeile, Feld und Originalwert. Keine stille Begrenzung oder Ersetzung ungueltiger Zahlen.",
-    "Importfehler stellen Projekt, Ergebnisse, Undo und verfuegbare Browsersicherung wieder her.",
+    "Stufe 2: Importintegrität. Datenparser für JSON und Legacy-Datenliterale ohne Codeausführung.",
+    "CSV und JSON verwenden gemeinsame Positionsprüfungen; fehlerhafte Importe werden vollständig abgewiesen.",
+    "Fehlerberichte nennen Zeile, Feld und Originalwert. Keine stille Begrenzung oder Ersetzung ungültiger Zahlen.",
+    "Importfehler stellen Projekt, Ergebnisse, Undo und verfügbare Browsersicherung wieder her.",
     "Technischer Zwischenstand; Browserabnahme und Gesamtfreigabe stehen aus."
   ]},
   {v:"V2.6",date:"27.10.2026",items:[
-    "Stufe 1: technische Stabilisierung. Keine fachliche Neuberechnung eingefuehrt.",
+    "Stufe 1: technische Stabilisierung. Keine fachliche Neuberechnung eingeführt.",
     "Undefinierten FFZ-Zugriff im Optimierer korrigiert.",
     "Analysefehler stellen Projekt, Ergebnisse und Undo-Historie wieder her.",
-    "Sensitivitaetsparameter und Greenfield-Suchzustaende werden gesichert zurueckgesetzt.",
-    "Parametererlaeuterungen und Versionsanzeigen vereinheitlicht; interne Dokumentmetadaten entfernt.",
+    "Sensitivitätsparameter und Greenfield-Suchzustände werden gesichert zurückgesetzt.",
+    "Parametererläuterungen und Versionsanzeigen vereinheitlicht; interne Dokumentmetadaten entfernt.",
     "Arbeitsstand mit gezielten Funktionstests; Browserabnahme und Gesamtfreigabe stehen aus."
   ]},
   {v:"V2.5",date:"27.10.2026",items:["T24 technisch behoben: computeModel arbeitet auf einer vollständigen Zustandskopie; berechnete Positionswerte werden nur im regulären recalc kontrolliert übernommen."]},
@@ -2777,13 +2784,13 @@ function repairPositions(items){
 const ITEM_NUMERIC_FIELDS=["blockSkus","trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus","l","b","h","g","stack","blockShare","net","trucksDay","blockNet","rackNet","blockGross","rackGross"];
 function validatePositionArray(items,label){
   if(!Array.isArray(items))throw new Error(label+" muss eine Liste sein.");
-  if(items.length>10000)throw new Error(label+" enthaelt mehr als 10.000 Positionen.");
+  if(items.length>10000)throw new Error(label+" enthält mehr als 10.000 Positionen.");
   const errors=[];
   const issue=(row,key,value,message)=>errors.push(label+", Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(value)+": "+message);
   for(let i=0;i<items.length;i++){
     const it=items[i],row=i+1;
     if(!isPlainObject(it)){issue(row,"Position",it,"Objekt erwartet");continue;}
-    if(it.name!=null&&(typeof it.name!=="string"||it.name.length>2000))issue(row,"name",it.name,"ungueltige Bezeichnung");
+    if(it.name!=null&&(typeof it.name!=="string"||it.name.length>2000))issue(row,"name",it.name,"ungültige Bezeichnung");
     if(it.demand!=null&&!["truck","pallets","pieces","stock"].includes(it.demand))issue(row,"demand",it.demand,"unbekannte Bedarfsermittlung");
     if(it.dataBasis!=null&&!["customer","assumption"].includes(it.dataBasis))issue(row,"dataBasis",it.dataBasis,"unbekannte Datenbasis");
     if(it.pptManual!==undefined&&typeof it.pptManual!=="boolean")issue(row,"pptManual",it.pptManual,"wahr/falsch erwartet");
@@ -2793,7 +2800,7 @@ function validatePositionArray(items,label){
     for(const key of ["g","trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus"]){
       if(typeof it[key]==="number"&&it[key]<0)issue(row,key,it[key],"darf nicht negativ sein");
     }
-    for(const key of ["l","b","h"]){if(typeof it[key]==="number"&&it[key]<=0)issue(row,key,it[key],"muss groesser als 0 sein");}
+    for(const key of ["l","b","h"]){if(typeof it[key]==="number"&&it[key]<=0)issue(row,key,it[key],"muss größer als 0 sein");}
     if(typeof it.stack==="number"&&(!Number.isInteger(it.stack)||it.stack<1))issue(row,"stack",it.stack,"ganze Zahl ab 1 erwartet");
     if(typeof it.skus==="number"&&!Number.isInteger(it.skus))issue(row,"skus",it.skus,"ganze Zahl erwartet");
     if(typeof it.blockShare==="number"&&(it.blockShare<0||it.blockShare>100))issue(row,"blockShare",it.blockShare,"muss zwischen 0 und 100 liegen");
@@ -2819,11 +2826,11 @@ function applyCsvText(text){
   const snapshot=captureImportState();
   try{
     const items=parseCsv(text);
-    if(!items.length)throw new Error("CSV enthaelt keine verwertbaren Positionen.");
+    if(!items.length)throw new Error("CSV enthält keine verwertbaren Positionen.");
     if(S.items.length&&!confirm("Bestehende "+S.items.length+" Positionen durch den Import ersetzen?"))return false;
     pushUndo("CSV-Import ("+items.length+" Positionen)");
     snapshot.changed=true;S.items=items;renderItems();recalc();return true;
-  }catch(error){restoreImportState(snapshot);alert("CSV wurde nicht uebernommen:\n"+error.message);return false;}
+  }catch(error){restoreImportState(snapshot);alert("CSV wurde nicht übernommen:\n"+error.message);return false;}
 }
 
 function validateKeyedDictionary(dict,label){
@@ -3057,19 +3064,19 @@ function assessModelFeasibility(model){
   const reasons=[],g=model&&model.geo;
   const add=(code,text)=>reasons.push({code,text});
   if(!model||!Number.isFinite(model.netTotal)||model.netTotal<=0)add('NO_DEMAND','Kein positiver Bemessungsbestand.');
-  if(!g){add('NO_LAYOUT','Kein auswertbares Layout.');return {feasible:false,reasons,scope:'Geometrische Vorplanung, keine Ausfuehrungsfreigabe'};}
+  if(!g){add('NO_LAYOUT','Kein auswertbares Layout.');return {feasible:false,reasons,scope:'Geometrische Vorplanung, keine Ausführungsfreigabe'};}
   const c=capacitySummary(model),rackNeed=Number(model.grossRackNeed),blockNeed=Number(model.grossBlockNeed);
-  if(![g.L,g.W,c.rackAvailable,c.blockAvailable,rackNeed,blockNeed].every(Number.isFinite)||g.L<=0||g.W<=0)add('INVALID_NUMBER','Ungueltige Geometrie oder Kapazitaet.');
+  if(![g.L,g.W,c.rackAvailable,c.blockAvailable,rackNeed,blockNeed].every(Number.isFinite)||g.L<=0||g.W<=0)add('INVALID_NUMBER','Ungültige Geometrie oder Kapazität.');
   if(c.rackAvailable<rackNeed)add('RACK_DEFICIT','Regalbedarf nicht gedeckt.');
   if(c.blockAvailable<blockNeed)add('BLOCK_DEFICIT','Blockbedarf nicht gedeckt.');
-  if(!g.area||!Number.isFinite(g.area.brutto)||!Number.isFinite(g.area.hall)||g.area.brutto>g.area.hall+1e-6)add('AREA_OVERFLOW','Flaechenbedarf ueberschreitet die Hallenflaeche.');
+  if(!g.area||!Number.isFinite(g.area.brutto)||!Number.isFinite(g.area.hall)||g.area.brutto>g.area.hall+1e-6)add('AREA_OVERFLOW','Flächenbedarf überschreitet die Hallenfläche.');
   const outside=r=>![r.x,r.y,r.w,r.h].every(Number.isFinite)||r.w<0||r.h<0||r.x< -1e-6||r.y< -1e-6||r.x+r.w>g.L+1e-6||r.y+r.h>g.W+1e-6;
   const rackRects=g.rackInventory?g.rackInventory.fields.filter(x=>!x.removed):(g.strips||[]);
   if([...rackRects,...(g.laneRects||[]),...(g.aisleRects||[])].some(outside))add('OUTSIDE_HALL','Lager- oder Gangrechteck liegt ausserhalb der Halle.');
   if(blockNeed>0&&((g.blockOrient==='W'&&!['we','wewa'].includes(g.zW))||(g.blockOrient!=='W'&&!['we','wewa'].includes(g.zN))))add('BLOCK_ACCESS','Blockzugang liegt nicht an einer WE-Zone.');
-  if(model.rack&&(model.rack.topBeam>model.rack.usableLift+1e-6||model.rack.topLoad>model.rack.usableBuilding+1e-6))add('HEIGHT','Regalhoehe ueberschreitet eine Bemessungsgrenze.');
+  if(model.rack&&(model.rack.topBeam>model.rack.usableLift+1e-6||model.rack.topLoad>model.rack.usableBuilding+1e-6))add('HEIGHT','Regalhöhe überschreitet eine Bemessungsgrenze.');
   for(const w of model.warn||[])if(w.hard)add('HARD_CONFLICT',w.t);
-  return {feasible:reasons.length===0,reasons,capacities:c,scope:'Geometrische Vorplanung, keine Ausfuehrungsfreigabe'};
+  return {feasible:reasons.length===0,reasons,capacities:c,scope:'Geometrische Vorplanung, keine Ausführungsfreigabe'};
 }
 /* Arbeitskopie für das Rechenmodell. Szenario-Snapshots und Quellenregister liest es nicht;
    sie mitzukopieren kostete bei der Greenfield-Hallensuche je Prüfbreite zwei volle Kopien. */
@@ -3142,8 +3149,8 @@ function searchHallDimensions(lengthMM,b){
 }
 function applyOptimizationRow(row){
   if(!row)return false;
-  return runPlannerAnalysis('Variantenuebernahme',()=>{
-    if(![row.hallL,row.hallW].every(v=>Number.isFinite(v)&&v>0))throw new Error('Variante enthaelt keine gueltigen Hallenmasse.');
+  return runPlannerAnalysis('Variantenübernahme',()=>{
+    if(![row.hallL,row.hallW].every(v=>Number.isFinite(v)&&v>0))throw new Error('Variante enthält keine gültigen Hallenmasse.');
     const before=JSON.parse(JSON.stringify(S));
     applyRow(row);
     if(S.building.mode==='greenfield'){
@@ -3151,20 +3158,20 @@ function applyOptimizationRow(row){
     }
     const model=computeModel(),check=assessModelFeasibility(model);
     if(!check.feasible)throw new Error('Variante ist im aktuellen Projekt nicht mehr machbar: '+check.reasons.map(x=>x.text).join(' '));
-    if(Math.abs(model.geo.L/1000-row.hallL)>1e-6||Math.abs(model.geo.W/1000-row.hallW)>1e-6)throw new Error('Hallenmasse weichen von der geprueften Variante ab. Optimierung erneut ausfuehren.');
-    pushUndoRaw('Optimierungsvariante uebernommen',before);
+    if(Math.abs(model.geo.L/1000-row.hallL)>1e-6||Math.abs(model.geo.W/1000-row.hallW)>1e-6)throw new Error('Hallenmasse weichen von der geprüften Variante ab. Optimierung erneut ausführen.');
+    pushUndoRaw('Optimierungsvariante übernommen',before);
     syncAll();refreshModeUI();recalc();renderOptResults(LAST_OPT_ROWS,row,LAST_OPT_GOAL);
-    const note=$("opt-note");if(note)note.textContent="Variante nach erneuter Modellpruefung uebernommen. "+note.textContent.replace("Vorschlag, noch nicht uebernommen: ","");
+    const note=$("opt-note");if(note)note.textContent="Variante nach erneuter Modellprüfung übernommen. "+note.textContent.replace("Vorschlag, noch nicht übernommen: ","");
     return true;
   });
 }
 function buildFeasibilityHtml(){
   const check=assessModelFeasibility(R);
-  return '<h3>Gemeinsame Machbarkeitspruefung</h3><p>'+(check.feasible?'Geometrisch im Modell machbar. Keine Ausfuehrungsfreigabe.':'Im Modell nicht machbar: '+check.reasons.map(x=>escH(x.text)).join(' '))+'</p>';
+  return '<h3>Gemeinsame Machbarkeitsprüfung</h3><p>'+(check.feasible?'Geometrisch im Modell machbar. Keine Ausführungsfreigabe.':'Im Modell nicht machbar: '+check.reasons.map(x=>escH(x.text)).join(' '))+'</p>';
 }
 
 function rackTunnelBayIndices(bays,count,step){
-  // Gleiche Anzahl wie die Kapazitaetsrechnung, bevorzugt bisheriges Tunnelraster.
+  // Gleiche Anzahl wie die Kapazitätsrechnung, bevorzugt bisheriges Tunnelraster.
   const ids=[];count=Math.min(bays,Math.max(0,count));
   for(let k=1;k<=count;k++){
     const preferred=step>0?k*step-1:Math.floor(k*bays/(count+1));
@@ -3223,14 +3230,14 @@ function assignBlockChannels(block,lanes,columns){
 
 function calculateRackHeight(buildingLimit,liftLimit,loadHeight,pitch,offset){
   if(![buildingLimit,liftLimit,loadHeight,pitch,offset].every(Number.isFinite)||pitch<=0||loadHeight<=0||offset<0)
-    throw new Error("Ungueltige Eingaben der Regalhoehenberechnung.");
+    throw new Error("Ungültige Eingaben der Regalhöhenberechnung.");
   const buildingBeamLimit=buildingLimit-loadHeight;
   const beamLimit=Math.min(buildingBeamLimit,liftLimit);
   const feasible=offset<=beamLimit;
   const levels=feasible?Math.min(20,1+Math.floor((beamLimit-offset)/pitch)):0;
   const topBeam=levels?offset+(levels-1)*pitch:0;
   return {levels,topBeam,topLoad:levels?topBeam+loadHeight:0,beamLimit,feasible,
-    heightLimiter:liftLimit<buildingBeamLimit?"Stapler-Hubhoehe":"Gebaeude/Sprinkler"};
+    heightLimiter:liftLimit<buildingBeamLimit?"Stapler-Hubhöhe":"Gebäude/Sprinkler"};
 }
 function capacitySummary(model){
   const g=model.geo,b=model.block;
@@ -3262,7 +3269,7 @@ function auditStorageCollisions(strips,lanes,columns,fieldWidth,baysPerRow,orien
     uniqueFields:fields.size,uniqueChannels:channels.size,edgeHits,remainderHits,
     duplicateFieldHits:[...fields.values()].reduce((sum,n)=>sum+Math.max(0,n-1),0),
     requiresDecision:fields.size>0||channels.size>0||remainderHits>0,
-    note:"Diagnose auf Basis der bisherigen punktfoermigen Stuetzen. Keine Festlegung von Sperrung, Ausbau oder Artikel-Kanal-Zuordnung."};
+    note:"Diagnose auf Basis der bisherigen punktförmigen Stützen. Keine Festlegung von Sperrung, Ausbau oder Artikel-Kanal-Zuordnung."};
 }
 
 function computeModelCore(){
@@ -3409,13 +3416,13 @@ function computeModelCore(){
     const usable=height.beamLimit;
     const heightLimiter=height.heightLimiter;
     const levels=height.levels;
-    if(!height.feasible)warn.push({t:"Keine geometrisch zulaessige Regalebene: OK Ladeeinheit ueberschreitet die Gebaeudegrenze oder OK Traverse ueberschreitet die nutzbare Hubhoehe.",sev:true,hard:true});
-    else if(levels<2)warn.push({t:"Hoehengrenzen erlauben nur eine Regalebene. Gebaeudegrenze und Hubhoehe getrennt pruefen.",sev:true});
+    if(!height.feasible)warn.push({t:"Keine geometrisch zulässige Regalebene: OK Ladeeinheit überschreitet die Gebäudegrenze oder OK Traverse überschreitet die nutzbare Hubhöhe.",sev:true,hard:true});
+    else if(levels<2)warn.push({t:"Höhengrenzen erlauben nur eine Regalebene. Gebäudegrenze und Hubhöhe getrennt prüfen.",sev:true});
     let low=0;
     for(let i=1;i<=levels;i++){if(off+(i-1)*pitch<S.fire.tunnelClear*1000)low++;}
     const loadClass=fachlast<=1500?"leicht":(fachlast<=3000?"mittel":"hoch");
     const topBeam=height.topBeam;
-    if(heightLimiter==="Stapler-Hubhoehe")warn.push({t:"Regalhöhe durch Stapler begrenzt: Oberkante letzte Traversenebene "+fmt(topBeam/1000,2)+" m; nutzbare Hubhöhe "+fmt(usableLift/1000,2)+" m.",sev:false});
+    if(heightLimiter==="Stapler-Hubhöhe")warn.push({t:"Regalhöhe durch Stapler begrenzt: Oberkante letzte Traversenebene "+fmt(topBeam/1000,2)+" m; nutzbare Hubhöhe "+fmt(usableLift/1000,2)+" m.",sev:false});
     rack=height.feasible?{la,fieldW,ppf,fachlast,beamH,profile,pitch,levels,usable,usableBuilding,usableLift,heightLimiter,topBeam,topLoad:height.topLoad,loadClass,off,lowLevels:low,frameDepth:clamp(la.l+100,800,1600)}:null;
   }else if(grossRackNeed===0&&netTotal>0){
     warn.push({t:"Kein Regalbedarf: Der gesamte Bestand qualifiziert sich für das Blocklager.",sev:false});
@@ -3832,7 +3839,7 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
   const zoneND=zDepth(pN),zoneOD=zDepth(pO),zoneSD=zDepth(pS),zoneWD=zDepth(pW);
   const weD=zoneND,waD=zoneSD;
 
-  /* Gemeinsame Hallensuche fuer Regal-, Misch- und Blockplanungen. */
+  /* Gemeinsame Hallensuche für Regal-, Misch- und Blockplanungen. */
   let ratioApplied=false,hallSearch=null;
   if(b.mode==="greenfield"&&(rack||block)&&!GF_TEST.L&&!GF_SEARCH){
     const search=searchHallDimensions(L,b);
@@ -3844,7 +3851,7 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
       if(b.gfShape==="length"&&prop>lim.hi+1e-9)warn.push({t:"Greenfield: Die Halle hat ein Seitenverhältnis von "+fmt(prop,1)+" : 1 und liegt über dem zulässigen Bereich bis "+fmt(lim.hi,2)+" : 1. Vorgegebene Hallenlänge prüfen oder die kleinste Halle im Seitenverhältnis-Bereich suchen lassen.",sev:true});
     }else{
       ratioApplied=true;
-      warn.push({t:"Greenfield: Im begrenzten Suchraster wurde keine machbare Halle gefunden. Das beweist keine generelle Unmoeglichkeit. "+search.method,sev:true,hard:true});
+      warn.push({t:"Greenfield: Im begrenzten Suchraster wurde keine machbare Halle gefunden. Das beweist keine generelle Unmöglichkeit. "+search.method,sev:true,hard:true});
     }
   }
 
@@ -4052,17 +4059,17 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
   const storageResolutionApplied=true;
   const accessLost=cols.filter(c=>inAny(c,aisleRects.filter(r=>r.access))).length;
   const nCol=cols.filter(c=>c.hit>0).length;
-  if(rackInventory&&rackInventory.removedFieldIds.length)warn.push({t:"D05-A: "+rackInventory.removedFieldIds.length+" kollidierende Regalfelder aus Geometrie und Stueckliste entfernt. Kapazitaetsverlust "+fmt(rackLost)+" Plaetze. Feldgrenzen betreffen beide Nachbarfelder. Rahmen und Standsicherheit gesondert nachweisen.",sev:true});
-  if(blockChannelPlan.unplacedCount)warn.push({t:"D06-A: "+laneLost+" blockierte Kanalplätze, "+blockChannelPlan.unplacedCount+" nicht platzierte Blockkanaele. Positionsbezogener Kapazitaetsverlust "+fmt(blockChannelPlan.lostCapacity)+" Plaetze. Zuordnung nach Eingabereihenfolge, keine Ist-Belegung.",sev:true});
+  if(rackInventory&&rackInventory.removedFieldIds.length)warn.push({t:"D05-A: "+rackInventory.removedFieldIds.length+" kollidierende Regalfelder aus Geometrie und Stückliste entfernt. Kapazitätsverlust "+fmt(rackLost)+" Plätze. Feldgrenzen betreffen beide Nachbarfelder. Rahmen und Standsicherheit gesondert nachweisen.",sev:true});
+  if(blockChannelPlan.unplacedCount)warn.push({t:"D06-A: "+laneLost+" blockierte Kanalplätze, "+blockChannelPlan.unplacedCount+" nicht platzierte Blockkanäle. Positionsbezogener Kapazitätsverlust "+fmt(blockChannelPlan.lostCapacity)+" Plätze. Zuordnung nach Eingabereihenfolge, keine Ist-Belegung.",sev:true});
   const trafficHits=cols.filter(c=>inAny(c,aisleRects)).length;
   if(columnsAdvisory){
     if(nCol)warn.push({t:"Greenfield: "+nCol+" Stützen des Rasters "+fmt(b.gridX,1)+" × "+fmt(b.gridY,1)+" m treffen Gänge oder Lagerflächen. Das Stützenraster ist mit der Hallenplanung abzustimmen; die Kapazität ist ohne Stützenabzug ausgewiesen.",sev:false});
   }else{
-    if(accessLost)warn.push({t:accessLost+" Stuetzen blockieren die Zugangsgasse des Blocklagers. Zugang geometrisch korrigieren.",sev:true,hard:true});
-    if(trafficHits)warn.push({t:trafficHits+" Stuetzen liegen in Verkehrs-/Arbeitsgaengen. Eine automatische Gangverlagerung erfolgt nicht.",sev:true,hard:true});
+    if(accessLost)warn.push({t:accessLost+" Stützen blockieren die Zugangsgasse des Blocklagers. Zugang geometrisch korrigieren.",sev:true,hard:true});
+    if(trafficHits)warn.push({t:trafficHits+" Stützen liegen in Verkehrs-/Arbeitsgängen. Eine automatische Gangverlagerung erfolgt nicht.",sev:true,hard:true});
   }
-  if(rack&&needRack>capacity)warn.push({t:"Regalkapazitaet unzureichend: Bedarf "+fmt(needRack)+", verfuegbar "+fmt(capacity)+" nach feldgenauer Entfernung.",sev:true,hard:true});
-  if(block&&blockChannelPlan.capacity<block.capacityTotal)warn.push({t:"Blockkapazitaet nach kanalgenauen Verlusten: "+fmt(blockChannelPlan.capacity)+" von "+fmt(block.capacityTotal)+" geplanten Plaetzen. Bedarfsdeckung pruefen.",sev:true});
+  if(rack&&needRack>capacity)warn.push({t:"Regalkapazität unzureichend: Bedarf "+fmt(needRack)+", verfügbar "+fmt(capacity)+" nach feldgenauer Entfernung.",sev:true,hard:true});
+  if(block&&blockChannelPlan.capacity<block.capacityTotal)warn.push({t:"Blockkapazität nach kanalgenauen Verlusten: "+fmt(blockChannelPlan.capacity)+" von "+fmt(block.capacityTotal)+" geplanten Plätzen. Bedarfsdeckung prüfen.",sev:true});
   const markingM=(rack?((nDouble+nSingles)>0?(nDouble+nSingles+1)*areaLen/1000:0):0)+(block?(bOrient==="N"?bands*areaLen/1000:bands*blockDepth/1000):0);
 
   /* Flächenbedarfsrechnung (Brutto-Lagerfläche) */
@@ -4832,9 +4839,7 @@ function renderBomTotals(){
 function updateTotals(shouldPersist){
   const cx=computeCapexSummary();
   $("kpi-capex").textContent=eur(cx.total);
-  const cr=$("kpi-capex-range");if(cr)cr.textContent=eur(cx.low)+" – "+eur(cx.high);
-  const cmin=$("kpi-capex-min");if(cmin)cmin.textContent=eur(cx.low);
-  const cmax=$("kpi-capex-max");if(cmax)cmax.textContent=eur(cx.high);
+  const cr=$("kpi-capex-range");if(cr)cr.textContent="Bandbreite "+eur(cx.low)+" – "+eur(cx.high)+" (± "+fmt(Number(S.costMeta&&S.costMeta.uncertainty)||0,0)+" %)";
   renderBomTotals();
   renderQuickReport();
   if(shouldPersist)persistState();
@@ -4966,7 +4971,7 @@ function renderScenarios(){
       bh+='<div class="scengrp"><span class="scenlbl">Slot '+(i+1)+(sc?(escH(sc.projekt||"")+" · "+escH(sc.stand||"")):"")+'</span>'+
         '<button class="btn" data-scen-save="'+(i+1)+'">Speichern</button>'+
         '<button class="btn" data-scen-load="'+(i+1)+'"'+(sc?"":" disabled")+'>Laden</button>'+
-        '<button class="btn" data-scen-clear="'+(i+1)+'"'+(sc?"":" disabled")+'>Leeren</button></div>';
+        '<button class="btn danger" data-scen-clear="'+(i+1)+'"'+(sc?"":" disabled")+'>Leeren</button></div>';
     }
     bar.innerHTML=bh;
   }
@@ -5105,7 +5110,7 @@ function applyRow(r){
   S.building.zones=Object.assign({},r.zones);
 }
 function runPlannerAnalysis(label,action){
-  // Fehler duerfen keine teilweise veraenderten Projektdaten hinterlassen.
+  // Fehler dürfen keine teilweise veränderten Projektdaten hinterlassen.
   const originalS=S;
   const stateBefore=JSON.parse(JSON.stringify(S));
   const resultBefore=JSON.parse(JSON.stringify(R));
@@ -5131,9 +5136,9 @@ function runPlannerAnalysis(label,action){
       renderOptResults(optBefore.rows,null,optBefore.goal);renderSensitivity();
     }catch(refreshError){
       R=resultBefore;
-      console.error("Wiederhergestellter Stand konnte nicht vollstaendig angezeigt werden.",refreshError);
+      console.error("Wiederhergestellter Stand konnte nicht vollständig angezeigt werden.",refreshError);
     }finally{
-      // Auch die Anzeigeaktualisierung darf die gesicherten Eingaben nicht veraendern.
+      // Auch die Anzeigeaktualisierung darf die gesicherten Eingaben nicht verändern.
       restoreInput();R=resultBefore;
       if(storageBefore!==undefined){
         try{
@@ -5143,7 +5148,7 @@ function runPlannerAnalysis(label,action){
       }
     }
     console.error(label+" abgebrochen; Projektstand wiederhergestellt.",error);
-    alert(label+" wurde wegen eines Fehlers abgebrochen. Der vorherige Projektstand wurde wiederhergestellt. Bitte pruefen Sie die Anzeige vor der Weiterarbeit.");
+    alert(label+" wurde wegen eines Fehlers abgebrochen. Der vorherige Projektstand wurde wiederhergestellt. Bitte prüfen Sie die Anzeige vor der Weiterarbeit.");
     return false;
   }finally{
     GF_TEST.L=searchBefore.L;GF_TEST.W=searchBefore.W;GF_SEARCH=searchBefore.active;
@@ -5170,7 +5175,7 @@ function releaseOptimizationJob(job){
 function cancelOptimizationRun(){
   const job=OPTIMIZATION_JOB;if(!job)return false;
   releaseOptimizationJob(job);
-  setOptimizationStatus('Optimierung abgebrochen. Projekt und bisherige Ergebnisse bleiben unveraendert.',false);
+  setOptimizationStatus('Optimierung abgebrochen. Projekt und bisherige Ergebnisse bleiben unverändert.',false);
   return true;
 }
 function buildOptimizationWorkerSource(scriptText){
@@ -5204,7 +5209,7 @@ self.onmessage=event=>{
   return bootstrap+scriptText.slice(0,boundary)+runner;
 }
 function startOptimizationRun(){
-  if(OPTIMIZATION_JOB){setOptimizationStatus('Es laeuft bereits eine Optimierung. Zuerst abbrechen.',true);return false;}
+  if(OPTIMIZATION_JOB){setOptimizationStatus('Es läuft bereits eine Optimierung. Zuerst abbrechen.',true);return false;}
   if(!S.items.length){alert('Bitte zuerst Positionen mit Bedarfsangaben erfassen.');return false;}
   const goal=$('sel-goal')&&OPT_GOALS[$('sel-goal').value]?$('sel-goal').value:'capex';
   if(goal==='capacity'&&S.building.mode==='greenfield'){alert(OPT_CAPACITY_GREENFIELD);return false;}
@@ -5220,30 +5225,30 @@ function startOptimizationRun(){
     job.worker=new Worker(job.url);OPTIMIZATION_JOB=job;
     const fail=message=>{
       if(OPTIMIZATION_JOB!==job)return;
-      releaseOptimizationJob(job);setOptimizationStatus('Optimierung fehlgeschlagen: '+message+' Projekt und bisherige Ergebnisse bleiben unveraendert.',false);
+      releaseOptimizationJob(job);setOptimizationStatus('Optimierung fehlgeschlagen: '+message+' Projekt und bisherige Ergebnisse bleiben unverändert.',false);
     };
-    job.worker.onerror=event=>{if(event.preventDefault)event.preventDefault();fail(event.message||'Worker konnte nicht ausgefuehrt werden.');};
+    job.worker.onerror=event=>{if(event.preventDefault)event.preventDefault();fail(event.message||'Worker konnte nicht ausgeführt werden.');};
     job.worker.onmessageerror=()=>fail('Worker-Ergebnis konnte nicht gelesen werden.');
     job.worker.onmessage=event=>{
       if(OPTIMIZATION_JOB!==job)return;
       const data=event.data;if(!data||data.id!==job.id)return;
       if(data.type==='progress'){
-        setOptimizationStatus('Optimierung: '+data.variants+' Varianten geprueft, '+data.modelCalls+' Modellaufrufe. Abbruch ist moeglich.',true);return;
+        setOptimizationStatus('Optimierung: '+data.variants+' Varianten geprüft, '+data.modelCalls+' Modellaufrufe. Abbruch ist möglich.',true);return;
       }
       if(data.type==='error'){fail(data.message||'Unbekannter Rechenfehler.');return;}
       if(data.type!=='result')return;
-      if(JSON.stringify(S)!==job.snapshot){fail('Projekt wurde waehrend des Laufs geaendert. Ergebnis verworfen; erneut starten.');return;}
-      if(!data.metrics||![data.metrics.variants,data.metrics.modelCalls,data.metrics.durationMs].every(x=>Number.isFinite(x)&&x>=0)||data.goal!==goal){fail('Ungueltige Laufstatistik oder Zielfunktion.');return;}
-      if(!Array.isArray(data.rows)||data.rows.length>25||data.rows.some(row=>!row||row.feasible!==true||!Number.isFinite(row.score))){fail('Ungueltige Variantenliste.');return;}
-      if(data.rows.length&&(!data.best||data.best.feasible!==true||!Number.isFinite(data.best.score))){fail('Ungueltige Bestvariante.');return;}
+      if(JSON.stringify(S)!==job.snapshot){fail('Projekt wurde während des Laufs geändert. Ergebnis verworfen; erneut starten.');return;}
+      if(!data.metrics||![data.metrics.variants,data.metrics.modelCalls,data.metrics.durationMs].every(x=>Number.isFinite(x)&&x>=0)||data.goal!==goal){fail('Ungültige Laufstatistik oder Zielfunktion.');return;}
+      if(!Array.isArray(data.rows)||data.rows.length>25||data.rows.some(row=>!row||row.feasible!==true||!Number.isFinite(row.score))){fail('Ungültige Variantenliste.');return;}
+      if(data.rows.length&&(!data.best||data.best.feasible!==true||!Number.isFinite(data.best.score))){fail('Ungültige Bestvariante.');return;}
       releaseOptimizationJob(job);
       try{
         renderOptResults(data.rows,data.best,data.goal,data.info);
         OPTIMIZATION_LAST_METRICS=data.metrics;
-        setOptimizationStatus('Optimierung abgeschlossen: '+data.rows.length+' Vorschlaege. '+data.metrics.variants+' Varianten, '+data.metrics.modelCalls+' Modellaufrufe, '+fmt(data.metrics.durationMs,0)+' ms Rechenlauf. Keine Variante automatisch uebernommen.',false);
-      }catch(error){setOptimizationStatus('Ergebnisanzeige fehlgeschlagen: '+error.message+'. Projekt unveraendert.',false);}
+        setOptimizationStatus('Optimierung abgeschlossen: '+data.rows.length+' Vorschläge. '+data.metrics.variants+' Varianten, '+data.metrics.modelCalls+' Modellaufrufe, '+fmt(data.metrics.durationMs,0)+' ms Rechenlauf. Keine Variante automatisch übernommen.',false);
+      }catch(error){setOptimizationStatus('Ergebnisanzeige fehlgeschlagen: '+error.message+'. Projekt unverändert.',false);}
     };
-    setOptimizationStatus('Optimierung gestartet. Der Rechenkern arbeitet isoliert; Abbruch ist moeglich.',true);
+    setOptimizationStatus('Optimierung gestartet. Der Rechenkern arbeitet isoliert; Abbruch ist möglich.',true);
     job.worker.postMessage({id:job.id,state:JSON.parse(snapshot),controls,goal});
     return true;
   }catch(error){
@@ -5341,7 +5346,7 @@ function optimizeLayoutCore(){
     return;
   }
   const sorted=rows.slice().sort(compareOptRows(goal));
-  // Nur Vorschlag anzeigen. Der Projektstand bleibt bis zur Tabellenuebernahme unveraendert.
+  // Nur Vorschlag anzeigen. Der Projektstand bleibt bis zur Tabellenübernahme unverändert.
   renderOptResults(sorted.slice(0,25),sorted[0],goal);
   const tb2=document.querySelector('#tabs button[data-tab="3"]');
   if(tb2)tb2.click();
@@ -5366,11 +5371,11 @@ function renderOptResults(rows,best,goal,info){
     card.style.display="";
     if(sum)sum.textContent="Optimierungsvarianten";
     const why=info&&info.reason?' Häufigster Ausschlussgrund ('+info.count+' von '+info.total+' Varianten): '+escH(info.reason):'';
-    tb.innerHTML='<tr><td colspan="12" class="hint">Im geprueften Suchraum keine machbare Variante gefunden. Das ist kein Nachweis genereller Unmoeglichkeit. Bedarf, Hallenmasse, Zugang und harte Konflikte pruefen.'+why+'</td></tr>';
+    tb.innerHTML='<tr><td colspan="12" class="hint">Im geprüften Suchraum keine machbare Variante gefunden. Das ist kein Nachweis genereller Unmöglichkeit. Bedarf, Hallenmasse, Zugang und harte Konflikte prüfen.'+why+'</td></tr>';
     if(note)note.textContent="";
     return;
   }
-  // Ohne markierte Variante (etwa beim Wiederherstellen nach einer gescheiterten Uebernahme) gilt die erste Zeile
+  // Ohne markierte Variante (etwa beim Wiederherstellen nach einer gescheiterten Übernahme) gilt die erste Zeile
   best=best||rows[0];
   const layoutLabel=r=>(r.hasRack?(r.o==="quer"?"Regal orthogonal zu Toren":"Regal parallel zu Toren"):"")+(r.hasRack&&r.hasBlock?" · ":"")+(r.hasBlock?"Block "+(r.bo==="W"?"längs (West)":"quer (Nord)"):"");
   const density=r=>fmt(r.density,2)+" Pl./m²";
@@ -5384,11 +5389,11 @@ function renderOptResults(rows,best,goal,info){
     '<td>'+eur(r.capex)+'</td><td>'+eur(r.capexPP)+'</td>'+
     '<td>'+escH(zoneRolesLabel(r.zones))+'</td></tr>').join("");
   if(note){
-    const t="Vorschlag, noch nicht uebernommen: "+layoutLabel(best)+"; "+(best.hasRack?best.n+" Doppelreihen und "+(best.singles||0)+" Einzelreihen, ":"")+
-      "Regal "+fmt(best.cap)+" Plaetze, Block "+fmt(best.blockCap||0)+" Plaetze"+(best.fill==="hall"?" (Halle mit Regal gefuellt)":"")+". Hallenmasse "+fmt(best.hallL,1)+" x "+fmt(best.hallW,1)+" m. "+
-      "Flaechennutzungsgrad = Lagerplaetze je m² belegter Lagerflaeche (Regal, Block und ihre Gaenge, ohne WE/WA-Zonen und freie Hallenflaeche). "+
-      "Alle angezeigten Varianten bestehen die gemeinsame Modellpruefung. Tabellenzeile anklicken, um die Variante nach erneuter Pruefung zu uebernehmen. "+
-      (best.greenfield?"Greenfield: Hallenmasse je Variante neu ermittelt; begrenzte Rastersuche, kein globales Minimum. ":"Bestandshalle: Hallenmasse bleiben unveraendert. ")+"Keine Ausfuehrungsfreigabe.";
+    const t="Vorschlag, noch nicht übernommen: "+layoutLabel(best)+"; "+(best.hasRack?best.n+" Doppelreihen und "+(best.singles||0)+" Einzelreihen, ":"")+
+      "Regal "+fmt(best.cap)+" Plätze, Block "+fmt(best.blockCap||0)+" Plätze"+(best.fill==="hall"?" (Halle mit Regal gefüllt)":"")+". Hallenmasse "+fmt(best.hallL,1)+" x "+fmt(best.hallW,1)+" m. "+
+      "Flächennutzungsgrad = Lagerplätze je m² belegter Lagerfläche (Regal, Block und ihre Gänge, ohne WE/WA-Zonen und freie Hallenfläche). "+
+      "Alle angezeigten Varianten bestehen die gemeinsame Modellprüfung. Tabellenzeile anklicken, um die Variante nach erneuter Prüfung zu übernehmen. "+
+      (best.greenfield?"Greenfield: Hallenmasse je Variante neu ermittelt; begrenzte Rastersuche, kein globales Minimum. ":"Bestandshalle: Hallenmasse bleiben unverändert. ")+"Keine Ausführungsfreigabe.";
     note.textContent=t;
   }
   card.style.display="";
@@ -5417,7 +5422,7 @@ function registerData(){
   }
   return {cust,assu,gaps};
 }
-/* ==================== Quellenpfad-Schema: unveraenderliche Vorgaben ==================== */
+/* ==================== Quellenpfad-Schema: unveränderliche Vorgaben ==================== */
 const PARAMETER_SOURCE_DEFAULTS=(function(){
   const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
   return freeze(defaults());
@@ -5433,20 +5438,20 @@ function isParameterSourcePath(path){
 }
 function validateParameterSources(registry){
   if(registry===undefined)return;
-  if(!isPlainObject(registry)||Object.keys(registry).length>1000)throw new Error('Quellenregister muss ein Objekt mit hoechstens 1000 Eintraegen sein.');
+  if(!isPlainObject(registry)||Object.keys(registry).length>1000)throw new Error('Quellenregister muss ein Objekt mit höchstens 1000 Einträgen sein.');
   for(const [path,entry] of Object.entries(registry)){
-    if(!isParameterSourcePath(path)||!isPlainObject(entry))throw new Error('Ungueltiger Quellenpfad: '+path);
-    if(!['unknown','customer','assumption','default'].includes(entry.source)||typeof entry.confirmed!=='boolean')throw new Error('Ungueltige Quellenangabe: '+path);
-    if(typeof entry.reference!=='string'||entry.reference.length>2000)throw new Error('Ungueltiger Quellennachweis: '+path);
-    if(typeof entry.changedAt!=='string'||entry.changedAt.length>40||!Number.isFinite(Date.parse(entry.changedAt)))throw new Error('Ungueltiger Quellenzeitpunkt: '+path);
+    if(!isParameterSourcePath(path)||!isPlainObject(entry))throw new Error('Ungültiger Quellenpfad: '+path);
+    if(!['unknown','customer','assumption','default'].includes(entry.source)||typeof entry.confirmed!=='boolean')throw new Error('Ungültige Quellenangabe: '+path);
+    if(typeof entry.reference!=='string'||entry.reference.length>2000)throw new Error('Ungültiger Quellennachweis: '+path);
+    if(typeof entry.changedAt!=='string'||entry.changedAt.length>40||!Number.isFinite(Date.parse(entry.changedAt)))throw new Error('Ungültiger Quellenzeitpunkt: '+path);
     if(!Object.prototype.hasOwnProperty.call(entry,'value'))throw new Error('Bezugswert fehlt: '+path);
     const value=getP(PARAMETER_SOURCE_DEFAULTS,path);
     if(typeof entry.value!==typeof value||Array.isArray(entry.value)!==Array.isArray(value))throw new Error('Bezugswert hat falschen Typ: '+path);
-    if(Array.isArray(entry.value)&&(!entry.value.every(x=>typeof x==='string')||entry.value.length>100))throw new Error('Ungueltiger Array-Bezugswert: '+path);
+    if(Array.isArray(entry.value)&&(!entry.value.every(x=>typeof x==='string')||entry.value.length>100))throw new Error('Ungültiger Array-Bezugswert: '+path);
     if(typeof entry.value==='string'&&entry.value.length>2000)throw new Error('Bezugswert ist zu lang: '+path);
     if(typeof entry.value==='number'&&!Number.isFinite(entry.value))throw new Error('Bezugswert ist keine endliche Zahl: '+path);
-    if(entry.source==='unknown'&&entry.confirmed)throw new Error('Nicht dokumentierte Quelle kann nicht bestaetigt sein: '+path);
-    if(entry.source==='default'&&JSON.stringify(entry.value)!==JSON.stringify(value))throw new Error('Default-Quelle stimmt nicht mit Werkzeugvorgabe ueberein: '+path);
+    if(entry.source==='unknown'&&entry.confirmed)throw new Error('Nicht dokumentierte Quelle kann nicht bestätigt sein: '+path);
+    if(entry.source==='default'&&JSON.stringify(entry.value)!==JSON.stringify(value))throw new Error('Default-Quelle stimmt nicht mit Werkzeugvorgabe überein: '+path);
   }
 }
 function invalidateChangedParameterSources(){
@@ -5460,10 +5465,10 @@ function parameterSourceInfo(path,state){
   return {path,value,source:entry?entry.source:'unknown',label:entry?labels[entry.source]:labels.unknown,
     confirmed:!!(entry&&entry.confirmed&&same),stale:!!entry&&!same,
     reference:entry?entry.reference:'',changedAt:entry?entry.changedAt:'',
-    status:!entry?'Nicht dokumentiert':!same?'Wert geaendert; Quellenangabe erneut pruefen':entry.confirmed?'Bestaetigt':'Unbestaetigt'};
+    status:!entry?'Nicht dokumentiert':!same?'Wert geändert; Quellenangabe erneut prüfen':entry.confirmed?'Bestätigt':'Unbestätigt'};
 }
 function setParameterSource(path,source,confirmed,reference){
-  if(!isParameterSourcePath(path))throw new Error('Unzulaessiger Parameterpfad.');
+  if(!isParameterSourcePath(path))throw new Error('Unzulässiger Parameterpfad.');
   const entry={source,confirmed,reference,changedAt:new Date().toISOString(),value:JSON.parse(JSON.stringify(getP(S,path)))};
   const candidate={};candidate[path]=entry;validateParameterSources(candidate);
   pushUndo('Parameterquelle dokumentiert');
@@ -5492,7 +5497,7 @@ function renderParameterSourceRows(){
     const info=parameterSourceInfo(pd.p),entry=(S.parameterSources||{})[pd.p];
     const shown=formatParameterRegisterValue(pd);
     const options=[['unknown','Nicht dokumentiert'],['customer','Kundenangabe'],['assumption','Planerannahme'],['default','Werkzeugvorgabe (explizit)']].map(([key,label])=>'<option value="'+key+'"'+(info.source===key?' selected':'')+'>'+label+'</option>').join('');
-    return '<tr data-source-path="'+escH(pd.p)+'"><td>'+escH(pd.label)+'</td><td class="num">'+escH(shown)+'</td><td><select data-source-kind aria-label="Quelle '+escH(pd.label)+'">'+options+'</select><label><input type="checkbox" data-source-confirmed'+(info.confirmed?' checked':'')+'> bestaetigt</label><input data-source-reference maxlength="2000" aria-label="Quellennachweis '+escH(pd.label)+'" placeholder="Dokument, Stand oder Begruendung" value="'+escH(info.reference)+'"><button type="button" data-source-save>Quelle speichern</button><p class="hint">'+escH(info.status)+(entry?' · '+escH(info.changedAt):'')+'</p></td><td class="hint">'+escH(pd.eff||'')+'</td></tr>';
+    return '<tr data-source-path="'+escH(pd.p)+'"><td>'+escH(pd.label)+'</td><td class="num">'+escH(shown)+'</td><td><select data-source-kind aria-label="Quelle '+escH(pd.label)+'">'+options+'</select><label><input type="checkbox" data-source-confirmed'+(info.confirmed?' checked':'')+'> bestätigt</label><input data-source-reference maxlength="2000" aria-label="Quellennachweis '+escH(pd.label)+'" placeholder="Dokument, Stand oder Begründung" value="'+escH(info.reference)+'"><button type="button" data-source-save>Quelle speichern</button><p class="hint">'+escH(info.status)+(entry?' · '+escH(info.changedAt):'')+'</p></td><td class="hint">'+escH(pd.eff||'')+'</td></tr>';
   }).join('');
 }
 function handleParameterSourceClick(event){
@@ -5502,7 +5507,7 @@ function handleParameterSourceClick(event){
   catch(error){alert('Quellenangabe wurde nicht gespeichert: '+error.message);}
 }
 function buildParameterSourcesHtml(){
-  let html='<h3>Parameterherkunft</h3><p>Explizite Quellenangaben. Fehlende Angaben werden nicht aus dem Zahlenwert abgeleitet. Bestaetigung gilt nur fuer den dokumentierten Bezugswert.</p><table><thead><tr><th>Parameter</th><th>Wert</th><th>Quelle</th><th>Status</th><th>Nachweis</th><th>Dokumentiert am</th></tr></thead><tbody>';
+  let html='<h3>Parameterherkunft</h3><p>Explizite Quellenangaben. Fehlende Angaben werden nicht aus dem Zahlenwert abgeleitet. Bestätigung gilt nur für den dokumentierten Bezugswert.</p><table><thead><tr><th>Parameter</th><th>Wert</th><th>Quelle</th><th>Status</th><th>Nachweis</th><th>Dokumentiert am</th></tr></thead><tbody>';
   for(const pd of parameterRegisterRows()){
     const info=parameterSourceInfo(pd.p);
     html+='<tr><td>'+escH(pd.label)+'</td><td>'+escH(formatParameterRegisterValue(pd))+'</td><td>'+escH(info.label)+'</td><td>'+escH(info.status)+'</td><td>'+escH(info.reference)+'</td><td>'+escH(info.changedAt)+'</td></tr>';
@@ -5510,9 +5515,9 @@ function buildParameterSourcesHtml(){
   return html+'</tbody></table>';
 }
 function buildDesignBasisHtml(){
-  if(!R.rack)return '<h3>Bemessungsbasis</h3><p>Keine Regalbemessung im aktuellen Ergebnis. Blockkanaele folgen den Positionsgruppen; deren Zuordnung ist eine Planungsregel und keine Ist-Belegung.</p>';
-  const mode=S.ffz.rackBase==='envelope'?'Huellkurve aus Maximalmassen und Maximalgewicht aller Regalpositionen':'Leitartikel nach groesstem Brutto-Regalbedarf';
-  return '<h3>Bemessungsbasis</h3><p>'+escH(mode)+'. '+(R.rack?'Bemessungsposition: '+escH(R.rack.la.name||'')+'. ':'')+'Gebaeudegrenze: OK Ladeeinheit. Nutzbare Hubhoehe: OK Traverse. Modellmachbarkeit ist keine Ausfuehrungsfreigabe.</p>';
+  if(!R.rack)return '<h3>Bemessungsbasis</h3><p>Keine Regalbemessung im aktuellen Ergebnis. Blockkanäle folgen den Positionsgruppen; deren Zuordnung ist eine Planungsregel und keine Ist-Belegung.</p>';
+  const mode=S.ffz.rackBase==='envelope'?'Hüllkurve aus Maximalmassen und Maximalgewicht aller Regalpositionen':'Leitartikel nach größtem Brutto-Regalbedarf';
+  return '<h3>Bemessungsbasis</h3><p>'+escH(mode)+'. '+(R.rack?'Bemessungsposition: '+escH(R.rack.la.name||'')+'. ':'')+'Gebäudegrenze: OK Ladeeinheit. Nutzbare Hubhöhe: OK Traverse. Modellmachbarkeit ist keine Ausführungsfreigabe.</p>';
 }
 
 function renderRegister(){
@@ -5537,7 +5542,7 @@ function modelArea(m){
 let SENSI=null;
 const sgnPct=v=>(v>=0?"+":"")+fmt(v,1)+" %";
 function runSensitivity(){
-  return runPlannerAnalysis("Sensitivitaetsanalyse",runSensitivityCore);
+  return runPlannerAnalysis("Sensitivitätsanalyse",runSensitivityCore);
 }
 function runSensitivityCore(){
   const out=$("sensi-out");
@@ -5781,7 +5786,7 @@ function buildReportKundeHtml(){
 function buildStorageResolutionHtml(){
   if(!R.geo)return "";
   const g=R.geo,inv=g.rackInventory,plan=g.blockChannelPlan;
-  let html='<h3>Feldentfernung und Kanalzuordnung</h3><p>Planungsregel D05-A / D06-A. Punktfoermige Stuetzen; keine Ist-Belegung und kein Statiknachweis.</p>';
+  let html='<h3>Feldentfernung und Kanalzuordnung</h3><p>Planungsregel D05-A / D06-A. Punktförmige Stützen; keine Ist-Belegung und kein Statiknachweis.</p>';
   if(inv)html+='<p>Entfernte Regalfelder: '+escH(inv.removedFieldIds.join(", ")||"keine")+'. Verbleibende Rahmen: '+inv.frames+'. Traversenpaare: '+inv.beamPairs+'.</p>';
   if(plan&&plan.assignments.length){
     // Je Positionsgruppe zusammengefasst; eine Zeile je Kanal ergab bei vielen Artikeln Tabellen mit Tausenden Zeilen
@@ -5819,7 +5824,7 @@ const HINT_JSON="Die Datei wurde zum Download angeboten. Alternativ können Sie 
 const HINT_INPUT="Inhalt der Eingabedatei. Speichern Sie diesen Text als tender-input.js oder JSON-Datei und laden Sie sie über Datei › Eingabedatei laden. Legacy-Zuweisungen window.TENDER_INPUT = {...}; werden als Datentext geparst und niemals ausgeführt.";
 
 function jsLiteralToJson(code){
-  // Reiner Datenparser: keine Ausfuehrung, keine Ausdruecke oder Funktionsaufrufe.
+  // Reiner Datenparser: keine Ausführung, keine Ausdrücke oder Funktionsaufrufe.
   const text=String(code||'');let i=0;
   const fail=message=>{throw new Error(message+' (Zeichen '+(i+1)+').');};
   const skip=()=>{
@@ -5834,18 +5839,18 @@ function jsLiteralToJson(code){
     const quote=text[i++];let value='';
     while(i<text.length){
       const ch=text[i++];if(ch===quote)return value;
-      if(ch==='\n'||ch==='\r'||ch.charCodeAt(0)<32)fail('Unzulaessiges Steuerzeichen in Zeichenfolge');
+      if(ch==='\n'||ch==='\r'||ch.charCodeAt(0)<32)fail('Unzulässiges Steuerzeichen in Zeichenfolge');
       if(ch!=='\\'){value+=ch;continue;}
-      if(i>=text.length)fail('Unvollstaendige Escape-Sequenz');
+      if(i>=text.length)fail('Unvollständige Escape-Sequenz');
       const e=text[i++];
       const escapes={'n':'\n','r':'\r','t':'\t','b':'\b','f':'\f','v':'\v',"'":"'",'"':'"','\\':'\\','/':'/'};
       if(Object.prototype.hasOwnProperty.call(escapes,e)){value+=escapes[e];continue;}
       if(e==='\n')continue;
       if(e==='\r'){if(text[i]==='\n')i++;continue;}
-      if(e==='0'){if(/[0-9]/.test(text[i]||''))fail('Oktale Escape-Sequenz unzulaessig');value+='\0';continue;}
+      if(e==='0'){if(/[0-9]/.test(text[i]||''))fail('Oktale Escape-Sequenz unzulässig');value+='\0';continue;}
       if(e==='u'||e==='x'){
         const count=e==='u'?4:2,hex=text.slice(i,i+count);
-        if(hex.length!==count||!/^[0-9a-f]+$/i.test(hex))fail('Ungueltige Unicode-/Hex-Sequenz');
+        if(hex.length!==count||!/^[0-9a-f]+$/i.test(hex))fail('Ungültige Unicode-/Hex-Sequenz');
         value+=String.fromCharCode(parseInt(hex,16));i+=count;continue;
       }
       fail('Unbekannte Escape-Sequenz');
@@ -5860,9 +5865,9 @@ function jsLiteralToJson(code){
       for(;;){
         skip();let key;
         if(text[i]==='"'||text[i]==="'")key=string();
-        else{const match=/^[A-Za-z_$][\w$]*/.exec(text.slice(i));if(!match)fail('Objektschluessel erwartet');key=match[0];i+=key.length;}
-        if(DANGEROUS_KEYS.has(key))fail('Unzulaessiger Objektschluessel');
-        if(Object.prototype.hasOwnProperty.call(obj,key))fail('Doppelter Objektschluessel');
+        else{const match=/^[A-Za-z_$][\w$]*/.exec(text.slice(i));if(!match)fail('Objektschlüssel erwartet');key=match[0];i+=key.length;}
+        if(DANGEROUS_KEYS.has(key))fail('Unzulässiger Objektschlüssel');
+        if(Object.prototype.hasOwnProperty.call(obj,key))fail('Doppelter Objektschlüssel');
         skip();if(text[i++]!==':')fail('Doppelpunkt erwartet');obj[key]=value(depth+1);skip();
         if(text[i]==='}'){i++;return obj;}if(text[i++]!==',')fail('Komma erwartet');skip();if(text[i]==='}'){i++;return obj;}
       }
@@ -5871,14 +5876,14 @@ function jsLiteralToJson(code){
     for(const [token,result] of [['true',true],['false',false],['null',null]])if(text.slice(i,i+token.length)===token){i+=token.length;return result;}
     const number=/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(text.slice(i));
     if(number){i+=number[0].length;const n=Number(number[0]);if(!Number.isFinite(n))fail('Zahl ausserhalb des Wertebereichs');return n;}
-    fail('Nur Datenliterale sind zulaessig');
+    fail('Nur Datenliterale sind zulässig');
   };
   const parsed=value(0);skip();if(i!==text.length)fail('Unerwarteter Inhalt nach Datenobjekt');return JSON.stringify(parsed);
 }
 function parseInputText(txt){
   let s=String(txt||'').replace(/^\uFEFF/,'').trim();
   if(s.length>10000000)return null;
-  // Nur eine vollstaendige Legacy-Zuweisung, kein beliebiger Skriptpraefix.
+  // Nur eine vollständige Legacy-Zuweisung, kein beliebiger Skriptpräfix.
   s=s.replace(/^window\.TENDER_INPUT\s*=\s*/,'').replace(/;\s*$/,'');
   try{const obj=JSON.parse(jsLiteralToJson(s));assertSafeImportTree(obj,0);return obj;}catch(error){return null;}
 }
@@ -5975,7 +5980,7 @@ function applyJson(txt){
   try{
     if(typeof txt!=="string"||txt.length>10000000)throw new Error("Datei ist größer als 10 MB oder kein Text.");
     const parsed=parseInputText(txt);
-    if(!parsed)throw new Error("Ungueltiger Datentext. Erwartet werden JSON oder reine Legacy-Datenliterale.");
+    if(!parsed)throw new Error("Ungültiger Datentext. Erwartet werden JSON oder reine Legacy-Datenliterale.");
     const obj=validateImportedPayload(parsed,"project");
     if(S.items.length>0&&!confirm("Bestehende "+S.items.length+" Positionen durch den Import ersetzen?"))return;
     const next=deepMerge(defaults(),obj);
@@ -6022,12 +6027,12 @@ function parseCsvRows(text,delimiter){
       if(ch==='"'){if(next==='"'){field+='"';i++;}else{quoted=false;closed=true;}}
       else{field+=ch;if(ch==='\n'||(ch==='\r'&&next!=='\n'))line++;}
     }else if(ch==='"'){
-      if(field.length||closed)throw new Error("CSV, Zeile "+line+": unzulaessiges Anfuehrungszeichen.");quoted=true;
+      if(field.length||closed)throw new Error("CSV, Zeile "+line+": unzulässiges Anführungszeichen.");quoted=true;
     }else if(ch===delimiter){row.push(field);field="";closed=false;}
     else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&next==='\n')i++;finish();line++;start=line;}
-    else{if(closed)throw new Error("CSV, Zeile "+line+": Inhalt nach schliessendem Anfuehrungszeichen.");field+=ch;}
+    else{if(closed)throw new Error("CSV, Zeile "+line+": Inhalt nach schliessendem Anführungszeichen.");field+=ch;}
   }
-  if(quoted)throw new Error("CSV, Zeile "+start+": Anfuehrungszeichen nicht geschlossen.");
+  if(quoted)throw new Error("CSV, Zeile "+start+": Anführungszeichen nicht geschlossen.");
   if(field!==""||row.length||closed)finish();return rows;
 }
 
@@ -6044,14 +6049,14 @@ function parseLocaleNumber(value,fallback){
 function parseCsv(text){
   let rows;
   const delim=detectCsvDelimiter(text);
-  if(String(text||"").length>10000000)throw new Error("CSV ist groesser als 10 MB.");
+  if(String(text||"").length>10000000)throw new Error("CSV ist größer als 10 MB.");
   rows=parseCsvRows(String(text||""),delim);
   if(rows.length<2)return [];
   const head=rows[0].map(x=>String(x).trim().toLowerCase());
-  if(new Set(head).size!==head.length)throw new Error("CSV-Kopfzeile enthaelt doppelte Spaltennamen.");
+  if(new Set(head).size!==head.length)throw new Error("CSV-Kopfzeile enthält doppelte Spaltennamen.");
   const find=names=>{
     for(const n of names){const exact=head.indexOf(n);if(exact>=0)return exact;}
-    for(const n of names){const matches=head.map((x,i)=>x.includes(n)?i:-1).filter(i=>i>=0);if(matches.length>1)throw new Error("CSV-Kopfzeile: mehrdeutige Zuordnung fuer "+n);if(matches.length===1)return matches[0];}
+    for(const n of names){const matches=head.map((x,i)=>x.includes(n)?i:-1).filter(i=>i>=0);if(matches.length>1)throw new Error("CSV-Kopfzeile: mehrdeutige Zuordnung für "+n);if(matches.length===1)return matches[0];}
     return -1;
   };
   const map={
@@ -6075,27 +6080,27 @@ function parseCsv(text){
     blockShare:find(["block"]),
     dataBasis:find(["datenbasis","datenquelle","quelle"])
   };
-  if(!Object.values(map).some(col=>col>=0))throw new Error("CSV enthaelt keine bekannten Spalten.");
+  if(!Object.values(map).some(col=>col>=0))throw new Error("CSV enthält keine bekannten Spalten.");
   const numeric=(raw,row,key)=>{
     const text=String(raw==null?"":raw).trim();
     // Gleiche Dezimal-/Tausenderkonvention wie bisher, aber keine Teilzahlen oder Ersatzwerte.
     let normalized=text.replace(/\s*(?:€|%)$/,'');
     if(/\s/.test(normalized)){
       if(!/^-?\d{1,3}(?:[ \u00a0]\d{3})+(?:[.,]\d+)?$/.test(normalized))
-        throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": ungueltige Zahlengruppierung.");
+        throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": ungültige Zahlengruppierung.");
       normalized=normalized.replace(/[ \u00a0]/g,'');
     }
     if(normalized.includes(",")&&normalized.includes(".")){
       if(normalized.lastIndexOf(",")>normalized.lastIndexOf(".")){
-        if(!/^-?\d{1,3}(?:\.\d{3})+,\d+$/.test(normalized))throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": ungueltige Zahlengruppierung.");
+        if(!/^-?\d{1,3}(?:\.\d{3})+,\d+$/.test(normalized))throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": ungültige Zahlengruppierung.");
         normalized=normalized.replace(/\./g,"").replace(",",".");
       }else{
-        if(!/^-?\d{1,3}(?:,\d{3})+\.\d+$/.test(normalized))throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": ungueltige Zahlengruppierung.");
+        if(!/^-?\d{1,3}(?:,\d{3})+\.\d+$/.test(normalized))throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": ungültige Zahlengruppierung.");
         normalized=normalized.replace(/,/g,"");
       }
     }else if(normalized.includes(","))normalized=normalized.replace(",",".");
     if(!/^-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(normalized)||!Number.isFinite(Number(normalized)))
-      throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": gueltige Zahl erwartet.");
+      throw new Error("CSV, Zeile "+row+", Feld "+key+", Originalwert "+JSON.stringify(raw)+": gültige Zahl erwartet.");
     return Number(normalized);
   };
   let sourceRow=0;
@@ -6103,7 +6108,7 @@ function parseCsv(text){
   const out=[];const csvWarnings=[];
   for(let i=1;i<rows.length;i++){
     sourceRow=rows[i].sourceLine||i+1;
-    if(rows[i].length!==head.length)throw new Error("CSV, Zeile "+sourceRow+": Spaltenzahl stimmt nicht mit Kopfzeile ueberein.");
+    if(rows[i].length!==head.length)throw new Error("CSV, Zeile "+sourceRow+": Spaltenzahl stimmt nicht mit Kopfzeile überein.");
     const c=rows[i].map(x=>String(x).trim());
     const it=newItem();
     if(map.name>=0&&c[map.name])it.name=c[map.name];
@@ -6551,7 +6556,7 @@ window.addEventListener("resize",updateKpiToggle);
     const building=Math.max(0,ukb-spr),technical=Math.max(0,lift-res),rack=R&&R.rack;
     const top=rack?rack.topBeam/1000:0,topLoad=rack?rack.topLoad/1000:0,max=Math.max(1,ukb,lift,topLoad);
     const row=(label,val,cls)=>'<div class="height-row '+(cls||'')+'"><span>'+label+'</span><b>'+fmt(val,2)+' m</b><div class="height-track"><i style="width:'+Math.min(100,Math.max(0,val/max*100))+'%"></i></div></div>';
-    box.innerHTML=row("Grenze OK Ladeeinheit (Gebaeude)",building,"")+row("Grenze OK Traverse (Hubhoehe)",technical,"limit")+row("OK letzte Traversenebene",top,"result")+row("OK oberste Ladeeinheit",topLoad,"result")+'<p class="dependency-note">Begrenzender Faktor: <b>'+escH(rack?rack.heightLimiter:"keine zulaessige Regalbemessung")+'</b>. Regalstatik und Resttragfaehigkeit des FFZ sind gesondert zu pruefen.</p>';
+    box.innerHTML=row("Grenze OK Ladeeinheit (Gebäude)",building,"")+row("Grenze OK Traverse (Hubhöhe)",technical,"limit")+row("OK letzte Traversenebene",top,"result")+row("OK oberste Ladeeinheit",topLoad,"result")+'<p class="dependency-note">Begrenzender Faktor: <b>'+escH(rack?rack.heightLimiter:"keine zulässige Regalbemessung")+'</b>. Regalstatik und Resttragfähigkeit des FFZ sind gesondert zu prüfen.</p>';
   }
 
 function syncVersionLabels(){

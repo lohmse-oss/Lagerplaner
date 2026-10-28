@@ -75,7 +75,7 @@ test("Bestand: ohne Platz bleibt die Unterdeckung sichtbar", async (page) => {
 test("Bestand: Stützen in Gängen bleiben harte Konflikte", async (page) => {
   const r = await run(page, CASES["reines Regallager"], { L: 80, W: 60, gridX: 10, gridY: 20 });
   assert.ok(r.reasons.includes("HARD_CONFLICT"));
-  assert.ok(r.warn.some((t) => /Stuetzen liegen in Verkehrs-\/Arbeitsgaengen/.test(t)));
+  assert.ok(r.warn.some((t) => /Stützen liegen in Verkehrs-\/Arbeitsgängen/.test(t)));
 });
 
 test("Zeichnung und Bericht mit übersprungenen Kanalplätzen", async (page) => {

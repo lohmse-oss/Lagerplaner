@@ -93,7 +93,7 @@ test("Greenfield: Kapazitätsziel gesperrt, Hallenmaße je Variante", async (pag
 test("Ohne machbare Variante wird der häufigste Ausschlussgrund genannt", async (page) => {
   const { rows } = await optimize(page, "capacity", { L: 80, W: 60 });
   assert.equal(rows.length, 0);
-  assert.match(await page.textContent("#opt-body"), /Häufigster Ausschlussgrund \(\d+ von \d+ Varianten\): .*Stuetzen/);
+  assert.match(await page.textContent("#opt-body"), /Häufigster Ausschlussgrund \(\d+ von \d+ Varianten\): .*Stützen/);
 });
 
 test("Regalbelegung nur in der Bestandshalle sichtbar", async (page) => {
@@ -116,7 +116,7 @@ test("Worker-Lauf mit Ziel Flächennutzungsgrad", async (page) => {
     startOptimizationRun();
   });
   await page.waitForFunction(() => /abgeschlossen|fehlgeschlagen/.test(document.getElementById("opt-run-status").textContent), null, { timeout: 30000 });
-  assert.match(await page.textContent("#opt-run-status"), /abgeschlossen: [1-9]\d* Vorschlaege/);
+  assert.match(await page.textContent("#opt-run-status"), /abgeschlossen: [1-9]\d* Vorschläge/);
   assert.match(await page.textContent("#opt-summary"), /Ziel Maximaler Flächennutzungsgrad .* Pl\.\/m²/);
 });
 
