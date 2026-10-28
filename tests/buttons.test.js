@@ -206,7 +206,7 @@ const ACTIONS = [
     },
   },
   {
-    key: "Kennzahlen: Sprungziele", covers: ["#kpi-ampel-wrap", "#kpi-rack-is-wrap", "#kpi-block-is-wrap", "#kpi-warn", "kpi-goto"],
+    key: "Kennzahlen: Sprungziele", covers: ["#kpi-ampel-wrap", "#kpi-rack-is-wrap", "#kpi-block-is-wrap", "#kpi-capex-wrap", "#kpi-warn", "kpi-goto"],
     run: async (p) => {
       if ((await snap(p)).collapsed) await p.click("#btn-kpis-toggle");
       await p.evaluate(() => { const d = document.querySelector("details.kpi-more"); if (d) d.open = true; });
