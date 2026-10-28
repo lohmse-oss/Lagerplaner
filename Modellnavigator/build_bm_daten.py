@@ -13,6 +13,11 @@ Aufruf:
 
 Die Ausgabe ist bm-daten.js mit window.BM = {...}. Das Skript endet mit einem
 Prüfbericht. Bei einem Fehler endet es mit dem Rückgabewert 1.
+
+Der Prüfbericht enthält eine Abdeckungsprüfung. Sie meldet jeden Absatz,
+jeden Listenpunkt und jede Tabellenzelle einer Quelle, deren Text nicht in der
+Datendatei steht. Was bewusst nicht übernommen wird, steht mit Begründung in
+NICHT_UEBERNOMMEN.
 """
 import datetime
 import json
@@ -22,7 +27,7 @@ import subprocess
 import sys
 from html.parser import HTMLParser
 
-ERZEUGER = 'build_bm_daten.py 1.0'
+ERZEUGER = 'build_bm_daten.py 1.1'
 KANON_FASSUNG = '7.5'
 PCF_DATEI = 'PCF_9.6_Process_Framework.html'
 
@@ -56,6 +61,16 @@ BLOECKE_AU = [
     {'id': 'au-aenderung', 'n': 'Kundenänderung', 'text': 'Klassen E1 bis E3', 'obj': 'M-06-03'},
     {'id': 'au-review', 'n': 'Ausrichtungsreview', 'text': 'Jährlich im Kundenmeeting', 'obj': 'RT-1-01'},
 ]
+
+# Abdeckungsprüfung: Textteile ab dieser Länge werden geprüft. Kürzere Zellen
+# sind Kürzel, Zahlen oder Einzelwörter.
+ABDECKUNG_MIN = 25
+
+# Textteile, die bewusst nicht in die Datendatei gehen. Schlüssel ist der
+# Anfang des Textteils nach der Normierung durch norm_abdeckung.
+NICHT_UEBERNOMMEN = {
+    'alle befähigungskomponenten': 'C07 M-04-02: als Merkmal komponenten der Methode nach D02-MET abgelegt',
+}
 
 
 def clean(s):
@@ -432,7 +447,7 @@ def baue(dokumente):
         'ausrichtung': [R(a02, x) for x in a02.abschnitt('3 Ausrichtung')['absaetze']],
         'beispiel': [{'teil': z[0], 'fundstelle': z[1], 'inhalt': R(a02, z[2])} for z in a02.tabelle('Teil', 'Fundstelle')[0]['zeilen']],
         'bewertung': a02.tabelle('Merkmal', 'Strukturbewertung')[0]['zeilen'],
-        'objektarten': [{'code': c, 'n': z[0], 'leistung': z[1], 'ordnung': z[2], 'regelebene': z[3], 'ort': z[4], 'schema': schema[z[0]][1], 'beispiel': schema[z[0]][2]}
+        'objektarten': [{'code': c, 'n': z[0], 'leistung': z[1], 'ordnung': z[2], 'regelebene': z[3], 'ort': z[4], 'schema': schema[z[0]][1], 'beispiel': schema[z[0]][2], 'ordnungsziffer': schema[z[0]][3]}
                         for c, z in zip(['P', 'D', 'M', 'W', 'RT', 'K'], a02.tabelle('Objektart', 'Leistung')[0]['zeilen'])],
         'abgrenzung': a02.tabelle('Merkmal', 'Dokument', 'Methode')[0],
         'felder': felder,
@@ -445,6 +460,14 @@ def baue(dokumente):
         'stufen': stufen,
         'dimensionen': dimensionen,
         'kontexte': kontexte,
+        # Einleitende Absätze der Kapitel, die der Navigator als Text zeigt
+        'einleitungen': {
+            'ebenenraster': [R(a02, x) for x in a02.abschnitt('2.1 Ebenenraster')['absaetze']],
+            'beispiel': [R(a02, x) for x in a02.abschnitt('Beispiel Warenannahme')['absaetze']],
+            'entwicklungsfelder': [R(b01, x) for x in b01.abschnitt('2.1 Entwicklungsfelder')['absaetze']],
+            'wirkungsprinzip': [R(b03, x) for x in b03.abschnitt('1.2 Wirkungsprinzip')['absaetze']],
+            'kontexte': [R(c04, x) for x in c04.abschnitt('3 Anwendungskontexte')['absaetze']],
+        },
         'statusbewertung': (doc('B04').tabelle('Status', 'Bedingung')[0]['zeilen'] if 'B04' in dokumente else []),
         'objekte': objekte,
         'kanon': kanon,
@@ -453,19 +476,86 @@ def baue(dokumente):
     return daten, fehler, w, zaehl
 
 
+def norm_abdeckung(s):
+    s = re.sub(r'[*_`]', '', s)
+    return re.sub(r'\s+', ' ', s).strip().lower()
+
+
+def textteile(d):
+    """Absätze, Listenpunkte und Tabellenzellen einer Quelle mit Indexmarken als Kennungen."""
+    w = []
+    for titel, a in d.abschnitte.items():
+        if 'Index-Verzeichnis' in titel:
+            continue
+        for x in a['absaetze'] + a['liste']:
+            yield titel, d.aufloesen(x, w)
+    for t in d.tabellen:
+        if 'Index-Verzeichnis' in (t['ueberschrift'] or '') or t['kopf'][:2] == ['Index', 'Kennung']:
+            continue
+        for z in t['zeilen']:
+            for c in z:
+                yield t['ueberschrift'] or '', d.aufloesen(c, w)
+
+
+def abdeckung(dokumente, daten):
+    """Liefert je Quelle die Zahl der geprüften Textteile und die nicht gefundenen."""
+    teile = []
+    def sammle(x):
+        if isinstance(x, str):
+            teile.append(x)
+        elif isinstance(x, dict):
+            for k, v in x.items():
+                teile.append(k)
+                sammle(v)
+        elif isinstance(x, list):
+            for v in x:
+                sammle(v)
+    sammle(daten)
+    bestand = norm_abdeckung(' | '.join(teile))
+    # Zusammengesetzte Zellen wie "Regel 1 Transparenz durch ..." oder "RT-1-02 Managementmeeting"
+    # legt das Skript getrennt ab. Ohne die führende Kennung muss der Rest auffindbar sein.
+    praefix = re.compile(r'^(regel \d{1,2} |' + OBJ_RE.pattern.lower().replace('\\b', '') + r' )')
+    ergebnis = {}
+    for d in dokumente.values():
+        geprueft, fehlt = 0, []
+        for titel, text in textteile(d):
+            t = norm_abdeckung(text)
+            if len(t) < ABDECKUNG_MIN:
+                continue
+            geprueft += 1
+            if t in bestand or praefix.sub('', t) in bestand:
+                continue
+            # "Name: Inhalt" legt das Skript als Name und Inhalt getrennt ab, etwa die Kataloge in A02 4.4
+            if ': ' in t and all(x.strip() in bestand for x in t.split(': ', 1)):
+                continue
+            if any(t.startswith(k) for k in NICHT_UEBERNOMMEN):
+                continue
+            fehlt.append((titel, text))
+        ergebnis[d.kennung] = (geprueft, fehlt)
+    return ergebnis
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
         return 1
     ordner = sys.argv[1]
     ziel = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else 'bm-daten.js')
-    daten, fehler, warnungen, zaehl = baue(lade_quellen(ordner))
+    dokumente = lade_quellen(ordner)
+    daten, fehler, warnungen, zaehl = baue(dokumente)
     js = ('// Leadec Logistics Betriebsmodell – Datendatei des Modellnavigators E09\n'
           '// Erzeugt mit ' + ERZEUGER + ' aus dem Kanon ' + KANON_FASSUNG + '. Nicht von Hand bearbeiten.\n'
           'window.BM = ' + json.dumps(daten, ensure_ascii=False, indent=1) + ';\n')
     ziel.write_text(js, encoding='utf-8')
     print(f'Datendatei geschrieben: {ziel} ({len(js) // 1024} KB)')
     print('Objekte je Art: ' + ', '.join(f'{a} {n}' for a, n in zaehl.items()))
+    abd = abdeckung(dokumente, daten)
+    gesamt, offen = sum(g for g, _ in abd.values()), sum(len(f) for _, f in abd.values())
+    print(f'Abdeckung: {gesamt - offen} von {gesamt} Textteilen der Quellen übernommen')
+    for kennung, (g, fehlt) in sorted(abd.items()):
+        for titel, text in fehlt:
+            kurz = text if len(text) <= 100 else text[:97] + '...'
+            print(f'Nicht übernommen: {kennung} {titel}: {kurz}')
     for x in warnungen:
         print('Hinweis: ' + x)
     for x in fehler:

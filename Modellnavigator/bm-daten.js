@@ -1,12 +1,12 @@
 // Leadec Logistics Betriebsmodell – Datendatei des Modellnavigators E09
-// Erzeugt mit build_bm_daten.py 1.0 aus dem Kanon 7.5. Nicht von Hand bearbeiten.
+// Erzeugt mit build_bm_daten.py 1.1 aus dem Kanon 7.5. Nicht von Hand bearbeiten.
 window.BM = {
  "meta": {
   "titel": "Leadec Logistics Betriebsmodell",
   "darstellung": "E09 Modellnavigator",
   "fassung": "7.5",
   "erzeugt": "28.10.2026",
-  "erzeuger": "build_bm_daten.py 1.0",
+  "erzeuger": "build_bm_daten.py 1.1",
   "status": "Begleitdarstellung, nicht normativ. Bei einer Abweichung gilt das führende Dokument.",
   "quellen": [
    "A02 (A02_7.5_Modellbeschreibung.md)",
@@ -265,7 +265,8 @@ window.BM = {
    "regelebene": "Normierung",
    "ort": "B01",
    "schema": "Regel 1 bis 10",
-   "beispiel": "Regel 4"
+   "beispiel": "Regel 4",
+   "ordnungsziffer": "Nummer der Goldenen Regel"
   },
   {
    "code": "D",
@@ -275,7 +276,8 @@ window.BM = {
    "regelebene": "Gestaltung",
    "ort": "D03-DOK, Lenkung durch das IMS",
    "schema": "D-Baustein-Nummer",
-   "beispiel": "D-PW-04"
+   "beispiel": "D-PW-04",
+   "ordnungsziffer": "Bausteinkürzel OR, PW, TB, IK, KP, AE, RC, QV"
   },
   {
    "code": "M",
@@ -285,7 +287,8 @@ window.BM = {
    "regelebene": "Befähigung, abweichende Ebene je Methode nach D02-MET",
    "ort": "D02-MET oder das B- oder C-Dokument, dessen Logik sie bildet",
    "schema": "M-Regel-Nummer",
-   "beispiel": "M-04-01"
+   "beispiel": "M-04-01",
+   "ordnungsziffer": "Regel 01 bis 10, 00 für regelübergreifend"
   },
   {
    "code": "W",
@@ -295,7 +298,8 @@ window.BM = {
    "regelebene": "Befähigung",
    "ort": "D05-WZ, Zuordnung zur Komponente nach B03 Kapitel 7",
    "schema": "W-Komponente-Nummer",
-   "beispiel": "W-I-01"
+   "beispiel": "W-I-01",
+   "ordnungsziffer": "R rollenbezogen, M mittelbezogen, I informationsbezogen, P prozessbezogen, Q qualitätsbezogen, S schnittstellenbezogen"
   },
   {
    "code": "RT",
@@ -305,7 +309,8 @@ window.BM = {
    "regelebene": "Führung",
    "ort": "C05",
    "schema": "RT-Stufe-Nummer",
-   "beispiel": "RT-3-01"
+   "beispiel": "RT-3-01",
+   "ordnungsziffer": "Kaskadenstufe der leitenden Rolle: 1 Management, 2 Bereich, 3 Teilbereich, 4 Team, 5 Arbeitsplatz"
   },
   {
    "code": "K",
@@ -315,7 +320,8 @@ window.BM = {
    "regelebene": "Führung",
    "ort": "C04 mit Definitionen in den Anhängen B und C",
    "schema": "K-Kontext-Dimension-Nummer",
-   "beispiel": "K4-O-01"
+   "beispiel": "K4-O-01",
+   "ordnungsziffer": "Kontext 3 oder 4, Dimension S, C, O, R, E"
   }
  ],
  "abgrenzung": {
@@ -881,6 +887,23 @@ window.BM = {
    "SCORE IV – Performance Management"
   ]
  ],
+ "einleitungen": {
+  "ebenenraster": [
+   "Das Betriebsmodell gliedert sich in fünf Ebenen, von denen jede die Bestandteile zusammenfasst, die eine gemeinsame Leitfrage beantworten. Ausrichtung und Normierung liefern den Maßstab, Gestaltung und Befähigung bilden die Struktur, und die Führung erzeugt und steuert die Performance. Struktur und Performance sind die beiden Bewertungsperspektiven nach Kapitel 5, wobei die Strukturbewertung zusätzlich prüft, ob der Standort das Führungssystem anwendet."
+  ],
+  "beispiel": [
+   "Ein durchgängiges, nicht normatives Beispiel am Hauptprozess Warenannahme PR-IN-03 zeigt die Wirkungskette an einem Fall, dessen Teile in mehreren Dokumenten stehen."
+  ],
+  "entwicklungsfelder": [
+   "Je zwei Regeln bilden ein Entwicklungsfeld, in dem die erste Regel die Voraussetzung schafft und die zweite die darauf aufbauende Wirkung beschreibt. Eine Wirkung lässt sich erst nachweisen, wenn die Voraussetzung wirksam ist. Die zehn Regeln verteilen sich so auf fünf Entwicklungsfelder."
+  ],
+  "wirkungsprinzip": [
+   "Methoden planen, setzen um und befähigen, indem sie ein Gestaltungsmittel nutzen und daraus eine Standortvorgabe oder eine Realisierung erzeugen. Die Befähigung steht am Ende eines Weges, auf dem Zweige aus mehreren Bausteinen zusammenlaufen. Eine Rolle ist zum Beispiel erst einsatzfähig, wenn Rollenprofil, Unterweisung und Schulung auf die Standards vorliegen. Die Befähigungskomponenten bündeln diese Zweige."
+  ],
+  "kontexte": [
+   "SCORE III steuert Prozesse und Ressourcen shopfloornah mit operativen Kennzahlen, während SCORE IV die Zielerreichung des Standorts mit aggregierten Kennzahlen bewertet. Jeder Kontext bildet ein eigenes Performanceprofil, das bei SCORE III für Bereich und Schicht und bei SCORE IV für den Standort gilt. SCORE I und die Kalibrierphase gehören zur Projektphase, und A03 Projektierung und Implementierung regelt beide."
+  ]
+ },
  "statusbewertung": [
   [
    "im Toleranzbereich",

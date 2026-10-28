@@ -310,7 +310,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <script>
 (function () {
   'use strict';
-  const NAVIGATOR = { fassung: '1.2', stand: '28.10.2026' };
+  const NAVIGATOR = { fassung: '1.3', stand: '28.10.2026' };
   const $ = id => document.getElementById(id);
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
@@ -354,6 +354,8 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     });
   }
   const refBtn = (key, label, title) => `<a href="#" class="ref" data-open="${esc(key)}"${title ? ` title="${esc(title)}"` : ''}>${esc(label)}</a>`;
+  // Einleitende Absätze aus den Quellen (A02, B01, B03, C04); fehlen sie in einer älteren Datendatei, bleibt die Stelle leer.
+  const einl = (key, stil) => ((B.einleitungen || {})[key] || []).map(t => `<p${stil ? ` style="${stil}"` : ''}>${rich(t)}</p>`).join('');
   const artTag = a => `<span class="tag art art-${a}">${ART_N[a]}</span>`;
 
   // ---------- Zustand und Adresse ----------
@@ -422,7 +424,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
         ${persp('ST', 'Struktur', 2)}${band('BE', beBlocks)}${band('GE', geBlocks)}
         ${persp('MA', 'Maßstab', 2)}${band('NO', noBlocks)}${band('AU', auBlocks)}
       </div>
-      <p class="em-foot">Perspektiven am linken Rand: Ausrichtung und Normierung liefern den Maßstab. Gestaltung und Befähigung bilden die Struktur. Die Führung erzeugt und steuert die Performance. ${refBtn('view:bewertung', 'Bewertungsperspektiven')} · Führend ist ${refBtn('kanon:A02', 'A02')} Kapitel 2.</p>`;
+      <div class="em-foot">${einl('ebenenraster')}<p style="margin-top:4px">Am linken Rand stehen die Perspektiven. ${refBtn('view:bewertung', 'Bewertungsperspektiven')} · Führend ist ${refBtn('kanon:A02', 'A02')} Kapitel 2.1.</p></div>`;
   };
 
   VIEWS.wirkung = () => {
@@ -434,7 +436,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
         <div class="chain">${chain}<div class="arr" aria-hidden="true">↺</div><button type="button" class="step" data-open="M-04-02"><span class="n" style="background:var(--perf)">Rückführung</span><span class="t">Interner Pfad über Verbesserung, externer Pfad über Kundenänderung. Verfahren nach C07.</span></button></div>
         <div>${B.wirkungskette.map(p => `<p style="margin-bottom:10px">${rich(p)}</p>`).join('')}</div>
       </div>
-      <h3 class="sec">Beispiel Warenannahme</h3><p class="hint" style="margin-bottom:8px">Durchgängiges, nicht normatives Beispiel am Hauptprozess PR-IN-03.</p>${bsp}`;
+      <h3 class="sec">Beispiel Warenannahme</h3><div class="hint" style="margin-bottom:8px">${einl('beispiel')}</div>${bsp}`;
   };
 
   VIEWS.bewertung = () => {
@@ -445,18 +447,20 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 
   VIEWS.objektmodell = () => {
     const n = a => objekte(o => o.art === a).length;
-    const t = `<div class="scroll"><table class="list"><tr><th>Objektart</th><th>Leistung</th><th>Ordnung</th><th>Regelebene</th><th>Kennung</th><th class="num">Anzahl</th></tr>${B.objektarten.map(a => `<tr><td>${artTag(a.code)}</td><td>${esc(a.leistung)}</td><td>${esc(a.ordnung)}</td><td>${esc(a.regelebene)}</td><td><span class="kenn">${esc(a.schema)}</span><br><span class="hint">etwa ${esc(a.beispiel)}</span></td><td><a href="#" class="ref" data-go="objekte" data-art="${a.code}">${n(a.code)}</a></td></tr>`).join('')}</table></div>`;
+    const t = `<div class="scroll"><table class="list"><tr><th>Objektart</th><th>Leistung</th><th>Ordnung</th><th>Regelebene</th><th>Ort der Beschreibung</th><th>Kennung</th><th class="num">Anzahl</th></tr>${B.objektarten.map(a => `<tr><td>${artTag(a.code)}</td><td>${esc(a.leistung)}</td><td>${esc(a.ordnung)}</td><td>${esc(a.regelebene)}</td><td>${rich(a.ort || '')}</td><td><span class="kenn">${esc(a.schema)}</span><br><span class="hint">etwa ${esc(a.beispiel)}</span>${a.ordnungsziffer ? `<br><span class="hint">Ordnungsziffer: ${esc(a.ordnungsziffer)}</span>` : ''}</td><td><a href="#" class="ref" data-go="objekte" data-art="${a.code}">${n(a.code)}</a></td></tr>`).join('')}</table></div>`;
     const ab = B.abgrenzung;
     const t2 = `<div class="scroll"><table class="list"><tr>${ab.kopf.map(h => `<th>${esc(h)}</th>`).join('')}</tr>${ab.zeilen.map(z => `<tr>${z.map((c, i) => i ? `<td>${esc(c)}</td>` : `<td><b>${esc(c)}</b></td>`).join('')}</tr>`).join('')}</table></div>`;
     return head('Objektmodell', 'Jedes Objekt gehört genau einer Objektart und genau einer Ebene an. Führend ist A02 Kapitel 4.') + t
       + '<h3 class="sec">Abgrenzung der Objektarten im Betrieb</h3>' + t2
-      + '<p class="note">Drei Prüffragen grenzen einen Sachverhalt ab. Durchläuft ein Mensch feste Schritte, ist er eine Methode. Verarbeitet oder zeigt er Information, ohne zu entscheiden, ist er ein Betriebswerkzeug. Hat er Takt, leitende Rolle und Agenda, ist er eine Routine.</p>';
+      + '<p class="note"><b>Lesehilfe des Navigators, nicht aus dem Kanon:</b> Drei Prüffragen grenzen einen Sachverhalt ab. Durchläuft ein Mensch feste Schritte, ist er eine Methode. Verarbeitet oder zeigt er Information, ohne zu entscheiden, ist er ein Betriebswerkzeug. Hat er Takt, leitende Rolle und Agenda, ist er eine Routine.</p>';
   };
 
   VIEWS.regeln = () => {
     const cols = B.felder.map(f => `<div class="feld-col"><h4>${f.nr} ${esc(f.n)}</h4>${f.regeln.map((r, i) => { const R = IX.regel.get(r); const nm = objekte(o => o.art === 'M' && o.regel === r).length, nd = objekte(o => o.art === 'D' && (o.regeln || []).includes(r)).length; return `<button type="button" class="regel-card ${i ? 'w' : ''}" data-open="Regel ${r}"><span class="rolle">${esc(R.rolle)}</span><b>Regel ${r} ${esc(R.kurz)}</b><p>${esc(R.leitsatz)}</p><span class="tags"><span class="cnt"><b>${nm}</b> Methoden</span><span class="cnt"><b>${nd}</b> Dokumente</span></span></button>`; }).join('')}</div>`).join('');
-    const mk = `<div class="card"><h4>Mindestkriterien</h4><p>${esc(B.mindestkriterien.text.join(' '))}</p><div class="tags">${B.mindestkriterien.gegenstaende.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div></div>`;
-    return head('Goldene Regeln', 'Zehn Regeln in fünf Entwicklungsfeldern. In jedem Feld schafft die erste Regel die Voraussetzung, die zweite beschreibt die Wirkung. Führend ist B01.')
+    // Die Liste der Gegenstände folgt in B01 Kapitel 3 auf den ersten Absatz.
+    const [mk1, ...mkRest] = B.mindestkriterien.text;
+    const mk = `<div class="card"><h4>Mindestkriterien</h4><p>${rich(mk1 || '')}</p><div class="tags" style="margin:8px 0">${B.mindestkriterien.gegenstaende.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>${mkRest.map(t => `<p>${rich(t)}</p>`).join('')}</div>`;
+    return head('Goldene Regeln', ((B.einleitungen || {}).entwicklungsfelder || []).join(' ') + ' Führend ist B01.')
       + `<div class="felder">${cols}</div><p class="note">${esc(B.reihenfolge.join(' '))}</p><h3 class="sec">Zweite Normquelle</h3>${mk}`;
   };
 
@@ -464,15 +468,17 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     + `<div class="cards">${B.bausteine.map(b => { const nd = objekte(o => o.art === 'D' && o.baustein === b.code).length, nm = objekte(o => o.art === 'M' && o.baustein === b.code).length; return `<button type="button" class="card click" data-open="bs:${b.code}"><span class="kenn">${b.code}</span><h4>${esc(b.n)}</h4><p>${esc(b.leitfrage || b.gegenstand)}</p><div class="tags"><span class="cnt"><b>${nd}</b> Dokumente</span><span class="cnt"><b>${nm}</b> Methoden</span></div></button>`; }).join('')}</div>`;
 
   VIEWS.komponenten = () => head('Befähigungskomponenten', 'Sechs gleichrangige Komponenten bündeln die Zweige aus den Bausteinen zur Ausführungsfähigkeit des Standorts. Führend ist B03.')
+    + (einl('wirkungsprinzip') ? `<div class="note" style="margin:0 0 14px"><b>Wirkungsprinzip nach B03 Kapitel 1.2</b>${einl('wirkungsprinzip', 'margin-top:4px')}</div>` : '')
     + `<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${B.komponenten.map(k => `<button type="button" class="card click" data-open="komp:${k.code}"><span class="kenn">${k.code}</span><h4>${esc(k.n)}</h4><p>${esc(k.gegenstand)}</p>${k.weg ? `<div class="weg"><div><i>Gestaltungsmittel</i>${esc(stripRefs(k.weg.gestaltungsmittel))}</div><span aria-hidden="true">↓</span><div><i>Methode</i>${esc(stripRefs(k.weg.methode))}</div><span aria-hidden="true">↓</span><div><i>Realisierung</i>${esc(k.weg.realisierung)}</div></div>` : ''}<div class="tags">${(k.zufuehrend || []).map(b => `<span class="tag">${esc(b)}</span>`).join('')}</div></button>`).join('')}</div>`;
   const stripRefs = t => String(t || '').replace(/\s*\([^)]*\)/g, '');
 
   VIEWS.fuehrung = () => {
     const kask = B.stufen.map(s => { const rt = objekte(o => o.art === 'RT' && o.stufe === s.nr); const nm = objekte(o => o.art === 'M' && (o.stufen || []).includes(s.nr)).length; return `<tr><td><b>${s.nr} ${esc(s.n)}</b></td><td>${rt.length ? rt.map(o => `<div>${refBtn(o.kennung, o.kennung)} ${esc(o.n)} <span class="hint">· ${esc(o.profil.Takt)} · ${esc(o.profil['Leitende Rolle'])}</span></div>`).join('') : '<span class="hint">keine eigene Routine</span>'}</td><td><a href="#" class="ref" data-go="objekte" data-art="M" data-stufe="${s.nr}">${nm} Methoden</a></td></tr>`; }).join('');
-    const score = `<div class="scroll"><table class="list"><tr><th>Dimension</th><th>SCORE III · Shopfloor Control</th><th>SCORE IV · Performance Management</th></tr>${B.dimensionen.map(d => `<tr><td><b>${d.code} ${esc(d.n)}</b><br><span class="hint">${esc(d.gegenstand)}</span></td>${[3, 4].map(c => `<td>${objekte(o => o.art === 'K' && o.kontext === c && o.dimension === d.code).map(o => `<div>${refBtn(o.kennung, o.kennung)} ${esc(o.n)}${o.pflichtkern ? ' <span class="tag warn">Pflichtkern</span>' : ''}</div>`).join('')}</td>`).join('')}</tr>`).join('')}</table></div>`;
+    const score = `<div class="scroll"><table class="list"><tr><th>Dimension</th><th>SCORE III · Shopfloor Control</th><th>SCORE IV · Performance Management</th></tr>${B.dimensionen.map(d => `<tr><td><b>${d.code} ${esc(d.n)}</b><br><span class="hint">${esc(d.gegenstand)}</span>${d.beispiele ? `<br><span class="hint">Beispiele: ${esc(d.beispiele)}</span>` : ''}</td>${[3, 4].map(c => `<td>${objekte(o => o.art === 'K' && o.kontext === c && o.dimension === d.code).map(o => `<div>${refBtn(o.kennung, o.kennung)} ${esc(o.n)}${o.pflichtkern ? ' <span class="tag warn">Pflichtkern</span>' : ''}</div>`).join('')}</td>`).join('')}</tr>`).join('')}</table></div>`;
     const status = B.statusbewertung.length ? `<div class="scroll"><table class="list"><tr><th>Status</th><th>Bedingung</th><th>Reaktion</th></tr>${B.statusbewertung.map(z => `<tr><td><b>${esc(z[0])}</b></td><td>${esc(z[1])}</td><td>${esc(z[2])}</td></tr>`).join('')}</table></div><p class="hint" style="margin-top:6px">Statusbewertung nach ${refBtn('M-08-03', 'M-08-03')}. Die Farbdarstellung am Board legt C05 fest.</p>` : '';
     return head('Führung und SCORE', 'Die Führung bewertet die Leistung mit SCORE und steuert den Betrieb über Routinen der Führungskaskade. Führend sind B04, C04 und C05.')
       + `<h3 class="sec" style="margin-top:0">Führungskaskade und Routinen</h3><div class="scroll"><table class="list"><tr><th>Kaskadenstufe</th><th>Routinen nach C05</th><th>Methoden</th></tr>${kask}</table></div>`
+      + (B.kontexte && B.kontexte.length ? `<h3 class="sec">Anwendungskontexte von SCORE</h3><div class="scroll"><table class="list"><tr><th>Prozessart</th><th>Projekt</th><th>Serie</th></tr>${B.kontexte.map(z => `<tr><td><b>${esc(z[0])}</b></td><td>${esc(z[1])}</td><td>${esc(z[2])}</td></tr>`).join('')}</table></div><div class="hint" style="margin-top:6px">${einl('kontexte')}</div>` : '')
       + `<h3 class="sec">Kennzahlen nach Dimension und Kontext</h3>${score}<h3 class="sec">Statusbewertung</h3>${status}`;
   };
 
