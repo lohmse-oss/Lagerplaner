@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.26</title>
+<title>Lagerplaner V2.27</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -455,7 +455,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.26</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.27</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -1489,7 +1489,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.26 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.27 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1571,6 +1571,7 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Werden Kollisionen mit Hallenstützen von der Kapazität abgezogen?</b> Jede Stütze wird gegen Regale, Blockkanäle und Arbeitsgänge geprüft. Im Bestandsmodus sind die Stützen gesetzt: Regalfelder, die eine Stütze trifft, werden entfernt (Feldgrenzen betreffen beide Nachbarfelder), und fehlende Regalkapazität wird durch zusätzliche Doppelreihen ausgeglichen, solange sie in die Halle passen. Blockkanalplätze, die eine Stütze trifft, werden übersprungen; die Kanäle rücken auf den nächsten freien Platz, und am Ende werden Ersatzplätze angehängt. Ein Hinweis nennt den Ausgleich. Stützen in Gängen oder in der Zugangsgasse des Blocklagers bleiben harte Konflikte. Im Greenfield-Modus erfolgt kein Abzug, weil das Stützenraster dort mit der Hallenplanung abzustimmen ist; Kollisionen erscheinen als Hinweis und in der Zeichnung.</p>
       <p><b>Wann zeigt die Planungs-Ampel Rot?</b> Rot ist Hard Stops vorbehalten: Deckungsgrad unter 100 Prozent, fehlender Bestand oder harte Kollisionen. Hart sind im Bestandsmodus Stützen in Gängen oder in der Zugangsgasse des Blocklagers; von Stützen getroffene Regalfelder und Kanalplätze werden ausgeglichen, soweit Platz ist, sonst bleibt eine Unterdeckung. Kritische Hinweise ohne harte Kollision führen zu Gelb. Gelb meldet ebenfalls Deckungsgrade über 115 Prozent sowie Hallennutzung unter 65 oder über 90 Prozent. Grün gilt bei 100 bis 115 Prozent Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise.</p>
       <p><b>Wofür wird die Spalte Artikel benötigt?</b> Die Artikelanzahl ist die Zahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Sie wirkt ausschließlich im artikelbasierten Modus der Blockverteilung: Der Bestand wird in drei Artikelklassen geteilt (obere 20 Prozent der Artikel, mittlere 30, untere 50), denen je ein Volumenanteil zugeordnet wird. Eine Klasse qualifiziert sich für das Blocklager, wenn das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Ohne Artikelangabe qualifiziert sich die Position nicht und läuft vollständig über das Regal; der Report weist dies als Datenlücke aus. In den Modi Volumenquote und Manuell bestimmt sie die Mindestzahl der Blockkanäle: Kanäle sind artikelrein, die Artikel im Block werden anteilig zum Blockvolumen angesetzt.</p>
+      <p><b>Warum reicht die Halle bei pauschaler Volumenquote nicht für das Regal?</b> Die Volumenquote schickt von jeder Position denselben Anteil ins Blocklager, auch von nicht stapelbarer Ware (Stapelfaktor 1+0 oder durch Stapelhöhe und Oberkante Lagergut begrenzt). Diese Ware belegt im Block je Platz eine Palette und braucht viel Fläche. Bei hoher Quote verdrängt der Block dann das Regal. Ein Hinweis nennt die betroffenen Positionen und die Palettenzahl. Abhilfe: Quote senken, Blockanteile manuell setzen oder das Schätzmodell wählen, das nur stapelbare Ware ins Blocklager legt.</p>
       <p><b>Was bedeutet der Prozentwert in der Spalte Blockanteil?</b> Im manuellen Modus ist er die Eingabe. In allen anderen Modi zeigt er den berechneten effektiven Blockanteil: Blockpaletten der Position im Verhältnis zum Netto-Bestand der Position, gerundet auf ganze Prozent.</p>
       <p><b>Was ist die Brutto-Lagerfläche?</b> Sie ist der Flächenbedarf des eigentlichen Lagers: Regalstellflächen, Regal-Arbeitsgänge, Blockstellflächen, Blockgassen, Leergutband, WE-/WA-Zonen und Abstandsflächen. Die Hallenfläche aus den Gebäudeangaben ist meist größer, weil Randwege, Technik- und Sozialflächen sowie Fehlflächen außerhalb des Werkzeugs liegen. Die Flächenbedarfsrechnung unter dem Hallenlayout weist beide Größen, die freie Fläche und den Nutzungsgrad aus.</p>
       <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Standardmäßig sucht das Werkzeug die kleinste machbare Halle, deren Proportion (Längsseite zu Schmalseite) im eingestellten Bereich liegt, Standard 1 : 1 bis 3 : 1. Dabei wird geprüft, ob die Torseite (Nord-/Südwand) die Längs- oder die Schmalseite ist. Optionale Höchstmaße bilden Grundstücksgrenzen ab; gleiche Werte für „von“ und „bis“ erzwingen ein festes Verhältnis. Die Optimierung ermittelt im Greenfield die Hallenmaße je Variante neu. Mit „Länge vorgegeben“ bleibt die Hallenlänge eine Eingabe, berechnet wird nur die Breite; liegt die Proportion über dem Bereich, erscheint ein Hinweis. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
@@ -1851,7 +1852,7 @@ function migrateFFZ(rawFfz){
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
   if(!S.truckOverrides||typeof S.truckOverrides!=="object")S.truckOverrides={};
 }
-const APP_VERSION="V2.26";
+const APP_VERSION="V2.27";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -1954,7 +1955,7 @@ const PARAMS=[
   {p:"empty.reserve",id:"in-empty-reserve",type:"num",label:"Zugangsreserve",short:"Leergut-Zugangsreserve",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>!!s.empty.on},
   /* Blocklager */
   {p:"block.mode",id:"sel-blockmode",type:"select",label:"Verteilungsmethode",options:[["sku","Schätzmodell (ABC-Pareto-Prüfung)"],["quota","Pauschale Volumenquote"],["manual","Manuell (Spalte Blockanteil)"]],onChange:()=>renderItems()},
-  {p:"block.quota",id:"in-quota",type:"num",label:"Volumenquote Block (Modus Quote)",short:"Volumenquote Block",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="quota",eff:"Anteil des Bestands im Blocklager im Quotenmodus."},
+  {p:"block.quota",id:"in-quota",type:"num",label:"Volumenquote Block (Modus Quote)",short:"Volumenquote Block",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="quota",eff:"Anteil des Bestands jeder Position im Blocklager, auch bei nicht stapelbarer Ware (dann eine Palette je Platz)."},
   {p:"block.aVol",id:"in-aVol",type:"num",label:"ABC: A-Volumenanteil",unit:"%",min:10,max:95,step:1,dec:0,visibleIf:s=>s.block.mode==="sku"},
   {p:"block.bVol",id:"in-bVol",type:"num",label:"ABC: B-Volumenanteil",unit:"%",min:2,max:40,step:1,dec:0,visibleIf:s=>s.block.mode==="sku"},
   {p:"block.minFill",id:"in-minFill",type:"num",label:"Mindest-Kanalfüllgrad",unit:"%",min:30,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="sku",eff:"Qualifikationsschwelle für das Blocklager im artikelbasierten Modus."},
@@ -2492,6 +2493,10 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.27",date:"28.10.2026",items:[
+    "Hinweis bei nicht stapelbarer Ware im Blocklager (Volumenquote oder manueller Blockanteil): nennt Positionen und Palettenzahl, Ursache und Abhilfe; kritisch, wenn die Blockfläche das Regal verdrängt. Bisher meldete das Werkzeug in diesem Fall nur fehlende Regalkapazität.",
+    "Wirkungstext der Volumenquote und FAQ ergänzt."
+  ]},
   {v:"V2.26",date:"28.10.2026",items:[
     "Vorgaben neu gegliedert: Durchsatzprofil (Spitzenstunde, WE-Anteil, Gleichzeitigkeit WE/WA) als eigener Abschnitt neben dem WE-Puffer; Betriebsflächen als Zusatzflächen unter Gebäude; der Bereich Brandschutz und Sicherheit entfällt – Sprinkler-Freiraum und In-Rack-Sprinklerung stehen in der Höhenkette, Fluchttunnel unter Lagertechnik.",
     "Preisquelle als Auswahl (Richtpreis/Katalog, Angebot, Rahmenvertrag); sie allein bestimmt die Datenqualität, die Notiz dient nur der Dokumentation. Ältere Planungsdateien mit Freitext-Quelle werden als Angebot übernommen.",
@@ -3540,7 +3545,7 @@ function computeModelCore(){
   const warn=[];
   const fillR=clamp(S.volume.fillRack,1,100)/100;
   const fillB=clamp(S.volume.fillBlock,1,100)/100;
-  let netTotal=0,grossRackNeed=0,grossBlockNeed=0,skuMissing=false,trucksTotal=0,transitDay=0;
+  let netTotal=0,grossRackNeed=0,grossBlockNeed=0,skuMissing=false,trucksTotal=0,transitDay=0,flatBlock=0,flatBlockItems=0;
   const trV=clamp(S.volume.transit||0,0,100)/100;
     const years=clamp(Number(S.volume.planningYears)||0,0,30);
     const growthFactor=Math.pow(1+clamp(Number(S.volume.growthRate)||0,0,100)/100,years);
@@ -3623,6 +3628,11 @@ function computeModelCore(){
     if(S.block.mode!=="sku"&&it.skus>0&&blockNet>0&&it.net>0)blockSkus=Math.ceil(it.skus*skuGrowthFactor*blockNet/it.net);
     it.blockSkus=blockNet>0?blockSkus:0;
     it.blockNet=Math.round(blockNet);
+    // Quote/manuell: nicht stapelbare Ware im Block belegt je Platz eine Palette (das Schätzmodell lässt sie im Regal)
+    if(S.block.mode!=="sku"&&it.blockNet>0){
+      const topCap=Math.max(1,Math.floor(Math.max(0,S.block.maxTop||7.5)*1000/Math.max(1,it.h||1)));
+      if(Math.min(clamp(it.stack>1?it.stack:1,1,Math.max(1,S.block.stackH)),topCap)<=1){flatBlock+=it.blockNet;flatBlockItems++;}
+    }
     it.rackNet=it.net-it.blockNet;
     it.blockGross=Math.ceil(it.blockNet/fillB*strategicFactor/availabilityFactor);
     it.rackGross=Math.ceil(it.rackNet/fillR*strategicFactor/availabilityFactor);
@@ -3752,6 +3762,14 @@ function computeModelCore(){
     warn.push({t:"WE-Puffer prozessbezogen: "+fmt(pbuf)+" Paletten bzw. "+fmt(reqA,1)+" m² Bemessungsfläche; wirksame WE-Zonentiefe "+fmt(effectiveWeDepth,2)+" m.",sev:false});
   }
   const geo=computeLayout(rack,block,grossRackNeed,warn,emptyCount,transitA,effectiveWeDepth);
+  if(flatBlock>0){
+    const rackFail=warn.some(w=>w.sev&&/Regalkapazität unzureichend|Keine Regalreihe darstellbar|reicht für keine Reihe/.test(w.t));
+    const quota=S.block.mode==="quota";
+    warn.push({t:"Nicht stapelbare Ware im Blocklager: "+flatBlockItems+(flatBlockItems===1?" Position":" Positionen")+" ohne nutzbare Stapelung (1+0 oder durch Stapelhöhe bzw. Oberkante Lagergut begrenzt) "+(flatBlockItems===1?"steht":"stehen")+" mit "+fmt(flatBlock)+" Paletten im Block, je Platz eine Palette. "+
+      (quota?"Die Volumenquote ("+fmt(clamp(S.block.quota,0,100))+" %) gilt für jede Position unabhängig von der Stapelbarkeit. ":"Der Blockanteil ist je Position manuell gesetzt. ")+
+      (rackFail?"Die Blockfläche verdrängt das Regal. ":"")+
+      (quota?"Abhilfe: Quote senken, Blockanteile manuell setzen oder das Schätzmodell wählen; es lagert nur stapelbare Ware im Block.":"Abhilfe: Blockanteil dieser Positionen auf 0 setzen oder das Schätzmodell wählen; es lagert nur stapelbare Ware im Block."),sev:rackFail});
+  }
 
   /* BOM */
   const bom=[];
