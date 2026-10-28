@@ -125,6 +125,7 @@ test("Optimierungsleiste erscheint beim Lauf und lässt sich ausblenden", async 
 
 test("Barrierefreiheit: jedes Eingabefeld hat eine Beschriftung", async (page) => {
   await withData(page);
+  for (const n of TABS) await page.evaluate((t) => showTab(t), n);
   const missing = await page.$$eval("input:not([type=hidden]),select,textarea", (els) =>
     els.filter((e) => !(e.labels && e.labels.length) && !e.getAttribute("aria-label") && !e.getAttribute("aria-labelledby") && !e.title)
       .map((e) => e.id || e.dataset.k || e.outerHTML.slice(0, 60)));
