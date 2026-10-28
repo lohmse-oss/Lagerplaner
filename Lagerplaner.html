@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.20</title>
+<title>Lagerplaner V2.21</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -140,7 +140,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .param-section h3 small{font-weight:400;color:var(--mut);font-size:10.5px}
 .grp{display:grid;gap:3px;max-width:820px}
 .param-section .grp{max-width:none;gap:6px}
-.grp>.hint,.grp>.zone-grid,.grp>#pallet-md{grid-column:1/-1}
+.grp>.hint,.grp>.side-table,.grp>#pallet-md{grid-column:1/-1}
 .fld{display:grid;grid-template-columns:minmax(250px,1fr) 150px 82px;align-items:center;gap:6px 12px;min-height:30px;padding:2px 0;font-size:12px}
 .fld label{justify-self:end;text-align:right;padding-right:4px;line-height:1.25;color:#334155}
 .fld select{grid-column:2/4;min-width:0}
@@ -160,10 +160,15 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .param-result .unit{color:var(--mut);font-size:11.5px}
 .conditional-off{display:none!important}
 .dependency-note{font-size:11px;color:#64748b;margin:6px 0 0;line-height:1.45}
-.zone-grid{display:grid;grid-template-columns:minmax(0,1fr) 92px 110px;gap:4px 8px;align-items:center;font-size:12px;color:var(--mut)}
-.zone-grid label{display:flex;align-items:center;gap:5px;color:var(--ink);cursor:pointer;white-space:nowrap}
-.zone-grid input{width:15px;height:15px;accent-color:var(--acc);margin:0}
-.zone-grid span{justify-self:end;text-align:right}
+.side-table{width:auto;margin:2px 0 8px auto;border-collapse:collapse;font-size:12px}
+.side-table th,.side-table td{padding:3px 10px;text-align:center;border-bottom:1px solid var(--line)}
+.side-table thead th{font-size:11px;font-weight:600;color:var(--mut);text-transform:none}
+.side-table tbody th{text-align:right;font-weight:400;color:#334155;text-transform:none;letter-spacing:0;font-size:12px}
+.side-table input[type=number]{width:72px;min-height:28px;padding:3px 8px;border:1px solid var(--line);border-radius:6px;font-size:12px}
+.side-table input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc);margin:0}
+.plusx-in{position:relative;display:block}
+.plusx-in>span{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:12px;pointer-events:none}
+.fld .plusx-in input[type=number]{padding-left:30px}
 .ffz-checks{display:flex;gap:4px 18px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#f8fafc}
 .lhmform{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .lhmform input{width:110px;background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:3px 6px;font-size:12px}
@@ -369,7 +374,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.20</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.21</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -1409,7 +1414,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.20 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.21 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -1478,7 +1483,7 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Wofür wird die Spalte Artikel benötigt?</b> Die Artikelanzahl ist die Zahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Sie wirkt ausschließlich im artikelbasierten Modus der Blockverteilung: Der Bestand wird in drei Artikelklassen geteilt (obere 20 Prozent der Artikel, mittlere 30, untere 50), denen je ein Volumenanteil zugeordnet wird. Eine Klasse qualifiziert sich für das Blocklager, wenn das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Ohne Artikelangabe qualifiziert sich die Position nicht und läuft vollständig über das Regal; der Report weist dies als Datenlücke aus. In den Modi Volumenquote und Manuell bestimmt sie die Mindestzahl der Blockkanäle: Kanäle sind artikelrein, die Artikel im Block werden anteilig zum Blockvolumen angesetzt.</p>
       <p><b>Was bedeutet der Prozentwert in der Spalte Blockanteil?</b> Im manuellen Modus ist er die Eingabe. In allen anderen Modi zeigt er den berechneten effektiven Blockanteil: Blockpaletten der Position im Verhältnis zum Netto-Bestand der Position, gerundet auf ganze Prozent.</p>
       <p><b>Was ist die Brutto-Lagerfläche?</b> Sie ist der Flächenbedarf des eigentlichen Lagers: Regalstellflächen, Regal-Arbeitsgänge, Blockstellflächen, Blockgassen, Leergutband, WE-/WA-Zonen und Abstandsflächen. Die Hallenfläche aus den Gebäudeangaben ist meist größer, weil Randwege, Technik- und Sozialflächen sowie Fehlflächen außerhalb des Werkzeugs liegen. Die Flächenbedarfsrechnung unter dem Hallenlayout weist beide Größen, die freie Fläche und den Nutzungsgrad aus.</p>
-      <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Ohne gewähltes Verhältnis bleibt die Hallenlänge eine Eingabe, und das Werkzeug berechnet die benötigte Hallenbreite. Mit festem Verhältnis (1:1 bis 3:1) werden beide Hallenmaße berechnet, und zwar als kleinste Halle im 0,5-Meter-Raster, die den Bedarf deckt. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
+      <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Standardmäßig sucht das Werkzeug die kleinste machbare Halle, deren Proportion (Längsseite zu Schmalseite) im eingestellten Bereich liegt, Standard 1 : 1 bis 3 : 1. Dabei wird geprüft, ob die Torseite (Nord-/Südwand) die Längs- oder die Schmalseite ist. Optionale Höchstmaße bilden Grundstücksgrenzen ab; gleiche Werte für „von“ und „bis“ erzwingen ein festes Verhältnis. Mit „Länge vorgegeben“ bleibt die Hallenlänge eine Eingabe, berechnet wird nur die Breite; liegt die Proportion über dem Bereich, erscheint ein Hinweis. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
       <p><b>Was macht die Schaltfläche Rückgängig?</b> Sie stellt den Planungsstand vor der letzten strukturellen Änderung wieder her, etwa vor einem CSV-Import, dem Laden einer Projekt- oder Eingabedatei, einem Optimierungslauf, einer Zuweisung an ausgewählte Positionen, dem Löschen von Positionen oder dem Zurücksetzen der Planung. Es werden bis zu 20 Schritte vorgehalten, ausschließlich im Arbeitsspeicher der laufenden Sitzung; nach dem Schließen des Tabs ist der Verlauf verloren. Eine Wiederherstellen-Funktion für rückgängig gemachte Schritte gibt es nicht.</p>
       <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW folgt automatisch der Kreuztabelle und passt sich an, wenn Maße, Gewicht, Stapelfaktor oder LKW-Typ der Position geändert werden. Ein eigener Wert überschreibt ihn; ein leeres Feld kehrt zum automatischen Wert zurück. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, begrenzt durch den Stapelfaktor der Palette, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Kennzahlen-Leiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Festwerte der LKW-Stammdaten; die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
       <p><b>Wie werden Transitpaletten, Miete und Rückbau berücksichtigt?</b> Der Transit-/Cross-Dock-Anteil (Register Vorgaben, Volumen und Reichweite) mindert den bestandsrelevanten Bedarf je Position um den Durchschub-Anteil. Der Durchschub verbraucht keine Regal- oder Blockfläche. Der separate Cross-Dock-Puffer ist abschaltbar (Standard aus): Nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche mit den einstellbaren Annahmen 0,5 Tage Standzeit und 1,5 Quadratmeter je Palette; sie erscheint als eigene Zeile der Brutto-Lagerfläche. Wird Cross-Docking innerhalb der dimensionierten WE-/WA-Zonen abgewickelt, bleibt der Puffer ausgeschaltet, um eine Doppelberechnung zu vermeiden. Die Miete Halle (Register Vorgaben, Gebäude und Bauraum) berechnet bei Angabe eines Quadratmeterpreises die monatlichen und jährlichen Mietkosten der Hallenfläche und weist sie in der Flächenbedarfsrechnung und in den Berichten aus. Die Rückbau- und Demontage-Pauschale ist in der Stückliste zuschaltbar und erhöht als Prozentsatz der Bauteilsumme den Gesamt-CAPEX.</p>
@@ -1716,7 +1721,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.20";
+const APP_VERSION="V2.21";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -1730,7 +1735,7 @@ function defaults(){
     lhmDefault:"euro",
     customLhm:{},
     customTrucks:{sonder:{label:"Sondermaß",fl:13.2,fw:2.45,fh:2.7,layers:1,payload:24000}},
-    building:{mode:"box-fit",L:60,W:36,ukb:9,doors:{N:2,S:2,O:0,W:0},zones:{N:"we",O:"none",S:"wa",W:"none"},orient:"quer",weDepth:7,waDepth:7,gridX:12,gridY:24,ratio:0,rent:0},
+    building:{mode:"box-fit",L:60,W:36,gfShape:"range",ratioMin:1,ratioMax:3,maxL:0,maxW:0,ukb:9,doors:{N:2,S:2,O:0,W:0},zones:{N:"we",O:"none",S:"wa",W:"none"},orient:"quer",weDepth:7,waDepth:7,gridX:12,gridY:24,rent:0},
     empty:{on:false,mode:"percent",value:5,stack:10,reserve:20},
     volume:{range:10,peak:1,safety:0,planningYears:0,growthRate:0,skuGrowthRate:0,peakHourShare:12,weShare:50,simultaneity:100,strategicReserve:0,blockedPlaces:0,operationalArea:0,bufferMode:"simple",bufferTrucks:2,bufferPallets:33,bufferDwell:1,bufferFactor:1.5,fillRack:85,fillBlock:70,transit:0,transitBufferOn:false,transitDays:0.5,transitAreaPerPal:1.5},
     block:{mode:"sku",quota:40,channelDepth:6,stackH:6,aVol:80,bVol:15,minFill:65,orient:"N",maxTop:7.5},
@@ -1754,28 +1759,34 @@ let R={ok:false,bom:[]};
    bind:false  Steuerelement hat eigene Bindung (Stammdaten, Stückliste) oder fehlt
    render:false Steuerelement steht außerhalb des erzeugten Formulars (statisches Markup)
    eff         Wirkungstext; Parameter mit eff erscheinen im Kundenbericht unter Annahmen */
-const RATIO_OPTIONS=[[0,"Frei (Länge vorgegeben)"],[1,"1 : 1"],[1.5,"3 : 2"],[0.6667,"2 : 3"],[2,"2 : 1"],[0.5,"1 : 2"],[3,"3 : 1"],[0.3333,"1 : 3"]];
 const yesNo=(yes,no)=>v=>v?yes:no;
 const PARAMS=[
   /* Gebäude & Flächen */
   {p:"building.mode",id:"sel-mode",type:"select",label:"Modus",short:"Hallenmodus",options:[["box-fit","Bestandshalle (Box-Fit)"],["greenfield","Greenfield (Flächenberechnung)"]],onChange:()=>refreshModeUI()},
-  {p:"building.L",id:"in-L",type:"num",label:"Hallenlänge",labelHtml:'Hallenlänge <span id="lbl-L-mode"></span>',unit:"m",min:10,max:1000,step:1,dec:1,eff:"Bestimmt Regallänge und Zahl der Felder je Reihe."},
-  {p:"building.W",id:"in-W",type:"num",label:"Hallenbreite",labelHtml:'Hallenbreite <span id="lbl-W-mode">(Bestand)</span>',unit:"m",min:6,max:1000,step:0.5,dec:1,eff:"Begrenzt die Zahl der Doppelreihen; im Greenfield wird sie berechnet."},
-  {p:"building.ratio",id:"sel-ratio",type:"select",num:true,label:"Seitenverhältnis (Greenfield)",short:"Seitenverhältnis Halle",options:RATIO_OPTIONS,min:0,max:5,
-    title:"Verhältnis Hallenlänge zu Hallenbreite. Im Greenfield-Modus werden bei gewähltem Verhältnis beide Hallenmaße aus dem Bedarf berechnet.",
-    show:v=>{const o=RATIO_OPTIONS.find(x=>x[0]===+v);return !+v?"frei":o?o[1]:fmt(v,2);},onChange:()=>refreshModeUI(),
-    eff:"Im Greenfield-Modus mit festem Verhältnis sucht das Werkzeug im begrenzten 5-m-Raster und verfeinert den ersten Treffer lokal auf 0,5 m. Kein globaler Minimalitätsnachweis."},
+  {p:"building.L",id:"in-L",type:"num",label:"Hallenlänge",labelHtml:'Hallenlänge <small>(Nord-/Südwand)</small> <span id="lbl-L-mode"></span>',unit:"m",min:10,max:1000,step:1,dec:1,eff:"Bestimmt Regallänge und Zahl der Felder je Reihe."},
+  {p:"building.W",id:"in-W",type:"num",label:"Hallenbreite",labelHtml:'Hallenbreite <small>(Ost-/Westwand)</small> <span id="lbl-W-mode"></span>',unit:"m",min:6,max:1000,step:0.5,dec:1,eff:"Begrenzt die Zahl der Doppelreihen; im Greenfield wird sie berechnet."},
+  {p:"building.gfShape",id:"sel-gfshape",type:"select",label:"Hallenmaße im Greenfield",short:"Greenfield-Hallenmaße",
+    options:[["range","Kleinste Halle im Bereich"],["length","Länge vorgegeben"]],visibleIf:s=>s.building.mode==="greenfield",onChange:()=>refreshModeUI(),
+    eff:"Bereich: Das Werkzeug sucht die kleinste machbare Halle, deren Proportion im Bereich liegt (beide Ausrichtungen der Torseite). Länge vorgegeben: nur die Breite wird gesucht; außerhalb des Bereichs erscheint ein Hinweis."},
+  {p:"building.ratioMin",id:"in-ratioMin",type:"num",label:"Seitenverhältnis von",short:"Seitenverhältnis min.",unit:": 1",min:1,max:6,step:0.25,dec:2,
+    title:"Längsseite zu Schmalseite; 1 = quadratisch.",visibleIf:s=>s.building.mode==="greenfield"&&s.building.gfShape!=="length"},
+  {p:"building.ratioMax",id:"in-ratioMax",type:"num",label:"Seitenverhältnis bis",short:"Seitenverhältnis max.",unit:": 1",min:1,max:6,step:0.25,dec:2,
+    title:"Längsseite zu Schmalseite. Bei vorgegebener Länge Schwelle für den Hinweis auf eine ungünstige Proportion.",visibleIf:s=>s.building.mode==="greenfield"},
+  {p:"building.maxL",id:"in-maxL",type:"num",label:"Höchstmaß Hallenlänge (0 = ohne)",short:"Höchstmaß Länge",unit:"m",min:0,max:1000,step:1,dec:0,
+    title:"Grundstücksgrenze Nord-/Südwand; 0 = keine Begrenzung.",show:v=>v>0?fmt(v)+" m":"keine",visibleIf:s=>s.building.mode==="greenfield"&&s.building.gfShape!=="length"},
+  {p:"building.maxW",id:"in-maxW",type:"num",label:"Höchstmaß Hallenbreite (0 = ohne)",short:"Höchstmaß Breite",unit:"m",min:0,max:1000,step:1,dec:0,
+    title:"Grundstücksgrenze Ost-/Westwand; 0 = keine Begrenzung.",show:v=>v>0?fmt(v)+" m":"keine",visibleIf:s=>s.building.mode==="greenfield"},
   {p:"building.ukb",id:"in-ukb",type:"num",label:"Unterkante Binder (UKB)",unit:"m",min:3,max:40,step:0.1,dec:1,eff:"Bestimmt die Ebenenzahl und damit die Regalkapazität."},
   {p:"building.rent",id:"in-rent",type:"num",label:"Miete Halle",unit:"€/m²·Monat",min:0,max:100,step:0.5,dec:1,eff:"Berechnet die monatlichen und jährlichen Mietkosten der Hallenfläche; 0 schaltet die Ausweisung aus."},
   {p:"building.zones",id:"zone-grid",type:"zone",label:"Zonenrollen",bind:false,diff:false,show:v=>zoneRolesLabel(v)},
   ...["N","O","S","W"].map(side=>({p:"building.zones."+side,type:"select",label:"Zonenrolle "+{N:"Nord",O:"Ost",S:"Süd",W:"West"}[side],render:false,bind:false,diff:false,
     options:[["none","keine"],["we","WE"],["wa","WA"],["wewa","WE und WA"]]})),
-  ...[["N","Nord"],["O","Ost"],["S","Süd"],["W","West"]].map(([side,name])=>({p:"building.doors."+side,id:"in-doors-"+side,type:"num",int:true,label:"Tore "+name,min:0,max:50,step:1,dec:0})),
+  ...[["N","Nord"],["O","Ost"],["S","Süd"],["W","West"]].map(([side,name])=>({p:"building.doors."+side,id:"in-doors-"+side,type:"num",int:true,label:"Tore "+name,min:0,max:50,step:1,dec:0,render:false})),
   {p:"building.weDepth",id:"in-weDepth",type:"num",label:"Tiefe WE-Zonen",unit:"m",min:0,max:60,step:0.5,dec:1,eff:"Mindert die verfügbare Fläche an allen Seiten mit der Rolle WE; bei Kombination mit WA an derselben Seite gilt der größere Einzelwert (Flächen nebeneinander)."},
   {p:"building.waDepth",id:"in-waDepth",type:"num",label:"Tiefe WA-Zonen",unit:"m",min:0,max:60,step:0.5,dec:1,eff:"Mindert die verfügbare Fläche an allen Seiten mit der Rolle WA; bei Kombination mit WE an derselben Seite gilt der größere Einzelwert (Flächen nebeneinander)."},
   {p:"building.orient",id:"sel-orient",type:"select",label:"Regal-Ausrichtung",options:[["quer","orthogonal zu Toren (Reihen längs)"],["laengs","parallel zu Toren (Gänge zu Toren)"]]},
-  {p:"building.gridX",id:"in-gridX",type:"num",label:"Stützenraster X",unit:"m",min:3,max:50,step:0.5,dec:1},
-  {p:"building.gridY",id:"in-gridY",type:"num",label:"Stützenraster Y",unit:"m",min:3,max:50,step:0.5,dec:1},
+  {p:"building.gridX",id:"in-gridX",type:"num",label:"Stützenabstand entlang der Länge (X)",short:"Stützenraster X",unit:"m",min:3,max:50,step:0.5,dec:1},
+  {p:"building.gridY",id:"in-gridY",type:"num",label:"Stützenabstand entlang der Breite (Y)",short:"Stützenraster Y",unit:"m",min:3,max:50,step:0.5,dec:1},
   /* Volumen & Puffer */
   {p:"volume.range",id:"in-range",type:"range",label:"Lagerreichweite",unit:"Tage",min:0.5,max:56,step:0.5,dec:1,eff:"Skaliert den Netto-Bestand und damit den Regal- und Blockbedarf direkt.",onChange:()=>refreshModeUI()},
   {p:"volume.peak",id:"in-peak",type:"num",label:"Peak-Faktor",unit:"×",min:1,max:3,step:0.05,dec:2,title:"Faktor auf Durchschnitts- oder Zielbestand. Neutraler Wert 1,00."},
@@ -1808,16 +1819,16 @@ const PARAMS=[
   {p:"empty.value",id:"in-empty-value",type:"num",label:"Menge",short:"Leergutmenge",unitId:"out-empty-unit",unit:"%",min:0,max:100000,step:0.5,dec:1,visibleIf:s=>!!s.empty.on,
     show:v=>fmt(v,1)+(S.empty.mode==="abs"?" Pal.":" % Brutto"),
     eff:"Bestimmt die Zahl der Leerpaletten (absolut oder als Anteil am Brutto-Bestand) und damit die Fläche des Leergutbands."},
-  {p:"empty.stack",id:"in-empty-stack",type:"plusx",label:"Stapelhöhe Leerpaletten (1+x)",short:"Stapelhöhe Leerpaletten",unit:"Pal.",min:1,max:31,visibleIf:s=>!!s.empty.on},
+  {p:"empty.stack",id:"in-empty-stack",type:"plusx",label:"Stapelhöhe Leerpaletten",short:"Stapelhöhe Leerpaletten",min:1,max:31,visibleIf:s=>!!s.empty.on},
   {p:"empty.reserve",id:"in-empty-reserve",type:"num",label:"Zugangsreserve",short:"Leergut-Zugangsreserve",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>!!s.empty.on},
   /* Blocklager */
-  {p:"block.mode",id:"sel-blockmode",type:"select",label:"Verteilungsmethode",options:[["sku","Schätzmodell (ABC-Pareto-Prüfung)"],["quota","Pauschale Volumenquote"],["manual","Manueller Override (Spalte Blockanteil)"]],onChange:()=>renderItems()},
+  {p:"block.mode",id:"sel-blockmode",type:"select",label:"Verteilungsmethode",options:[["sku","Schätzmodell (ABC-Pareto-Prüfung)"],["quota","Pauschale Volumenquote"],["manual","Manuell (Spalte Blockanteil)"]],onChange:()=>renderItems()},
   {p:"block.quota",id:"in-quota",type:"num",label:"Volumenquote Block (Modus Quote)",short:"Volumenquote Block",unit:"%",min:0,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="quota",eff:"Anteil des Bestands im Blocklager im Quotenmodus."},
   {p:"block.aVol",id:"in-aVol",type:"num",label:"ABC: A-Volumenanteil",unit:"%",min:10,max:95,step:1,dec:0,visibleIf:s=>s.block.mode==="sku"},
   {p:"block.bVol",id:"in-bVol",type:"num",label:"ABC: B-Volumenanteil",unit:"%",min:2,max:40,step:1,dec:0,visibleIf:s=>s.block.mode==="sku"},
   {p:"block.minFill",id:"in-minFill",type:"num",label:"Mindest-Kanalfüllgrad",unit:"%",min:30,max:100,step:1,dec:0,visibleIf:s=>s.block.mode==="sku",eff:"Qualifikationsschwelle für das Blocklager im artikelbasierten Modus."},
   {p:"block.channelDepth",id:"in-channelDepth",type:"num",int:true,label:"Kanaltiefe",unit:"Pal.",min:1,max:20,step:1,dec:0,eff:"Bestimmt die Kapazität je Kanal und die Blockfläche."},
-  {p:"block.stackH",id:"in-stackH",type:"plusx",label:"max. Stapelhöhe (1+x; Nachweis erforderlich)",short:"Max. Stapelhöhe Block (1+x)",unit:"Pal.",min:1,max:9,
+  {p:"block.stackH",id:"in-stackH",type:"plusx",label:"max. Stapelhöhe Block",short:"Max. Stapelhöhe Block",title:"Stapelfaktor 1 + x; statischer Nachweis erforderlich.",min:1,max:9,
     eff:"Begrenzt den nutzbaren Stapelfaktor je Position und bestimmt die Kanalkapazität im Blocklager."},
   {p:"block.orient",id:"sel-blockorient",type:"select",label:"Blockausrichtung",options:[["N","Kanäle quer · Zugang Nord"],["W","Kanäle längs · Zugang West"]]},
   {p:"block.maxTop",id:"in-maxTop",type:"num",label:"Oberkante Lagergut Block",unit:"m",min:2,max:12,step:0.1,dec:1,
@@ -1834,7 +1845,7 @@ const PARAMS=[
     eff:"Bestimmt die Gassen zwischen den Blockbändern und die westliche Längsgasse im Blocklager."},
   {p:"ffz.vnaPnD",id:"chk-vna-pnd",type:"check",label:"P&D-Plätze an Regalstirnseiten (bei VNA)",short:"P&D-Plätze bei VNA",show:yesNo("berücksichtigt","nicht berücksichtigt"),visibleIf:s=>(s.ffz.rackFFZ||[]).indexOf("vna")>=0,
     title:"Bei VNA im Regallager: P&D-Aufsetzplätze an den Regalstirnseiten berücksichtigen (je Stirnseite 1,0 m Aufsetzplatz und 1,0 m Anfahrabstand; vermindert die nutzbare Regallänge je Reihe um 4,0 m)."},
-  {p:"ffz.rackBase",id:"sel-rackbase",type:"select",label:"Bemessungsbasis der Regalgeometrie",short:"Regal-Auslegungsbasis",options:[["lead","Leitartikel nach größtem Brutto-Regalbedarf"],["envelope","Hüllkurve (Maximalmaße und -gewicht aller Regalpositionen)"]],
+  {p:"ffz.rackBase",id:"sel-rackbase",type:"select",label:"Bemessungsbasis der Regalgeometrie",short:"Regal-Auslegungsbasis",options:[["lead","Leitartikel (größter Regalbedarf)"],["envelope","Hüllkurve aller Regalpositionen"]],title:"Leitartikel: Position mit dem größten Brutto-Regalbedarf. Hüllkurve: Maximalmaße und Maximalgewicht aller Regalpositionen.",
     eff:"Leitartikel dimensioniert Fachhöhe und Fachlast nach der Position mit dem größten Brutto-Regalbedarf; Hüllkurve nach den Maximalmaßen und dem Maximalgewicht aller Regalpositionen."},
   {p:"ffz.fieldMode",id:"sel-fieldmode",type:"select",label:"Lichte Feldweite",short:"Feldweite-Modus",options:[["auto","Auto-Plausibilität"],["fix","Festes Maß 1.800–3.600 mm"]]},
   {p:"ffz.fieldWidth",id:"in-fieldWidth",type:"num",label:"Feldweite (fix)",unit:"mm",min:1800,max:3600,step:100,dec:0,visibleIf:s=>s.ffz.fieldMode==="fix",eff:"Bestimmt Paletten je Feld, Rahmenzahl und CAPEX."},
@@ -1843,9 +1854,9 @@ const PARAMS=[
   {p:"ffz.rackFill",id:"sel-rackfill",type:"select",label:"Regalbelegung",short:"Regalbelegung",options:[["need","Nach Bedarf (Soll-Bestand)"],["hall","Halle mit Regalreihen füllen"]],
     visibleIf:s=>s.building.mode!=="greenfield",eff:"Halle füllen: alle passenden Regalreihen werden gebaut, unabhängig vom Bedarf (Kapazitätsreserve, höherer CAPEX). Blocklager bleibt nach Bedarf."},
   {p:"ffz.liftHeight",id:"in-liftheight",type:"num",label:"Maximale Hubhöhe des Regal-FFZ",short:"Maximale Hubhöhe",unit:"m",min:1,max:20,step:0.1,dec:1,title:"Begrenzt die Oberkante der letzten Traversenebene."},
-  {p:"ffz.liftReserve",id:"in-liftreserve",type:"num",label:"Bedienreserve unter maximaler Hubhöhe",short:"Bedienreserve Hubhöhe",unit:"mm",min:0,max:1000,step:50,dec:0,title:"Abzug von der maximalen Hubhöhe für Handhabungsreserve."},
+  {p:"ffz.liftReserve",id:"in-liftreserve",type:"num",label:"Bedienreserve unter maximaler Hubhöhe",short:"Bedienreserve Hubhöhe",unit:"m",scale:1000,min:0,max:1000,step:50,dec:2,title:"Abzug von der maximalen Hubhöhe für Handhabungsreserve."},
   /* Sicherheit & Abstände */
-  {p:"fire.sprinkler",id:"in-sprinkler",type:"num",label:"Sprinkler-Freiraum unter UKB",short:"Sprinkler-Freiraum",unit:"mm",min:0,max:2000,step:50,dec:0,eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
+  {p:"fire.sprinkler",id:"in-sprinkler",type:"num",label:"Sprinkler-Freiraum unter UKB",short:"Sprinkler-Freiraum",unit:"m",scale:1000,min:0,max:2000,step:50,dec:2,eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
   {p:"fire.inRack",id:"chk-inrack",type:"check",label:"In-Rack-Sprinklerung",title:"Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe."},
   {p:"fire.tunnelInterval",id:"in-tunnelint",type:"num",label:"Fluchttunnel-Intervall",unit:"m",min:0,max:200,step:1,dec:0,eff:"Fachplätze in Tunnelzonen erhöhen den Platzbedarf."},
   {p:"fire.tunnelClear",id:"in-tunnelclear",type:"num",label:"lichte Durchgangshöhe Tunnel",short:"Durchgangshöhe Tunnel",unit:"m",min:2,max:6,step:0.1,dec:1},
@@ -1879,13 +1890,23 @@ function paramShow(d,v){
   if(d.type==="check")return v?"Ja":"Nein";
   if(d.type==="select"){const o=d.options.find(x=>x[0]===v);return o?o[1]:String(v==null?"–":v);}
   if(d.type==="plusx")return "1+"+(Math.max(1,v||1)-1);
-  if(typeof v==="number")return fmt(v,d.dec||0)+(d.unit?" "+d.unit:"");
+  if(typeof v==="number")return fmt(d.scale?v/d.scale:v,d.dec||0)+(d.unit?" "+d.unit:"");
   return v==null||v===""?"–":String(v);
 }
 /* Wertebereich als [min,max] auf den gespeicherten Wert bezogen */
 function paramRange(d){return [d.min==null?-Infinity:d.min,d.max==null?Infinity:d.max];}
 /* Begrenzt Zahlenwerte eines vollständigen Planungsstands auf die Schemagrenzen. Liefert die Änderungen. */
+// Bis V2.20: building.ratio (0 = Länge vorgegeben, sonst festes Verhältnis Länge : Breite)
+function migrateLegacyBuilding(state){
+  const b=state&&state.building;
+  if(!b||b.ratio===undefined)return;
+  const r=Number(b.ratio)||0;
+  if(r>0){const q=clamp(Math.round(Math.max(r,1/r)*4)/4,1,6);b.gfShape="range";b.ratioMin=q;b.ratioMax=q;}
+  else b.gfShape="length";
+  delete b.ratio;
+}
 function repairParamRanges(state){
+  migrateLegacyBuilding(state);
   const fixed=[];
   for(const d of PARAMS){
     if(!isRangedParam(d))continue;
@@ -1917,13 +1938,16 @@ function validateParamTypes(obj,label){
 
 /* Gliederung der Vorgaben: Bereiche (Unterregister) und Abschnitte. Stammdaten (pal) bleiben statisches Markup. */
 const PARAM_LAYOUT=[
-  {id:"gbp",title:"Gebäude & Flächen",intro:["Baulicher Rahmen","Abmessungen, Tore, Zonen und Raster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer."],sections:[
-    {title:"Gebäude",sub:"Bestand oder Greenfield",items:["building.mode","building.L","building.W","building.ratio",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"},"building.ukb","building.rent"]},
+  {id:"gbp",title:"Gebäude & Flächen",intro:["Baulicher Rahmen","Hallenmaße, Höhenkette, Tore, Zonen und Stützenraster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer."],sections:[
+    {title:"Halle",sub:"Länge, Breite und Unterkante Binder",items:["building.mode","building.L","building.W","building.ukb","building.gfShape","building.ratioMin","building.ratioMax","building.maxL","building.maxW",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"}]},
+    {title:"Höhenkette",sub:"Gebäude, Sprinkler, Stapler und Lagergut begrenzen unabhängig",items:["fire.sprinkler","ffz.liftHeight","ffz.liftReserve","block.maxTop"],after:'<div class="height-balance" id="height-balance"></div>'},
     {title:"Tore und Zonen",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
-      items:["building.zones","building.doors.N","building.doors.O","building.doors.S","building.doors.W","building.weDepth","building.waDepth"]},
-    {title:"Gebäuderaster",sub:"Layoutvorgaben",items:["building.orient","building.gridX","building.gridY"]}]},
+      items:["building.zones","building.weDepth","building.waDepth"]},
+    {title:"Stützenraster",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]}]},
   {id:"vol",title:"Volumen & Puffer",intro:["Bemessungsgrößen","Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf."],sections:[
-    {title:"Bestandsbemessung",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety","volume.planningYears","volume.growthRate","volume.skuGrowthRate","volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
+    {title:"Bestand",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety"]},
+    {title:"Wachstum",sub:"Planungshorizont",items:["volume.planningYears","volume.growthRate","volume.skuGrowthRate"]},
+    {title:"Kapazitätsfaktoren",sub:"Reserve, Sperrung und Füllgrad",items:["volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
     {id:"sec-buffer",title:"WE-Puffer",sub:"Durchsatzbezogene Bemessung",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor","volume.peakHourShare","volume.weShare","volume.simultaneity"]},
     {title:"Transit- und Cross-Dock-Puffer",sub:"Nur bei separater Pufferfläche",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal","volume.operationalArea"]},
     {title:"Leergut",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
@@ -1932,16 +1956,16 @@ const PARAM_LAYOUT=[
     intro:["Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis."],sections:[
     {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
     {title:"Arbeitsgänge",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
-    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
-    {title:"Höhenbegrenzung",sub:"Gebäude und Stapler wirken als unabhängige Grenzen",items:["ffz.liftHeight","ffz.liftReserve"],after:'<div class="height-balance" id="height-balance"></div>'}]},
+    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]}]},
   {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
     intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
     {title:"Zuordnungsmodell",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
-    {title:"Kanalgeometrie",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient","block.maxTop"]}]},
+    {title:"Kanalgeometrie",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient"]}]},
   {id:"fir",title:"Sicherheit & Abstände",intro:["Vorgaben und Nachweise","Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise."],sections:[
-    {title:"Brandschutz",sub:"Geometrische Vorgaben",items:["fire.sprinkler","fire.inRack"]},
+    {title:"Brandschutz",sub:"Sprinkler-Freiraum steht in der Höhenkette (Gebäude & Flächen)",items:["fire.inRack"]},
     {title:"Fluchtwege",sub:"Vorplanungswerte",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
   {id:"cost",title:"Kosten & Optionen",intro:["Preis- und Kalkulationsbasis","Die Mengenermittlung steht im Register Stückliste & CAPEX. Hier werden Preisstand, Quelle, Unsicherheit und Einrechnungsoptionen gepflegt."],sections:[
+    {title:"Hallenkosten",sub:"Betrieb",items:["building.rent"]},
     {title:"Preisbasis",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
     {title:"Einrechnungsoptionen",sub:"Wirkung auf die Stückliste",items:["bom.pushThrough","bom.grating","bom.demount"],
       after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Register <b>Stückliste &amp; CAPEX</b>.</p>'}]}
@@ -1961,19 +1985,26 @@ function paramFieldHtml(d){
     case "text": case "month":
       return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="'+d.type+'"'+(d.placeholder?' placeholder="'+escH(d.placeholder)+'"':'')+(d.maxLength?' maxlength="'+d.maxLength+'"':'')+title+'></div>';
     case "range":
-      return '<div class="fld wide"><label for="'+d.id+'">'+label+' <span class="val calc" id="out-range" style="float: right"></span></label>'+
+      return '<div class="fld wide"><label for="'+d.id+'">'+label+' <span class="val calc" id="out-range" style="margin-left: 8px"></span></label>'+
         '<input id="'+d.id+'" type="range"'+lim(d.min,d.max,d.step)+'>'+
         '<span style="display: flex; gap: 6px; align-items: center"><input id="num-range" aria-label="'+escH(d.label)+' in '+escH(d.unit)+'" type="number"'+lim(d.min,d.max,d.step)+' style="width: 64px"> '+unit+'</span></div>';
     case "plusx":
-      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="number"'+lim(d.min-1,d.max-1,1)+title+'>'+unit+'</div>';
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><span class="plusx-in"><span aria-hidden="true">1 +</span><input id="'+d.id+'" type="number"'+lim(d.min-1,d.max-1,1)+title+'></span>'+unit+'</div>';
     case "ffz":
       return '<div class="fld wide" id="'+d.id+'"><label>'+label+'</label><div class="ffz-checks" role="group" aria-label="'+escH(d.label)+'">'+
         d.items.map(([key,text])=>'<label class="ck"><input type="checkbox" data-ffzgrp="'+d.p.split(".")[1]+'" data-ffz="'+key+'"> '+escH(text)+'</label>').join("")+'</div></div>';
     case "zone":
-      return '<div class="zone-grid" id="'+d.id+'" role="group" aria-label="Zonenrollen je Seite">'+[["N","Nord"],["O","Ost"],["S","Süd"],["W","West"]].map(([s,n])=>
-        '<span>Zone '+n+'</span><label><input type="checkbox" id="in-zone-'+s+'-we"> WE</label><label><input type="checkbox" id="in-zone-'+s+'-wa"> WA</label>').join("")+'</div>';
-    default:
-      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="number"'+lim(d.min,d.max,d.step)+title+'>'+unit+'</div>';
+      // Tore und Zonenrollen je Hallenseite in einer Tabelle
+      return '<table class="side-table" id="'+d.id+'"><thead><tr><th scope="col">Hallenseite</th><th scope="col">Tore</th><th scope="col">WE-Zone</th><th scope="col">WA-Zone</th></tr></thead><tbody>'+
+        [["N","Nord"],["O","Ost"],["S","Süd"],["W","West"]].map(([s,n])=>{
+          const door=PARAM_BY_PATH.get("building.doors."+s);
+          return '<tr><th scope="row">'+n+'</th><td><input id="'+door.id+'" type="number"'+lim(door.min,door.max,door.step)+' aria-label="'+escH(door.label)+'"></td>'+
+            '<td><input type="checkbox" id="in-zone-'+s+'-we" aria-label="WE-Zone '+n+'"></td><td><input type="checkbox" id="in-zone-'+s+'-wa" aria-label="WA-Zone '+n+'"></td></tr>';
+        }).join("")+'</tbody></table>';
+    default:{
+      const k=d.scale||1;
+      return '<div class="fld"><label for="'+d.id+'">'+label+'</label><input id="'+d.id+'" type="number"'+lim(d.min/k,d.max/k,d.step/k)+title+'>'+unit+'</div>';
+    }
   }
 }
 function renderParamForm(){
@@ -2001,6 +2032,7 @@ function readParamControl(d,el){
   let v=raw===""?NaN:Number(raw);
   if(!Number.isFinite(v))return {ok:false,value:NaN};
   if(d.type==="plusx")v=Math.round(v)+1;else if(d.int)v=Math.round(v);
+  if(d.scale)v=Math.round(v*d.scale);
   const [mn,mx]=paramRange(d);
   return {ok:v>=mn&&v<=mx,value:v};
 }
@@ -2008,14 +2040,15 @@ function writeParamControl(d,el,v){
   if(!el)return;
   if(d.type==="check")el.checked=!!v;
   else if(d.type==="plusx")el.value=Math.max(0,(Number(v)||1)-1);
+  else if(d.scale&&typeof v==="number")el.value=v/d.scale;
   else el.value=v==null?"":v;
 }
 function markParamInvalid(d,el,invalid){
   el.classList.toggle("is-invalid",invalid);
   if(invalid){
-    const [mn,mx]=paramRange(d),off=d.type==="plusx"?1:0;
+    const [mn,mx]=paramRange(d),off=d.type==="plusx"?1:0,k=d.scale||1;
     el.setAttribute("aria-invalid","true");
-    el.title="Zulässig: "+fmt(mn-off,d.dec||0)+" bis "+fmt(mx-off,d.dec||0)+(d.unit?" "+d.unit:"")+". Beim Verlassen des Felds wird der Wert begrenzt.";
+    el.title="Zulässig: "+fmt(mn/k-off,d.dec||0)+" bis "+fmt(mx/k-off,d.dec||0)+(d.unit?" "+d.unit:"")+". Beim Verlassen des Felds wird der Wert begrenzt.";
   }else{el.removeAttribute("aria-invalid");el.title=d.title||"";if(!el.title)el.removeAttribute("title");}
 }
 function setParamValue(d,v){
@@ -2246,6 +2279,12 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.21",date:"28.10.2026",items:[
+    "Greenfield-Hallenmaße: Statt eines festen Seitenverhältnisses gilt ein zulässiger Bereich (Längsseite zu Schmalseite, Standard 1 : 1 bis 3 : 1) mit optionalen Höchstmaßen für das Grundstück. Das Werkzeug wählt darin die kleinste machbare Halle und prüft beide Lagen der Torseite. Bei vorgegebener Hallenlänge erscheint ein Hinweis, wenn die Proportion über dem Bereich liegt. Ältere Planungsstände werden übernommen (festes Verhältnis wird zu einem Bereich mit gleichen Grenzen).",
+    "Gebäude & Flächen neu gegliedert: Halle (Modus, Länge, Breite, Unterkante Binder, Greenfield-Proportion), Höhenkette mit Höhenbilanz (Sprinkler-Freiraum, Hubhöhe, Bedienreserve, Oberkante Lagergut Block), Tore und Zonen als Tabelle je Hallenseite, Stützenraster mit benannten Achsen. Regal-Ausrichtung steht jetzt unter Lagertechnik, die Miete unter Kosten.",
+    "Einheiten: Sprinkler-Freiraum und Bedienreserve in Metern (gespeichert unverändert in Millimetern). Stapelhöhen einheitlich als 1 + x. Volumen & Puffer in Bestand, Wachstum und Kapazitätsfaktoren gegliedert; gekürzte Auswahltexte.",
+    "Höhenbilanz wird nach jeder Berechnung aktualisiert (bisher nur bei Tastatureingaben, daher teils veraltete Werte)."
+  ]},
   {v:"V2.20",date:"28.10.2026",items:[
     "Optimierung neu gefasst: drei Ziele statt vier. Minimaler CAPEX (so wenig Regal wie möglich für den Soll-Bestand), maximaler Flächennutzungsgrad (Lagerplätze je m² belegter Lagerfläche aus Regal, Block und Gängen, ohne WE/WA-Zonen und freie Hallenfläche) und maximale Lagerkapazität (Halle mit Regalreihen füllen; Blocklager bleibt nach Bedarf). Bei Gleichstand entscheidet CAPEX bzw. Flächennutzung.",
     "Hallenmaße folgen dem Modus: Bestandshalle fest, Greenfield je Variante neu ermittelt. Maximale Lagerkapazität ist nur mit festen Hallenmaßen wählbar.",
@@ -2960,13 +2999,13 @@ function updateOptGoalUI(){
   if(hint)hint.textContent=text[sel.value]+(g?" Maximale Lagerkapazität nur mit festen Hallenmaßen (Bestandshalle).":"");
 }
 function refreshModeUI(){
-  updateOptGoalUI();
+  updateOptGoalUI();updateParameterVisibility();
   const g=S.building.mode==="greenfield";
-  const ratio=+(S.building.ratio||0);
+  const fixedL=S.building.gfShape==="length";
   const w=$("in-W");if(w)w.disabled=g;
-  const l=$("in-L");if(l)l.disabled=g&&ratio>0;
-  const lw=$("lbl-W-mode");if(lw)lw.textContent=g?"(berechnet)":"(Bestand)";
-  const ll=$("lbl-L-mode");if(ll)ll.textContent=(g&&ratio>0)?"(berechnet)":"";
+  const l=$("in-L");if(l)l.disabled=g&&!fixedL;
+  const lw=$("lbl-W-mode");if(lw)lw.textContent=g?"– berechnet":"";
+  const ll=$("lbl-L-mode");if(ll)ll.textContent=g?(fixedL?"– vorgegeben":"– berechnet"):"";
   const o=$("out-range");if(o)o.textContent=fmt(S.volume.range,1)+" Tage ("+fmt(S.volume.range/7,1)+" Wo.)";
   const nr=$("num-range");if(nr&&document.activeElement!==nr)nr.value=S.volume.range;
 }
@@ -3048,20 +3087,58 @@ function computeModelAtDimensions(lengthMM,widthMM){
     return computeModel();
   }finally{S=original;GF_TEST.L=previous.L;GF_TEST.W=previous.W;GF_SEARCH=previous.active;}
 }
-function searchHallDimensions(lengthMM,ratio){
+// Zulässige Hallenproportion im Greenfield: Längsseite zu Schmalseite, optional mit Höchstmaßen (Grundstück)
+function hallShapeLimits(b){
+  const a=clamp(Number(b.ratioMin)||1,1,10),z=clamp(Number(b.ratioMax)||3,1,10);
+  return {lo:Math.min(a,z),hi:Math.max(a,z),maxL:Number(b.maxL)>0?Math.round(b.maxL*1000):400000,maxW:Number(b.maxW)>0?Math.round(b.maxW*1000):400000};
+}
+function searchHallDimensions(lengthMM,b){
   // Begrenzte, offen ausgewiesene Suche: keine Monotonieannahme und kein globales Minimum.
-  const evaluate=w=>{
-    const l=ratio>0?Math.round(w*ratio/500)*500:lengthMM;
-    if(l<10000)return null;
+  const lim=hallShapeLimits(b);
+  let checked=0;
+  const evaluate=(l,w)=>{
+    checked++;
     const model=computeModelAtDimensions(l,w);
     return assessModelFeasibility(model).feasible?{L:l,W:w,model}:null;
   };
-  let best=null,checked=0;
-  for(let w=10000;w<=400000;w+=5000){checked++;const candidate=evaluate(w);if(candidate){best=candidate;break;}}
-  if(best){
-    for(let w=Math.max(8000,best.W-4500);w<best.W;w+=500){checked++;const candidate=evaluate(w);if(candidate){best=candidate;break;}}
+  const shapeOk=(l,w)=>{const r=Math.max(l,w)/Math.min(l,w);return r>=lim.lo-1e-9&&r<=lim.hi+1e-9&&l<=lim.maxL&&w<=lim.maxW;};
+  const area=(x,y)=>x[0]*x[1]-y[0]*y[1];
+  let best=null,method;
+  if(b.gfShape==="length"){
+    for(let w=10000;w<=lim.maxW&&!best;w+=5000)best=evaluate(lengthMM,w);
+    for(let w=best?Math.max(10000,best.W-4500):Infinity;best&&w<best.W;w+=500){const c=evaluate(lengthMM,w);if(c){best=c;break;}}
+    method="Hallenlänge vorgegeben; Breite im 5-m-Raster bis "+fmt(lim.maxW/1000)+" m gesucht und auf 0,5 m verfeinert. Kein globaler Minimalitätsnachweis.";
+  }else{
+    // Untergrenze: Die Halle muss mindestens die Stellflächen des Bedarfs aufnehmen (Regal je Platz aus einer
+    // Referenzhalle, Blockkanäle nach Bedarf), ohne Gänge und Zonen; 85 % decken Tunnel- und Rundungseffekte ab.
+    checked++;
+    const ref=computeModelAtDimensions(Math.min(lim.maxL,200000),Math.min(lim.maxW,200000));
+    const ra=ref.geo&&ref.geo.area,rackPerPlace=ra&&ref.geo.capacity>0?ra.rack/ref.geo.capacity:0;
+    const lowerBound=ra?0.85*(rackPerPlace*ref.grossRackNeed+ra.block):0;
+    // Rasterpaare nach Fläche aufsteigend: das erste machbare Paar ist die kleinste Halle im 5-m-Raster
+    // Obergrenze: das Sechsfache der Stellflächen zuzüglich 3.000 m² für Zonen und Randflächen. Ist schon die größte
+    // Halle darunter nicht machbar, liegt es nicht an der Größe (z. B. harter Konflikt); die Suche endet dann früh.
+    const upperBound=lowerBound>0?6*lowerBound+3000e6:Infinity;
+    const cands=[];
+    for(let w=10000;w<=lim.maxW;w+=5000)for(let l=10000;l<=lim.maxL;l+=5000)if(shapeOk(l,w)&&l*w>=lowerBound&&l*w<=upperBound)cands.push([l,w]);
+    cands.sort((x,y)=>area(x,y)||Math.max(x[0]/x[1],x[1]/x[0])-Math.max(y[0]/y[1],y[1]/y[0]));
+    const largest=cands.length?cands[cands.length-1]:null;
+    if(largest&&cands.length>20&&!evaluate(largest[0],largest[1]))cands.length=0;
+    for(const [l,w] of cands){best=evaluate(l,w);if(best)break;}
+    // Verfeinerung auf 0,5 m: beide Maße im Verhältnis, dann die Breite, dann die Länge verkleinern
+    if(best){
+      for(let k=0.91;k<0.999;k+=0.01){
+        const l=Math.round(best.L*k/500)*500,w=Math.round(best.W*k/500)*500;
+        if(l<10000||w<10000||l*w>=best.L*best.W||!shapeOk(l,w))continue;
+        const c=evaluate(l,w);if(c){best=c;break;}
+      }
+      for(let w=Math.max(10000,best.W-4500);w<best.W;w+=500){if(!shapeOk(best.L,w))continue;const c=evaluate(best.L,w);if(c){best=c;break;}}
+      for(let l=Math.max(10000,best.L-4500);l<best.L;l+=500){if(!shapeOk(l,best.W))continue;const c=evaluate(l,best.W);if(c){best=c;break;}}
+    }
+    method="Seitenverhältnis "+fmt(lim.lo,2)+" bis "+fmt(lim.hi,2)+" : 1 (Längsseite zu Schmalseite)"+(lim.maxL<400000||lim.maxW<400000?", Höchstmaße "+fmt(lim.maxL/1000)+" × "+fmt(lim.maxW/1000)+" m":"")+
+      "; kleinste machbare Halle im 5-m-Raster, auf 0,5 m verfeinert. Kein globaler Minimalitätsnachweis.";
   }
-  return {best,checked,method:'5-m-Suchraster bis 400 m Breite; erste gefundene Loesung im vorangehenden Intervall auf 0,5 m verfeinert. Kein globaler Minimalitaetsnachweis.'};
+  return {best,checked,method};
 }
 function applyOptimizationRow(row){
   if(!row)return false;
@@ -3070,7 +3147,7 @@ function applyOptimizationRow(row){
     const before=JSON.parse(JSON.stringify(S));
     applyRow(row);
     if(S.building.mode==='greenfield'){
-      S.building.L=row.hallL;S.building.W=row.hallW;S.building.ratio=row.ratio||0;
+      S.building.L=row.hallL;S.building.W=row.hallW;
     }
     const model=computeModel(),check=assessModelFeasibility(model);
     if(!check.feasible)throw new Error('Variante ist im aktuellen Projekt nicht mehr machbar: '+check.reasons.map(x=>x.text).join(' '));
@@ -3538,7 +3615,7 @@ function recalc(){
   if(odEl)odEl.textContent=(S.building.mode==="greenfield"&&geo)?(fmt(geo.L/1000,1)+" × "+fmt(geo.W/1000,1)+" m"):"–";
   if(S.building.mode==="greenfield"&&geo){
     S.building.W=Math.round(geo.W/100)/10;
-    if(+(S.building.ratio||0)>0)S.building.L=Math.round(geo.L/100)/10;
+    if(S.building.gfShape!=="length")S.building.L=Math.round(geo.L/100)/10;
     const wEl=$("in-W");
     if(wEl&&document.activeElement!==wEl)wEl.value=S.building.W;
     const lEl=$("in-L");
@@ -3546,6 +3623,7 @@ function recalc(){
   }
   renderAreas(geo);
   renderWays(geo);
+  renderHeightBalance();
   const deck=grossRackNeed>0?Math.round(cap/grossRackNeed*100):(cap>0?100:0);
   const bar=$("kpi-utilbar");
   bar.style.width=clamp(deck,0,100)+"%";
@@ -3701,7 +3779,7 @@ function renderAreas(geo){
       viz.innerHTML=parts.map(x=>{const pc=x[1]/Math.max(1,a.brutto)*100;return '<div class="area-viz-row"><span>'+x[0]+'</span><div class="area-viz-track"><div class="area-viz-fill" style="width:'+Math.max(1,pc).toFixed(1)+'%"></div></div><b>'+fmt(pc,1)+' %</b></div>';}).join("");
     }
   card.style.display="";
-  if(note)note.textContent="Brutto-Lagerfläche = Stellflächen, Arbeitsgänge, Blockgassen, Zonen, Leergut und Abstandsflächen. Im Greenfield-Modus folgt die Hallenfläche dem Bedarf"+(geo.ratioApplied?" (festes Seitenverhältnis)":"")+". Die freie Fläche enthält Randwege, Technik- und Sozialflächen, die dieses Werkzeug nicht plant."+(a.transit>0?" Der Transit-/Cross-Dock-Puffer folgt der Annahme "+fmt(S.volume.transitDays||0.5,1)+" Tage Standzeit und "+fmt(S.volume.transitAreaPerPal||1.5,1)+" m² je Palette und ist in der Brutto-Lagerfläche enthalten.":"");
+  if(note)note.textContent="Brutto-Lagerfläche = Stellflächen, Arbeitsgänge, Blockgassen, Zonen, Leergut und Abstandsflächen. Im Greenfield-Modus folgt die Hallenfläche dem Bedarf"+(geo.ratioApplied?(S.building.gfShape==="length"?" (Hallenlänge vorgegeben)":" (kleinste Halle im Seitenverhältnis-Bereich)"):"")+". Die freie Fläche enthält Randwege, Technik- und Sozialflächen, die dieses Werkzeug nicht plant."+(a.transit>0?" Der Transit-/Cross-Dock-Puffer folgt der Annahme "+fmt(S.volume.transitDays||0.5,1)+" Tage Standzeit und "+fmt(S.volume.transitAreaPerPal||1.5,1)+" m² je Palette und ist in der Brutto-Lagerfläche enthalten.":"");
 }
 
 /* ============================ Layout ============================ */
@@ -3757,11 +3835,13 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
   /* Gemeinsame Hallensuche fuer Regal-, Misch- und Blockplanungen. */
   let ratioApplied=false,hallSearch=null;
   if(b.mode==="greenfield"&&(rack||block)&&!GF_TEST.L&&!GF_SEARCH){
-    const search=searchHallDimensions(L,+(b.ratio||0));
+    const search=searchHallDimensions(L,b);
     hallSearch={found:!!search.best,checked:search.checked,method:search.method};
     if(search.best){
       L=search.best.L;W_in=search.best.W;ratioApplied=true;
       warn.push({t:"Greenfield: gefundene Hallenmasse "+fmt(L/1000,1)+" x "+fmt(W_in/1000,1)+" m. "+search.method,sev:false});
+      const prop=Math.max(L,W_in)/Math.min(L,W_in),lim=hallShapeLimits(b);
+      if(b.gfShape==="length"&&prop>lim.hi+1e-9)warn.push({t:"Greenfield: Die Halle hat ein Seitenverhältnis von "+fmt(prop,1)+" : 1 und liegt über dem zulässigen Bereich bis "+fmt(lim.hi,2)+" : 1. Vorgegebene Hallenlänge prüfen oder die kleinste Halle im Seitenverhältnis-Bereich suchen lassen.",sev:true});
     }else{
       ratioApplied=true;
       warn.push({t:"Greenfield: Im begrenzten Suchraster wurde keine machbare Halle gefunden. Das beweist keine generelle Unmoeglichkeit. "+search.method,sev:true,hard:true});
@@ -4827,6 +4907,7 @@ function ensureScenarioMetrics(){
     const backupS=S,backupR=R;
     try{
       S=deepMerge(defaults(),JSON.parse(JSON.stringify(sc.data)));
+      migrateLegacyBuilding(S);
       if(Array.isArray(sc.data.items))S.items=sc.data.items.map(x=>deepMerge(newItem(),x));
       R=Object.assign({ok:true},computeModel());computeCapexSummary();
       sc.metrics=scenMetrics();
@@ -5222,7 +5303,7 @@ function optimizeLayoutCore(){
     const row={o:S.building.orient,bo:S.block.orient,w:m.rack?m.rack.fieldW:0,cd:S.block.channelDepth,fill:S.ffz.rackFill,
       hasRack:!!m.rack,hasBlock:!!m.block,n:g.nDouble,singles:g.nSingles||0,cap:cs.rackAvailable,blockCap:cs.blockAvailable,places,
       deck:need>0?Math.round(places/need*100):100,storeA,density:storeA>0?places/storeA:0,
-      hallL:g.L/1000,hallW:g.W/1000,ratio:S.building.ratio||0,area:a.hall/1e6,greenfield,feasible:true,
+      hallL:g.L/1000,hallW:g.W/1000,area:a.hall/1e6,greenfield,feasible:true,
       capex,capexPP:capex/Math.max(1,places),zones:Object.assign({},S.building.zones)};
     row.score=OPT_SCORE[goal](row)[0];
     rows.push(row);

@@ -63,7 +63,8 @@ test("Formular: jedes Feld kommt aus dem Schema, mit Beschriftung und Grenzen", 
       if (d.type === "ffz" || d.type === "zone") continue;
       if (!(el.labels && el.labels.length)) problems.push(d.p + ": ohne Beschriftung");
       if (d.type === "num" || d.type === "range") {
-        for (const a of ["min", "max", "step"]) if (Number(el.getAttribute(a)) !== d[a]) problems.push(d.p + ": " + a + " " + el.getAttribute(a) + " ≠ " + d[a]);
+        // Anzeige in Ansichtseinheit (z. B. m statt gespeicherter mm)
+        for (const a of ["min", "max", "step"]) if (Number(el.getAttribute(a)) !== d[a] / (d.scale || 1)) problems.push(d.p + ": " + a + " " + el.getAttribute(a) + " ≠ " + d[a] / (d.scale || 1));
       }
     }
     return problems;
