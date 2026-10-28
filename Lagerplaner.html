@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.19</title>
+<title>Lagerplaner V2.20</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -70,7 +70,6 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .dd.open .dd-menu{display:flex;flex-direction:column;gap:8px}
 .dd-row{display:grid;grid-template-columns:1fr 172px;align-items:center;gap:8px;font-size:12px;color:var(--ink)}
 .dd-row select{border:1px solid var(--line);border-radius:6px;padding:5px 6px;background:#fff;font-size:12px;color:var(--ink)}
-.dd-checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
 .dd-menu .tt::after{left:auto;right:0;width:310px}
 .ck{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);white-space:nowrap}
 .dd-menu.dd-list{width:240px;padding:6px}
@@ -370,7 +369,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.19</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.20</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -384,7 +383,7 @@ details.obs[open] summary{margin-bottom:4px}
         Berechnung aktualisieren
       </button>
       <div class="dd" id="dd-opt">
-        <button class="btn" id="btn-dd-opt" aria-haspopup="true" aria-expanded="false" title="Ziel und veränderbare Parameter des Optimierungslaufs">
+        <button class="btn" id="btn-dd-opt" aria-haspopup="true" aria-expanded="false" title="Ziel des Optimierungslaufs wählen und Lauf starten">
           Varianten ermitteln ▾
         </button>
         <div class="dd-menu">
@@ -393,61 +392,19 @@ details.obs[open] summary{margin-bottom:4px}
               Ziel
               <span
                 class="tt"
-                data-tip="Suchstufen: Feldweite 1.800–3.600 mm · Ausrichtung quer/längs · Gangbreite VNA 1,9 / Schubmast 2,8 / Front 3,5 m · Kanaltiefe 4/6/8 · Stapelhöhe 1+1/1+2/1+3/1+5 · Fluchttunnel-Intervall 30/40/50 m · Zonentiefen 4–8 m (WE und WA gemeinsam) · Stützraster (Paarungen 5×10 bis 12,5×25 m) · Zonenrollen (WE- und WA-Seite je Wand, 16 Kombinationen) · Blockquote 20–60 Prozent (nur Quotenmodus). Ziel Mindestfläche: benötigte Hallenbreite bei voller Bedarfsdeckung; die Bestandshalle bleibt unverändert, die Tabelle weist die Reserve aus. Der Lauf teilt sich in Stufen: erst die Layoutparameter, dann bei zugeschalteten Kontrollkästchen Stützraster und Zonenrollen, dann die Feinsuche der Layoutparameter. Mit allen zugeschalteten Parametern durchläuft das Werkzeug über 80.000 Varianten; der Lauf dauert dann bis zu etwa einer Minute."
+                data-tip="Variiert werden Feldweite (1.800–3.600 mm), Regal- und Blockausrichtung und Kanaltiefe (4/6/8), im Greenfield zusätzlich die Zonenrollen (WE- und WA-Seite). Gangbreite, Stapelhöhe, Fluchttunnel, Zonentiefen, Stützraster und Blockquote bleiben Vorgaben; Varianten davon über die Szenario-Slots vergleichen. Bestandshalle: Hallenmaße bleiben fest. Greenfield: Hallenmaße werden je Variante neu ermittelt."
                 tabindex="0"
               >
                 ⓘ
               </span>
             </label>
             <select id="sel-goal">
-              <option value="combined">Kombiniert (CAPEX &amp; Fahrwege)</option>
-              <option value="capex">Minimum CAPEX</option>
-              <option value="aisle">Minimum Gangfläche (Fahrwege)</option>
-              <option value="area">Minimum benötigte Hallenfläche</option>
+              <option value="capex">Minimaler CAPEX (Soll-Bestand)</option>
+              <option value="density">Maximaler Flächennutzungsgrad</option>
+              <option value="capacity">Maximale Lagerkapazität (Halle füllen)</option>
             </select>
           </div>
-          <div class="dd-checks">
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-field" checked="" />
-              Feldweite
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-orient" checked="" />
-              Regalausrichtung
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-borient" />
-              Blockausrichtung
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-aisle" />
-              Gangbreite
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-block" />
-              Kanaltiefe &amp; Stapelhöhe
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-tunnel" />
-              Tunnel-Intervall
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-zone" />
-              Zonentiefen
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-grid" />
-              Stützraster
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-roles" />
-              Zonenrollen (WE/WA je Wand)
-            </label>
-            <label class="ck">
-              <input type="checkbox" id="chk-opt-quota" />
-              Blockquote
-            </label>
-          </div>
+          <p class="hint" id="opt-goal-hint"></p>
           <button class="btn acc" id="btn-optimize">Optimierungslauf starten</button>
         </div>
       </div>
@@ -942,15 +899,15 @@ details.obs[open] summary{margin-bottom:4px}
                     <tr>
                       <th>Ausrichtung Regal · Block</th>
                       <th>Feldweite</th>
+                      <th>Kanaltiefe</th>
                       <th>Doppelreihen</th>
-                      <th>Kapazität</th>
+                      <th>Lagerplätze</th>
                       <th>Deckungsgrad</th>
-                      <th>Gangfläche</th>
-                      <th>Min.-Breite</th>
-                      <th>Min.-Fläche</th>
+                      <th>Lagerfläche</th>
+                      <th>Flächennutzung</th>
+                      <th>Hallenfläche</th>
                       <th>CAPEX</th>
                       <th>CAPEX / Stellplatz</th>
-                      <th>Stützraster m</th>
                       <th>Zonenrollen</th>
                     </tr>
                   </thead>
@@ -1452,7 +1409,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.19 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.20 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -1486,7 +1443,7 @@ details.obs[open] summary{margin-bottom:4px}
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
         <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
         <li>Konzept · Stückliste &amp; CAPEX: Mengen und Kosten prüfen, Einheitspreise anpassen.</li>
-        <li>Bei Bedarf Layout-Optimierung über das Menü Varianten ermitteln in der Kopfzeile: Ziel und veränderbare Parameter wählen, Lauf starten, Ergebnis im Register Layout prüfen und eine Variante per Klick übernehmen. Während des Laufs erscheint oben eine Statusleiste mit Abbruchmöglichkeit.</li>
+        <li>Bei Bedarf Layout-Optimierung über das Menü Varianten ermitteln in der Kopfzeile: Ziel wählen (minimaler CAPEX für den Soll-Bestand, maximaler Flächennutzungsgrad oder – nur in der Bestandshalle – maximale Lagerkapazität), Lauf starten, Ergebnis im Register Layout prüfen und eine Variante per Klick übernehmen. Während des Laufs erscheint oben eine Statusleiste mit Abbruchmöglichkeit.</li>
         <li>Bewertung · Varianten: bis zu drei Szenarien speichern und vergleichen; zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen.</li>
         <li>Bewertung · Sensitivität: wirksamste Annahmen erkennen; das Tornado-Diagramm zeigt die Wirkung je Treiber.</li>
         <li>Bewertung · Annahmen: Datenbasis, Datenlücken und Parameterquellen prüfen; bei Bedarf den Fragekatalog für den Kunden erzeugen.</li>
@@ -1759,7 +1716,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.19";
+const APP_VERSION="V2.20";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -1777,7 +1734,7 @@ function defaults(){
     empty:{on:false,mode:"percent",value:5,stack:10,reserve:20},
     volume:{range:10,peak:1,safety:0,planningYears:0,growthRate:0,skuGrowthRate:0,peakHourShare:12,weShare:50,simultaneity:100,strategicReserve:0,blockedPlaces:0,operationalArea:0,bufferMode:"simple",bufferTrucks:2,bufferPallets:33,bufferDwell:1,bufferFactor:1.5,fillRack:85,fillBlock:70,transit:0,transitBufferOn:false,transitDays:0.5,transitAreaPerPal:1.5},
     block:{mode:"sku",quota:40,channelDepth:6,stackH:6,aVol:80,bVol:15,minFill:65,orient:"N",maxTop:7.5},
-    ffz:{type:"schubmast",rackFFZ:["schubmast"],blockFFZ:["front"],zoneFFZ:["ameise"],aisle:2.8,aisleBlock:3.5,vnaPnD:true,rackBase:"lead",fieldMode:"auto",fieldWidth:2700,liftHeight:8.5,liftReserve:200,floorOnBeam:false,singleRows:false},
+    ffz:{type:"schubmast",rackFFZ:["schubmast"],blockFFZ:["front"],zoneFFZ:["ameise"],aisle:2.8,aisleBlock:3.5,vnaPnD:true,rackBase:"lead",fieldMode:"auto",fieldWidth:2700,rackFill:"need",liftHeight:8.5,liftReserve:200,floorOnBeam:false,singleRows:false},
     lhmOverrides:{},
     fire:{sprinkler:500,tunnelInterval:35,tunnelClear:2.5,inRack:false},
     items:[],
@@ -1883,6 +1840,8 @@ const PARAMS=[
   {p:"ffz.fieldWidth",id:"in-fieldWidth",type:"num",label:"Feldweite (fix)",unit:"mm",min:1800,max:3600,step:100,dec:0,visibleIf:s=>s.ffz.fieldMode==="fix",eff:"Bestimmt Paletten je Feld, Rahmenzahl und CAPEX."},
   {p:"ffz.floorOnBeam",id:"chk-floorbeam",type:"check",label:"Bodenebene auf Traverse"},
   {p:"ffz.singleRows",id:"chk-singlerows",type:"check",label:"Einzelreihen ergänzen",title:"Wand- und Restflächen nutzen, sobald Doppelreihen nicht mehr passen."},
+  {p:"ffz.rackFill",id:"sel-rackfill",type:"select",label:"Regalbelegung",short:"Regalbelegung",options:[["need","Nach Bedarf (Soll-Bestand)"],["hall","Halle mit Regalreihen füllen"]],
+    visibleIf:s=>s.building.mode!=="greenfield",eff:"Halle füllen: alle passenden Regalreihen werden gebaut, unabhängig vom Bedarf (Kapazitätsreserve, höherer CAPEX). Blocklager bleibt nach Bedarf."},
   {p:"ffz.liftHeight",id:"in-liftheight",type:"num",label:"Maximale Hubhöhe des Regal-FFZ",short:"Maximale Hubhöhe",unit:"m",min:1,max:20,step:0.1,dec:1,title:"Begrenzt die Oberkante der letzten Traversenebene."},
   {p:"ffz.liftReserve",id:"in-liftreserve",type:"num",label:"Bedienreserve unter maximaler Hubhöhe",short:"Bedienreserve Hubhöhe",unit:"mm",min:0,max:1000,step:50,dec:0,title:"Abzug von der maximalen Hubhöhe für Handhabungsreserve."},
   /* Sicherheit & Abstände */
@@ -1973,7 +1932,7 @@ const PARAM_LAYOUT=[
     intro:["Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis."],sections:[
     {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
     {title:"Arbeitsgänge",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
-    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows"]},
+    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
     {title:"Höhenbegrenzung",sub:"Gebäude und Stapler wirken als unabhängige Grenzen",items:["ffz.liftHeight","ffz.liftReserve"],after:'<div class="height-balance" id="height-balance"></div>'}]},
   {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
     intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
@@ -2287,6 +2246,13 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.20",date:"28.10.2026",items:[
+    "Optimierung neu gefasst: drei Ziele statt vier. Minimaler CAPEX (so wenig Regal wie möglich für den Soll-Bestand), maximaler Flächennutzungsgrad (Lagerplätze je m² belegter Lagerfläche aus Regal, Block und Gängen, ohne WE/WA-Zonen und freie Hallenfläche) und maximale Lagerkapazität (Halle mit Regalreihen füllen; Blocklager bleibt nach Bedarf). Bei Gleichstand entscheidet CAPEX bzw. Flächennutzung.",
+    "Hallenmaße folgen dem Modus: Bestandshalle fest, Greenfield je Variante neu ermittelt. Maximale Lagerkapazität ist nur mit festen Hallenmaßen wählbar.",
+    "Variiert werden nur noch Auslegungsgrößen: Feldweite, Regal- und Blockausrichtung, Kanaltiefe sowie im Greenfield die Zonenrollen. Gangbreite (Staplertyp), Stapelhöhe, Fluchttunnel, Zonentiefen, Stützraster und Blockquote bleiben Vorgaben; sie wurden bisher systematisch an die günstige Grenze geschoben. Die Kontrollkästchen entfallen.",
+    "Neuer Parameter Regalbelegung (Bestandshalle): nach Bedarf oder Halle mit Regalreihen füllen. Eine übernommene Variante mit Ziel maximale Lagerkapazität setzt ihn auf Halle füllen.",
+    "Variantentabelle mit Lagerplätzen, belegter Lagerfläche und Flächennutzungsgrad; ohne machbare Variante nennt sie den häufigsten Ausschlussgrund."
+  ]},
   {v:"V2.19",date:"27.10.2026",items:[
     "Meldungen nach dem Berechnen erscheinen links neben der Kennzahlenleiste und verdecken keine Kennzahlenkarte mehr.",
     "Variantenliste: Nach einer gescheiterten Variantenübernahme wird die Liste wieder korrekt angezeigt (bisher Darstellungsabbruch).",
@@ -2978,7 +2944,23 @@ function syncAll(){
   if(dl&&dl.value!==(S.lhmDefault||"euro"))dl.value=S.lhmDefault||"euro";
   renderPalletMD();renderTruckMD();
 }
+// Ziel "Maximale Lagerkapazität" braucht feste Hallenmaße und ist im Greenfield gesperrt
+function updateOptGoalUI(){
+  const sel=$("sel-goal"),hint=$("opt-goal-hint");
+  if(!sel)return;
+  const g=S.building.mode==="greenfield";
+  const cap=sel.querySelector('option[value="capacity"]');
+  if(cap)cap.disabled=g;
+  if(g&&sel.value==="capacity")sel.value="capex";
+  const text={
+    capex:"So wenig Regal wie möglich, um den Soll-Bestand abzubilden"+(g?"; Hallenmaße werden je Variante ermittelt.":" in der vorhandenen Halle."),
+    density:"Höchste Dichte: Lagerplätze je m² belegter Lagerfläche (Regal, Block und Gänge, ohne WE/WA-Zonen und freie Hallenfläche).",
+    capacity:"Halle vollständig mit Regalreihen füllen, ohne Rücksicht auf den Soll-Bestand. Blocklager bleibt nach Bedarf."
+  };
+  if(hint)hint.textContent=text[sel.value]+(g?" Maximale Lagerkapazität nur mit festen Hallenmaßen (Bestandshalle).":"");
+}
 function refreshModeUI(){
+  updateOptGoalUI();
   const g=S.building.mode==="greenfield";
   const ratio=+(S.building.ratio||0);
   const w=$("in-W");if(w)w.disabled=g;
@@ -3846,6 +3828,8 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
   const regionH=y1-y0;
 
   let nDouble=0,nSingles=0,capStripUsed=0,rowFit=0;
+  // Regalbelegung "Halle füllen": alle passenden Reihen, unabhängig vom Bedarf (nur bei festen Hallenmaßen)
+  const fillHall=S.ffz.rackFill==="hall"&&b.mode!=="greenfield";
   const strips=[],aisleRects=[],laneRects=[];
   let capacity=0;
   const rowHeightUsed=rack?(rack.off+rack.la.h+(rack.levels-1)*rack.pitch):0;
@@ -3854,7 +3838,7 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
     if(b.orient==="quer"){
       const capStrip=Math.max(1,perStrip-tunnelLoss);
       const fitDouble=Math.max(0,Math.floor((regionH-aisle)/pitch));
-      nDouble=Math.min(fitDouble,Math.ceil(needRack/(2*capStrip))+(extra.rows||0));
+      nDouble=fillHall?fitDouble:Math.min(fitDouble,Math.ceil(needRack/(2*capStrip))+(extra.rows||0));
       capStripUsed=capStrip;rowFit=fitDouble;
       for(let k=0;k<nDouble;k++){
         const y=y0+aisle+k*pitch;
@@ -3867,7 +3851,7 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
         const remH=regionH-aisle-nDouble*pitch;
         const fitS=Math.max(0,Math.floor(remH/(fd+aisle)));
         const needS=Math.ceil(Math.max(0,needRack-capacity)/capStrip);
-        nSingles=Math.min(fitS,needS);
+        nSingles=fillHall?fitS:Math.min(fitS,needS);
         for(let k=0;k<nSingles;k++){
           const y=y0+aisle+nDouble*pitch+k*(fd+aisle);
           strips.push({x:xStart,y:y,w:rackLen,h:fd,face:"S"});
@@ -3889,7 +3873,7 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
         const lossY=tunY*rack.lowLevels*rack.ppf;
         const capStrip=Math.max(1,perY-lossY);
         const needDouble=Math.max(1,Math.ceil(needRack/(2*capStrip)))+(extra.rows||0);
-        nDouble=Math.min(nMax,needDouble);
+        nDouble=fillHall?nMax:Math.min(nMax,needDouble);
         capStripUsed=capStrip;rowFit=nMax;
         for(let k=0;k<nDouble;k++){
           const x=xStart+aisle+k*pitch;
@@ -3901,7 +3885,7 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
           const remX=areaLen-aisle-nDouble*pitch;
           const fitSx=Math.max(0,Math.floor(remX/(fd+aisle)));
           const needSx=Math.ceil(Math.max(0,needRack-nDouble*2*capStrip)/capStrip);
-          nSingles=Math.min(fitSx,needSx);
+          nSingles=fillHall?fitSx:Math.min(fitSx,needSx);
           for(let k=0;k<nSingles;k++){
             const x=xStart+aisle+nDouble*pitch+k*(fd+aisle);
             strips.push({x:x,y:y0,w:fd,h:rowLen,face:"O"});
@@ -5034,13 +5018,9 @@ function calculateCapex(bom){
 }
 function bomCapex(bom){return calculateCapex(bom).total;}
 function applyRow(r){
-  S.building.orient=r.o;S.block.orient=r.bo;
-  S.ffz.rackFFZ=(r.rackFFZ&&r.rackFFZ.length)?r.rackFFZ.slice():((r.aiT&&FFZ[r.aiT])?[r.aiT]:(S.ffz.rackFFZ||["schubmast"]).slice());
-  S.ffz.aisle=r.ai;
-  S.block.channelDepth=r.cd;S.block.stackH=r.sh;S.fire.tunnelInterval=r.ti;
-  S.building.weDepth=r.zd.we;S.building.waDepth=r.zd.wa;S.block.quota=r.q;
+  S.building.orient=r.o;S.block.orient=r.bo;S.block.channelDepth=r.cd;
   if(r.w>0){S.ffz.fieldMode="fix";S.ffz.fieldWidth=r.w;}
-  S.building.gridX=r.gx;S.building.gridY=r.gy;
+  S.ffz.rackFill=r.fill;
   S.building.zones=Object.assign({},r.zones);
 }
 function runPlannerAnalysis(label,action){
@@ -5134,7 +5114,7 @@ self.onmessage=event=>{
       variants++;const now=performance.now();
       if(variants===1||now-lastProgress>=150){lastProgress=now;self.postMessage({type:'progress',id:event.data.id,variants,modelCalls,elapsedMs:now-started});}
     };
-    renderOptResults=(rows,best,goal)=>{result={rows,best,goal};};
+    renderOptResults=(rows,best,goal,info)=>{result={rows,best,goal,info};};
     optimizeLayout();
     if(self.__alerts.length)throw new Error(self.__alerts.join(' '));
     self.postMessage({type:'result',id:event.data.id,...result,metrics:{variants,modelCalls,durationMs:performance.now()-started}});
@@ -5145,10 +5125,9 @@ self.onmessage=event=>{
 function startOptimizationRun(){
   if(OPTIMIZATION_JOB){setOptimizationStatus('Es laeuft bereits eine Optimierung. Zuerst abbrechen.',true);return false;}
   if(!S.items.length){alert('Bitte zuerst Positionen mit Bedarfsangaben erfassen.');return false;}
-  const ids=['chk-opt-field','chk-opt-orient','chk-opt-borient','chk-opt-aisle','chk-opt-block','chk-opt-tunnel','chk-opt-zone','chk-opt-quota','chk-opt-grid','chk-opt-roles'];
-  const controls={};for(const id of ids)controls[id]={checked:!!($(id)&&$(id).checked)};
-  if(!ids.some(id=>controls[id].checked)){alert('Bitte mindestens eine veraenderbare Einstellung zuschalten.');return false;}
-  const goal=$('sel-goal')?$('sel-goal').value:'combined';controls['sel-goal']={value:goal};
+  const goal=$('sel-goal')&&OPT_GOALS[$('sel-goal').value]?$('sel-goal').value:'capex';
+  if(goal==='capacity'&&S.building.mode==='greenfield'){alert(OPT_CAPACITY_GREENFIELD);return false;}
+  const controls={'sel-goal':{value:goal}};
   let job=null;
   try{
     if(typeof Worker==='undefined')throw new Error('Dieser Browser stellt keinen Worker bereit. Es wird kein blockierender Ersatzlauf gestartet.');
@@ -5178,7 +5157,7 @@ function startOptimizationRun(){
       if(data.rows.length&&(!data.best||data.best.feasible!==true||!Number.isFinite(data.best.score))){fail('Ungueltige Bestvariante.');return;}
       releaseOptimizationJob(job);
       try{
-        renderOptResults(data.rows,data.best,data.goal);
+        renderOptResults(data.rows,data.best,data.goal,data.info);
         OPTIMIZATION_LAST_METRICS=data.metrics;
         setOptimizationStatus('Optimierung abgeschlossen: '+data.rows.length+' Vorschlaege. '+data.metrics.variants+' Varianten, '+data.metrics.modelCalls+' Modellaufrufe, '+fmt(data.metrics.durationMs,0)+' ms Rechenlauf. Keine Variante automatisch uebernommen.',false);
       }catch(error){setOptimizationStatus('Ergebnisanzeige fehlgeschlagen: '+error.message+'. Projekt unveraendert.',false);}
@@ -5200,126 +5179,89 @@ function optimizeLayout(){
     finally{S=original;}
   });
 }
+const OPT_GOALS={
+  capex:"Minimaler CAPEX",
+  density:"Maximaler Flächennutzungsgrad",
+  capacity:"Maximale Lagerkapazität"
+};
+const OPT_CAPACITY_GREENFIELD="Maximale Lagerkapazität setzt feste Hallenmaße voraus (Bestandshalle). Im Greenfield-Modus ein anderes Ziel wählen.";
+// Zielwert je Variante, kleiner ist besser; bei Gleichstand entscheidet das zweite Kriterium
+const OPT_SCORE={
+  capex:r=>[r.capex,-r.density],
+  density:r=>[-r.density,r.capex],
+  capacity:r=>[-r.places,r.capex]
+};
+function compareOptRows(goal){
+  return (a,b)=>{const x=OPT_SCORE[goal](a),y=OPT_SCORE[goal](b);return (x[0]-y[0])||(x[1]-y[1]);};
+}
 function optimizeLayoutCore(){
-  const saved={mode:S.ffz.fieldMode,w:S.ffz.fieldWidth,o:S.building.orient,bo:S.block.orient,ft:(S.ffz.rackFFZ||["schubmast"]).slice(),ai:S.ffz.aisle,cd:S.block.channelDepth,sh:S.block.stackH,ti:S.fire.tunnelInterval,we:S.building.weDepth,wa:S.building.waDepth,q:S.block.quota,ratio:S.building.ratio||0,gx:S.building.gridX,gy:S.building.gridY,zones:Object.assign({},S.building.zones)};
-  const goal=($("sel-goal")&&$("sel-goal").value)||"combined";
-  const on=id=>!!($(id)&&$(id).checked);
-  const swField=on("chk-opt-field"),swOrient=on("chk-opt-orient"),swBOrient=on("chk-opt-borient"),swAisle=on("chk-opt-aisle"),
-        swBlock=on("chk-opt-block"),swTun=on("chk-opt-tunnel"),swZone=on("chk-opt-zone"),swQuota=on("chk-opt-quota"),
-        swGrid=on("chk-opt-grid"),swRoles=on("chk-opt-roles");
+  const goal=OPT_GOALS[$("sel-goal")&&$("sel-goal").value]?$("sel-goal").value:"capex";
   if(!S.items.length){alert("Bitte zuerst Positionen mit Bedarfsangaben erfassen.");return;}
-  if(!swField&&!swOrient&&!swBOrient&&!swAisle&&!swBlock&&!swTun&&!swZone&&!swQuota&&!swGrid&&!swRoles){alert("Bitte mindestens eine veränderbare Einstellung zuschalten.");return;}
-  // Variantenbewertung veraendert nur die Arbeitskopie. Seitenverhaeltnis bleibt verbindlich.
-  const orients=swOrient?["quer","laengs"]:[saved.o];
-  const borients=swBOrient?["N","W"]:[saved.bo];
-  const aisles=swAisle?[{t:"vna",a:1.9},{t:"schubmast",a:2.8},{t:"front",a:3.5}]:[{t:"multi",a:saved.ai}];
-  const cds=swBlock?[4,6,8]:[saved.cd];
-  const shs=swBlock?[2,3,4,6]:[saved.sh];
-  const tis=swTun?[30,40,50]:[saved.ti];
-  const zoneList=swZone?[4,5,6,7,8].map(z=>({we:z,wa:z})):[{we:saved.we,wa:saved.wa}];
-  const qts=(swQuota&&S.block.mode==="quota")?[20,30,40,50,60]:[saved.q];
-  const fws=swField?[1800,2250,2700,3100,3600]:[saved.w];
-  const rows=[],envRows=[],fineRows=[];
-  const evalVariant=(target,envFilter)=>{
+  const greenfield=S.building.mode==="greenfield";
+  if(goal==="capacity"&&greenfield){alert(OPT_CAPACITY_GREENFIELD);return;}
+  // Variiert werden nur Auslegungsgrößen; Betriebs-, Brandschutz- und Warenvorgaben bleiben unverändert
+  S.ffz.rackFill=goal==="capacity"?"hall":"need";
+  const rows=[],seen=new Set(),rejected={};
+  const evalVariant=()=>{
     if(OPTIMIZATION_PROGRESS_HOOK)OPTIMIZATION_PROGRESS_HOOK();
-    const m=computeModel();
-    const feasibility=assessModelFeasibility(m);
-    if(!feasibility.feasible||!(m.rack||m.block))return;
-    const g=m.geo,need=m.grossRackNeed;
-    const nReq=g.nDouble,capReq=g.capacity,wReq=g.W;
-    const gross=m.grossRackNeed+m.grossBlockNeed;
-    const aisleA=(g.aisleRects||[]).reduce((sum,r)=>sum+r.w*r.h,0)/1e6;
-    const capex=bomCapex(m.bom),capShown=g.capacity;
-    target.push({o:S.building.orient,bo:S.block.orient,w:m.rack?m.rack.fieldW:0,n:goal==="area"?nReq:g.nDouble,cap:capShown,
-      deck:m.grossRackNeed>0?Math.round(capShown/m.grossRackNeed*100):(capShown>0?100:0),
-      wReq:wReq/1000,hallL:g.L/1000,hallW:g.W/1000,ratio:S.building.ratio||0,area:g.area.hall/1e6,usedArea:g.area.brutto/1e6,greenfield:S.building.mode==="greenfield",feasible:true,blockCap:capacitySummary(m).blockAvailable,singles:g.nSingles||0,
-      aisleA,capex,capexPP:capex/Math.max(1,gross),levels:m.rack?m.rack.levels:0,
-      ai:S.ffz.aisle,aiT:(S.ffz.rackFFZ||[]).join("+"),rackFFZ:(S.ffz.rackFFZ||[]).slice(),cd:S.block.channelDepth,sh:S.block.stackH,ti:S.fire.tunnelInterval,
-      zd:{we:S.building.weDepth,wa:S.building.waDepth},q:S.block.quota,
-      gx:S.building.gridX,gy:S.building.gridY,zones:Object.assign({},S.building.zones)});
+    const m=computeModel(),check=assessModelFeasibility(m);
+    if(!check.feasible||!(m.rack||m.block)){
+      // Häufigster Ausschlussgrund wird bei leerem Ergebnis angezeigt
+      const reason=check.reasons[0];
+      if(reason){const k=reason.code+": "+reason.text.replace(/\d+/g,"#");rejected[k]=(rejected[k]||0)+1;}
+      return null;
+    }
+    const g=m.geo,a=g.area,cs=capacitySummary(m);
+    // Gleiche Auslegung (etwa Kanaltiefe ohne Blocklager) nur einmal aufführen
+    const key=JSON.stringify([S.building.orient,m.block?S.block.orient:"",m.rack?m.rack.fieldW:0,m.block?S.block.channelDepth:0,S.building.zones,g.L,g.W]);
+    if(seen.has(key))return null;
+    seen.add(key);
+    const places=cs.rackAvailable+cs.blockAvailable,need=m.grossRackNeed+m.grossBlockNeed;
+    const storeA=(a.rack+a.rackAisle+a.block+a.blockAisle)/1e6;
+    const capex=bomCapex(m.bom);
+    const row={o:S.building.orient,bo:S.block.orient,w:m.rack?m.rack.fieldW:0,cd:S.block.channelDepth,fill:S.ffz.rackFill,
+      hasRack:!!m.rack,hasBlock:!!m.block,n:g.nDouble,singles:g.nSingles||0,cap:cs.rackAvailable,blockCap:cs.blockAvailable,places,
+      deck:need>0?Math.round(places/need*100):100,storeA,density:storeA>0?places/storeA:0,
+      hallL:g.L/1000,hallW:g.W/1000,ratio:S.building.ratio||0,area:a.hall/1e6,greenfield,feasible:true,
+      capex,capexPP:capex/Math.max(1,places),zones:Object.assign({},S.building.zones)};
+    row.score=OPT_SCORE[goal](row)[0];
+    rows.push(row);
+    return row;
   };
-  const searchDims=target=>{
-    for(const bo of borients){
-    for(const o of orients){
-      for(const ai of aisles){
-        for(const cd of cds){
-          for(const sh of shs){
-            for(const ti of tis){
-              for(const zd of zoneList){
-                for(const q of qts){
-                  S.building.orient=o;S.block.orient=bo;S.ffz.rackFFZ=(ai.t==="multi"?saved.ft.slice():[ai.t]);S.ffz.aisle=ai.a;
-                  S.block.channelDepth=cd;S.block.stackH=sh;S.fire.tunnelInterval=ti;
-                  S.building.weDepth=zd.we;S.building.waDepth=zd.wa;S.block.quota=q;
-                  for(const w of fws){
-                    if(swField){S.ffz.fieldMode="fix";S.ffz.fieldWidth=w;}
-                    evalVariant(target,false);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  const best=list=>list.length?list.slice().sort(compareOptRows(goal))[0]:null;
+  const searchLayout=()=>{
+    const found=[];
+    for(const o of ["quer","laengs"])for(const bo of ["N","W"])for(const cd of [4,6,8])for(const w of [1800,2250,2700,3100,3600]){
+      S.building.orient=o;S.block.orient=bo;S.block.channelDepth=cd;S.ffz.fieldMode="fix";S.ffz.fieldWidth=w;
+      const r=evalVariant();if(r)found.push(r);
     }
-    }
+    return found;
   };
-  const scorePool=pool=>{
-    const cs=pool.map(r=>r.capex),as=pool.map(r=>r.aisleA),ws=pool.map(r=>r.wReq);
-    const minC=Math.min(...cs),maxC=Math.max(...cs);
-    const minA=Math.min(...as),maxA=Math.max(...as);
-    const minW=Math.min(...ws),maxW=Math.max(...ws);
-    const nc=v=>maxC>minC?(v-minC)/(maxC-minC):0;
-    const na=v=>maxA>minA?(v-minA)/(maxA-minA):0;
-    const nw=v=>maxW>minW?(v-minW)/(maxW-minW):0;
-    for(const r of pool){
-      if(goal==="capex")r.score=nc(r.capex);
-      else if(goal==="aisle")r.score=na(r.aisleA);
-      else if(goal==="area")r.score=r.greenfield?r.area:r.usedArea;
-      else r.score=0.5*nc(r.capex)+0.5*na(r.aisleA);
+  const applyLayout=r=>{S.building.orient=r.o;S.block.orient=r.bo;S.block.channelDepth=r.cd;if(r.w>0){S.ffz.fieldMode="fix";S.ffz.fieldWidth=r.w;}};
+  /* Stufe 1: Feldweite, Ausrichtung und Kanaltiefe mit den eingestellten Zonenrollen */
+  const first=best(searchLayout());
+  /* Greenfield, Stufe 2 und 3: Zonenrollen auf Basis der besten Auslegung, dann Feinsuche mit der besten Rolle.
+     In der Bestandshalle bleiben die Zonenrollen an den vorhandenen Toren. */
+  if(greenfield&&first){
+    applyLayout(first);
+    const sides=["N","O","S","W"],roleRows=[];
+    for(const weS of sides)for(const waS of sides){
+      const z={N:"none",O:"none",S:"none",W:"none"};
+      z[weS]="we";z[waS]=z[waS]==="none"?"wa":"wewa";
+      S.building.zones=z;
+      const r=evalVariant();if(r)roleRows.push(r);
     }
-    return pool.slice().sort((a,b)=>a.score-b.score||Math.abs(a.deck-100)-Math.abs(b.deck-100))[0];
-  };
-  /* Stufe 1: Layoutparameter mit den eingestellten Umgebungsparametern */
-  searchDims(rows);
-  const anchor=rows.length?scorePool(rows):null;
-  /* Stufe 2: Stützraster und Zonenrollen auf Basis der Stufe-1-Variante */
-  if(swGrid||swRoles){
-    if(anchor)applyRow(anchor);
-    const GRIDS=[[5,10],[6,12],[7.5,15],[10,20],[12.5,25],[10,10]];
-    if(!GRIDS.some(g=>g[0]===saved.gx&&g[1]===saved.gy))GRIDS.push([saved.gx,saved.gy]);
-    const sides=["N","O","S","W"];
-    for(const gr of (swGrid?GRIDS:[null])){
-      if(gr){S.building.gridX=gr[0];S.building.gridY=gr[1];}
-      if(swRoles){
-        for(const weS of sides){
-          for(const waS of sides){
-            const z={N:"none",O:"none",S:"none",W:"none"};
-            const mark=(s,r)=>{z[s]=z[s]==="none"?r:"wewa";};
-            mark(weS,"we");mark(waS,"wa");
-            S.building.zones=z;
-            if(anchor)evalVariant(envRows,true);else searchDims(envRows);
-          }
-        }
-      }else{
-        if(anchor)evalVariant(envRows,false);else searchDims(envRows);
-      }
-    }
-    /* Stufe 3: Feinsuche der Layoutparameter mit der besten Umgebung */
-    const envBest=envRows.length?scorePool(envRows):null;
-    if(envBest){
-      applyRow(envBest);
-      searchDims(fineRows);
-    }
+    const roles=best(roleRows);
+    if(roles){S.building.zones=Object.assign({},roles.zones);searchLayout();}
   }
-  S.ffz.fieldMode=saved.mode;S.ffz.fieldWidth=saved.w;S.building.orient=saved.o;S.block.orient=saved.bo;
-  S.ffz.rackFFZ=saved.ft.slice();S.ffz.aisle=saved.ai;S.block.channelDepth=saved.cd;S.block.stackH=saved.sh;
-  S.fire.tunnelInterval=saved.ti;S.building.weDepth=saved.we;S.building.waDepth=saved.wa;S.block.quota=saved.q;S.building.ratio=saved.ratio;
-  S.building.gridX=saved.gx;S.building.gridY=saved.gy;S.building.zones=Object.assign({},saved.zones);
-  const allRows=rows.concat(envRows,fineRows);
-  if(!allRows.length){renderOptResults([],null,"");return;}
-  const best=scorePool(allRows);
+  if(!rows.length){
+    const top=Object.entries(rejected).sort((a,b)=>b[1]-a[1])[0];
+    renderOptResults([],null,goal,top?{reason:top[0].replace(/^[A-Z_]+: /,"").replace(/#/g,"n"),count:top[1],total:seen.size+Object.values(rejected).reduce((x,y)=>x+y,0)}:null);
+    return;
+  }
+  const sorted=rows.slice().sort(compareOptRows(goal));
   // Nur Vorschlag anzeigen. Der Projektstand bleibt bis zur Tabellenuebernahme unveraendert.
-  renderOptResults(allRows.slice().sort((a,b)=>a.score-b.score||Math.abs(a.deck-100)-Math.abs(b.deck-100)).slice(0,25),best,goal);
+  renderOptResults(sorted.slice(0,25),sorted[0],goal);
   const tb2=document.querySelector('#tabs button[data-tab="3"]');
   if(tb2)tb2.click();
 }
@@ -5335,34 +5277,37 @@ function zoneRolesLabel(z){
   return parts.length?parts.join(" · "):"–";
 }
 let LAST_OPT_ROWS=[],LAST_OPT_GOAL="";
-function renderOptResults(rows,best,goal){
+function renderOptResults(rows,best,goal,info){
   LAST_OPT_ROWS=rows;LAST_OPT_GOAL=goal;
   const card=$("opt-card"),tb=$("opt-body"),note=$("opt-note"),sum=$("opt-summary");
   if(!card||!tb)return;
   if(!rows.length){
     card.style.display="";
     if(sum)sum.textContent="Optimierungsvarianten";
-    tb.innerHTML='<tr><td colspan="12" class="hint">Im geprueften Suchraum keine machbare Variante gefunden. Das ist kein Nachweis genereller Unmoeglichkeit. Bedarf, Hallenmasse, Zugang und harte Konflikte pruefen.</td></tr>';
+    const why=info&&info.reason?' Häufigster Ausschlussgrund ('+info.count+' von '+info.total+' Varianten): '+escH(info.reason):'';
+    tb.innerHTML='<tr><td colspan="12" class="hint">Im geprueften Suchraum keine machbare Variante gefunden. Das ist kein Nachweis genereller Unmoeglichkeit. Bedarf, Hallenmasse, Zugang und harte Konflikte pruefen.'+why+'</td></tr>';
     if(note)note.textContent="";
     return;
   }
   // Ohne markierte Variante (etwa beim Wiederherstellen nach einer gescheiterten Uebernahme) gilt die erste Zeile
   best=best||rows[0];
-  if(sum)sum.textContent="Optimierungsvarianten (Top "+rows.length+") – Markiert: "+(best.o==="quer"?"orthogonal zu Toren":"parallel zu Toren")+" · "+fmt(best.w)+" mm · CAPEX "+eur(best.capex);
+  const layoutLabel=r=>(r.hasRack?(r.o==="quer"?"Regal orthogonal zu Toren":"Regal parallel zu Toren"):"")+(r.hasRack&&r.hasBlock?" · ":"")+(r.hasBlock?"Block "+(r.bo==="W"?"längs (West)":"quer (Nord)"):"");
+  const density=r=>fmt(r.density,2)+" Pl./m²";
+  if(sum)sum.textContent="Optimierungsvarianten (Top "+rows.length+") – Ziel "+(OPT_GOALS[goal]||"–")+" · Markiert: "+layoutLabel(best)+(best.hasRack?" · "+fmt(best.w)+" mm":"")+" · "+fmt(best.places)+" Plätze · "+density(best)+" · CAPEX "+eur(best.capex);
   tb.innerHTML=rows.map((r,i)=>
     '<tr data-opt-idx="'+i+'" style="cursor:pointer'+(r===best?';background:#eff6ff':'')+'">'+
-    '<td>'+(r.o==="quer"?"orthogonal zu Toren":"parallel zu Toren")+' · Block '+(r.bo==="W"?"längs (West)":"quer (Nord)")+'</td>'+
-    '<td>'+fmt(r.w)+' mm</td><td>'+r.n+'</td><td>'+fmt(r.cap)+'</td>'+
-    '<td>'+(r.cap>0?r.deck+' %':'Block')+'</td><td>'+fmt(r.aisleA)+' m²</td>'+
-    '<td>'+fmt(r.wReq,1)+' m</td><td>'+fmt(r.area)+' m²</td>'+
+    '<td>'+escH(layoutLabel(r))+'</td>'+
+    '<td>'+(r.hasRack?fmt(r.w)+' mm':'–')+'</td><td>'+(r.hasBlock?r.cd:'–')+'</td><td>'+(r.hasRack?r.n+(r.singles?' + '+r.singles+' E':''):'–')+'</td>'+
+    '<td>'+fmt(r.places)+'</td><td>'+r.deck+' %</td>'+
+    '<td>'+fmt(r.storeA)+' m²</td><td>'+density(r)+'</td><td>'+fmt(r.area)+' m²</td>'+
     '<td>'+eur(r.capex)+'</td><td>'+eur(r.capexPP)+'</td>'+
-    '<td>'+fmt(r.gx,1)+' × '+fmt(r.gy,1)+'</td>'+
     '<td>'+escH(zoneRolesLabel(r.zones))+'</td></tr>').join("");
   if(note){
-    const t="Vorschlag, noch nicht uebernommen: "+(best.o==="quer"?"quer":"laengs")+
-      "; "+best.n+" Doppelreihen und "+(best.singles||0)+" Einzelreihen; Regal "+fmt(best.cap)+" Plaetze, Block "+fmt(best.blockCap||0)+" Plaetze. Hallenmasse "+fmt(best.hallL,1)+" x "+fmt(best.hallW,1)+" m. "+
+    const t="Vorschlag, noch nicht uebernommen: "+layoutLabel(best)+"; "+(best.hasRack?best.n+" Doppelreihen und "+(best.singles||0)+" Einzelreihen, ":"")+
+      "Regal "+fmt(best.cap)+" Plaetze, Block "+fmt(best.blockCap||0)+" Plaetze"+(best.fill==="hall"?" (Halle mit Regal gefuellt)":"")+". Hallenmasse "+fmt(best.hallL,1)+" x "+fmt(best.hallW,1)+" m. "+
+      "Flaechennutzungsgrad = Lagerplaetze je m² belegter Lagerflaeche (Regal, Block und ihre Gaenge, ohne WE/WA-Zonen und freie Hallenflaeche). "+
       "Alle angezeigten Varianten bestehen die gemeinsame Modellpruefung. Tabellenzeile anklicken, um die Variante nach erneuter Pruefung zu uebernehmen. "+
-      "Greenfield: begrenzte Rastersuche, kein globales Minimum. Bestand: Hallenmasse bleiben unveraendert. Keine Ausfuehrungsfreigabe.";
+      (best.greenfield?"Greenfield: Hallenmasse je Variante neu ermittelt; begrenzte Rastersuche, kein globales Minimum. ":"Bestandshalle: Hallenmasse bleiben unveraendert. ")+"Keine Ausfuehrungsfreigabe.";
     note.textContent=t;
   }
   card.style.display="";
@@ -6292,6 +6237,7 @@ function initButtons(){
     renderItems();recalc();setStatus("Manuell berechnet");
     showCalcToast(performance.now()-t0);
   });
+  $("sel-goal").addEventListener("change",updateOptGoalUI);
   $("btn-optimize").addEventListener("click",()=>{$("dd-opt").classList.remove("open");$("btn-dd-opt").setAttribute("aria-expanded","false");startOptimizationRun();});
   const dismissOpt=$("btn-opt-dismiss");if(dismissOpt)dismissOpt.addEventListener("click",()=>{$("opt-run-panel").hidden=true;});
   fillTruckSel();

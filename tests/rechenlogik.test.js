@@ -117,7 +117,6 @@ test("Optimierungs-Worker startet und liefert Varianten", async (page) => {
     S.items = [mk({ name: "A", demand: "truck", trucks: 4, skus: 200 }), mk({ name: "B", demand: "truck", trucks: 2, stack: 3, skus: 20 })];
     S.building.L = 80; S.building.W = 60;
     recalc();
-    document.querySelectorAll("[id^=chk-opt-]").forEach((c) => (c.checked = ["chk-opt-field", "chk-opt-orient"].includes(c.id)));
     startOptimizationRun();
   });
   await page.waitForFunction(() => /abgeschlossen|fehlgeschlagen/.test(document.getElementById("opt-run-status").textContent), null, { timeout: 30000 });

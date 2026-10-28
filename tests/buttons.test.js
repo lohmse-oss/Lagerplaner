@@ -257,11 +257,11 @@ const ACTIONS = [
     key: "Optimierung abbrechen", covers: ["#btn-opt-cancel"], slow: true,
     run: async (p) => {
       if (!(await snap(p)).items) return "übersprungen";
-      await p.evaluate(() => ["chk-opt-aisle", "chk-opt-block", "chk-opt-tunnel", "chk-opt-zone"].forEach((id) => ($(id).checked = true)));
+      // Greenfield-Lauf dauert einige Sekunden, genug zum Abbrechen
+      await p.evaluate(() => { S.building.mode = "greenfield"; syncAll(); refreshModeUI(); recalc(); });
       await p.click("#btn-dd-opt"); await p.click("#btn-optimize");
       if (!(await p.isVisible("#btn-opt-cancel"))) { await waitOptimization(p); return "übersprungen"; }
       await p.click("#btn-opt-cancel");
-      await p.evaluate(() => ["chk-opt-aisle", "chk-opt-block", "chk-opt-tunnel", "chk-opt-zone"].forEach((id) => ($(id).checked = false)));
     },
     expect: (a, b) => { assert.match(b.optStatus, /abgebrochen/); },
   },
