@@ -39,7 +39,7 @@ test("Regalstapler: Hubhöhe, Tragfähigkeit, Lastschwerpunkt und Gang aus der P
   assert.equal(s.by["Hersteller"].art, "Lieferant");
   // Gliederung wie im Typenblatt
   const groups = [...new Set(s.rows.map((r) => r.grp))];
-  assert.deepEqual(groups, ["0", "1", "2", "4", "5", "6", "10", "9"]);
+  assert.deepEqual(groups, ["0", "1", "2", "4", "5", "6", "10", "8", "9"]);
 });
 
 test("Frontstapler in Block und Vorzone: Blockstapel, Bauhöhe und Freihub für den LKW", async (page) => {
@@ -85,6 +85,34 @@ test("VNA: Gangführung, Fahrerplatz, P&D und Bodenebenheit", async (page) => {
   assert.equal(s.by["Arbeitsgangbreite (inkl. Sicherheitsabstand)"].wert, "≤ 1.900");
 });
 
+test("Ausstattung und Einsatzort aus der Anfragevorlage: im Blatt und in der Bedarfsübersicht", async (page) => {
+  await load(page);
+  let s = await sheet(page, "front");
+  assert.deepEqual([s.by["Einsatzort"].wert, s.by["Vollkabine"].wert, s.by["Greenlight"].wert, s.by["Safety-Vision"].wert, s.by["Full Service"].wert],
+    ["Indoor und Outdoor", "gefordert", "gefordert", "nicht gefordert", "gefordert"]);
+  assert.equal(s.by["Einsatzzeitraum (SOP – EOP)"].wert, "01.04.2027 – 31.03.2032");
+  // Bedarfsübersicht in der Spaltenfolge der Vorlage FFZ-Bedarf
+  const heads = await page.$$eval("#ffz-spec .ffz-overview th", (t) => t.map((x) => x.textContent));
+  assert.deepEqual(heads.slice(0, 8), ["OEM", "Kategorie", "Modell", "Bezeichnung", "Anzahl", "Tragfähigkeit t", "Wechselbatterie", "Lithium-Ionen"]);
+  assert.deepEqual(heads.slice(-3), ["Gabellänge m", "Hubmasthöhe m", "Nennhub m"]);
+  const rows = await page.evaluate(() => ffzOverviewRows());
+  const sm = rows.find((r) => r.bezeichnung === "Schubmaststapler");
+  assert.deepEqual([sm.anzahl, sm.wechselbatterie, sm.lithium, sm.kauf, sm.laufzeit, sm.fullService, sm.bluespot, sm.einsatzort, sm.gabellaenge],
+    [4, 2, "X", "", "60 Monate", "X", "X", "Indoor", "1,20"]);
+  assert.match(sm.nennhub, /^\d,\d\d$/);
+  assert.equal(await page.textContent("#ffz-spec .ffz-overview tr.ffz-sum td:nth-child(5)"), "13");
+  // Bedienung im Formular
+  await page.check('input[data-fleet-flag="cabin"][data-fleet-type="schubmast"]');
+  await page.fill('input[data-fleet-batteries="schubmast"]', "3"); await page.dispatchEvent('input[data-fleet-batteries="schubmast"]', "change");
+  await page.selectOption('select[data-fleet-site="schubmast"]', "outdoor");
+  assert.deepEqual(await page.evaluate(() => S.ffzFleet.schubmast), { count: 4, batteries: 3, fullService: true, bluespot: true, safetyVision: true, cabin: true, site: "outdoor" });
+  // Einsatzort wie Einsatzumgebung: kein eigener Wert
+  await page.selectOption('select[data-fleet-site="schubmast"]', "indoor");
+  assert.equal(await page.evaluate(() => S.ffzFleet.schubmast.site), undefined);
+  s = await sheet(page, "schubmast");
+  assert.equal(s.by["Wechselbatterien"].wert, "3");
+});
+
 test("Anzahl und Bemerkung: gespeichert, rückgängig machbar, in Planungs- und Eingabedatei", async (page) => {
   await load(page);
   await page.fill('input[data-fleet-count="hochhub"]', "2");
@@ -99,9 +127,9 @@ test("Anzahl und Bemerkung: gespeichert, rückgängig machbar, in Planungs- und 
   const r = await page.evaluate(() => {
     const json = JSON.stringify(S); S.ffzFleet = {}; applyJson(json); const a = S.ffzFleet.hochhub;
     exportInputFile(); const js = document.getElementById("jsonArea").value; S.ffzFleet = {}; applyJson(js);
-    return [a, S.ffzFleet.hochhub, S.ffzFleet.schubmast];
+    return [a, S.ffzFleet.hochhub, S.ffzFleet.schubmast.count, S.ffzFleet.front.site];
   });
-  assert.deepEqual(r, [{ count: 2 }, { count: 2 }, { count: 4 }]);
+  assert.deepEqual(r, [{ count: 2 }, { count: 2 }, 4, "both"]);
 });
 
 test("Import weist ungültige Fahrzeugangaben ab", async (page) => {
@@ -109,6 +137,9 @@ test("Import weist ungültige Fahrzeugangaben ab", async (page) => {
   assert.match(await msg({ gabelstapler: { count: 1 } }), /unbekannter FFZ-Typ gabelstapler/);
   assert.match(await msg({ front: { count: -1 } }), /ganze Zahl zwischen 0 und 999/);
   assert.match(await msg({ front: { count: 2, farbe: "rot" } }), /unbekanntes Feld farbe/);
+  assert.match(await msg({ front: { cabin: "ja" } }), /cabin muss ja oder nein sein/);
+  assert.match(await msg({ front: { site: "mond" } }), /unbekannter Einsatzort mond/);
+  assert.match(await msg({ front: { batteries: 1.5 } }), /Wechselbatterien muss eine ganze Zahl/);
   assert.equal(await msg({ front: { count: 2, note: "x" } }), "");
 });
 
@@ -121,6 +152,8 @@ test("Druckfenster und CSV", async (page, context) => {
   assert.match(text, /Schubmaststapler · 4 Stück/);
   assert.match(text, /in Anlehnung an das Typenblatt nach VDI 2198/);
   assert.match(text, /Grundabmessungen/);
+  assert.match(text, /Bedarfsübersicht/);
+  assert.match(text, /SOP01\.04\.2027/);
   await popup.close();
   const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#btn-ffz-csv")]);
   assert.match(dl.suggestedFilename(), /^Testprojekt_Kombinationen_FFZ-Anforderungen\.csv$/);

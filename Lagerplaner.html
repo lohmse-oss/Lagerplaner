@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.28</title>
+<title>Lagerplaner V2.29</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -361,6 +361,20 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .ffz-fleet .ffz-note{flex:1 1 260px}
 .ffz-fleet .ffz-note input{width:100%}
 .ffz-tab{width:100%}
+.req-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 12px}
+.req-form .mf{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mut)}
+.req-form .mf.wide{grid-column:1/-1}
+.req-form input{width:100%;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12px;color:var(--ink)}
+.brief-tab{width:100%}
+.brief-tab td{vertical-align:top;padding:4px}
+.brief-tab textarea{width:100%;min-width:160px;border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:12px;padding:4px}
+.brief-sugg{display:flex;gap:6px;align-items:flex-start;font-size:12px;text-align:left}
+.brief-sugg input[type=checkbox]{width:15px;height:15px;flex:0 0 auto;margin:1px 0 0}
+.ffz-equip{display:flex;flex-wrap:wrap;gap:4px 14px;border:1px solid var(--line);border-radius:6px;padding:2px 10px 6px;font-size:12px}
+.ffz-equip legend{font-size:11px;color:var(--mut);padding:0 4px}
+.ffz-overview{width:100%;font-size:11px}
+.ffz-overview td,.ffz-overview th{white-space:normal}
+.ffz-overview tr.ffz-sum td{font-weight:700}
 .ffz-tab tr.ffz-grp th{background:var(--bg);text-align:left;font-size:11px;text-transform:none;padding-top:6px}
 .ffz-tab tr.ffz-supplier td{color:var(--mut,#64748b)}
 .ffz-tab td.ffz-open{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(148,163,184,.12) 6px 12px)}
@@ -467,7 +481,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.28</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.29</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -1232,6 +1246,7 @@ details.obs[open] summary{margin-bottom:4px}
               <button class="btn" id="btn-ffz-print">Anforderungsblatt drucken</button>
               <button class="btn" id="btn-ffz-csv">Als CSV exportieren</button>
               <button type="button" class="btn" data-goto="1" data-goto-pg="ffz">Einsatz und Beschaffung bearbeiten</button>
+              <button type="button" class="btn" data-goto="9">Anfragedaten (SOP, EOP, Ansprechpartner)</button>
             </div>
             <div id="ffz-spec"></div>
           </div>
@@ -1421,6 +1436,21 @@ details.obs[open] summary{margin-bottom:4px}
             <div class="rowbtns"><button class="btn" id="btn-print-cust">Im Druckfenster öffnen</button></div>
             <div id="rep-cust-body" class="rep"></div>
           </div>
+          <div class="card" id="request-card">
+            <h3>
+              Projekt- und Anfragedaten
+              <span class="tt" data-tip="Kopfdaten für den Immobiliensteckbrief und die FFZ-Anfrage (Aufbau der Anfragevorlagen). Projektname und Kunde stehen in der Kopfzeile. Die Angaben werden mit der Planungsdatei gespeichert." tabindex="0">ⓘ</span>
+            </h3>
+            <div id="request-form" class="req-form"></div>
+          </div>
+          <div class="card" id="brief-card">
+            <h3>
+              Immobiliensteckbrief
+              <span class="tt" data-tip="Anforderungen an Gebäude und Gelände im Aufbau der Vorlage Immobiliensteckbrief, auf Deutsch und Englisch. Vorschläge aus der Planung lassen sich je Kriterium übernehmen oder abwählen; Ergänzungen tragen Sie je Sprache ein (leeres Englischfeld: deutscher Text)." tabindex="0">ⓘ</span>
+            </h3>
+            <div class="rowbtns"><button class="btn" id="btn-print-brief">Steckbrief drucken (Deutsch und Englisch)</button></div>
+            <div id="brief-form"></div>
+          </div>
         </div>
       </div>
     </main>
@@ -1519,7 +1549,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.28 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.29 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1572,7 +1602,7 @@ details.obs[open] summary{margin-bottom:4px}
         <li>Bewertung · Sensitivität: wirksamste Annahmen erkennen; das Tornado-Diagramm zeigt die Wirkung je Treiber.</li>
         <li>Bewertung · Annahmen: Datenbasis, Datenlücken und Parameterquellen prüfen; bei Bedarf den Fragekatalog für den Kunden erzeugen.</li>
         <li>Ergebnis · Übersicht: Kurzbericht und alle Plausibilitätshinweise lesen.</li>
-        <li>Ergebnis · Berichte: internen und kundenfähigen Bericht öffnen und drucken.</li>
+        <li>Ergebnis · Berichte: internen und kundenfähigen Bericht öffnen und drucken; Projekt- und Anfragedaten pflegen und den Immobiliensteckbrief (Deutsch und Englisch) für die Immobiliensuche ausgeben.</li>
         <li>Ergebnis · Methodik: jeden Rechenschritt mit Eingabefeldern und Formel nachvollziehen.</li>
         <li>Rückgängig (Kopfzeile) stellt den Stand vor der letzten Änderung wieder her, etwa vor einer geänderten Eingabe, einem Import, dem Laden einer Datei, einer übernommenen Optimierungsvariante oder dem Löschen von Positionen.</li>
         <li>Menü Datei: Neue Planung, Planungsdatei öffnen und speichern (JSON), Eingabedatei laden, Mengengerüst aus CSV, Eingabedatei erzeugen, Stückliste als CSV, Hallenlayout als PNG.</li>
@@ -1622,11 +1652,11 @@ details.obs[open] summary{margin-bottom:4px}
       <p>Eingabe · Mengengerüst – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und automatischem, überschreibbarem Wert Paletten je LKW aus der Kreuztabelle; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Palettentyp mit Maßen aus den Stammdaten, Datenbasis (Kundendaten oder Annahme). Die kompakte Tabelle zeigt je Position eine Zeile mit Bezeichnung, Ermittlungsart und deren Hauptwert, Palette, Artikelanzahl, Stapelfaktor, Blockanteil und Datenbasis; ✎ öffnet das Detailfeld mit allen Feldern neben den Kennzahlen (Vor/Zurück, Esc schließt). Enter und Umschalt+Enter wechseln die Zeile. Sammeländerungen an ausgewählten Positionen (LKW-Typ, Palettentyp, Blockanteil, Datenbasis, Löschen) erscheinen erst mit einer Auswahl. Positionen lassen sich aus Excel einfügen (Spaltenzuordnung im Dialog), per CSV importieren und als Eingabedatei ausgeben.</p>
       <p>Konzept · Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die kleinste machbare Halle, deren Seitenverhältnis im eingestellten Bereich liegt (Standard 1 : 1 bis 3 : 1); alternativ bleibt die Länge vorgegeben und nur die Breite wird berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Register Vorgaben zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Menü Varianten ermitteln in der Kopfzeile gesteuert: Ziel wählen und den Lauf starten. Drei Ziele stehen zur Wahl: minimaler CAPEX für den Soll-Bestand (so wenig Regal wie nötig), maximaler Flächennutzungsgrad (höchste Dichte bezogen auf die tatsächlich belegte Lagerfläche) und maximale Lagerkapazität (die Halle mit Regal füllen, ohne Rücksicht auf den Soll-Bestand; nur in der Bestandshalle). Variiert werden Feldweite (1.800 bis 3.600 mm), Regal- und Blockausrichtung und Kanaltiefe; im Greenfield zusätzlich die Zonenrollen (WE- und WA-Seite), und die Hallenmaße werden je Variante neu ermittelt. In der Bestandshalle bleiben Hallenmaße und Zonenrollen fest. Gangbreite, Stapelhöhe, Fluchttunnel, Zonentiefen, Stützraster und Blockquote bleiben Vorgaben; Varianten davon lassen sich über die Szenario-Slots vergleichen. Die Ergebnistabelle zeigt die 25 besten Varianten; ein Klick übernimmt eine Variante (rückgängig machbar).</p>
       <p>Konzept · Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe, je Artikel mindestens ein Kanal; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
-      <p>Konzept · Stückliste &amp; CAPEX – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren (auch im Menü Datei) speichert die Kalkulationsgrundlage als Datei. Das FFZ-Anforderungsblatt fasst je gewähltem Fahrzeugtyp die Anforderungen für die Lieferantenanfrage zusammen, gegliedert wie das Typenblatt nach VDI 2198 (Kennzeichen, Gewichte, Grundabmessungen, Leistungsdaten, Energie, Sonstiges, Betrieb und Beschaffung). Jede Zeile nennt ihre Herkunft: Planung (aus dem Modell abgeleitet), Vorgabe (Lagertechnik › Einsatz und Beschaffung sowie Anzahl und Bemerkung je Fahrzeugtyp) oder Lieferant (im Angebot anzugeben). Druckansicht und CSV dienen als Anlage zur Anfrage.</p>
+      <p>Konzept · Stückliste &amp; CAPEX – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren (auch im Menü Datei) speichert die Kalkulationsgrundlage als Datei. Das FFZ-Anforderungsblatt fasst je gewähltem Fahrzeugtyp die Anforderungen für die Lieferantenanfrage zusammen, gegliedert wie das Typenblatt nach VDI 2198 (Kennzeichen, Gewichte, Grundabmessungen, Leistungsdaten, Energie, Sonstiges, Betrieb und Beschaffung). Jede Zeile nennt ihre Herkunft: Planung (aus dem Modell abgeleitet), Vorgabe (Lagertechnik › Einsatz und Beschaffung sowie Anzahl und Bemerkung je Fahrzeugtyp) oder Lieferant (im Angebot anzugeben). Druckansicht und CSV dienen als Anlage zur Anfrage. Je Fahrzeugtyp lassen sich Wechselbatterien, Einsatzort und die Ausstattung der Anfragevorlage FFZ-Bedarf (Full Service, Bluespot, Greenlight, Safety-Vision, Vollkabine) festlegen; die Bedarfsübersicht fasst alle Fahrzeugtypen in der Spaltenfolge dieser Vorlage zusammen und steht im Druck vor den Einzelblättern.</p>
       <p>Bewertung · Varianten – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen, wahlweise mit Namen (beim Speichern oder nachträglich); die Vergleichstabelle hebt Abweichungen zum aktuellen Stand hervor, die Auswahlliste ruft ein Szenario auf. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
       <p>Bewertung · Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung; die Quelle am Feld in den Vorgaben führt direkt zur Zeile. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
       <p>Bewertung · Sensitivität – Analyse: Ein-Punkt-Variation der zentralen Treiber auf Flächenbedarf und CAPEX. Das Tornado-Diagramm unter der Ergebnistabelle zeigt die Wirkung jedes Treibers als Balken; Balken nach links stehen für die untere Variante (blau), Balken nach rechts für die obere Variante (orange), die Balkenlänge folgt dem größeren Betrag aus Δ Fläche und Δ CAPEX.</p>
-      <p>Ergebnis · Berichte – interner Bericht und kundenfähiger Grobkonzeptbericht, jeweils als Ansicht und Druckfenster.</p>
+      <p>Ergebnis · Berichte – interner Bericht und kundenfähiger Grobkonzeptbericht, jeweils als Ansicht und Druckfenster. Die Karte Projekt- und Anfragedaten nimmt die Kopfdaten der Anfragevorlagen auf (Kundenwerk, Leistungs-Standort, Serviceline, Ansprechpartner, Kurzbeschreibung deutsch und englisch, Leistungsstart und -ende, Anmietzeitraum, Mindestmietdauer, Verlängerung, Geschäftsbereich, Kostenstelle, Gesellschaft, RFD, SF-ID, Projektstatus, Kalkulator); SOP, EOP und Ansprechpartner erscheinen auch im FFZ-Anforderungsblatt. Der Immobiliensteckbrief folgt dem Aufbau der Vorlage (Standort, Gebäude, Gelände, Weitere Informationen). Aus der Planung vorgeschlagen werden Betriebszeiten, Hallentyp mit Stellplätzen, Hallenfläche und Mindest-Unterkante Binder (höchster Lagerpunkt plus Sprinklerfreiraum), Ladeinfrastruktur der Flurförderzeuge und Temperaturbereich, Verladetore je Seite mit Rolle und Fahrzeugtypen, Brandschutz (Lagerguthöhe, In-Rack, Fluchttunnel), Boden (Fachlast, Ständerlast, Flächenlast Blocklager, Ebenheit bei VNA), Rangierflächen und LKW-Wartezone sowie das Verkehrsaufkommen. Jeder Vorschlag lässt sich abwählen; Ergänzungen werden je Sprache eingetragen, ein leeres englisches Feld übernimmt den deutschen Text. Das Druckfenster enthält beide Sprachfassungen auf getrennten Seiten.</p>
       <p>Ergebnis · Übersicht – Quick-Report und Hinweise zusammengefasst; der Hinweiszähler in der Kennzahlen-Leiste springt hierher.</p>
       <p>Ergebnis · Methodik – löst alle Rechenschritte von der Bedarfsermittlung je Position über die Blockverteilung, Regal- und Blockgeometrie, das Layout und die Flächenbedarfsrechnung bis zur Stückliste und den Kennzahlen auf. Jeder Schritt nennt die Eingabefelder und den Rechenweg und dient der Nachverfolgbarkeit der Ergebnisse.</p>
       <p>Ergebnisstand: Alle Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungsplanung. Speicherort des Browser-Stands: lokaler Browser-Speicher des verwendeten Geräts und Browsers.</p>
@@ -1883,8 +1913,11 @@ function migrateFFZ(rawFfz){
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
   if(!S.truckOverrides||typeof S.truckOverrides!=="object")S.truckOverrides={};
   if(!S.ffzFleet||typeof S.ffzFleet!=="object")S.ffzFleet={};
+  if(!S.request||typeof S.request!=="object")S.request={};
+  if(!S.request.texts||typeof S.request.texts!=="object")S.request.texts={};
+  if(!Array.isArray(S.request.skip))S.request.skip=[];
 }
-const APP_VERSION="V2.28";
+const APP_VERSION="V2.29";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -1904,6 +1937,7 @@ function defaults(){
     block:{mode:"sku",quota:40,channelDepth:6,stackH:6,aVol:80,bVol:15,minFill:65,orient:"N",maxTop:7.5},
     ffz:{type:"schubmast",rackFFZ:["schubmast"],blockFFZ:["front"],zoneFFZ:["ameise"],aisle:2.8,aisleBlock:3.5,vnaPnD:true,rackBase:"lead",fieldMode:"auto",fieldWidth:2700,rackFill:"need",liftHeight:8.5,liftReserve:200,floorOnBeam:false,singleRows:false,shifts:2,shiftHours:8,daysWeek:5,energy:"li",environment:"normal",procurement:"kauf",termMonths:60,vnaGuide:"rail",vnaCab:"up"},
     ffzFleet:{},
+    request:{texts:{},skip:[]},
     lhmOverrides:{},
     truckOverrides:{},
     fire:{sprinkler:500,tunnelInterval:35,tunnelClear:2.5,inRack:false},
@@ -2537,6 +2571,12 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.29",date:"29.10.2026",items:[
+    "Immobiliensteckbrief (Register Berichte) im Aufbau der Anfragevorlage, deutsch und englisch: Vorschläge aus der Planung für Betriebszeiten, Hallenfläche und Mindest-Unterkante Binder, Ladeinfrastruktur, Verladetore, Brandschutz, Boden, Rangierflächen und Verkehrsaufkommen; je Kriterium abwählbar und je Sprache ergänzbar; Druckfenster mit beiden Sprachfassungen.",
+    "Projekt- und Anfragedaten (Kundenwerk, Standort, Serviceline, Ansprechpartner, SOP/EOP, Anmietzeitraum, Mietdauer, Kostenstelle u. a.) als gemeinsame Kopfdaten für Steckbrief und FFZ-Anfrage; Teil von Planungs- und Eingabedatei, beim Import geprüft.",
+    "FFZ-Anforderungsblatt bleibt führend und übernimmt die Felder der Anfragevorlage FFZ-Bedarf: Wechselbatterien, Einsatzort, Full Service, Bluespot, Greenlight, Safety-Vision, Vollkabine je Fahrzeugtyp, Einsatzzeitraum SOP–EOP; Bedarfsübersicht in der Spaltenfolge der Vorlage in Ansicht und Druck.",
+    "Testdaten um Anfragedaten, Steckbrief-Texte und FFZ-Ausstattung ergänzt."
+  ]},
   {v:"V2.28",date:"28.10.2026",items:[
     "FFZ-Anforderungsblatt für die Lieferantenanfrage (Register Stückliste & CAPEX): je gewähltem Fahrzeugtyp ein Blatt in der Gliederung des Typenblatts nach VDI 2198. Aus der Planung abgeleitet: Tragfähigkeit, Lastschwerpunktabstand, Hubhöhe mit Resttragfähigkeit (Regal und Blockstapel), Arbeitsgangbreite, Gabellänge, Zinkenverstellung, Seitenschieber, maximale Ladeeinheit; bei Frontstaplern in der Vorzone Bauhöhe und Freihub für den LKW; beim VNA Gangführung, Fahrerplatz, P&D und Bodenebenheit. Anzahl und Bemerkung je Fahrzeugtyp durch den Nutzer; Herstellerangaben als offene Zeilen.",
     "Neue Vorgaben unter Lagertechnik › Einsatz und Beschaffung: Schichtmodell (Betriebsstunden je Jahr), Energiesystem, Einsatzumgebung, Beschaffungsart mit Laufzeit, Gangführung und Fahrerplatz des VNA. Sie wirken nur im Anforderungsblatt.",
@@ -3195,9 +3235,32 @@ function validateFfzFleet(dict,label){
   for(const [key,entry] of Object.entries(dict||{})){
     if(!FFZ[key])throw new Error(label+": unbekannter FFZ-Typ "+key+".");
     if(!isPlainObject(entry))throw new Error(label+", "+key+" muss ein Objekt sein.");
-    for(const field of Object.keys(entry))if(field!=="count"&&field!=="note")throw new Error(label+", "+key+": unbekanntes Feld "+field+".");
-    if(entry.count!=null&&!(Number.isInteger(entry.count)&&entry.count>=0&&entry.count<=999))throw new Error(label+", "+key+": Anzahl muss eine ganze Zahl zwischen 0 und 999 sein.");
+    for(const field of Object.keys(entry))if(!FFZ_FLEET_FIELDS.includes(field))throw new Error(label+", "+key+": unbekanntes Feld "+field+".");
+    for(const field of ["count","batteries"])if(entry[field]!=null&&!(Number.isInteger(entry[field])&&entry[field]>=0&&entry[field]<=999))throw new Error(label+", "+key+": "+(field==="count"?"Anzahl":"Wechselbatterien")+" muss eine ganze Zahl zwischen 0 und 999 sein.");
+    for(const field of FFZ_EQUIPMENT.map(e=>e[0]))if(entry[field]!=null&&typeof entry[field]!=="boolean")throw new Error(label+", "+key+": "+field+" muss ja oder nein sein.");
+    if(entry.site!=null&&!FFZ_SITES.some(x=>x[0]===entry.site))throw new Error(label+", "+key+": unbekannter Einsatzort "+entry.site+".");
     if(entry.note!=null&&(typeof entry.note!=="string"||entry.note.length>200))throw new Error(label+", "+key+": Bemerkung muss Text mit höchstens 200 Zeichen sein.");
+  }
+}
+function validateRequest(req,label){
+  if(req==null)return;
+  if(!isPlainObject(req))throw new Error(label+" muss ein Objekt sein.");
+  for(const [key,value] of Object.entries(req)){
+    if(key==="texts"){
+      if(!isPlainObject(value))throw new Error(label+".texts muss ein Objekt sein.");
+      for(const [k,t] of Object.entries(value)){
+        if(!BRIEF_ROWS.some(r=>r.key===k))throw new Error(label+": unbekanntes Kriterium "+k+".");
+        if(!isPlainObject(t))throw new Error(label+".texts."+k+" muss ein Objekt sein.");
+        for(const [lang,txt] of Object.entries(t))if(!["de","en"].includes(lang)||typeof txt!=="string"||txt.length>1000)throw new Error(label+".texts."+k+": Text je Sprache (de, en) mit höchstens 1.000 Zeichen erwartet.");
+      }
+    }else if(key==="skip"){
+      if(!Array.isArray(value)||value.some(k=>!BRIEF_ROWS.some(r=>r.key===k)))throw new Error(label+".skip muss eine Liste bekannter Kriterien sein.");
+    }else{
+      const f=REQUEST_FIELDS.find(x=>x.key===key);
+      if(!f)throw new Error(label+": unbekanntes Feld "+key+".");
+      if(typeof value!=="string"||value.length>(f.max||200))throw new Error(label+"."+key+" muss Text mit höchstens "+(f.max||200)+" Zeichen sein.");
+      if(f.type==="date"&&value&&!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new Error(label+"."+key+" muss ein Datum (JJJJ-MM-TT) sein.");
+    }
   }
 }
 function validatePlannerStateFields(obj,label){
@@ -3240,7 +3303,7 @@ function validateImportedPayload(obj,kind,depth){
   if(depth>4)throw new Error("Die Importstruktur enthält zu viele verschachtelte Szenarien.");
   if(!isPlainObject(obj))throw new Error("Die Datei muss ein JSON-Objekt oder eine JSON-Datenzuweisung enthalten.");
   assertSafeImportTree(obj,0);
-  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta","ffzFleet"];
+  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta","ffzFleet","request"];
   for(const key of objectKeys)if(obj[key]!=null&&!isPlainObject(obj[key]))throw new Error(key+" muss ein Objekt sein.");
   if(obj.meta){
     for(const key of ["name","kunde","projekt","stand"]){
@@ -3249,7 +3312,7 @@ function validateImportedPayload(obj,kind,depth){
   }
   validateParameterSources(obj.parameterSources);
   const parm=obj.parameter||{};
-  for(const key of ["building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","ffzFleet"]){
+  for(const key of ["building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","ffzFleet","request"]){
     if(parm[key]!=null&&!isPlainObject(parm[key]))throw new Error("parameter."+key+" muss ein Objekt sein.");
   }
   validateLhmDictionary(obj.customLhm||parm.customLhm,"Eigene Palettentypen");
@@ -3257,6 +3320,7 @@ function validateImportedPayload(obj,kind,depth){
   validateLhmOverrides(obj.lhmOverrides||parm.lhmOverrides,"Palettenüberschreibungen");
   validateTruckOverrides(obj.truckOverrides||parm.truckOverrides,"LKW-Überschreibungen");
   validateFfzFleet(obj.ffzFleet||parm.ffzFleet,"FFZ-Anzahl");
+  validateRequest(obj.request||parm.request,"Anfragedaten");
   if(kind==="input"){
     if(!Array.isArray(obj.positionen))throw new Error("Eingabedatei enthält keine Positionsliste (positionen).");
     validatePositionArray(obj.positionen,"Eingabedatei");
@@ -4049,7 +4113,7 @@ function recalc(){
 }
 /* Register, deren Inhalt aus dem Ergebnis gezeichnet wird. Nach jeder Neuberechnung gelten sie als veraltet;
    gezeichnet wird nur das sichtbare Register, die übrigen beim Öffnen (showTab). */
-const PANEL_RENDERERS={"2":[updateAllCalc],"3":[drawLayout],"4":[drawSection,drawBlockSection],"5":[renderBOM,renderFfzSpec],"6":[renderScenarios],"7":[renderRegister],"9":[renderReports]};
+const PANEL_RENDERERS={"2":[updateAllCalc],"3":[drawLayout],"4":[drawSection,drawBlockSection],"5":[renderBOM,renderFfzSpec],"6":[renderScenarios],"7":[renderRegister],"9":[renderReports,renderRequestForms]};
 const STALE_PANELS=new Set();
 function renderVisiblePanels(){
   const errors=[];
@@ -5345,14 +5409,197 @@ function renderBOM(){
   });
   renderBomTotals();
 }
+/* ============================ Anfragedaten und Immobiliensteckbrief ============================ */
+/* Aufbau nach den Anfragevorlagen (Immobiliensteckbrief DE/EN, FFZ-Bedarf). Kopfdaten in S.request, Freitexte je Kriterium und Sprache in S.request.texts,
+   abgewählte Planungsvorschläge in S.request.skip. */
+const REQUEST_FIELDS=[
+  {key:"customerSite",de:"Kundenwerk",en:"Customer site"},{key:"serviceSite",de:"Leistungs-Standort",en:"Service site"},
+  {key:"serviceLine",de:"Serviceline",en:"Serviceline"},{key:"contact",de:"Ansprechpartner",en:"Contact person"},
+  {key:"description",de:"Kurzbeschreibung",en:"Description",max:500,wide:true},{key:"descriptionEn",de:"Kurzbeschreibung (Englisch)",en:"",max:500,wide:true},
+  {key:"sop",de:"Leistungsstart Projekt (SOP)",en:"Start of project",type:"date"},{key:"eop",de:"Leistungsende Projekt (EOP)",en:"End of project",type:"date"},
+  {key:"rentEarliest",de:"früheste Anmietung",en:"Earliest rental date",type:"date"},{key:"rentLatest",de:"späteste Anmietung",en:"Latest rental date",type:"date"},
+  {key:"minTerm",de:"Mindestmietdauer",en:"Minimal rental contract"},{key:"extension",de:"Verlängerung",en:"Extension"},
+  {key:"businessUnit",de:"Geschäftsbereich",en:"Business Unit"},{key:"buLead",de:"GB-Leitung",en:"BU Management"},
+  {key:"costCenter",de:"Kostenstelle",en:"Cost Center"},{key:"ccLead",de:"Kostenstellenleitung",en:"CC Management"},
+  {key:"company",de:"Gesellschaft",en:"Company"},{key:"rfd",de:"RFD",en:"RFD"},{key:"sfId",de:"SF-ID",en:"SF-ID"},
+  {key:"status",de:"Projektstatus",en:"Project status"},{key:"calculator",de:"Kalkulator",en:"Project Lead"}
+];
+const BRIEF_SECTIONS=[["location","Standort","Location"],["building","Gebäude","Building"],["site","Gelände","Site"],["info","Weitere Informationen","Additional information"]];
+const BRIEF_ROWS=[
+  {key:"location",sec:"location",de:"Lage",en:"Location"},{key:"infrastructure",sec:"location",de:"Infrastruktur-Anbindung",en:"Infrastructure"},
+  {key:"hours",sec:"location",de:"Betriebszeiten",en:"Operation times"},{key:"locationMisc",sec:"location",de:"Sonstiges",en:"Misc"},
+  {key:"general",sec:"building",de:"Allgemein",en:"General requirements"},{key:"production",sec:"building",de:"Dimension Produktion",en:"Dimension production"},
+  {key:"logistics",sec:"building",de:"Dimension Logistik",en:"Dimension logistic"},{key:"office",sec:"building",de:"Dimension Office",en:"Dimension office"},
+  {key:"technical",sec:"building",de:"Technische Ausstattung",en:"Technical features"},{key:"logisticDesign",sec:"building",de:"Logistische Gestaltung",en:"Logistic features"},
+  {key:"social",sec:"building",de:"Sozialausstattung",en:"Social features"},{key:"fire",sec:"building",de:"Brandschutz",en:"Fire protection"},
+  {key:"buildingMisc",sec:"building",de:"Sonstiges",en:"Misc"},
+  {key:"siteDimension",sec:"site",de:"Dimension",en:"Dimension"},{key:"siteLogistics",sec:"site",de:"Logistische Gestaltung",en:"Logistic features"},
+  {key:"siteTechnical",sec:"site",de:"Technische Ausstattung",en:"Technical features"},{key:"siteMisc",sec:"site",de:"Sonstiges",en:"Misc"},
+  {key:"traffic",sec:"info",de:"Verkehrsaufkommen",en:"Traffic volume"},{key:"documents",sec:"info",de:"Notwendige Unterlagen",en:"Required documents"}
+];
+function briefNum(v,dec,lang){return lang==="en"?Number(v||0).toLocaleString("en-GB",{minimumFractionDigits:dec||0,maximumFractionDigits:dec||0}):fmt(v,dec||0);}
+// Höchster Lagerpunkt (Oberkante Ladeeinheit) aus Regal und Blockstapel, in mm
+function briefStorageTop(){
+  let top=R.rack?R.rack.topLoad:0;
+  for(const g of (R.block&&R.block.channelGroups)||[])top=Math.max(top,g.effectiveStack*(Number(g.item.h)||0));
+  return top;
+}
+function briefDerived(key,lang){
+  const en=lang==="en",n=(v,d)=>briefNum(v,d,en?"en":"de"),f=S.ffz,g=R.geo;
+  const trucksUsed=[...new Set((S.items||[]).filter(i=>(i.net||0)>0||(i.palletsDay||0)>0).map(i=>i.truck))];
+  switch(key){
+    case "hours":{
+      const h=ffzOperatingHours();
+      return en?n(f.shifts)+" shift(s) per day, "+n(f.shiftHours,1)+" h per shift, "+n(f.daysWeek)+" days per week ("+n(h)+" operating hours per year)"
+        :n(f.shifts)+"-Schicht-Betrieb, "+n(f.shiftHours,1)+" h je Schicht, "+n(f.daysWeek)+" Tage je Woche ("+n(h)+" Betriebsstunden je Jahr)";
+    }
+    case "general":{
+      if(!g)return "";
+      const c=capacitySummary(R),parts=[];
+      if(c.rackPlanned>0)parts.push(en?"pallet racking ("+n(c.rackPlanned)+" positions)":"Regallager ("+n(c.rackPlanned)+" Stellplätze)");
+      if(c.blockPlanned>0)parts.push(en?"block storage ("+n(c.blockPlanned)+" positions)":"Blocklager ("+n(c.blockPlanned)+" Stellplätze)");
+      return (en?"Logistics building for palletised goods":"Logistikhalle für palettierte Ware")+(parts.length?(en?" with ":" mit ")+parts.join(en?" and ":" und "):"");
+    }
+    case "logistics":{
+      if(!g)return "";
+      const top=briefStorageTop(),spr=clamp(Number(S.fire.sprinkler)||0,0,2000);
+      const ukb=Math.ceil((top+spr)/100)/10;
+      return en?"Warehouse area approx. "+n(g.area.hall/1e6)+" sqm ("+n(g.L/1000,1)+" × "+n(g.W/1000,1)+" m), thereof gross storage area "+n(g.area.brutto/1e6)+" sqm; clear height min. "+n(ukb,1)+" m (storage height up to "+n(top/1000,1)+" m plus "+n(spr/1000,1)+" m sprinkler clearance)"
+        :"Hallenfläche ca. "+n(g.area.hall/1e6)+" m² ("+n(g.L/1000,1)+" × "+n(g.W/1000,1)+" m), davon Brutto-Lagerfläche "+n(g.area.brutto/1e6)+" m²; UK Binder mind. "+n(ukb,1)+" m (Lagergut bis "+n(top/1000,1)+" m zzgl. "+n(spr/1000,1)+" m Sprinklerfreiraum)";
+    }
+    case "technical":{
+      const cnt=Object.values(S.ffzFleet||{}).reduce((a,e)=>a+(e.count||0),0);
+      const who=cnt?n(cnt)+" ":"";
+      const parts=[f.energy==="pb"?(en?"battery charging room with ventilation for "+who+"industrial trucks (lead-acid)":"Batterieladeraum mit Lüftung für "+who+"Flurförderzeuge (Blei-Säure)")
+        :f.energy==="li"?(en?"charging infrastructure for "+who+"industrial trucks (lithium-ion)":"Ladeinfrastruktur für "+who+"Flurförderzeuge (Lithium-Ionen)")
+        :(en?"charging infrastructure for "+who+"industrial trucks":"Ladeinfrastruktur für "+who+"Flurförderzeuge")];
+      if(f.environment==="cold")parts.push(en?"chilled area 0 to +8 °C":"Kühlbereich 0 bis +8 °C");
+      if(f.environment==="frozen")parts.push(en?"frozen area down to −28 °C":"Tiefkühlbereich bis −28 °C");
+      const t=parts.join("; ");return t.charAt(0).toUpperCase()+t.slice(1);
+    }
+    case "logisticDesign":{
+      const b=S.building,sides=[["N","Nord","north"],["O","Ost","east"],["S","Süd","south"],["W","West","west"]];
+      const role={we:["WE","inbound"],wa:["WA","outbound"],wewa:["WE/WA","in-/outbound"],none:["",""]};
+      const parts=sides.filter(([k])=>(b.doors[k]||0)>0).map(([k,de,eng])=>{const r=role[b.zones[k]||"none"]||role.none;return n(b.doors[k])+" "+(en?eng:de)+(r[0]?" ("+(en?r[1]:r[0])+")":"");});
+      const total=sides.reduce((a,[k])=>a+(b.doors[k]||0),0);
+      const weD=Math.max(Number(b.weDepth)||0,R.weBuffer?R.weBuffer.depth:0);
+      const trucks=trucksUsed.map(k=>(getTruck(k)||{}).label).filter(Boolean).join(", ");
+      return en?n(total)+" loading docks: "+parts.join(", ")+"; staging areas approx. "+n(weD,1)+" m (inbound) and "+n(b.waDepth,1)+" m (outbound) deep"+(trucks?"; vehicles: "+trucks:"")
+        :n(total)+" Verladetore: "+parts.join(", ")+"; Bereitstellzonen ca. "+n(weD,1)+" m (WE) und "+n(b.waDepth,1)+" m (WA) tief"+(trucks?"; Fahrzeuge: "+trucks:"");
+    }
+    case "fire":{
+      if(!g)return "";
+      const top=briefStorageTop()/1000,parts=[];
+      parts.push(top>7.5?(en?"storage height up to "+n(top,1)+" m: automatic sprinkler system required (German MIndBauRL, check local requirements)":"Lagerguthöhe bis "+n(top,1)+" m: selbsttätige Feuerlöschanlage erforderlich (Muster-Industriebaurichtlinie)")
+        :(en?"storage height up to "+n(top,1)+" m (sprinkler system required above 7.5 m per German MIndBauRL; check local requirements)":"Lagerguthöhe bis "+n(top,1)+" m (ab 7,5 m selbsttätige Feuerlöschanlage nach Muster-Industriebaurichtlinie)"));
+      if(S.fire.inRack)parts.push(en?"in-rack sprinklers planned":"In-Rack-Sprinklerung vorgesehen");
+      if(R.rack&&S.fire.tunnelInterval>0)parts.push(en?"escape tunnels through rack rows at max. "+n(S.fire.tunnelInterval)+" m spacing":"Fluchttunnel durch die Regalreihen im Abstand von höchstens "+n(S.fire.tunnelInterval)+" m");
+      const t=parts.join("; ");return t.charAt(0).toUpperCase()+t.slice(1);
+    }
+    case "buildingMisc":{
+      const parts=[en?"Industrial floor suitable for forklift operation":"Industrieboden für Staplerbetrieb"];
+      if(R.rack){
+        const kN=Math.ceil(R.rack.levels*R.rack.fachlast*9.81/1000/5)*5;
+        parts.push(en?"racking: beam level load up to "+n(R.rack.fachlast)+" kg, upright load approx. "+n(kN)+" kN":"Regal: Fachlast bis "+n(R.rack.fachlast)+" kg je Ebene, Ständerlast ca. "+n(kN)+" kN");
+      }
+      const q=Math.max(0,...((R.block&&R.block.channelGroups)||[]).map(x=>x.effectiveStack*(Number(x.item.g)||0)*9.81/1000/Math.max(0.01,(Number(x.item.l)||1200)*(Number(x.item.b)||800)/1e6)));
+      if(q>0)parts.push(en?"block storage: floor load up to approx. "+n(Math.ceil(q*2)/2,1)+" kN/sqm":"Blocklager: Flächenlast bis ca. "+n(Math.ceil(q*2)/2,1)+" kN/m²");
+      if((f.rackFFZ||[]).includes("vna"))parts.push(en?"floor flatness per DIN 15185-1 (very narrow aisles)":"Bodenebenheit nach DIN 15185-1 (Schmalgang)");
+      return parts.join("; ");
+    }
+    case "siteLogistics":{
+      if(!trucksUsed.length)return "";
+      const big=trucksUsed.includes("giga")?(en?"long trucks (25.25 m)":"Lang-LKW (25,25 m)"):trucksUsed.includes("mega")?(en?"articulated trucks (mega trailer)":"Sattelzüge (Megatrailer)"):trucksUsed.some(k=>k!=="7.5t")?(en?"articulated trucks":"Sattelzüge"):(en?"trucks up to 7.5 t":"Lkw bis 7,5 t");
+      const waiting=Math.ceil((R.trucksTotal||0)*clamp(Number(S.volume.peakHourShare)||0,0,100)/100);
+      return en?"Manoeuvring and turning areas for "+big+(waiting?"; truck waiting area for approx. "+n(waiting)+" trucks in the peak hour":"")
+        :"Rangier- und Wendeflächen für "+big+(waiting?"; LKW-Wartezone für ca. "+n(waiting)+" LKW in der Spitzenstunde":"");
+    }
+    case "traffic":{
+      if(!(R.trucksTotal>0))return "";
+      return en?"Inbound approx. "+n(R.trucksTotal)+" trucks per day ("+n(f.daysWeek)+" operating days per week); peak hour approx. "+n(R.peakPalletsHour)+" pallets (inbound "+n(R.peakWeHour)+", outbound "+n(R.peakWaHour)+")"
+        :"Wareneingang ca. "+n(R.trucksTotal)+" LKW je Tag ("+n(f.daysWeek)+" Betriebstage je Woche); Spitzenstunde ca. "+n(R.peakPalletsHour)+" Paletten (WE "+n(R.peakWeHour)+", WA "+n(R.peakWaHour)+")";
+    }
+  }
+  return "";
+}
+function briefText(key,lang){
+  const req=S.request||{},t=(req.texts||{})[key]||{};
+  const parts=[];
+  if(!(req.skip||[]).includes(key)){const d=briefDerived(key,lang);if(d)parts.push(d);}
+  const own=lang==="en"?(t.en||t.de||""):(t.de||"");
+  if(own)parts.push(own);
+  return parts.join("\n");
+}
+function renderRequestForms(){
+  const rf=$("request-form"),bf=$("brief-form");
+  if(!rf||!bf)return;
+  const req=S.request||(S.request={texts:{},skip:[]});
+  rf.innerHTML=REQUEST_FIELDS.map(fd=>'<label class="mf'+(fd.wide?' wide':'')+'"><span>'+escH(fd.de)+'</span><input type="'+(fd.type==="date"?"date":"text")+'" data-req="'+fd.key+'" maxlength="'+(fd.max||200)+'" value="'+escH(req[fd.key]||"")+'"></label>').join("");
+  bf.innerHTML='<table class="brief-tab"><thead><tr><th style="width:150px">Kriterium</th><th>Vorschlag aus der Planung</th><th>Ergänzung Deutsch</th><th>Ergänzung Englisch</th></tr></thead><tbody>'+
+    BRIEF_SECTIONS.map(([sec,de])=>'<tr class="ffz-grp"><th colspan="4">'+escH(de)+'</th></tr>'+BRIEF_ROWS.filter(r=>r.sec===sec).map(r=>{
+      const d=briefDerived(r.key,"de"),t=(req.texts||{})[r.key]||{};
+      return '<tr data-brief="'+r.key+'"><td>'+escH(r.de)+'</td><td>'+(d?'<label class="brief-sugg"><input type="checkbox" data-brief-skip="'+r.key+'"'+((req.skip||[]).includes(r.key)?'':' checked')+' aria-label="Vorschlag übernehmen: '+escH(r.de)+'"> <span>'+escH(d)+'</span></label>':'<span class="hint">–</span>')+'</td>'+
+        '<td><textarea rows="2" maxlength="1000" data-brief-text="'+r.key+'" data-lang="de" aria-label="'+escH(r.de)+' (Deutsch)">'+escH(t.de||"")+'</textarea></td>'+
+        '<td><textarea rows="2" maxlength="1000" data-brief-text="'+r.key+'" data-lang="en" aria-label="'+escH(r.de)+' (Englisch)" placeholder="leer: deutscher Text">'+escH(t.en||"")+'</textarea></td></tr>';
+    }).join("")).join("")+'</tbody></table>';
+  // Kein Neuaufbau beim Ändern: der Fokus bleibt beim Weiterspringen erhalten
+  rf.querySelectorAll("input[data-req]").forEach(inp=>inp.addEventListener("change",()=>{
+    const v=String(inp.value).trim().slice(0,inp.maxLength>0?inp.maxLength:200);
+    if(v)S.request[inp.dataset.req]=v;else delete S.request[inp.dataset.req];
+    persistState();
+  }));
+  bf.querySelectorAll("textarea[data-brief-text]").forEach(ta=>ta.addEventListener("change",()=>{
+    const k=ta.dataset.briefText,lang=ta.dataset.lang,v=String(ta.value).trim().slice(0,1000);
+    const t=Object.assign({},S.request.texts[k]);
+    if(v)t[lang]=v;else delete t[lang];
+    if(Object.keys(t).length)S.request.texts[k]=t;else delete S.request.texts[k];
+    persistState();
+  }));
+  bf.querySelectorAll("input[data-brief-skip]").forEach(cb=>cb.addEventListener("change",()=>{
+    const k=cb.dataset.briefSkip,set=new Set(S.request.skip||[]);
+    if(cb.checked)set.delete(k);else set.add(k);
+    S.request.skip=BRIEF_ROWS.map(r=>r.key).filter(x=>set.has(x));
+    persistState();
+  }));
+}
+function briefPrintHtml(){
+  const req=S.request||{};
+  const page=lang=>{
+    const en=lang==="en",L=fd=>en?fd.en:fd.de.replace(/ \((SOP|EOP)\)$/,"");
+    const val=k=>{const v=req[k]||"";return REQUEST_FIELDS.find(x=>x.key===k).type==="date"&&v?fmtDate(v,lang):v;};
+    const head=[[en?"Customer":"Kunde",S.meta.kunde],[L(REQUEST_FIELDS[1]),val("serviceSite")],[L(REQUEST_FIELDS[0]),val("customerSite")],[L(REQUEST_FIELDS[2]),val("serviceLine")],
+      [en?"Project":"Projektbezeichnung",S.meta.name],[en?"Description":"Kurzbeschreibung",en?(req.descriptionEn||req.description):req.description]];
+    const dates=["sop","eop","rentEarliest","rentLatest","minTerm","extension","businessUnit","buLead","costCenter","ccLead","company","rfd","sfId","status","calculator"].map(k=>[L(REQUEST_FIELDS.find(x=>x.key===k)),val(k)]);
+    // Zwei Angabenpaare je Zeile wie im Kopf der Vorlage
+    const grid=rows=>{let h='<table class="req-head"><colgroup><col style="width:19%"><col style="width:31%"><col style="width:19%"><col style="width:31%"></colgroup><tbody>';
+      for(let i=0;i<rows.length;i+=2)h+='<tr>'+[rows[i],rows[i+1]].map(r=>r?'<th>'+escH(r[0])+'</th><td>'+escH(r[1]||"–")+'</td>':'<th></th><td></td>').join("")+'</tr>';
+      return h+'</tbody></table>';};
+    return '<section'+(en?' style="page-break-before:always"':'')+'><h2>'+(en?"Property profile":"Immobiliensteckbrief")+'</h2>'+grid(head.concat(dates))+
+      '<table class="brief-print"><thead><tr><th style="width:28%">'+(en?"Criteria":"Kriterium")+'</th><th>'+(en?"Requirement":"Anforderung")+'</th></tr></thead><tbody>'+
+      BRIEF_SECTIONS.map(([sec,de,eng])=>'<tr><th colspan="2">'+escH(en?eng:de)+'</th></tr>'+BRIEF_ROWS.filter(r=>r.sec===sec).map(r=>'<tr><td>'+escH(en?r.en:r.de)+'</td><td style="white-space:pre-line">'+escH(briefText(r.key,lang))+'</td></tr>').join("")).join("")+
+      '</tbody></table></section>';
+  };
+  return '<p>'+escH(S.meta.name||"Projekt")+' · Stand '+escH(new Date().toLocaleDateString("de-DE"))+' · Vorschläge aus der Vorplanung, ergänzt um Projektangaben.</p>'+page("de")+page("en");
+}
 /* ============================ FFZ-Anforderungsblatt ============================ */
 /* Je Fahrzeugtyp die Anforderungen für die Lieferantenanfrage, gegliedert wie das Typenblatt nach VDI 2198.
    Herkunft: Planung (aus dem Modell abgeleitet), Vorgabe (Lagertechnik › Einsatz und Beschaffung), Lieferant (vom Anbieter anzugeben). */
 const FFZ_AREAS=[["rackFFZ","rack","Regallager"],["blockFFZ","block","Blocklager / Leergut"],["zoneFFZ","zone","WE/WA & Vorzone"]];
 const FFZ_OPERATOR={schubmast:"Fahrersitz oder Fahrerstand",front:"Fahrersitz",hochhub:"Mitgänger oder Standplattform",ameise:"Mitgänger oder Standplattform"};
 const FFZ_MAST=new Set(["vna","schubmast","front","hochhub"]);
-const FFZ_GROUPS=[["0","Einsatz"],["1","Kennzeichen"],["2","Gewichte"],["4","Grundabmessungen"],["5","Leistungsdaten"],["6","Energie"],["10","Sonstiges"],["9","Betrieb und Beschaffung"]];
-const FFZ_ROW_GROUP={"Anzahl":"0","Einsatzbereiche":"0","Resttragfähigkeit in Hubhöhe h3 bei c":"4","Zinkenverstellung":"4","Seitenschieber":"4","Ladeeinheit max. L × B × H":"4","Anforderungen aus der Planung":"4"};
+// Ausstattung und Einsatzort je Fahrzeugtyp (Felder der Anfragevorlage FFZ-Bedarf)
+const FFZ_EQUIPMENT=[["fullService","Full Service"],["bluespot","Bluespot"],["greenlight","Greenlight"],["safetyVision","Safety-Vision"],["cabin","Vollkabine"]];
+const FFZ_SITES=[["indoor","Indoor"],["outdoor","Outdoor"],["both","Indoor und Outdoor"]];
+const FFZ_FLEET_FIELDS=["count","note","batteries","site",...FFZ_EQUIPMENT.map(e=>e[0])];
+function ffzSite(fleet){return fleet.site||(S.ffz.environment==="outdoor"?"both":"indoor");}
+const FFZ_GROUPS=[["0","Einsatz"],["1","Kennzeichen"],["2","Gewichte"],["4","Grundabmessungen"],["5","Leistungsdaten"],["6","Energie"],["10","Sonstiges"],["8","Ausstattung"],["9","Betrieb und Beschaffung"]];
+const FFZ_ROW_GROUP={"Anzahl":"0","Einsatzbereiche":"0","Einsatzort":"0","Wechselbatterien":"6","Bluespot":"8","Greenlight":"8","Safety-Vision":"8","Vollkabine":"8","Resttragfähigkeit in Hubhöhe h3 bei c":"4","Zinkenverstellung":"4","Seitenschieber":"4","Ladeeinheit max. L × B × H":"4","Anforderungen aus der Planung":"4"};
+function fmtDate(iso,lang){
+  const m=/^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(String(iso||""));
+  if(!m)return String(iso||"");
+  if(!m[3])return lang==="en"?new Date(Date.UTC(+m[1],+m[2]-1,1)).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):m[2]+"/"+m[1];
+  return lang==="en"?new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):m[3]+"."+m[2]+"."+m[1];
+}
 function ffzFleetTypes(){
   const out=[];
   for(const [key] of FFZ_AREAS)for(const t of S.ffz[key]||[])if(FFZ[t]&&!out.includes(t))out.push(t);
@@ -5386,6 +5633,7 @@ function buildFfzSpecs(){
     // Kennzeichen
     add("","Anzahl","","Stück",fleet.count>0?fmt(fleet.count):"",fleet.count>0?"Vorgabe":"offen",fleet.count>0?"":"Anzahl eintragen");
     add("","Einsatzbereiche","","",areas.map(a=>a[2]).join(", "),"Planung");
+    add("","Einsatzort","","",(FFZ_SITES.find(x=>x[0]===ffzSite(fleet))||["",""])[1],"Vorgabe",fleet.site?"":"aus der Einsatzumgebung");
     add("1.1","Hersteller","","","","Lieferant");
     add("1.2","Typzeichen des Herstellers","","","","Lieferant");
     add("1.3","Antrieb","","","Elektro, "+ffzOptionLabel("ffz.energy",f.energy),"Vorgabe");
@@ -5438,6 +5686,8 @@ function buildFfzSpecs(){
     add("5.1","Fahrgeschwindigkeit mit/ohne Last","","km/h","","Lieferant");
     if(FFZ_MAST.has(t))add("5.2","Hubgeschwindigkeit mit/ohne Last","","m/s","","Lieferant");
     add("6.4","Batteriespannung/Nennkapazität","","V/Ah","","Lieferant");
+    add("","Wechselbatterien","","Stück",fmt(fleet.batteries||0),"Vorgabe");
+    for(const [k,lab] of FFZ_EQUIPMENT)if(k!=="fullService")add("",lab,"","",fleet[k]?"gefordert":"nicht gefordert","Vorgabe");
     add("6.6","Energieverbrauch nach VDI-Zyklus","","kWh/h","","Lieferant");
     add("10.7","Schalldruckpegel am Fahrerohr","","dB(A)","","Lieferant");
     // Vorgaben zu Einsatz und Beschaffung
@@ -5450,12 +5700,15 @@ function buildFfzSpecs(){
       add("","Bodenebenheit","","","nach DIN 15185-1","Planung","Schmalgangbetrieb");
     }
     add("","Beschaffungsart","","",ffzOptionLabel("ffz.procurement",f.procurement)+(f.procurement!=="kauf"?", "+fmt(f.termMonths)+" Monate":""),"Vorgabe");
+    add("","Full Service","","",fleet.fullService?"gefordert":"nicht gefordert","Vorgabe");
+    const req=S.request||{};
+    if(req.sop||req.eop)add("","Einsatzzeitraum (SOP – EOP)","","",(req.sop?fmtDate(req.sop):"offen")+" – "+(req.eop?fmtDate(req.eop):"offen"),"Vorgabe");
     add("","Preis bzw. Monatsrate je Fahrzeug","","€","","Lieferant");
     if(fleet.note)add("","Bemerkung","","",fleet.note,"Vorgabe");
     // Gliederung wie im Typenblatt; Zeilen ohne VDI-Nummer ordnen sich ihrer Gruppe zu
     for(const r of rows)r.grp=r.nr?r.nr.split(".")[0]:(FFZ_ROW_GROUP[r.merkmal]||"9");
     rows.sort((a,b)=>FFZ_GROUPS.findIndex(g=>g[0]===a.grp)-FFZ_GROUPS.findIndex(g=>g[0]===b.grp));
-    specs.push({type:t,label:FFZ_LABEL[t]||t,areas:areas.map(a=>a[2]),count:fleet.count||0,note:fleet.note||"",rows});
+    specs.push({type:t,label:FFZ_LABEL[t]||t,areas:areas.map(a=>a[2]),count:fleet.count||0,note:fleet.note||"",fleet,rows});
   }
   return specs;
 }
@@ -5469,14 +5722,18 @@ function renderFfzSpec(){
   const box=$("ffz-spec");if(!box)return;
   const specs=buildFfzSpecs();
   if(!specs.length){box.innerHTML='<p class="hint">Keine Flurförderzeuge gewählt. Die Auswahl steht unter Vorgaben › Lagertechnik.</p>';return;}
-  box.innerHTML=specs.map(sp=>'<section class="ffz-spec" data-ffz="'+escH(sp.type)+'"><h4>'+escH(sp.label)+' <span class="hint">· '+escH(sp.areas.join(", "))+'</span></h4>'+
+  box.innerHTML='<h4>Bedarfsübersicht <span class="hint">· Spaltenfolge der Anfragevorlage FFZ-Bedarf, Werte aus den Blättern darunter</span></h4><div style="overflow:auto">'+ffzOverviewHtml()+'</div>'+
+    specs.map(sp=>'<section class="ffz-spec" data-ffz="'+escH(sp.type)+'"><h4>'+escH(sp.label)+' <span class="hint">· '+escH(sp.areas.join(", "))+'</span></h4>'+
     '<div class="ffz-fleet"><label class="mf"><span>Anzahl</span><input type="number" min="0" max="999" step="1" data-fleet-count="'+escH(sp.type)+'" value="'+(sp.count||"")+'" placeholder="–"></label>'+
-    '<label class="mf ffz-note"><span>Bemerkung für die Anfrage</span><input type="text" maxlength="200" data-fleet-note="'+escH(sp.type)+'" value="'+escH(sp.note)+'" placeholder="z. B. Kommissionierung in Ebene 1"></label></div>'+
+    '<label class="mf"><span>Wechselbatterien</span><input type="number" min="0" max="999" step="1" data-fleet-batteries="'+escH(sp.type)+'" value="'+(sp.fleet.batteries||"")+'" placeholder="0"></label>'+
+    '<label class="mf"><span>Einsatzort</span><select data-fleet-site="'+escH(sp.type)+'">'+FFZ_SITES.map(o=>'<option value="'+o[0]+'"'+(ffzSite(sp.fleet)===o[0]?' selected':'')+'>'+escH(o[1])+'</option>').join("")+'</select></label>'+
+    '<label class="mf ffz-note"><span>Bemerkung für die Anfrage</span><input type="text" maxlength="200" data-fleet-note="'+escH(sp.type)+'" value="'+escH(sp.note)+'" placeholder="z. B. Kommissionierung in Ebene 1"></label>'+
+    '<fieldset class="ffz-equip"><legend>Ausstattung</legend>'+FFZ_EQUIPMENT.map(([k,lab])=>'<label><input type="checkbox" data-fleet-flag="'+k+'" data-fleet-type="'+escH(sp.type)+'"'+(sp.fleet[k]?' checked':'')+'> '+escH(lab)+'</label>').join("")+'</fieldset></div>'+
     ffzSpecTableHtml(sp)+'</section>').join("");
   const setFleet=(t,field,value)=>{
     if(!S.ffzFleet)S.ffzFleet={};
     const e=Object.assign({},S.ffzFleet[t]);
-    if(value===""||value==null||value===0)delete e[field];else e[field]=value;
+    if(value===""||value==null||value===0||value===false)delete e[field];else e[field]=value;
     if(Object.keys(e).length)S.ffzFleet[t]=e;else delete S.ffzFleet[t];
     persistState();renderFfzSpec();
   };
@@ -5485,14 +5742,56 @@ function renderFfzSpec(){
     setFleet(inp.dataset.fleetCount,"count",v);
   }));
   box.querySelectorAll("input[data-fleet-note]").forEach(inp=>inp.addEventListener("change",()=>setFleet(inp.dataset.fleetNote,"note",String(inp.value).trim().slice(0,200))));
+  box.querySelectorAll("input[data-fleet-batteries]").forEach(inp=>inp.addEventListener("change",()=>{
+    const v=inp.value.trim()===""?0:clamp(Math.round(Number(String(inp.value).replace(",","."))||0),0,999);
+    setFleet(inp.dataset.fleetBatteries,"batteries",v);
+  }));
+  box.querySelectorAll("select[data-fleet-site]").forEach(sel=>sel.addEventListener("change",()=>{
+    // Entspricht die Auswahl der Einsatzumgebung, bleibt kein eigener Wert gespeichert
+    const t=sel.dataset.fleetSite,auto=ffzSite({});
+    setFleet(t,"site",sel.value===auto?"":sel.value);
+  }));
+  box.querySelectorAll("input[data-fleet-flag]").forEach(cb=>cb.addEventListener("change",()=>setFleet(cb.dataset.fleetType,cb.dataset.fleetFlag,cb.checked)));
+}
+/* Bedarfsübersicht: eine Zeile je Fahrzeugtyp in der Spaltenfolge der Anfragevorlage FFZ-Bedarf; Werte aus dem Anforderungsblatt */
+function ffzOverviewRows(){
+  const f=S.ffz,num=(t)=>{const m=/[\d.,]+/.exec(String(t||""));return m?Number(m[0].replace(/\./g,"").replace(",",".")):null;};
+  const x=v=>v?"X":"";
+  return buildFfzSpecs().map(sp=>{
+    const by=Object.fromEntries(sp.rows.map(r=>[r.merkmal,r]));
+    const mm=k=>{const v=by[k]&&num(by[k].wert);return v?fmt(v/1000,2):"";};
+    const fork=by["Gabelzinkenmaße"]?num(by["Gabelzinkenmaße"].wert.replace(/^l ≥ /,"")):null;
+    return {
+      oem:"",kategorie:FFZ_SHORT[sp.type]||sp.type,modell:"",bezeichnung:sp.label,anzahl:sp.count||"",
+      tragfaehigkeit:by["Tragfähigkeit/Last"]?fmt(num(by["Tragfähigkeit/Last"].wert),1):"",
+      wechselbatterie:sp.fleet.batteries||"",lithium:x(f.energy==="li"),kauf:x(f.procurement==="kauf"),
+      laufzeit:f.procurement!=="kauf"?fmt(f.termMonths)+" Monate":"",fullService:x(sp.fleet.fullService),
+      betriebsstunden:fmt(ffzOperatingHours())+" h",einsatzort:(FFZ_SITES.find(o=>o[0]===ffzSite(sp.fleet))||["",""])[1],antrieb:"Elektro",
+      bluespot:x(sp.fleet.bluespot),greenlight:x(sp.fleet.greenlight),safetyVision:x(sp.fleet.safetyVision),vollkabine:x(sp.fleet.cabin),
+      gabellaenge:fork?fmt(fork/1000,2):"",hubmasthoehe:mm("Bauhöhe Hubgerüst eingefahren"),nennhub:mm("Hub")
+    };
+  });
+}
+const FFZ_OVERVIEW_COLS=[["oem","OEM"],["kategorie","Kategorie"],["modell","Modell"],["bezeichnung","Bezeichnung"],["anzahl","Anzahl"],["tragfaehigkeit","Tragfähigkeit t"],["wechselbatterie","Wechselbatterie"],["lithium","Lithium-Ionen"],["kauf","Kauf"],["laufzeit","Laufzeit (Miete/Leasing)"],["fullService","Full Service"],["betriebsstunden","Betriebsstunden je Jahr"],["einsatzort","Einsatzort"],["antrieb","Antrieb"],["bluespot","Bluespot"],["greenlight","Greenlight"],["safetyVision","Safety-Vision"],["vollkabine","Vollkabine"],["gabellaenge","Gabellänge m"],["hubmasthoehe","Hubmasthöhe m"],["nennhub","Nennhub m"]];
+function ffzOverviewHtml(){
+  const rows=ffzOverviewRows();
+  const sum=k=>rows.reduce((a,r)=>a+(Number(r[k])||0),0);
+  return '<table class="ffz-overview"><thead><tr>'+FFZ_OVERVIEW_COLS.map(c=>'<th>'+escH(c[1])+'</th>').join("")+'</tr></thead><tbody>'+
+    rows.map(r=>'<tr>'+FFZ_OVERVIEW_COLS.map(c=>'<td>'+escH(r[c[0]])+'</td>').join("")+'</tr>').join("")+
+    '<tr class="ffz-sum">'+FFZ_OVERVIEW_COLS.map(c=>'<td>'+(c[0]==="oem"?"∑":c[0]==="anzahl"?fmt(sum("anzahl")):c[0]==="wechselbatterie"?fmt(sum("wechselbatterie")):"")+'</td>').join("")+'</tr></tbody></table>';
+}
+function requestHeadHtml(fields){
+  return '<table class="req-head"><tbody>'+fields.map(([label,value])=>'<tr><th>'+escH(label)+'</th><td>'+escH(value||"–")+'</td></tr>').join("")+'</tbody></table>';
 }
 function ffzSpecPrintHtml(){
   const specs=buildFfzSpecs();
   if(!specs.length)return '<p>Keine Flurförderzeuge gewählt.</p>';
-  const head='<p>Projekt: '+escH(S.meta.name||"–")+(S.meta.kunde?' · Kunde: '+escH(S.meta.kunde):'')+' · Stand: '+escH(new Date().toLocaleDateString("de-DE"))+'</p>'+
+  const req=S.request||{};
+  const head=requestHeadHtml([["Service Line",req.serviceLine],["Ansprechpartner",req.contact],["Projekt",S.meta.name],["Kunde",S.meta.kunde],["Anfrage am",new Date().toLocaleDateString("de-DE")],["SOP",req.sop?fmtDate(req.sop):""],["EOP",req.eop?fmtDate(req.eop):""]])+
+    '<h2>Bedarfsübersicht</h2>'+ffzOverviewHtml()+
     '<p>Anforderungen aus der Vorplanung, gegliedert in Anlehnung an das Typenblatt nach VDI 2198. „Planung“: aus Layout, Regal und Mengengerüst abgeleitet; „Vorgabe“: vom Auftraggeber festgelegt; „Lieferant“: bitte im Angebot angeben. Maßgeblich sind die Typenblätter und Tragfähigkeitsdiagramme des Herstellers.</p>';
   // Jeder Fahrzeugtyp auf eigener Druckseite, als Anlage je Anfrage verwendbar
-  return head+specs.map((sp,i)=>'<section'+(i?' style="page-break-before:always"':'')+'><h2>'+escH(sp.label)+(sp.count?' · '+fmt(sp.count)+' Stück':'')+'</h2>'+ffzSpecTableHtml(sp)+'</section>').join("");
+  return head+specs.map((sp,i)=>'<section style="page-break-before:always"><h2>'+escH(sp.label)+(sp.count?' · '+fmt(sp.count)+' Stück':'')+'</h2>'+ffzSpecTableHtml(sp)+'</section>').join("");
 }
 function exportFfzSpecCsv(){
   const specs=buildFfzSpecs();
@@ -6611,10 +6910,12 @@ function applyInputFile(inp,isInit){
       if(inp.parameter.lhmOverrides)next.lhmOverrides=deepMerge({},inp.parameter.lhmOverrides);
       if(inp.parameter.truckOverrides)next.truckOverrides=deepMerge({},inp.parameter.truckOverrides);
       if(inp.parameter.ffzFleet)next.ffzFleet=deepMerge({},inp.parameter.ffzFleet);
+      if(inp.parameter.request)next.request=JSON.parse(JSON.stringify(inp.parameter.request));
     }
     for(const key of ["customLhm","customTrucks","lhmOverrides","truckOverrides","ffzFleet"]){
       if(inp[key]&&isPlainObject(inp[key]))next[key]=deepMerge({},inp[key]);
     }
+    if(inp.request&&isPlainObject(inp.request))next.request=JSON.parse(JSON.stringify(inp.request));
     if(inp.lhmDefault)next.lhmDefault=String(inp.lhmDefault);
     if(inp.bom&&isPlainObject(inp.bom))deepMerge(next.bom,inp.bom);
     if(inp.meta&&typeof inp.meta==="object"){
@@ -6656,7 +6957,7 @@ function exportInputFile(){
     meta:{projekt:S.meta.name,kunde:S.meta.kunde,stand:new Date().toISOString().slice(0,10)},
     parameterSources:S.parameterSources||{},
     parameter:{building:S.building,volume:S.volume,block:S.block,ffz:S.ffz,fire:S.fire,empty:S.empty,prices:S.prices,bom:S.bom,costMeta:S.costMeta,lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides},
-    lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides,truckOverrides:S.truckOverrides,ffzFleet:S.ffzFleet,bom:S.bom,
+    lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides,truckOverrides:S.truckOverrides,ffzFleet:S.ffzFleet,request:S.request,bom:S.bom,
     positionen:S.items
   };
   const js="window.TENDER_INPUT = "+JSON.stringify(data,null,2)+";";
@@ -7239,6 +7540,7 @@ function initButtons(){
   }
   $("btn-ffz-print").addEventListener("click",()=>openPrintWindow("FFZ-Anforderungsblatt – "+(S.meta.name||"Projekt"),ffzSpecPrintHtml()));
   $("btn-ffz-csv").addEventListener("click",exportFfzSpecCsv);
+  $("btn-print-brief").addEventListener("click",()=>openPrintWindow("Immobiliensteckbrief – "+(S.meta.name||"Projekt"),briefPrintHtml()));
   $("btn-bom-csv").addEventListener("click",()=>{
     const bom=R.bom||[];
     if(!bom.length){alert("Keine Stückliste vorhanden – bitte zuerst Positionen erfassen und berechnen.");return;}

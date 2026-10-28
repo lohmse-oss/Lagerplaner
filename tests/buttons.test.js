@@ -632,7 +632,7 @@ const ACTIONS = [
     },
     expect: (a, b) => assert.ok(b.sources.includes("volume.fillRack")),
   },
-  ...[["btn-print-gap", 7, /Fragekatalog/], ["btn-print-int", 9, /Interner Bericht/], ["btn-print-cust", 9, /Grobkonzeptbericht/], ["btn-ffz-print", 5, /FFZ-Anforderungsblatt/]].map(([id, tab, title]) => ({
+  ...[["btn-print-gap", 7, /Fragekatalog/], ["btn-print-int", 9, /Interner Bericht/], ["btn-print-cust", 9, /Grobkonzeptbericht/], ["btn-ffz-print", 5, /FFZ-Anforderungsblatt/], ["btn-print-brief", 9, /Immobiliensteckbrief/]].map(([id, tab, title]) => ({
     key: "Druckfenster " + id, covers: ["#" + id],
     run: async (p) => { await go(p, tab); await withEvent(p, "popup", () => p.click("#" + id)); await wait(100); },
     expect: (a, b, p, ctx) => assert.ok(ctx.popups.some((t) => title.test(t)), "Druckfenster: " + ctx.popups.join(", ")),
