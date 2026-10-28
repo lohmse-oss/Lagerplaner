@@ -114,7 +114,7 @@ test("Gliederung: Halle mit Länge, Breite, UKB; Höhenkette; Ausrichtung und Mi
     };
   });
   assert.deepEqual(r.halle, ["building.mode", "building.L", "building.W", "building.ukb"]);
-  assert.deepEqual(r.hoehe, ["fire.sprinkler", "ffz.liftHeight", "ffz.liftReserve", "block.maxTop"]);
+  assert.deepEqual(r.hoehe, ["fire.sprinkler", "fire.inRack", "ffz.liftHeight", "ffz.liftReserve", "block.maxTop"]);
   assert.equal(r.regal, "building.orient");
   assert.deepEqual(r.miete, ["building.rent"]);
   assert.equal(r.balance, true);

@@ -196,7 +196,7 @@ const ACTIONS = [
     run: (p) => p.click(`#tabs .phase[data-phase="${ph}"]`),
     expect: (a, b) => assert.equal(PHASE_OF[b.tab], ph),
   })),
-  ...["gbp", "vol", "pal", "ffz", "blk", "fir", "cost"].map((pg) => ({
+  ...["gbp", "vol", "pal", "ffz", "blk", "cost"].map((pg) => ({
     key: "Vorgaben-Bereich " + pg, covers: ["#ptab-" + pg],
     run: async (p) => { await go(p, 1); await p.click("#ptab-" + pg); },
     expect: async (a, b, p) => assert.equal(await p.getAttribute("#ptab-" + pg, "aria-current"), "true"),

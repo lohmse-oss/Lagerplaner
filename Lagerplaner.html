@@ -635,8 +635,7 @@ details.obs[open] summary{margin-bottom:4px}
             <button type="button" id="ptab-pal" aria-controls="pg-pal" data-pg="pal">3 Stammdaten</button>
             <button type="button" id="ptab-ffz" aria-controls="pg-ffz" data-pg="ffz">4 Lagertechnik</button>
             <button type="button" id="ptab-blk" aria-controls="pg-blk" data-pg="blk">5 Blocklager</button>
-            <button type="button" id="ptab-fir" aria-controls="pg-fir" data-pg="fir">6 Sicherheit &amp; Abstände</button>
-            <button type="button" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">7 Kosten &amp; Optionen</button>
+            <button type="button" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">6 Kosten &amp; Optionen</button>
             <span class="psearch"><input type="search" id="param-search" placeholder="Feld suchen …" aria-label="Vorgaben durchsuchen" /><span id="param-search-count" aria-live="polite"></span></span>
           </div>
           <div id="pgroups">
@@ -695,7 +694,6 @@ details.obs[open] summary{margin-bottom:4px}
 
             <div class="pgroup" id="pg-ffz" role="region" aria-labelledby="ptab-ffz"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-fir" role="region" aria-labelledby="ptab-fir"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
             <div class="pgroup" id="pg-cost" role="region" aria-labelledby="ptab-cost"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
           </div>
         </div>
@@ -1830,7 +1828,7 @@ function defaults(){
     fire:{sprinkler:500,tunnelInterval:35,tunnelClear:2.5,inRack:false},
     items:[],
     scenarios:[null,null,null],
-    costMeta:{date:"2026-10",source:"Richtpreis",uncertainty:20,realizationYears:0,priceEscalation:0,projectOverhead:0},
+    costMeta:{date:"2026-10",sourceKind:"richtpreis",source:"Richtpreis",uncertainty:20,realizationYears:0,priceEscalation:0,projectOverhead:0},
     prices:{frame:48,beamPair:26,grating:95,protector:85,pushThrough:12,marking:4,mount:18,demountPct:8,backMesh:42,markingRack:6,acceptance:120},
     bom:{pushThrough:true,grating:true,demount:false}
   };
@@ -1891,7 +1889,7 @@ const PARAMS=[
   {p:"volume.bufferFactor",id:"in-buffer-factor",type:"num",label:"Zugangs- und Verkehrsflächenfaktor",unit:"×",min:1,max:5,step:0.1,dec:1,visibleIf:s=>s.volume.bufferMode==="process"},
   {p:"volume.peakHourShare",id:"in-peak-hour-share",type:"num",label:"Spitzenstundenanteil am Tagesvolumen",unit:"%",min:0,max:100,step:1,dec:0},
   {p:"volume.weShare",id:"in-we-share",type:"num",label:"Anteil Wareneingang",unit:"%",min:0,max:100,step:1,dec:0},
-  {p:"volume.simultaneity",id:"in-simultaneity",type:"num",label:"Gleichzeitigkeitsfaktor WE/WA",unit:"%",min:0,max:100,step:1,dec:0},
+  {p:"volume.simultaneity",id:"in-simultaneity",type:"num",label:"Gleichzeitigkeit WE/WA",short:"Gleichzeitigkeit WE/WA",unit:"%",min:0,max:100,step:1,dec:0},
   {p:"volume.transit",id:"in-transit",type:"num",label:"Transit-/Cross-Dock-Anteil",unit:"%",min:0,max:100,step:1,dec:0,
     eff:"Mindert den bestandsrelevanten Bedarf um den Durchschub-Anteil. Der separate Cross-Dock-Puffer ist abschaltbar; nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche (Standard 0,5 Tage Standzeit, 1,5 m² je Palette) in der Brutto-Lagerfläche."},
   {p:"volume.transitBufferOn",id:"chk-transit-buf",type:"check",label:"Separaten Cross-Dock-Puffer einrechnen",short:"Separater Cross-Dock-Puffer",show:yesNo("eingerechnet","aus"),
@@ -1944,11 +1942,13 @@ const PARAMS=[
   /* Sicherheit & Abstände */
   {p:"fire.sprinkler",id:"in-sprinkler",type:"num",label:"Sprinkler-Freiraum unter UKB",short:"Sprinkler-Freiraum",unit:"m",scale:1000,min:0,max:2000,step:50,dec:2,eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
   {p:"fire.inRack",id:"chk-inrack",type:"check",label:"In-Rack-Sprinklerung",title:"Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe."},
-  {p:"fire.tunnelInterval",id:"in-tunnelint",type:"num",label:"Fluchttunnel-Intervall",unit:"m",min:0,max:200,step:1,dec:0,eff:"Fachplätze in Tunnelzonen erhöhen den Platzbedarf."},
+  {p:"fire.tunnelInterval",id:"in-tunnelint",type:"num",label:"Fluchttunnel-Abstand (0 = keine)",short:"Fluchttunnel-Abstand",unit:"m",show:v=>v>0?fmt(v)+" m":"keine Tunnel",min:0,max:200,step:1,dec:0,eff:"Fachplätze in Tunnelzonen erhöhen den Platzbedarf."},
   {p:"fire.tunnelClear",id:"in-tunnelclear",type:"num",label:"lichte Durchgangshöhe Tunnel",short:"Durchgangshöhe Tunnel",unit:"m",min:2,max:6,step:0.1,dec:1},
   /* Kosten & Optionen */
   {p:"costMeta.date",id:"in-price-date",type:"month",label:"Preisstand"},
-  {p:"costMeta.source",id:"in-price-source",type:"text",label:"Preisquelle",placeholder:"Richtpreis oder Angebot",maxLength:200},
+  {p:"costMeta.sourceKind",id:"sel-price-kind",type:"select",label:"Preisquelle",short:"Art der Preisquelle",options:[["richtpreis","Richtpreis / Katalog"],["angebot","Angebot"],["rahmenvertrag","Rahmenvertrag"]],
+    eff:"Angebote und Rahmenverträge heben die Datenqualität der Kennzahlen; Richtpreise gelten als grobe Schätzung."},
+  {p:"costMeta.source",id:"in-price-source",type:"text",label:"Notiz zur Preisquelle",short:"Preisquelle (Notiz)",placeholder:"z. B. Angebot Fa. X vom 12.10.",maxLength:200,eff:"Freitext für Bericht und Annahmenregister; ohne Einfluss auf die Rechnung."},
   {p:"costMeta.uncertainty",id:"in-cost-unc",type:"num",label:"Kostenunsicherheit",unit:"± %",min:0,max:100,step:1,dec:0},
   {p:"costMeta.realizationYears",id:"in-realization-years",type:"num",int:true,label:"Jahre bis Realisierung",unit:"Jahre",min:0,max:30,step:1,dec:0},
   {p:"costMeta.priceEscalation",id:"in-price-escalation",type:"num",label:"Preissteigerung",unit:"% p. a.",min:0,max:100,step:0.5,dec:1,eff:"Erhöht den CAPEX bis zur Realisierung."},
@@ -1991,8 +1991,15 @@ function migrateLegacyBuilding(state){
   else b.gfShape="length";
   delete b.ratio;
 }
+function toolVersionNumber(state){const m=/^V(\d+)\.(\d+)/.exec(String(state&&state.meta&&state.meta.toolVersion||""));return m?Number(m[1])+Number(m[2])/100:0;}
+function migrateLegacyCostSource(state){
+  const c=state&&state.costMeta;
+  if(!c||toolVersionNumber(state)>=2.26)return;
+  if(c.source&&String(c.source).trim()!=="Richtpreis")c.sourceKind="angebot";
+}
 function repairParamRanges(state){
   migrateLegacyBuilding(state);
+  migrateLegacyCostSource(state);
   const fixed=[];
   for(const d of PARAMS){
     if(!isRangedParam(d))continue;
@@ -2026,33 +2033,33 @@ function validateParamTypes(obj,label){
 const PARAM_LAYOUT=[
   {id:"gbp",title:"Gebäude & Flächen",intro:["Baulicher Rahmen","Hallenmaße, Höhenkette, Tore, Zonen und Stützenraster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer."],sections:[
     {title:"Halle",sub:"Länge, Breite und Unterkante Binder",items:["building.mode","building.L","building.W","building.ukb","building.gfShape","building.ratioMin","building.ratioMax","building.maxL","building.maxW",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"}]},
-    {title:"Höhenkette",sub:"Gebäude, Sprinkler, Stapler und Lagergut begrenzen unabhängig",items:["fire.sprinkler","ffz.liftHeight","ffz.liftReserve","block.maxTop"],after:'<div class="height-balance" id="height-balance"></div>'},
+    {title:"Höhenkette",sub:"Gebäude, Sprinkler, Stapler und Lagergut begrenzen unabhängig",items:["fire.sprinkler","fire.inRack","ffz.liftHeight","ffz.liftReserve","block.maxTop"],after:'<div class="height-balance" id="height-balance"></div>'},
     {title:"Tore und Zonen",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
       items:["building.zones","building.weDepth","building.waDepth"]},
-    {title:"Stützenraster",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]}]},
+    {title:"Stützenraster",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]},
+    {title:"Zusatzflächen",sub:"Technik, Sozialräume, Büro",items:["volume.operationalArea"]}]},
   {id:"vol",title:"Volumen & Puffer",intro:["Bemessungsgrößen","Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf."],sections:[
     {title:"Bestand",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety"]},
     {title:"Wachstum",sub:"Planungshorizont",items:["volume.planningYears","volume.growthRate","volume.skuGrowthRate"]},
     {title:"Kapazitätsfaktoren",sub:"Reserve, Sperrung und Füllgrad",items:["volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
-    {id:"sec-buffer",title:"WE-Puffer",sub:"Durchsatzbezogene Bemessung",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor","volume.peakHourShare","volume.weShare","volume.simultaneity"]},
-    {title:"Transit- und Cross-Dock-Puffer",sub:"Nur bei separater Pufferfläche",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal","volume.operationalArea"]},
+    {id:"sec-buffer",title:"WE-Puffer",sub:"Bemessung der Pufferfläche in den WE-Zonen",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor"]},
+    {title:"Durchsatzprofil",sub:"Spitzenstunde · Kennzahl, ohne Flächenwirkung",items:["volume.peakHourShare","volume.weShare","volume.simultaneity"]},
+    {title:"Transit- und Cross-Dock-Puffer",sub:"Separate Pufferfläche für durchlaufende Ware",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal"]},
     {title:"Leergut",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
       items:["empty.on","empty.mode","empty.value","empty.stack","empty.reserve"]}]},
   {id:"ffz",title:"Lagertechnik",tip:"Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen.",
     intro:["Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis."],sections:[
     {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
     {title:"Arbeitsgänge",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
-    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]}]},
+    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
+    {title:"Fluchttunnel",sub:"Fluchtwege durch die Regalreihen",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
   {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
     intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
     {title:"Zuordnungsmodell",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
     {title:"Kanalgeometrie",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient"]}]},
-  {id:"fir",title:"Sicherheit & Abstände",intro:["Vorgaben und Nachweise","Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise."],sections:[
-    {title:"Brandschutz",sub:"Sprinkler-Freiraum steht in der Höhenkette (Gebäude & Flächen)",items:["fire.inRack"]},
-    {title:"Fluchtwege",sub:"Vorplanungswerte",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
   {id:"cost",title:"Kosten & Optionen",intro:["Preis- und Kalkulationsbasis","Die Mengenermittlung steht im Register Stückliste & CAPEX. Hier werden Preisstand, Quelle, Unsicherheit und Einrechnungsoptionen gepflegt."],sections:[
     {title:"Hallenkosten",sub:"Betrieb",items:["building.rent"]},
-    {title:"Preisbasis",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
+    {title:"Preisbasis",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.sourceKind","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
     {title:"Einrechnungsoptionen",sub:"Wirkung auf die Stückliste",items:["bom.pushThrough","bom.grating","bom.demount"],
       after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Register <b>Stückliste &amp; CAPEX</b>.</p>'}]}
 ];
@@ -3699,7 +3706,7 @@ function recalc(){
   /* KPIs */
   const basisScores=S.items.length?S.items.map(i=>i.dataBasis==="customer"?100:60):[0];
   const itemQuality=basisScores.reduce((a,b)=>a+b,0)/basisScores.length;
-  const priceQuality=S.costMeta&&S.costMeta.source&&S.costMeta.source!=="Richtpreis"?80:40;
+  const priceQuality=S.costMeta&&S.costMeta.sourceKind&&S.costMeta.sourceKind!=="richtpreis"?80:40;
   const dq=Math.round(itemQuality*.45+((S.building.L>0&&S.building.W>0&&S.building.ukb>0)?100:30)*.25+priceQuality*.15+((S.ffz.liftHeight>0)?100:30)*.15);
   const dqClass=dq>=85?"A":(dq>=65?"B":"C");
   const dqEl=$("kpi-dataquality"); if(dqEl)dqEl.textContent=dq+" % · Klasse "+dqClass;
