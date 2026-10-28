@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.23</title>
+<title>Lagerplaner V2.24</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -162,6 +162,22 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .fld input[type=checkbox]{justify-self:start;width:15px;height:15px;accent-color:var(--acc)}
 .fld .val{grid-column:3;justify-self:start;text-align:left;white-space:nowrap;color:var(--mut);font-weight:400;font-size:11.5px}
 .fld .val.calc{color:var(--amber);font-weight:600;font-size:12px}
+/* Vorgabenfelder: Statusspalte und Wirkungstext */
+.fld.pfld{grid-template-columns:minmax(220px,1fr) 150px 82px 150px}
+.fld.pfld>.pmeta{grid-column:4;display:flex;gap:4px;align-items:center;min-width:0}
+.fld.pfld>.eff{grid-column:2/-1;display:none;font-size:11px;line-height:1.35;color:var(--mut);margin-top:-2px}
+.fld.pfld:focus-within>.eff{display:block}
+.fld.pfld.is-changed>label{font-weight:600;color:var(--ink)}
+.fld.pfld.is-changed>label::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-right:6px;vertical-align:1px}
+.pmeta button{border:1px solid var(--line);background:#fff;border-radius:999px;font-size:10.5px;padding:2px 7px;cursor:pointer;color:#334155;white-space:nowrap;line-height:1.4}
+.pmeta button:hover{border-color:#94a3b8;background:#f8fafc}
+.pmeta .src-customer{color:#047857;border-color:#a7f3d0;background:#ecfdf5}
+.pmeta .src-assumption{color:#1d4ed8;border-color:#bfdbfe;background:#eff6ff}
+.pmeta .src-missing,.pmeta .src-stale{color:#b45309;border-color:#fde68a;background:#fffbeb}
+.ptabs button .pcount{display:inline-block;min-width:16px;margin-left:5px;padding:0 5px;border-radius:999px;background:var(--acc);color:#fff;font-size:10px;line-height:16px;text-align:center}
+.param-section h3 .pcount{margin-left:8px;font-size:11px;font-weight:500;color:var(--acc)}
+#reg-params tr.flash{animation:flash 1.6s ease-out}
+@keyframes flash{from{background:#fef3c7}to{background:transparent}}
 .param-result{display:grid;grid-template-columns:minmax(250px,1fr) 150px 82px;gap:6px 12px;align-items:center;padding:8px 0;border-top:1px dashed var(--line);margin-top:4px}
 .param-result label{text-align:right;justify-self:end;padding-right:4px;color:#334155}
 .param-result output{font-weight:700;color:#1d4ed8}
@@ -395,7 +411,8 @@ details.obs[open] summary{margin-bottom:4px}
   #tabs .phase{padding:5px 10px 5px 6px;font-size:12px}
   #tabs .phase:not(:last-child)::after{display:none}
   #panels{padding:10px 10px 20px}
-  .fld,.param-result{grid-template-columns:minmax(0,1fr) 110px 58px}
+  .fld,.param-result,.fld.pfld{grid-template-columns:minmax(0,1fr) 110px 58px}
+  .fld.pfld>.pmeta{grid-column:2/-1}
   .height-row{grid-template-columns:1fr 110px 58px}
   .param-intro{display:block}
   .ptabs{position:static}
@@ -415,7 +432,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.23</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.24</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -1440,7 +1457,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.23 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.24 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1482,7 +1499,7 @@ details.obs[open] summary{margin-bottom:4px}
     <details class="obs" open><summary>Kurzhilfe: Arbeitsablauf</summary><div>
       <ol style="margin:6px 0 0;padding-left:20px;line-height:1.7">
         <li>Start: Die Startseite zeigt die vier Phasen mit ihren Registern; jeder Eintrag springt ins Register.</li>
-        <li>Eingabe · Vorgaben: Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen).</li>
+        <li>Eingabe · Vorgaben: Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen). Vom Standard abweichende Werte sind mit einem Punkt markiert und lassen sich mit „↺ Standard“ zurücksetzen; die Zahl am Bereich nennt die Abweichungen. Die Datenquelle steht direkt am Feld („Kunde ✓“, „Annahme“, „Quelle fehlt“); ein Klick öffnet die Zeile im Annahmenregister. Beim Bearbeiten erscheint unter dem Feld, wie der Wert wirkt.</li>
         <li>Eingabe · Mengengerüst: Positionen erfassen, aus Excel einfügen (Zellen kopieren, Strg+V; Spalten werden anhand der Überschriften zugeordnet) oder per CSV importieren; die Eingabedatei lädt das Menü Datei. Die Tabelle zeigt je Position eine Zeile; ✎ öffnet alle Felder im Detailfeld neben den Kennzahlen. Enter springt zur nächsten Zeile.</li>
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
@@ -1761,7 +1778,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.23";
+const APP_VERSION="V2.24";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2011,7 +2028,14 @@ const PARAM_LAYOUT=[
       after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Register <b>Stückliste &amp; CAPEX</b>.</p>'}]}
 ];
 const tipHtml=t=>t?' <span class="tt" data-tip="'+escH(t)+'" tabindex="0">ⓘ</span>':'';
+// Vorgabenfeld mit Statusspalte (geändert, Standard, Quelle) und Wirkungstext beim Bearbeiten
 function paramFieldHtml(d){
+  const html=paramControlHtml(d);
+  if(!html.startsWith('<div class="fld'))return html;
+  const help=d.eff||d.title,eff=help?'<span class="eff">'+escH(help)+'</span>':'';
+  return html.replace(/^<div class="fld( wide)?"/,(m,w)=>'<div class="fld pfld'+(w||'')+'" data-p="'+escH(d.p)+'"').replace(/<\/div>$/,'<span class="pmeta" data-pmeta="'+escH(d.p)+'"></span>'+eff+'</div>');
+}
+function paramControlHtml(d){
   const label=d.labelHtml||escH(d.label);
   const title=d.title?' title="'+escH(d.title)+'"':'';
   const unit=(d.unit||d.unitId)?'<span class="val"'+(d.unitId?' id="'+d.unitId+'"':'')+'>'+escH(d.unit||"")+'</span>':'';
@@ -2319,6 +2343,12 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.24",date:"28.10.2026",items:[
+    "Vorgaben: Vom Standard abweichende Werte sind markiert (Punkt vor der Beschriftung) und lassen sich je Feld mit „↺ Standard“ zurücksetzen (rückgängig machbar). Zähler an den Vorgabenbereichen und Abschnitten nennen die Zahl der Abweichungen; berechnete Greenfield-Hallenmaße zählen nicht.",
+    "Datenquelle am Feld: dokumentierte Quellen erscheinen als „Kunde“, „Annahme“ oder „Vorgabe“ (✓ bestätigt, ! Wert seither geändert); geänderte Werte ohne Quelle als „Quelle fehlt“. Ein Klick öffnet die Zeile im Annahmenregister.",
+    "Wirkungstext beim Bearbeiten: Unter dem Feld mit dem Fokus erscheint, wie der Wert wirkt.",
+    "Menüs liegen über dem Detailfeld des Mengengerüsts (Datei-Menü war verdeckt)."
+  ]},
   {v:"V2.23",date:"28.10.2026",items:[
     "Mengengerüst kompakt: eine Zeile je Position mit Bezeichnung, Bedarfs-Hauptwert (passend zur Ermittlungsart), Artikeln, Ladehilfsmittel-Kurzangabe, Basis und Ergebnissen. Alle Felder einer Position im Detailfeld (✎), gegliedert nach Allgemein, Bedarf, Ladehilfsmittel, Blocklager und Ergebnis; Blättern mit ‹ ›, Schließen mit Esc. Das Detailfeld liegt neben den Kennzahlen, die sich beim Bearbeiten live ändern. Neue Positionen öffnen direkt im Detailfeld.",
     "Aus Excel einfügen: Zellen kopieren und im Mengengerüst mit Strg+V einfügen (oder Knopf „Aus Excel einfügen“). Spalten werden anhand der Überschriften erkannt und lassen sich je Spalte zuordnen; Vorschau, Anhängen oder Ersetzen, rückgängig machbar. Deutsche Zahlen (2,5; 1.200) werden erkannt; leere Zellen übernehmen Standardwerte (auch beim CSV-Import).",
@@ -2993,6 +3023,8 @@ function validateImportedPayload(obj,kind,depth){
 const BINDS=[];
   let RECALC_TIMER=null;
   function scheduleRecalc(delay){clearTimeout(RECALC_TIMER);RECALC_TIMER=setTimeout(()=>{RECALC_TIMER=null;recalc();},delay===undefined?120:delay);}
+  // Ausstehende Neuberechnung sofort ausführen (vor Sprüngen, die gerenderte Inhalte fokussieren)
+  function flushRecalc(){if(RECALC_TIMER){clearTimeout(RECALC_TIMER);RECALC_TIMER=null;recalc();}}
 function reg(id,path,kind,after){
   const el=$(id);if(!el)return;
   BINDS.push({el,path,kind});
@@ -3675,6 +3707,7 @@ function recalc(){
   renderAreas(geo);
   renderWays(geo);
   renderHeightBalance();
+  updateParamStatus();
   const deck=grossRackNeed>0?Math.round(cap/grossRackNeed*100):(cap>0?100:0);
   const bar=$("kpi-utilbar");
   bar.style.width=clamp(deck,0,100)+"%";
@@ -6549,6 +6582,12 @@ function initPTabs(){
 function initButtons(){
   const cancelOpt=$("btn-opt-cancel");if(cancelOpt)cancelOpt.addEventListener("click",cancelOptimizationRun);
   const sourceTable=$("reg-params");if(sourceTable)sourceTable.addEventListener("click",handleParameterSourceClick);
+  document.addEventListener("click",ev=>{
+    const r=ev.target.closest&&ev.target.closest("[data-param-reset]");
+    if(r){resetParamToDefault(r.dataset.paramReset);return;}
+    const q=ev.target.closest&&ev.target.closest("[data-param-source]");
+    if(q)openParamSource(q.dataset.paramSource);
+  });
   $("btn-add-item").addEventListener("click",()=>{pushUndo("Position hinzugefügt");S.items.push(newItem());renderItems();recalc();openItemDrawer(S.items.length-1);});
   $("btn-calc").addEventListener("click",()=>{
     const t0=performance.now();
@@ -6773,6 +6812,66 @@ window.addEventListener("resize",updateKpiToggle);
       window.openAccessibleModal=openModal;window.closeAccessibleModal=closeModal;
       document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;const m=document.querySelector(".modal.on");if(m){e.preventDefault();closeModal(m.id);}});
     }
+// Vorgabenfelder: Abweichung vom Standard und dokumentierte Quelle am Feld
+const PARAM_SOURCE_CHIP={customer:["Kunde","src-customer"],assumption:["Annahme","src-assumption"],default:["Vorgabe",""]};
+function paramIsChanged(d){
+  const el=d.id&&$(d.id);
+  if(el&&el.disabled)return false; // berechnete Werte (z. B. Greenfield-Hallenmaße)
+  return JSON.stringify(getP(S,d.p))!==JSON.stringify(getP(PARAMETER_SOURCE_DEFAULTS,d.p));
+}
+function updateParamStatus(){
+  const counts={};
+  for(const box of document.querySelectorAll(".pmeta[data-pmeta]")){
+    const d=PARAM_BY_PATH.get(box.dataset.pmeta);if(!d)continue;
+    const row=box.parentElement,changed=paramIsChanged(d),info=parameterSourceInfo(d.p);
+    row.classList.toggle("is-changed",changed);
+    let html="";
+    if(changed){
+      html+='<button type="button" data-param-reset="'+escH(d.p)+'" title="Auf Standard zurücksetzen: '+escH(paramShow(d,getP(PARAMETER_SOURCE_DEFAULTS,d.p)))+'">↺ Standard</button>';
+      const g=row.closest("[id^=pg-]");if(g&&!row.classList.contains("conditional-off"))counts[g.id]=(counts[g.id]||0)+1;
+    }
+    if(info.source!=="unknown"){
+      const [label,cls]=PARAM_SOURCE_CHIP[info.source]||[info.label,""];
+      html+='<button type="button" class="'+(info.stale?"src-stale":cls)+'" data-param-source="'+escH(d.p)+'" title="'+escH(info.label+" · "+info.status+(info.reference?" · "+info.reference:""))+'">'+escH(label)+(info.confirmed?" ✓":info.stale?" !":"")+'</button>';
+    }else if(changed)html+='<button type="button" class="src-missing" data-param-source="'+escH(d.p)+'" title="Geänderter Wert ohne dokumentierte Quelle; im Annahmenregister erfassen">Quelle fehlt</button>';
+    if(box.innerHTML!==html)box.innerHTML=html;
+  }
+  // Zähler je Vorgabenbereich und Abschnitt
+  for(const g of PARAM_LAYOUT){
+    const tab=$("ptab-"+g.id);if(!tab)continue;
+    let c=tab.querySelector(".pcount");
+    const n=counts["pg-"+g.id]||0;
+    if(n&&!c){c=document.createElement("span");c.className="pcount";tab.appendChild(c);}
+    if(c){c.hidden=!n;c.textContent=n;c.title=n+(n===1?" Vorgabe weicht":" Vorgaben weichen")+" vom Standard ab";}
+  }
+  for(const sec of document.querySelectorAll(".param-section")){
+    const h=sec.querySelector("h3");if(!h)continue;
+    const n=sec.querySelectorAll(".fld.pfld.is-changed:not(.conditional-off)").length;
+    let c=h.querySelector(".pcount");
+    if(n&&!c){c=document.createElement("span");c.className="pcount";h.appendChild(c);}
+    if(c){c.hidden=!n;c.textContent=n+" geändert";}
+  }
+}
+function resetParamToDefault(path){
+  const d=PARAM_BY_PATH.get(path);if(!d)return;
+  const v=JSON.parse(JSON.stringify(getP(PARAMETER_SOURCE_DEFAULTS,path)));
+  flushRecalc();
+  pushUndo("Vorgabe zurückgesetzt: "+paramLabel(d));
+  setP(S,d.p,v);
+  if(S.parameterSources&&S.parameterSources[d.p])S.parameterSources[d.p].confirmed=false;
+  if(d.onChange)d.onChange(v);
+  syncAll();syncParamControls();updateParameterVisibility();refreshModeUI();
+  recalc();
+}
+function openParamSource(path){
+  flushRecalc();
+  showTab(7);
+  const row=document.querySelector('#reg-params tr[data-source-path="'+(window.CSS&&CSS.escape?CSS.escape(path):path)+'"]');
+  if(!row)return;
+  row.scrollIntoView({block:"center"});
+  row.classList.remove("flash");void row.offsetWidth;row.classList.add("flash");
+  const sel=row.querySelector("[data-source-kind]");if(sel)sel.focus();
+}
   function updateParameterVisibility(){
     const toggle=(id,on)=>{const e=$(id);const row=e&&e.closest(".fld");if(row)row.classList.toggle("conditional-off",!on)};
     for(const d of PARAMS)if(d.visibleIf&&d.id)toggle(d.id,!!d.visibleIf(S));
