@@ -5491,7 +5491,8 @@ function ffzSpecPrintHtml(){
   if(!specs.length)return '<p>Keine Flurförderzeuge gewählt.</p>';
   const head='<p>Projekt: '+escH(S.meta.name||"–")+(S.meta.kunde?' · Kunde: '+escH(S.meta.kunde):'')+' · Stand: '+escH(new Date().toLocaleDateString("de-DE"))+'</p>'+
     '<p>Anforderungen aus der Vorplanung, gegliedert in Anlehnung an das Typenblatt nach VDI 2198. „Planung“: aus Layout, Regal und Mengengerüst abgeleitet; „Vorgabe“: vom Auftraggeber festgelegt; „Lieferant“: bitte im Angebot angeben. Maßgeblich sind die Typenblätter und Tragfähigkeitsdiagramme des Herstellers.</p>';
-  return head+specs.map(sp=>'<h2>'+escH(sp.label)+(sp.count?' · '+fmt(sp.count)+' Stück':'')+'</h2>'+ffzSpecTableHtml(sp)).join("");
+  // Jeder Fahrzeugtyp auf eigener Druckseite, als Anlage je Anfrage verwendbar
+  return head+specs.map((sp,i)=>'<section'+(i?' style="page-break-before:always"':'')+'><h2>'+escH(sp.label)+(sp.count?' · '+fmt(sp.count)+' Stück':'')+'</h2>'+ffzSpecTableHtml(sp)+'</section>').join("");
 }
 function exportFfzSpecCsv(){
   const specs=buildFfzSpecs();
