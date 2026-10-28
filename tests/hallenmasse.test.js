@@ -53,6 +53,21 @@ test("Greenfield: vorgegebene Länge mit Hinweis bei ungünstiger Proportion", a
   assert.ok(!ok.warn.some((t) => /über dem zulässigen Bereich/.test(t)));
 });
 
+test("Greenfield-Optimierung bleibt schnell (begrenzte Hallensuche je Variante)", async (page) => {
+  const r = await page.evaluate(() => {
+    S = defaults();
+    const mk = (name, trucks, stack, skus) => Object.assign(newItem(), { name, trucks, stack, skus });
+    S.items = [mk("A", 4, 1, 200), mk("B", 2, 3, 20), mk("C", 1, 2, 5)];
+    S.building.mode = "greenfield";
+    let calls = 0; const original = computeModel;
+    computeModel = function () { calls++; return original(); };
+    try { $("sel-goal").value = "capex"; optimizeLayout(); } finally { computeModel = original; }
+    return { calls, rows: LAST_OPT_ROWS.length };
+  });
+  assert.ok(r.rows > 0);
+  assert.ok(r.calls < 20000, "Modellaufrufe: " + r.calls);
+});
+
 test("Ältere Planungsdatei: festes Seitenverhältnis wird zu einem Bereich", async (page) => {
   const r = await page.evaluate(() => {
     const load = (ratio) => {

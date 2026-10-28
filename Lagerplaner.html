@@ -3116,9 +3116,14 @@ function searchHallDimensions(lengthMM,b){
     const ra=ref.geo&&ref.geo.area,rackPerPlace=ra&&ref.geo.capacity>0?ra.rack/ref.geo.capacity:0;
     const lowerBound=ra?0.85*(rackPerPlace*ref.grossRackNeed+ra.block):0;
     // Rasterpaare nach Fläche aufsteigend: das erste machbare Paar ist die kleinste Halle im 5-m-Raster
+    // Obergrenze: das Sechsfache der Stellflächen zuzüglich 3.000 m² für Zonen und Randflächen. Ist schon die größte
+    // Halle darunter nicht machbar, liegt es nicht an der Größe (z. B. harter Konflikt); die Suche endet dann früh.
+    const upperBound=lowerBound>0?6*lowerBound+3000e6:Infinity;
     const cands=[];
-    for(let w=10000;w<=lim.maxW;w+=5000)for(let l=10000;l<=lim.maxL;l+=5000)if(shapeOk(l,w)&&l*w>=lowerBound)cands.push([l,w]);
+    for(let w=10000;w<=lim.maxW;w+=5000)for(let l=10000;l<=lim.maxL;l+=5000)if(shapeOk(l,w)&&l*w>=lowerBound&&l*w<=upperBound)cands.push([l,w]);
     cands.sort((x,y)=>area(x,y)||Math.max(x[0]/x[1],x[1]/x[0])-Math.max(y[0]/y[1],y[1]/y[0]));
+    const largest=cands.length?cands[cands.length-1]:null;
+    if(largest&&cands.length>20&&!evaluate(largest[0],largest[1]))cands.length=0;
     for(const [l,w] of cands){best=evaluate(l,w);if(best)break;}
     // Verfeinerung auf 0,5 m: beide Maße im Verhältnis, dann die Breite, dann die Länge verkleinern
     if(best){
