@@ -136,7 +136,7 @@ function installHelpers() {
         : d.goto ? (el.closest("#kpis") ? "kpi-goto" : "goto")
         : d.scenSave ? "scen-save" : d.scenLoad ? "scen-load" : d.scenClear ? "scen-clear"
         : d.del !== undefined ? "item-del" : d.edit !== undefined ? "item-edit"
-        : d.paramReset ? "param-reset" : d.paramSource ? "param-source" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del"
+        : d.paramReset ? "param-reset" : d.paramSource ? "param-source" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del" : d.trkReset ? "trk-reset"
         : d.sourceSave !== undefined ? "source-save" : d.optIdx !== undefined ? "opt-row"
         : "?" + el.outerHTML.slice(0, 80);
       keys.add(key);
@@ -536,6 +536,18 @@ const ACTIONS = [
     expect: (a, b) => assert.deepEqual(b.customTrucks, a.customTrucks),
   },
 
+  {
+    key: "LKW-Stammwert ändern und zurücksetzen", covers: ["trk-reset"],
+    run: async (p) => {
+      await go(p, 1); await p.click("#ptab-pal");
+      const sel = 'input[data-trk-ov="fh"][data-trk-key="standard"]';
+      await p.fill(sel, "2.9"); await p.dispatchEvent(sel, "change");
+      assert.equal(await p.evaluate(() => S.truckOverrides.standard.fh), 2.9);
+      await p.click('[data-trk-reset="fh"][data-trk-key="standard"]');
+    },
+    expect: (a, b, p) => p.evaluate(() => S.truckOverrides).then((o) => assert.deepEqual(o, {})),
+  },
+
   /* ---------- Layout, Schnitte, Stückliste ---------- */
   {
     key: "Layout vergrößern, verkleinern, zurücksetzen", covers: ["#btn-zoom-in", "#btn-zoom-out", "#btn-zoom-reset"],
@@ -680,6 +692,7 @@ async function part(name, fn) {
         S.customLhm = { u1: { label: "X", l: 1200, b: 800, h: 1000, g: 300, stack: 1 } };
         S.lhmOverrides = { euro: { h: 1100 } };
         S.volume.fillRack = 80; // geänderte Vorgabe: Zurücksetzen und Quelle am Feld
+        S.truckOverrides = { standard: { fh: 2.9 } }; // überschriebener LKW-Stammwert
         S.customTrucks.t1 = { label: "Y", fl: 13, fw: 2.4, fh: 2.7, layers: 1, payload: 24000 };
         renderPalletMD(); renderTruckMD(); recalc();
         renderOptResults([{ o: "quer", bo: "N", w: 2700, n: 1, cap: 1, deck: 100, aisleA: 1, wReq: 1, area: 1, capex: 1, capexPP: 1, gx: 12, gy: 24, zones: {}, feasible: true, score: 0 }], null, "capex");
@@ -730,7 +743,8 @@ async function part(name, fn) {
     let n = 0;
     for (const withData of [false, true]) for (const action of ACTIONS) {
       await resetCtx(ctx, withData);
-      await ctx.page.evaluate(() => { saveScenario(1); });
+      // Per Skript gespeichert: Feld-Rückgängig soll vom gespeicherten Stand ausgehen, nicht vom Fokus davor
+      await ctx.page.evaluate(() => { saveScenario(1); if (UNDO_FOCUS_SNAP !== null) UNDO_FOCUS_SNAP = JSON.stringify(S); });
       const before = await ctx.page.evaluate(() => window.__state());
       const undoBefore = (await snap(ctx.page)).undo;
       if ((await act(ctx, action)) === "übersprungen") continue;
