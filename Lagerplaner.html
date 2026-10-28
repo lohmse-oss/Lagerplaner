@@ -4256,8 +4256,7 @@ function renderItemDrawer(){
   const idx=DRAWER_INDEX,it=S.items[idx];
   if(!it){dr.hidden=true;$("panel-2").classList.remove("drawer-open");return;}
   dr.hidden=false;$("panel-2").classList.add("drawer-open");
-  // Detailfeld unter der Kopfzeile, damit Berechnen, Rückgängig und Datei erreichbar bleiben
-  const hd=document.querySelector("header");dr.style.top=(hd?Math.max(0,hd.getBoundingClientRect().bottom):0)+"px";
+  placeItemDrawer();
   $("drawer-title").textContent="Position "+(idx+1)+" von "+S.items.length;
   $("btn-drawer-prev").disabled=idx<=0;$("btn-drawer-next").disabled=idx>=S.items.length-1;
   const fld=(id,label,control,unit,title)=>'<div class="fld"'+(title?' title="'+escH(title)+'"':'')+'><label for="'+id+'">'+label+'</label>'+control+(unit?'<span class="val">'+unit+'</span>':'')+'</div>';
@@ -4288,6 +4287,14 @@ function renderItemDrawer(){
     '<span>Paletten je Tag</span><b class="calc-pd" data-i="'+idx+'">'+fmt(it.palletsDay,1)+'</b>'+
     '<span>Netto-Bestand</span><b class="calc-net" data-i="'+idx+'">'+fmt(it.net)+'</b></div>';
   for(const tr of document.querySelectorAll("#itemsBody tr[data-row]"))tr.classList.toggle("is-open",+tr.dataset.row===idx);
+}
+// Detailfeld unter Kopfzeile und Optimierungsleiste, damit Berechnen, Datei und Abbrechen erreichbar bleiben
+function placeItemDrawer(){
+  const dr=$("item-drawer");if(!dr||dr.hidden)return;
+  const hd=document.querySelector("header"),run=$("opt-run-panel");
+  let top=hd?hd.getBoundingClientRect().bottom:0;
+  if(run&&!run.hidden&&run.offsetParent)top=Math.max(top,run.getBoundingClientRect().bottom+6);
+  dr.style.top=Math.max(0,top)+"px";
 }
 function openItemDrawer(idx,focusKey){
   if(!S.items[idx])return;
@@ -5391,6 +5398,7 @@ function setOptimizationStatus(text,running){
   const cancel=$('btn-opt-cancel');if(cancel){cancel.disabled=!running;cancel.hidden=!running;}
   const dismiss=$('btn-opt-dismiss');if(dismiss)dismiss.hidden=!!running;
   const panel=$('opt-run-panel');if(panel)panel.hidden=false;
+  placeItemDrawer();
 }
 function releaseOptimizationJob(job){
   if(!job)return;
@@ -6557,7 +6565,7 @@ function initButtons(){
   });
   $("sel-goal").addEventListener("change",updateOptGoalUI);
   $("btn-optimize").addEventListener("click",()=>{$("dd-opt").classList.remove("open");$("btn-dd-opt").setAttribute("aria-expanded","false");startOptimizationRun();});
-  const dismissOpt=$("btn-opt-dismiss");if(dismissOpt)dismissOpt.addEventListener("click",()=>{$("opt-run-panel").hidden=true;});
+  const dismissOpt=$("btn-opt-dismiss");if(dismissOpt)dismissOpt.addEventListener("click",()=>{$("opt-run-panel").hidden=true;placeItemDrawer();});
   fillTruckSel();
   $("btn-sel-del").addEventListener("click",()=>{
     const idx=selectedIdx().sort((a,b)=>b-a);

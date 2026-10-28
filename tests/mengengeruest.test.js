@@ -69,6 +69,17 @@ test("Detailfeld neben den Kennzahlen; Tabelle bleibt erreichbar", async (page) 
   assert.equal(await page.evaluate(() => S.items.length), 2, "Löschen hinter dem Detailfeld erreichbar");
 });
 
+test("Detailfeld verdeckt die Optimierungsleiste nicht", async (page) => {
+  await withData(page);
+  await page.click('#itemsBody [data-edit="0"]');
+  await page.evaluate(() => { S.building.mode = "greenfield"; syncAll(); refreshModeUI(); recalc(); });
+  await page.click("#btn-dd-opt"); await page.click("#btn-optimize");
+  const r = await page.evaluate(() => document.getElementById("item-drawer").getBoundingClientRect().top >= document.getElementById("opt-run-panel").getBoundingClientRect().bottom);
+  assert.equal(r, true);
+  if (await page.isVisible("#btn-opt-cancel")) await page.click("#btn-opt-cancel", { timeout: 3000 });
+  await page.waitForFunction(() => !OPTIMIZATION_JOB, null, { timeout: 30000 });
+});
+
 test("Neue Position öffnet das Detailfeld", async (page) => {
   await withData(page);
   await page.click("#btn-add-item");
