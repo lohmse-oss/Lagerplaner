@@ -99,11 +99,10 @@ table.list td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical
 .note { font-size: 13px; color: var(--ink2); background: var(--soft); border-left: 4px solid var(--line2); padding: 10px 12px; margin-top: 14px; }
 
 /* Startsicht Ebenenmodell */
-.em { display: grid; grid-template-columns: 150px minmax(0, 1fr) 230px; gap: 8px; }
-.persp { grid-column: 1; border: 1px solid var(--line); border-left: 6px solid var(--fu); background: #fff; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: center; }
+.em { display: grid; grid-template-columns: 34px minmax(0, 1fr) 220px; gap: 8px; }
+.persp { grid-column: 1; border: 1px solid var(--line); border-left: 5px solid var(--fu); background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; padding: 8px 0; cursor: help; }
 .persp.PE { border-left-color: var(--perf); }
-.persp b { font-size: 15px; }
-.persp span { font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+.persp b { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink2); white-space: nowrap; }
 .band { grid-column: 2; display: grid; grid-template-columns: 172px minmax(0, 1fr); background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .band-head { color: #fff; padding: 12px 14px; text-align: left; border: 0; display: flex; flex-direction: column; gap: 3px; }
 .band-head:hover { filter: brightness(1.12); }
@@ -124,10 +123,17 @@ table.list td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical
 .rp.w { background: var(--fu); color: #fff; }
 .rp:hover { outline: 2px solid var(--accent); }
 .side-col { grid-column: 3; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 8px; }
-.side-box { border: 1px solid var(--line2); border-radius: 6px; background: #fff; text-align: left; padding: 0; overflow: hidden; }
-.side-box:hover { border-color: var(--accent); }
+.side-box { border: 1px solid var(--line2); border-radius: 6px; background: #fff; overflow: hidden; }
+.side-box summary { list-style: none; cursor: pointer; }
+.side-box summary::-webkit-details-marker { display: none; }
+.side-box summary:hover { background: var(--hover); }
 .side-box h4 { background: #e8eef7; font-size: 13.5px; font-weight: 800; padding: 7px 10px; }
-.side-box p { font-size: 12.5px; color: var(--ink2); padding: 8px 10px; }
+.side-box p { font-size: 12.5px; color: var(--ink2); padding: 8px 10px 0; }
+.side-box p:last-child { padding-bottom: 10px; }
+.side-box .more { display: block; font-size: 12px; font-weight: 700; color: var(--accent-ink); padding: 4px 10px 8px; }
+.side-box .more::before { content: '▸ '; }
+.side-box[open] .more::before { content: '▾ '; }
+.side-box[open] .more { padding-bottom: 0; }
 .em-foot { font-size: 12.5px; color: var(--muted); margin-top: 10px; }
 
 /* Wirkungskette */
@@ -198,7 +204,11 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 #d-body { overflow-y: auto; padding: 14px 18px 30px; }
 #d-body h3 { font-size: 14.5px; font-weight: 800; margin: 18px 0 8px; }
 .rel-group { margin-bottom: 10px; }
-.rel-group > div:first-child { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.rel-group > summary { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; cursor: pointer; padding: 2px 0; width: fit-content; }
+.rel-group > summary:hover { color: var(--accent-ink); }
+.rel-group:not([open]) > summary { margin-bottom: 0; }
+.rel-tools { display: flex; gap: 6px; margin: -2px 0 8px; }
+.rel-tools .btn { font-size: 12px; padding: 2px 8px; }
 .rel-list { display: flex; flex-direction: column; gap: 4px; }
 .rel-item { display: grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: 5px; padding: 5px 8px; background: #fff; text-align: left; width: 100%; font-size: 13.5px; }
 .rel-item:hover { border-color: var(--accent); background: var(--hover); }
@@ -206,7 +216,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 
 @media (max-width: 1100px) {
   .felder { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-  .em { grid-template-columns: 120px minmax(0, 1fr); }
+  .em { grid-template-columns: 34px minmax(0, 1fr); }
   .side-col { grid-column: 1 / -1; grid-row: auto; order: 99; flex-direction: row; flex-wrap: wrap; }
   .wk { grid-template-columns: minmax(0, 1fr) !important; }
   .side-col > * { flex: 1 1 220px; }
@@ -250,22 +260,22 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <body>
 <nav class="sidebar" id="sidebar" aria-label="Ansichten">
   <div class="sb-brand"><b>Modellnavigator</b><span>Leadec Logistics Betriebsmodell</span></div>
-  <div class="sb-title">Modell</div>
+  <div class="sb-title" title="Aufbau und Logik des Modells">Verstehen</div>
   <button class="nav" type="button" data-view="start">Ebenenmodell</button>
   <button class="nav" type="button" data-view="wirkung">Wirkungskette</button>
   <button class="nav" type="button" data-view="bewertung">Bewertungsperspektiven</button>
   <button class="nav" type="button" data-view="objektmodell">Objektmodell</button>
-  <div class="sb-title">Ordnung</div>
+  <div class="sb-title" title="Inhalte des Modells gezielt finden">Nachschlagen</div>
+  <button class="nav" type="button" data-view="objekte">Alle Objekte</button>
   <button class="nav" type="button" data-view="regeln">Goldene Regeln</button>
   <button class="nav" type="button" data-view="bausteine">Bausteine</button>
   <button class="nav" type="button" data-view="komponenten">Befähigungskomponenten</button>
   <button class="nav" type="button" data-view="fuehrung">Führung und SCORE</button>
-  <div class="sb-title">Objekte und Querbezüge</div>
-  <button class="nav" type="button" data-view="objekte">Alle Objekte</button>
+  <button class="nav" type="button" data-view="kanon">Dokumente und Einstieg</button>
+  <div class="sb-title" title="Abdeckung und Zuordnung über Querbezüge prüfen">Prüfen</div>
   <button class="nav" type="button" data-view="mx-regel">Regel und Baustein</button>
   <button class="nav" type="button" data-view="mx-befaehigung">Baustein und Befähigung</button>
-  <div class="sb-title">Kanon</div>
-  <button class="nav" type="button" data-view="kanon">Dokumente und Einstieg</button>
+  <div class="sb-title">Über</div>
   <button class="nav" type="button" data-view="info">Info</button>
   <div class="sb-meta" id="sb-meta"></div>
 </nav>
@@ -300,7 +310,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <script>
 (function () {
   'use strict';
-  const NAVIGATOR = { fassung: '1.1', stand: '28.10.2026' };
+  const NAVIGATOR = { fassung: '1.2', stand: '28.10.2026' };
   const $ = id => document.getElementById(id);
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
@@ -395,20 +405,24 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     const noBlocks = B.felder.map(f => `<div class="blk feld"><button type="button" class="rp v" style="background:transparent;padding:0 2px;font-size:12.5px" data-open="feld:${f.nr}">${esc(f.n)}</button>${f.regeln.map((r, i) => `<button type="button" class="rp ${i ? 'w' : 'v'}" data-open="Regel ${r}">${r} ${esc(IX.regel.get(r).kurz)}</button>`).join('')}<span class="foot">${cnt('1–4', 'Reifegradstufen')}</span></div>`).join('')
       + blk('view:regeln', 'Mindestkriterien', 'Recht und Sicherheit, für jedes Feld', cnt(B.mindestkriterien.gegenstaende.length, 'Gegenstände'));
     const auBlocks = B.bloecke.AU.map(b => blk(b.obj || b.ziel, b.n, b.text, b.obj ? `<span class="kenn">${esc(b.obj)}</span>` : '')).join('');
-    const persp = (code, n, span) => { const p = B.perspektiven.find(x => x.code === code); return `<div class="persp ${code}" style="grid-row: span ${span}"><b>${esc(p.n)}</b><span>${esc(p.text)}</span></div>`; };
-    const rueck = B.wirkungskette[1] || '';
-    const extern = B.wirkungskette[2] || '';
+    const persp = (code, n, span) => { const p = B.perspektiven.find(x => x.code === code); return `<div class="persp ${code}" style="grid-row: span ${span}" title="${esc(p.n)}: ${esc(p.text)}" role="note" aria-label="Perspektive ${esc(p.n)}: ${esc(p.text)}"><b>${esc(p.n)}</b></div>`; };
+    // Seitenkästen: erster Satz sichtbar, der Rest aufklappbar
+    const sideBox = (titel, text, key, linkText) => {
+      const m = String(text || '').match(/^.*?[.!?](?=\s|$)/);
+      const kurz = m ? m[0] : text, rest = String(text || '').slice(kurz.length).trim();
+      return `<details class="side-box"><summary><h4>${esc(titel)}</h4><p>${esc(kurz)}</p><span class="more">${rest ? 'Mehr lesen' : 'Mehr'}</span></summary>${rest ? `<p>${rich(rest)}</p>` : ''}<p>${refBtn(key, linkText)}</p></details>`;
+    };
     return head('Ebenenmodell', 'Fünf Ebenen mit ihren Komponenten. Ein Klick auf eine Ebene zeigt ihr Raster. Ein Klick auf einen Block führt zur Ordnung und zu den Objekten.')
       + `<div class="em">
         ${persp('PE', 'Performance', 1)}${band('FU', fuBlocks)}
         <div class="side-col">
-          <button type="button" class="side-box" data-open="view:wirkung"><h4>Rückführung</h4><p>${esc(rueck)}</p></button>
-          <button type="button" class="side-box" data-open="M-04-02"><h4>Interner und externer Pfad</h4><p>${esc(extern)}</p></button>
+          ${sideBox('Rückführung', B.wirkungskette[1], 'view:wirkung', 'Zur Wirkungskette')}
+          ${sideBox('Interner und externer Pfad', B.wirkungskette[2], 'M-04-02', 'M-04-02 öffnen')}
         </div>
         ${persp('ST', 'Struktur', 2)}${band('BE', beBlocks)}${band('GE', geBlocks)}
         ${persp('MA', 'Maßstab', 2)}${band('NO', noBlocks)}${band('AU', auBlocks)}
       </div>
-      <p class="em-foot">Ausrichtung und Normierung liefern den Maßstab. Gestaltung und Befähigung bilden die Struktur. Die Führung erzeugt und steuert die Performance. Führend ist A02 Kapitel 2.</p>`;
+      <p class="em-foot">Perspektiven am linken Rand: Ausrichtung und Normierung liefern den Maßstab. Gestaltung und Befähigung bilden die Struktur. Die Führung erzeugt und steuert die Performance. ${refBtn('view:bewertung', 'Bewertungsperspektiven')} · Führend ist ${refBtn('kanon:A02', 'A02')} Kapitel 2.</p>`;
   };
 
   VIEWS.wirkung = () => {
@@ -629,8 +643,16 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 
   const kv = rows => `<table class="kv">${rows.filter(r => r && r[1] !== undefined && r[1] !== null && r[1] !== '').map(([k, v, raw]) => `<tr><td>${esc(k)}</td><td>${raw ? v : rich(v)}</td></tr>`).join('')}</table>`;
   const relItem = (k, extra) => { const o = IX.obj.get(k); if (!o) return ''; return `<button type="button" class="rel-item" data-open="${esc(k)}"><span class="kenn">${esc(k)}</span><span>${esc(o.n)}${extra ? ` <span class="hint">· ${esc(extra)}</span>` : ''}</span>${artTag(o.art)}</button>`; };
-  const relList = (titel, ks, extraFn) => ks.length ? `<div class="rel-group"><div>${esc(titel)} (${ks.length})</div><div class="rel-list">${ks.map(k => relItem(k, extraFn ? extraFn(k) : '')).join('')}</div></div>` : '';
-  const byArt = (ks, prefix) => ARTEN.map(a => relList((prefix || '') + ART_PL[a], ks.filter(k => (IX.obj.get(k) || {}).art === a))).join('');
+  // Gruppen sind einklappbar. Hauptlisten stehen offen; in den Bezugslisten nach Objektart
+  // sind lange Gruppen anfangs zu, sofern es mehrere gibt, damit die Übersicht über alle Arten sichtbar bleibt.
+  const REL_OFFEN_MAX = 6;
+  const relList = (titel, ks, extraFn, zu) => ks.length ? `<details class="rel-group"${zu ? '' : ' open'}><summary>${esc(titel)} (${ks.length})</summary><div class="rel-list">${ks.map(k => relItem(k, extraFn ? extraFn(k) : '')).join('')}</div></details>` : '';
+  const byArt = (ks, prefix) => {
+    const gruppen = ARTEN.map(a => ks.filter(k => (IX.obj.get(k) || {}).art === a)).filter(g => g.length);
+    const html = gruppen.map(g => relList((prefix || '') + ART_PL[IX.obj.get(g[0]).art], g, null, gruppen.length > 1 && g.length > REL_OFFEN_MAX)).join('');
+    return gruppen.length > 1 && gruppen.some(g => g.length > REL_OFFEN_MAX) ? `<div class="rel-tools"><button type="button" class="btn" data-rel="auf">Alle aufklappen</button><button type="button" class="btn" data-rel="zu">Alle zuklappen</button></div>${html}` : html;
+  };
+  $('d-body').addEventListener('click', e => { const b = e.target.closest('[data-rel]'); if (!b) return; let n = b.parentElement.nextElementSibling; while (n && n.matches('details.rel-group')) { n.open = b.dataset.rel === 'auf'; n = n.nextElementSibling; } });
   const goLink = (label, params) => `<a href="#" class="ref" data-go="objekte" ${Object.entries(params).map(([k, v]) => `data-${k}="${esc(v)}"`).join(' ')}>${esc(label)}</a>`;
 
   function detail(key) {
