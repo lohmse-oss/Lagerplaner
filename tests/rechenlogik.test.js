@@ -121,7 +121,7 @@ test("Optimierungs-Worker startet und liefert Varianten", async (page) => {
   });
   await page.waitForFunction(() => /abgeschlossen|fehlgeschlagen/.test(document.getElementById("opt-run-status").textContent), null, { timeout: 30000 });
   const status = await page.evaluate(() => document.getElementById("opt-run-status").textContent);
-  assert.match(status, /abgeschlossen: [1-9]\d* Vorschlaege/);
+  assert.match(status, /abgeschlossen: [1-9]\d* Vorschläge/);
 });
 
 (async () => {
