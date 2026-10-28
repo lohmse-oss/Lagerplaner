@@ -1969,6 +1969,70 @@ const PARAMS=[
 ];
 /* Pfade aus defaults(), die bewusst kein Planungsparameter sind */
 const PARAM_INTERNAL_PATHS=["ffz.type"];
+// Wirkungstexte der Felder ohne eigenen Eintrag im Schema: erscheinen beim Bearbeiten unter dem Feld
+const PARAM_EFF={
+  "volume.peak":"Multipliziert den Netto-Bestand (Saisonspitze). 1,00 = Durchschnittsbestand; 1,20 = 20 % mehr Plätze.",
+  "volume.safety":"Zuschlag auf den Bestand nach dem Peak-Faktor; erhöht Regal- und Blockbedarf im gleichen Verhältnis.",
+  "volume.bufferMode":"Einfach: WE-Zonentiefe wie unter Gebäude & Flächen eingegeben. Prozessbezogen: Die Zonentiefe wächst bei Bedarf auf die aus LKW-Ankünften, Paletten und Verweildauer berechnete Pufferfläche.",
+  "volume.bufferTrucks":"Anlieferungen in der Spitzenstunde; Pufferpaletten = LKW × Paletten je LKW × Verweildauer.",
+  "volume.bufferPallets":"Paletten je ankommendem LKW; geht linear in die Pufferpaletten ein.",
+  "volume.bufferDwell":"Zeit bis zur Einlagerung; geht linear in die Pufferpaletten ein.",
+  "volume.bufferFactor":"Zuschlag für Gassen und Rangierflächen auf die reine Stellfläche der Pufferpaletten (1,0 = nur Stellfläche).",
+  "volume.peakHourShare":"Anteil des Tagesdurchsatzes in der stärksten Stunde; ergibt die Kennzahl Spitzen-Paletten je Stunde. Keine Wirkung auf Flächen.",
+  "volume.weShare":"Teilt die Spitzenstunde auf Wareneingang und Warenausgang auf (Kennzahl Spitzen WE/WA je Stunde).",
+  "volume.simultaneity":"Anteil der Spitzen, die zeitgleich auftreten; 100 % = WE- und WA-Spitzen überlagern sich vollständig. Nur Kennzahl.",
+  "volume.transit":"Anteil des Durchsatzes, der ohne Einlagerung durchläuft; vermindert den einzulagernden Bestand und speist den Transitpuffer.",
+  "volume.transitBufferOn":"Rechnet eine eigene Pufferfläche für Transitpaletten in die Brutto-Lagerfläche ein (Paletten × Standzeit × Fläche je Palette).",
+  "volume.transitDays":"Standzeit der Transitpaletten; die Pufferfläche wächst linear damit.",
+  "volume.transitAreaPerPal":"Bodenfläche je Transitpalette einschließlich Anteil an Gassen.",
+  "empty.on":"Plant ein Leergutband in verdichteter Bodenstapelung ein; es vergrößert die Lagerfläche, zählt aber nicht zur Lagerkapazität.",
+  "empty.mode":"Anteil: Leergutmenge in Prozent des Brutto-Bestands. Absolut: feste Palettenzahl.",
+  "empty.value":"Leergutmenge je nach Mengenbasis in Prozent des Brutto-Bestands oder in Paletten.",
+  "empty.stack":"Leerpaletten je Stapel (1 + x); höhere Stapel verkleinern das Leergutband.",
+  "empty.reserve":"Zuschlag auf die Stellfläche des Leerguts für Zugang und Abstände.",
+  "block.mode":"Schätzmodell: Positionen mit viel Bestand je Artikel und stapelbarer Ware gehen ins Blocklager. Quote: fester Volumenanteil. Manuell: Blockanteil je Position im Mengengerüst.",
+  "block.aVol":"Volumenanteil der stärksten 20 % der Artikel. Ein hoher Anteil heißt wenige Artikel mit viel Bestand – gut für das Blocklager.",
+  "block.bVol":"Volumenanteil der mittleren 30 % der Artikel; der Rest entfällt auf die 50 % C-Artikel.",
+  "block.stackH":"Obergrenze für den Stapelfaktor aller Positionen im Blocklager; höhere Stapel erhöhen die Plätze je Kanal.",
+  "block.orient":"Richtung der Blockkanäle: quer mit Zugang von der Nordseite oder längs mit Zugang von Westen; die Zone dieser Seite sollte WE sein.",
+  "block.maxTop":"Höchste zulässige Oberkante der gestapelten Ware; begrenzt den nutzbaren Stapelfaktor je Position.",
+  "ffz.rackFFZ":"Stapler im Regallager; bestimmt die vorbelegte Arbeitsgangbreite (größter Wert der Auswahl).",
+  "ffz.blockFFZ":"Stapler im Blocklager und für Leergut; bestimmt die vorbelegte Gangbreite zwischen den Blockbändern.",
+  "ffz.zoneFFZ":"Fahrzeuge für WE/WA und Vorzonen; dokumentiert den Betrieb, ohne Einfluss auf Flächen.",
+  "ffz.aisleBlock":"Gangbreite zwischen den Blockbändern; jedes Band erhöht die Blockgangfläche um diese Breite.",
+  "ffz.vnaPnD":"Reserviert an jeder Regalstirnseite Aufsetzplätze für den Schmalgangstapler; die nutzbare Reihenlänge sinkt.",
+  "ffz.fieldMode":"Automatisch: Feldweite nach Palettenmaß und Fachlast. Fest: eigenes Maß 1.800–3.600 mm, z. B. aus einem Bestandsregal.",
+  "ffz.floorOnBeam":"Unterste Ebene auf Traversen statt auf dem Boden: eine Traversenebene mehr in der Stückliste, alle Ebenen um eine Traversenhöhe höher.",
+  "ffz.singleRows":"Nutzt Restflächen an den Wänden mit Einzelreihen, wenn keine Doppelreihe mehr passt; erhöht die Regalkapazität.",
+  "ffz.liftHeight":"Begrenzt die Oberkante der letzten Traversenebene und damit die Ebenenzahl.",
+  "ffz.liftReserve":"Sicherheitsabstand unter der Hubhöhe; senkt die nutzbare Höhe für die oberste Traverse.",
+  "fire.inRack":"Zuschlag von 200 mm je zwei Ebenen auf die Bauhöhe des Regals; kann eine Ebene kosten.",
+  "fire.tunnelClear":"Lichte Höhe im Tunnel; Ebenen darunter entfallen in den Tunnelfeldern.",
+  "costMeta.date":"Dokumentiert den Preisstand für Bericht und Annahmenregister.",
+  "costMeta.uncertainty":"Bandbreite um den CAPEX: Kennzahl und Bericht zeigen CAPEX ± diesen Prozentsatz.",
+  "costMeta.realizationYears":"Jahre bis zur Beauftragung; zusammen mit der Preissteigerung ergibt sich der Faktor auf den CAPEX.",
+  "bom.pushThrough":"Durchschubsicherung je Fach in der Stückliste, üblich bei Rücken-an-Rücken-Reihen.",
+  "bom.grating":"Gitterroste über jedem Fluchttunnel in der Stückliste.",
+  "bom.demount":"Pauschale für Rückbau und Demontage auf die Bauteilsumme; der Prozentsatz steht unter Stückliste & CAPEX.",
+  "prices.demountPct":"Prozentsatz der Rückbaupauschale auf die Bauteilsumme; wirkt nur, wenn Rückbau eingerechnet wird.",
+  "lhmDefault":"Grundmaß für neue Positionen, den Leergutbereich und den WE-Puffer.",
+  "building.mode":"Bestandshalle: Länge und Breite sind fest, das Layout wird eingepasst. Greenfield: Die Hallenmaße werden aus dem Bedarf ermittelt.",
+  "building.ratioMin":"Untere Grenze der Proportion Längsseite zu Schmalseite für die Greenfield-Suche; gleiche Werte für „von“ und „bis“ erzwingen ein festes Verhältnis.",
+  "building.ratioMax":"Obere Grenze der Proportion Längsseite zu Schmalseite; bei vorgegebener Länge die Schwelle für den Hinweis auf eine ungünstige Halle.",
+  "building.maxL":"Grundstücksgrenze für die Nord-/Südwand; die Greenfield-Suche bleibt darunter. 0 = keine Begrenzung.",
+  "building.maxW":"Grundstücksgrenze für die Ost-/Westwand; die Greenfield-Suche bleibt darunter. 0 = keine Begrenzung.",
+  "building.zones":"Rollen der Hallenseiten; WE- und WA-Zonen werden an den gewählten Wänden von der Lagerfläche abgezogen.",
+  "building.orient":"Orthogonal: Regalreihen laufen parallel zu den Torwänden. Parallel: Gänge laufen auf die Tore zu. Bestimmt Reihenlänge und Reihenzahl.",
+  "building.gridX":"Stützenabstand entlang der Hallenlänge. Bestand: Stützen in Gängen sind harte Konflikte, in Regalfeldern oder Kanälen entfallen Plätze. Greenfield: nur Hinweis.",
+  "building.gridY":"Stützenabstand entlang der Hallenbreite. Bestand: Stützen in Gängen sind harte Konflikte, in Regalfeldern oder Kanälen entfallen Plätze. Greenfield: nur Hinweis."
+};
+for(const d of PARAMS){
+  if(d.eff)continue;
+  if(PARAM_EFF[d.p])d.eff=PARAM_EFF[d.p];
+  else if(d.p.startsWith("prices."))d.eff="Einheitspreis der Komponente; wirkt mit der Menge aus der Stückliste auf den CAPEX.";
+  else if(d.p.startsWith("building.doors."))d.eff="Tore dieser Seite; ohne Zone an der Seite erscheint ein Hinweis.";
+  else if(d.p.startsWith("building.zones."))d.eff="Rolle der Hallenseite: WE, WA oder beides; bestimmt, an welchen Wänden Zonenflächen abgezogen werden.";
+}
 const PARAM_BY_PATH=new Map(PARAMS.map(d=>[d.p,d]));
 const isRangedParam=d=>d.type==="num"||d.type==="range"||d.type==="plusx"||(d.type==="select"&&d.num);
 function paramLabel(d){return d.short||d.label;}
