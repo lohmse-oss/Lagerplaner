@@ -1,0 +1,16 @@
+﻿Bezeichnung;Ermittlung;LKW-Typ;LKW/Tag;Paletten je LKW;Paletten/Tag;Stück/Tag;Stück je KLT;KLT je Palette;Ziel-Bestand;Artikel;LHM;Länge;Breite;Höhe;Gewicht;Stapelfaktor;Blockanteil;Datenbasis
+C01 LKW Euro Standard;LKW/Tag;Standard;3;;;;;;;250;Euro 800×1200;;;;;1+0;0;Kunde
+C02 LKW Industrie Mega 2 Lagen;LKW/Tag;Mega;1,5;;;;;;;60;Industrie 1000×1200;;;1.050;;1+1;20;Annahme
+C03 LKW Halbpalette 7,5t;LKW/Tag;7,5t;2;;;;;;;400;Halbpalette 600×800;;;800;200;1;0;Annahme
+C04 LKW Jumbo Gewicht schwer;LKW/Tag;Jumbo;1;;;;;;;20;Industrie 1000×1200;;;;1.000;1+0;0;Kunde
+C05 LKW Giga Paletten je LKW manuell;LKW/Tag;Giga;0,5;40;;;;;;35;Euro 800×1200;;;;;1+2;30;Annahme
+C06 LKW Sondermaß hohe Palette;LKW/Tag;Sondermaß;1;;;;;;;80;Euro 800×1200;;;1.400;600;;;Annahme
+C07 Paletten Euro Blockware;Paletten/Tag;Standard;;;80;;;;;12;Euro 800×1200;;;;;1+3;80;Kunde
+C08 Paletten Industrie;Paletten/Tag;Mega;;;25,5;;;;;45;Industrie 1000×1200;;;;;;;Annahme
+C09 Paletten freie Maße;Paletten/Tag;Standard;;;15;;;;;300;;1.140;1.140;1.100;400;3;0;Annahme
+C10 Stückbasis KLT;Stückbasis;Standard;;;;15.000;30;24;;1.200;Euro 800×1200;;;1.200;;;;Kunde
+C11 Stückbasis Halbpalette;Stückbasis;7,5t;;;;4 000;12;12;;500;Halbpalette 600×800;;;;;;;Annahme
+C12 Ziel-Bestand Saison;Ziel-Bestand;Standard;;;;;;;1.200;25;Euro 800×1200;;;;;1+2;60;Annahme
+"C13 Ziel-Bestand; mit Semikolon im Namen";Ziel-Bestand;Jumbo;;;;;;;400;90;Industrie 1000×1200;;;1.800;;;;Kunde
+C14 ohne Artikelangabe;Paletten/Tag;Standard;;;10;;;;;;Euro 800×1200;;;;;;;Annahme
+C15 nur Pflichtangaben;;;;;;;;;;;;;;;;;;

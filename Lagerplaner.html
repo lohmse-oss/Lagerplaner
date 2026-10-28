@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.25</title>
+<title>Lagerplaner V2.26</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -233,6 +233,12 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 /* Szenarien: Namen und Abweichungen zum aktuellen Stand */
 .scengrp input.scen-name{width:150px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12px}
 #scen-body td.diff{font-weight:700;color:#1d4ed8}
+.sec-result{margin:8px 0 0;padding:6px 10px;border-radius:8px;background:#f0f9ff;color:#0c4a6e;font-size:12px;line-height:1.4}
+#truck-cross td.used{background:#dbeafe;font-weight:700;color:#1d4ed8}
+.lhmform{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.lhmform .mf{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mut)}
+.lhmform .mf input{width:112px}
+.lhmform .mf.wide input{width:170px}
 .side-table{width:auto;margin:2px 0 8px auto;border-collapse:collapse;font-size:12px}
 .side-table th,.side-table td{padding:3px 10px;text-align:center;border-bottom:1px solid var(--line)}
 .side-table thead th{font-size:11px;font-weight:600;color:var(--mut);text-transform:none}
@@ -245,7 +251,6 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .ffz-checks{display:flex;gap:4px 18px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#f8fafc}
 .lhmform{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .lhmform input{width:110px;background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:3px 6px;font-size:12px}
-.lhmform input#lhm-f-name{width:170px}
 .lhm-reset{cursor:pointer;color:var(--acc);font-weight:700;padding:0 3px}
 .height-balance{display:grid;gap:6px;margin-top:8px;padding:10px 12px;background:#f8fafc;border:1px solid var(--line);border-radius:8px}
 .height-row{display:grid;grid-template-columns:minmax(230px,1fr) 110px 1fr;gap:10px;align-items:center;font-size:11.5px}
@@ -450,7 +455,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.25</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.26</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -494,7 +499,7 @@ details.obs[open] summary{margin-bottom:4px}
         class="btn"
         id="btn-undo"
         disabled=""
-        title="Rückgängig: stellt den Planungsstand vor der letzten strukturellen Änderung wieder her. Bis zu 20 Schritte, nur während dieser Sitzung."
+        title="Rückgängig: stellt den Planungsstand vor der letzten Änderung wieder her. Bis zu 20 Schritte, nur während dieser Sitzung."
       >
         Rückgängig
       </button>
@@ -590,7 +595,7 @@ details.obs[open] summary{margin-bottom:4px}
                 <h4><span class="ph-n">1</span>Eingabe</h4>
                 <p>Vorgaben pflegen und Positionen erfassen.</p>
                 <ul>
-                  <li><button type="button" class="linkbtn" data-goto="1">Vorgaben</button> Gebäude, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit, Kosten.</li>
+                  <li><button type="button" class="linkbtn" data-goto="1">Vorgaben</button> Gebäude, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Kosten.</li>
                   <li><button type="button" class="linkbtn" data-goto="2">Mengengerüst</button> Positionen erfassen, aus Excel einfügen oder per CSV importieren, Details je Position, Sammeländerungen.</li>
                 </ul>
               </section>
@@ -635,8 +640,7 @@ details.obs[open] summary{margin-bottom:4px}
             <button type="button" id="ptab-pal" aria-controls="pg-pal" data-pg="pal">3 Stammdaten</button>
             <button type="button" id="ptab-ffz" aria-controls="pg-ffz" data-pg="ffz">4 Lagertechnik</button>
             <button type="button" id="ptab-blk" aria-controls="pg-blk" data-pg="blk">5 Blocklager</button>
-            <button type="button" id="ptab-fir" aria-controls="pg-fir" data-pg="fir">6 Sicherheit &amp; Abstände</button>
-            <button type="button" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">7 Kosten &amp; Optionen</button>
+            <button type="button" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">6 Kosten &amp; Optionen</button>
             <span class="psearch"><input type="search" id="param-search" placeholder="Feld suchen …" aria-label="Vorgaben durchsuchen" /><span id="param-search-count" aria-live="polite"></span></span>
           </div>
           <div id="pgroups">
@@ -695,7 +699,6 @@ details.obs[open] summary{margin-bottom:4px}
 
             <div class="pgroup" id="pg-ffz" role="region" aria-labelledby="ptab-ffz"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-fir" role="region" aria-labelledby="ptab-fir"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
             <div class="pgroup" id="pg-cost" role="region" aria-labelledby="ptab-cost"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
           </div>
         </div>
@@ -1486,7 +1489,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.25 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.26 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1527,9 +1530,9 @@ details.obs[open] summary{margin-bottom:4px}
   <div style="overflow:auto;max-height:74vh;display:flex;flex-direction:column;gap:10px">
     <details class="obs" open><summary>Kurzhilfe: Arbeitsablauf</summary><div>
       <ol style="margin:6px 0 0;padding-left:20px;line-height:1.7">
-        <li>Start: Die Startseite zeigt die vier Phasen mit ihren Registern; jeder Eintrag springt ins Register.</li>
-        <li>Eingabe · Vorgaben: Alle Bereiche stehen untereinander auf einer Seite; die nummerierten Knöpfe springen zum Bereich, das Suchfeld „Feld suchen“ filtert nach Beschriftung und Wirkung (Esc leert). Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen). Vom Standard abweichende Werte sind mit einem Punkt markiert und lassen sich mit „↺ Standard“ zurücksetzen; die Zahl am Bereich nennt die Abweichungen. Die Datenquelle steht direkt am Feld („Kunde ✓“, „Annahme“, „Quelle fehlt“); ein Klick öffnet die Zeile im Annahmenregister. Beim Bearbeiten erscheint unter dem Feld, wie der Wert wirkt.</li>
-        <li>Eingabe · Mengengerüst: Positionen erfassen, aus Excel einfügen (Zellen kopieren, Strg+V; Spalten werden anhand der Überschriften zugeordnet) oder per CSV importieren; die Eingabedatei lädt das Menü Datei. Die Tabelle zeigt je Position eine Zeile; ✎ öffnet alle Felder im Detailfeld neben den Kennzahlen. Enter springt zur nächsten Zeile.</li>
+        <li>Start: Die Startseite bietet vier Einstiege (Positionen aus Excel einfügen, Planungsdatei öffnen, Mengengerüst aus CSV, Beispielprojekt) und zeigt den Fortschritt in vier Schritten (Positionen, Halle, Annahmen belegt, Ergebnis); darunter die vier Phasen mit ihren Registern. Jeder Eintrag springt ins zuständige Register.</li>
+        <li>Eingabe · Vorgaben: Alle Bereiche stehen untereinander auf einer Seite; die nummerierten Knöpfe springen zum Bereich, das Suchfeld „Feld suchen“ filtert nach Beschriftung und Wirkung (Esc leert). Planungsvorgaben pflegen (1 Gebäude &amp; Flächen, 2 Volumen &amp; Puffer, 3 Stammdaten, 4 Lagertechnik, 5 Blocklager, 6 Kosten &amp; Optionen). Unter jedem Abschnitt zeigt eine Ergebniszeile, was die Eingaben im aktuellen Stand bewirken. Vom Standard abweichende Werte sind mit einem Punkt markiert und lassen sich mit „↺ Standard“ zurücksetzen; die Zahl am Bereich nennt die Abweichungen. Die Datenquelle steht direkt am Feld („Kunde ✓“, „Annahme“, „Quelle fehlt“); ein Klick öffnet die Zeile im Annahmenregister. Beim Bearbeiten erscheint unter dem Feld, wie der Wert wirkt.</li>
+        <li>Eingabe · Mengengerüst: Positionen erfassen, aus Excel einfügen (Zellen kopieren, Strg+V; Spalten werden anhand der Überschriften zugeordnet) oder per CSV importieren; die Eingabedatei lädt das Menü Datei. Die Tabelle zeigt je Position eine Zeile; ✎ öffnet alle Felder im Detailfeld neben den Kennzahlen. Enter springt zur nächsten Zeile, Umschalt+Enter zurück. Sammeländerungen (LKW-Typ, Palettentyp, Blockanteil, Datenbasis, Löschen) erscheinen, sobald Positionen ausgewählt sind.</li>
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
         <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
@@ -1541,7 +1544,7 @@ details.obs[open] summary{margin-bottom:4px}
         <li>Ergebnis · Übersicht: Kurzbericht und alle Plausibilitätshinweise lesen.</li>
         <li>Ergebnis · Berichte: internen und kundenfähigen Bericht öffnen und drucken.</li>
         <li>Ergebnis · Methodik: jeden Rechenschritt mit Eingabefeldern und Formel nachvollziehen.</li>
-        <li>Rückgängig (Kopfzeile) stellt den Stand vor der letzten strukturellen Änderung wieder her, etwa vor einem Import, dem Laden einer Datei, einer übernommenen Optimierungsvariante oder dem Löschen von Positionen.</li>
+        <li>Rückgängig (Kopfzeile) stellt den Stand vor der letzten Änderung wieder her, etwa vor einer geänderten Eingabe, einem Import, dem Laden einer Datei, einer übernommenen Optimierungsvariante oder dem Löschen von Positionen.</li>
         <li>Menü Datei: Neue Planung, Planungsdatei öffnen und speichern (JSON), Eingabedatei laden, Mengengerüst aus CSV, Eingabedatei erzeugen, Stückliste als CSV, Hallenlayout als PNG.</li>
         <li>Die Kennzahlen-Leiste rechts lässt sich einklappen; jede Kennzahl führt per Klick zum zuständigen Register.</li>
       </ol>
@@ -1551,8 +1554,9 @@ details.obs[open] summary{margin-bottom:4px}
         <li>Bedarfsermittlung je Position wählbar: <code>LKW/Tag × LKW-Typ × Paletten je LKW</code> (Umrechnungswert automatisch aus der Kreuztabelle, überschreibbar), <code>Paletten/Tag</code>, <code>Stückbasis</code> (Stück/Tag ÷ Stück/KLT ÷ KLT/Palette) oder <code>Ziel-Bestand</code>; die Kachel LKW/Tag in der Kennzahlen-Leiste weist das hergeleitete LKW-Volumen aus.</li>
         <li>Der Netto-Bestand ergibt sich aus Paletten/Tag × Lagerreichweite. Im Modus Ziel-Bestand wird der Bestand direkt vorgegeben.</li>
         <li>Mengengerüst-Import (CSV): Spaltenüberschriften werden automatisch erkannt – <code>Bezeichnung; Ermittlung; LKW-Typ; LKW/Tag; Paletten/Tag; Stück/Tag; Stück/KLT; KLT/Palette; Ziel-Bestand; Artikel; LHM; Länge; Breite; Höhe; Gewicht; Stapelfaktor; Blockanteil; Datenbasis</code>. Trennzeichen Komma oder Semikolon. Die Spalte Artikel (Anzahl unterschiedlicher Artikel je Position) wird auch über die Überschrift SKU erkannt.</li>
-        <li>Paletten-Stammdaten: Die Register Vorgaben führt Euro-, Industrie- und Halbpalette mit Grundmaß, Standardhöhe 1,0 m (Referenz EPal 1.200 × 800 × 1.000 mm BTH), Gewicht und Referenz-Stapelfaktor. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar.</li>
-        <li>Artikeltabelle: Die Spaltenbreiten passen sich dem Inhalt an; bei Platzbedarf scrollt die Tabelle waagerecht und senkrecht. Die Datenzellen brechen Text nicht um. Ein Griff am rechten Rand der Spaltenüberschrift setzt eine Wunschbreite, ein Doppelklick auf einen Griff stellt alle Standardbreiten wiederher. Die Breiten werden im Browser gespeichert.</li>
+        <li>Paletten-Stammdaten: Das Register Vorgaben führt unter 3 Stammdaten Euro-, Industrie- und Halbpalette mit Grundmaß, Standardhöhe 1,0 m (Referenz EPal 1.200 × 800 × 1.000 mm BTH), Gewicht und Referenz-Stapelfaktor. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar. Höhe, Gewicht und Stapelfaktor der Palettentypen lassen sich je Projekt überschreiben; ↺ stellt den Stammwert wieder her.</li>
+        <li>Aus Excel einfügen: Zellen in Excel kopieren und im Mengengerüst mit Strg+V oder über „Aus Excel einfügen“ übernehmen. Die Spalten werden anhand der Überschriften zugeordnet und lassen sich im Dialog ändern; deutsche Zahlen (1.200 oder 2,5) werden erkannt, leere Zellen übernehmen die Standardwerte. Die Positionen werden angehängt oder ersetzen die bestehenden (mit Rückfrage, rückgängig machbar).</li>
+        <li>Artikeltabelle: Die Tabelle zeigt je Position eine Zeile mit dem Hauptwert der gewählten Ermittlungsart; ✎ öffnet alle Felder im Detailfeld. Die Spaltenbreiten passen sich dem Inhalt an; bei Platzbedarf scrollt die Tabelle waagerecht und senkrecht. Die Datenzellen brechen Text nicht um. Ein Griff am rechten Rand der Spaltenüberschrift setzt eine Wunschbreite, ein Doppelklick auf einen Griff stellt alle Standardbreiten wiederher. Die Breiten werden im Browser gespeichert.</li>
         <li>Der Stapelfaktor akzeptiert im CSV-Import die Notation 1+x (etwa 1+2) oder die Gesamtzahl der Paletten je Stapel. Artikeltabelle und Paletten-Stammdaten erfassen das x der Notation 1+x (Eingabefeld mit vorgestelltem 1+); in den gespeicherten Dateien (Eingabedatei und Planungsdatei) wird die Gesamtzahl geführt.</li>
         <li>Drei-Datei-Prinzip: Die Eingabedatei <code>tender-input.js</code> liefert Positionen und Vorgaben. Sie wird über Datei › Eingabedatei laden geöffnet. Die Datei wird als Datentext geparst und nicht als JavaScript ausgeführt.</li>
         <li>Das Frontend enthält keine vordefinierten Artikeldaten. Der Browser speichert den letzten Planungsstand und stellt ihn beim Start wieder her; die Menü Datei › Neue Planung leert ihn.</li>
@@ -1569,26 +1573,26 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Wofür wird die Spalte Artikel benötigt?</b> Die Artikelanzahl ist die Zahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Sie wirkt ausschließlich im artikelbasierten Modus der Blockverteilung: Der Bestand wird in drei Artikelklassen geteilt (obere 20 Prozent der Artikel, mittlere 30, untere 50), denen je ein Volumenanteil zugeordnet wird. Eine Klasse qualifiziert sich für das Blocklager, wenn das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Ohne Artikelangabe qualifiziert sich die Position nicht und läuft vollständig über das Regal; der Report weist dies als Datenlücke aus. In den Modi Volumenquote und Manuell bestimmt sie die Mindestzahl der Blockkanäle: Kanäle sind artikelrein, die Artikel im Block werden anteilig zum Blockvolumen angesetzt.</p>
       <p><b>Was bedeutet der Prozentwert in der Spalte Blockanteil?</b> Im manuellen Modus ist er die Eingabe. In allen anderen Modi zeigt er den berechneten effektiven Blockanteil: Blockpaletten der Position im Verhältnis zum Netto-Bestand der Position, gerundet auf ganze Prozent.</p>
       <p><b>Was ist die Brutto-Lagerfläche?</b> Sie ist der Flächenbedarf des eigentlichen Lagers: Regalstellflächen, Regal-Arbeitsgänge, Blockstellflächen, Blockgassen, Leergutband, WE-/WA-Zonen und Abstandsflächen. Die Hallenfläche aus den Gebäudeangaben ist meist größer, weil Randwege, Technik- und Sozialflächen sowie Fehlflächen außerhalb des Werkzeugs liegen. Die Flächenbedarfsrechnung unter dem Hallenlayout weist beide Größen, die freie Fläche und den Nutzungsgrad aus.</p>
-      <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Standardmäßig sucht das Werkzeug die kleinste machbare Halle, deren Proportion (Längsseite zu Schmalseite) im eingestellten Bereich liegt, Standard 1 : 1 bis 3 : 1. Dabei wird geprüft, ob die Torseite (Nord-/Südwand) die Längs- oder die Schmalseite ist. Optionale Höchstmaße bilden Grundstücksgrenzen ab; gleiche Werte für „von“ und „bis“ erzwingen ein festes Verhältnis. Mit „Länge vorgegeben“ bleibt die Hallenlänge eine Eingabe, berechnet wird nur die Breite; liegt die Proportion über dem Bereich, erscheint ein Hinweis. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
-      <p><b>Was macht die Schaltfläche Rückgängig?</b> Sie stellt den Planungsstand vor der letzten strukturellen Änderung wieder her, etwa vor einem CSV-Import, dem Laden einer Projekt- oder Eingabedatei, einem Optimierungslauf, einer Zuweisung an ausgewählte Positionen, dem Löschen von Positionen oder dem Zurücksetzen der Planung. Es werden bis zu 20 Schritte vorgehalten, ausschließlich im Arbeitsspeicher der laufenden Sitzung; nach dem Schließen des Tabs ist der Verlauf verloren. Eine Wiederherstellen-Funktion für rückgängig gemachte Schritte gibt es nicht.</p>
-      <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW folgt automatisch der Kreuztabelle und passt sich an, wenn Maße, Gewicht, Stapelfaktor oder LKW-Typ der Position geändert werden. Ein eigener Wert überschreibt ihn; ein leeres Feld kehrt zum automatischen Wert zurück. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, begrenzt durch den Stapelfaktor der Palette, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Kennzahlen-Leiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Festwerte der LKW-Stammdaten; die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
+      <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Standardmäßig sucht das Werkzeug die kleinste machbare Halle, deren Proportion (Längsseite zu Schmalseite) im eingestellten Bereich liegt, Standard 1 : 1 bis 3 : 1. Dabei wird geprüft, ob die Torseite (Nord-/Südwand) die Längs- oder die Schmalseite ist. Optionale Höchstmaße bilden Grundstücksgrenzen ab; gleiche Werte für „von“ und „bis“ erzwingen ein festes Verhältnis. Die Optimierung ermittelt im Greenfield die Hallenmaße je Variante neu. Mit „Länge vorgegeben“ bleibt die Hallenlänge eine Eingabe, berechnet wird nur die Breite; liegt die Proportion über dem Bereich, erscheint ein Hinweis. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
+      <p><b>Was macht die Schaltfläche Rückgängig?</b> Sie stellt den Planungsstand vor der letzten Änderung wieder her: vor einer geänderten Eingabe (auch Paletten- und LKW-Stammwerte), dem Zurücksetzen eines Felds auf den Standard, einem CSV-Import oder dem Einfügen aus Excel, dem Laden einer Projekt-, Eingabe- oder Szenariodatei, einer übernommenen Optimierungsvariante, einer Zuweisung an ausgewählte Positionen, dem Löschen von Positionen oder dem Zurücksetzen der Planung. Es werden bis zu 20 Schritte vorgehalten, ausschließlich im Arbeitsspeicher der laufenden Sitzung; nach dem Schließen des Tabs ist der Verlauf verloren. Eine Wiederherstellen-Funktion für rückgängig gemachte Schritte gibt es nicht.</p>
+      <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW folgt automatisch der Kreuztabelle und passt sich an, wenn Maße, Gewicht, Stapelfaktor oder LKW-Typ der Position geändert werden. Ein eigener Wert überschreibt ihn; ein leeres Feld kehrt zum automatischen Wert zurück. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, begrenzt durch den Stapelfaktor der Palette, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Kennzahlen-Leiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Stammwerte; Laderaumlänge und -breite, Innenhöhe, Lagen und Nutzlast lassen sich je Projekt überschreiben (↺ stellt den Stammwert wieder her), die Positionen übernehmen die neue Füllmenge. Die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
       <p><b>Wie werden Transitpaletten, Miete und Rückbau berücksichtigt?</b> Der Transit-/Cross-Dock-Anteil (Register Vorgaben, Volumen und Reichweite) mindert den bestandsrelevanten Bedarf je Position um den Durchschub-Anteil. Der Durchschub verbraucht keine Regal- oder Blockfläche. Der separate Cross-Dock-Puffer ist abschaltbar (Standard aus): Nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche mit den einstellbaren Annahmen 0,5 Tage Standzeit und 1,5 Quadratmeter je Palette; sie erscheint als eigene Zeile der Brutto-Lagerfläche. Wird Cross-Docking innerhalb der dimensionierten WE-/WA-Zonen abgewickelt, bleibt der Puffer ausgeschaltet, um eine Doppelberechnung zu vermeiden. Die Miete Halle (Register Vorgaben, Gebäude und Bauraum) berechnet bei Angabe eines Quadratmeterpreises die monatlichen und jährlichen Mietkosten der Hallenfläche und weist sie in der Flächenbedarfsrechnung und in den Berichten aus. Die Rückbau- und Demontage-Pauschale ist in der Stückliste zuschaltbar und erhöht als Prozentsatz der Bauteilsumme den Gesamt-CAPEX.</p>
       <p><b>Woran erkenne ich eine zu kleine WE-Zone?</b> Das Werkzeug prüft die Fläche aller Zonen mit der Rolle WE gegen die gleichzeitige Abfertigung an den WE-Toren. Je Tor setzt es ein Standard-Fahrzeug mit der Füllmenge der Euro-Referenzpalette an und je Palette 2,0 Quadratmeter Bereitstellungsfläche. Reicht die Zonenfläche nicht aus, erscheint ein Hinweis mit Bedarfs- und Ist-Wert.</p>
       <p><b>Wie wird der Stapelfaktor angegeben und begrenzt?</b> Der Stapelfaktor wird in der Notation 1+x angegeben: x ist die Zahl der Paletten, die zusätzlich auf der untersten Palette stehen (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf, 1+6 = sieben Paletten). Im Regal steht je Fach und Ebene eine Palette; der Faktor wirkt dort nicht. Im Blocklager gilt je Position das Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut (Planungsvorgabe, Standard 7,5 m; ab 7,5 m Lagerguthöhe fordert die Industriebaurichtlinie selbsttätige Feuerlöschanlagen). Die Kippgrenze 6:1 (Stapelhöhe zur Schmalseite der Grundfläche) wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet ausgewiesen; liegt der nutzbare Stapel darüber, meldet das Werkzeug einen Hinweis zur gesonderten Standsicherheitsprüfung und begrenzt nicht hart. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m ergibt sich 1+6 (7 × 1,0 m = 7,0 m).</p>
-      <p><b>Was unterscheidet Regalausrichtung und Blockausrichtung?</b> Die Regalausrichtung legt fest, ob die Regalreihen orthogonal oder parallel zu den Toren laufen. Die Blockausrichtung legt die Kanalrichtung im Nordband fest: Kanäle quer laufen in Hallenbreite mit Zugang von der Nordseite (Zone Nord als WE), Kanäle längs laufen in Hallenlänge mit Zugang über eine Längsgasse von Westen (Zone West als WE). Beide sind im Optimierungs-Dropdown einzeln zuschaltbar; der Optimierer vergleicht dann beide Varianten.</p>
+      <p><b>Was unterscheidet Regalausrichtung und Blockausrichtung?</b> Die Regalausrichtung legt fest, ob die Regalreihen orthogonal oder parallel zu den Toren laufen. Die Blockausrichtung legt die Kanalrichtung im Nordband fest: Kanäle quer laufen in Hallenbreite mit Zugang von der Nordseite (Zone Nord als WE), Kanäle längs laufen in Hallenlänge mit Zugang über eine Längsgasse von Westen (Zone West als WE). Der Optimierungslauf variiert beide Ausrichtungen und vergleicht die Varianten.</p>
       <p><b>Was unterscheidet Eingabedatei und Planungsdatei?</b> tender-input.js enthält die Ausschreibungsdaten (Positionen und Vorgaben). Das Planungs-JSON enthält den vollständigen Ergebnisstand. Drei-Datei-Prinzip: Eingabedatei, Frontend-Datei, Planungsdatei.</p>
       <p><b>Welche Daten verlässt den Rechner?</b> Keine. Alle Berechnungen laufen lokal im Browser; es besteht keine Serververbindung.</p>
     </div></details>
     <details class="obs"><summary>Handbuch: Registerkarten und Funktionen</summary><div>
       <p>Navigation in vier Phasen: Unter der Kopfzeile stehen Start und die Phasen Eingabe (blau), Konzept (grün), Bewertung (gelb) und Ergebnis (violett); darunter die Register der gewählten Phase. Ein Klick auf eine Phase öffnet das zuletzt genutzte Register dieser Phase. Innerhalb der Registerzeile wechseln die Pfeiltasten das Register.</p>
-      <p>Start – Willkommensseite: Einstieg mit grobem Ablaufdiagramm des Arbeitsablaufs, Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start.</p>
-      <p>Eingabe · Vorgaben – Planungsvorgaben: Gebäude und Bauraum (Modus Bestandshalle oder Greenfield, Hallenmaße, Tore, Zonen je Himmelsrichtung, Stützenraster, Miete Halle), Paletten- und LKW-Stammdaten (Palettentypen Euro, Industrie, Halbpalette sowie eigene Typen; LKW-Typen 7,5t, Standard, Mega, Jumbo, Giga sowie eigene Typen; berechnete Kreuztabelle der Füllmenge je LKW und Palettentyp), Volumen, Reichweite und Leergut (Lagerreichweite, Füllgrade, Transit-/Cross-Dock-Anteil; Leergutbereich verdichtet als angegliederte Gruppe mit Mengenbasis, Stapelhöhe und Zugangsreserve), Blocklager- und ABC/XYZ-Logik (Verteilungsmethode, Kanaltiefe, Stapelhöhe, Ausrichtung, ABC-Anteile), FFZ und Regaltechnik (Mehrfachauswahl der Flurförderzeuge je Lagerbereich, getrennte Gangbreiten für Regal und Block, P&D-Plätze bei VNA, Regal-Auslegungsbasis, Feldweite, Einzelreihen) sowie Brandschutz und Sicherheit (Sprinkler-Freiraum, Fluchttunnel, In-Rack-Sprinklerung). Die Gruppen liegen als Karteireiter vor; je Karteireiter ist eine Gruppe sichtbar. Eingabefelder führen ihre Einheit unmittelbar hinter dem Feld; berechnete Werte (etwa die Greenfield-Maße) bleiben hervorgehoben. Erläuternde Infotexte erscheinen als Mausover-Hinweis am ⓘ-Symbol neben der zugehörigen Überschrift; lange Beschriftungen tragen die Erläuterung als Tooltip. Die FFZ der WE/WA-Vorzone lassen sich auch vollständig abwählen: Das Werkzeug weist dann bei VNA im Regal auf den fehlenden Vorzonentransport hin; beim Neuladen einer Datei wird die leere Auswahl auf Schnellläufer zurückgesetzt.</p>
-      <p>Eingabe · Mengengerüst – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und automatischem, überschreibbarem Wert Paletten je LKW aus der Kreuztabelle; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Paletten-Stammdaten (Euro, Industrie, Halbpalette; Standardhöhe 1,0 m; wählbare Standardpalette), inhaltsadaptive Spaltenbreiten; die Datenzellen brechen Text nicht um, jede Auswahlliste zeigt jeden Eintrag vollständig, und bei Platzbedarf scrollt die Tabelle waagerecht, Datenbasis (Kundendaten oder Annahme), Batch-Änderungen an ausgewählte Positionen (LKW-Typ, LHM-Typ, Blockanteil, Datenbasis), CSV-Import und Erzeugung der Eingabedatei.</p>
-      <p>Konzept · Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die Hallenbreite aus dem Bedarf; mit festem Seitenverhältnis (etwa 2:1) werden beide Hallenmaße als kleinste bedarfsdeckende Fläche im 0,5-m-Raster berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Register Vorgaben zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Menü Varianten ermitteln in der Kopfzeile gesteuert: Ziel (CAPEX, Gangfläche, kombiniert, Mindestfläche) und veränderbare Parameter wählen und den Lauf starten. Zur Wahl stehen Regalausrichtung (orthogonal oder parallel zu Toren), Blockausrichtung (Kanäle quer mit Zugang Nord oder längs mit Längsgasse und Zugang West), Feldweite, Gangbreite, Blockparameter, Fluchttunnel-Intervall, Zonentiefen, Volumenquote sowie die Umgebungsparameter Stützraster (Paarungen 5×10 bis 12,5×25 plus die eingestellte Kombination) und Zonenrollen (16 Kombinationen aus WE- und WA-Seite). Der Lauf erfolgt dreistufig: Stufe 1 variiert die Layoutparameter, Stufe 2 prüft bei zugeschalteten Umgebungsparametern Stützraster und Zonenrollen, Stufe 3 verfeinert die Layoutparameter mit der besten Umgebung. Varianten mit Blockzugang ohne passende WE-Zone werden verworfen. Die Ergebnistabelle zeigt die 25 besten Varianten mit Stützraster und Zonenrollen; die gewählte Variante wird übernommen.</p>
+      <p>Start – Willkommensseite: Einstiege (Positionen aus Excel einfügen, Planungsdatei öffnen, Mengengerüst aus CSV, Beispielprojekt), Planungsfortschritt in vier Schritten mit Sprung ins zuständige Register, Arbeitsablauf in vier Phasen mit Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start. Das Beispielprojekt (sechs Positionen mit allen Bedarfsarten, Greenfield-Halle) lässt sich rückgängig machen.</p>
+      <p>Eingabe · Vorgaben – Planungsvorgaben: Gebäude und Bauraum (Modus Bestandshalle oder Greenfield, Hallenmaße, Höhenkette mit Sprinkler-Freiraum und In-Rack-Sprinklerung, Tore, Zonen je Himmelsrichtung, Stützenraster, Zusatzflächen, Miete Halle), Paletten- und LKW-Stammdaten (Palettentypen Euro, Industrie, Halbpalette sowie eigene Typen; LKW-Typen 7,5t, Standard, Mega, Jumbo, Giga sowie eigene Typen; berechnete Kreuztabelle der Füllmenge je LKW und Palettentyp), Volumen, Reichweite und Leergut (Lagerreichweite, Füllgrade, Transit-/Cross-Dock-Anteil, WE-Puffer, Durchsatzprofil mit Spitzenstunde, WE-Anteil und Gleichzeitigkeit; Leergutbereich verdichtet als angegliederte Gruppe mit Mengenbasis, Stapelhöhe und Zugangsreserve), Blocklager- und ABC/XYZ-Logik (Verteilungsmethode, Kanaltiefe, Stapelhöhe, Ausrichtung, ABC-Anteile), FFZ und Regaltechnik (Mehrfachauswahl der Flurförderzeuge je Lagerbereich, getrennte Gangbreiten für Regal und Block, P&D-Plätze bei VNA, Regal-Auslegungsbasis, Feldweite automatisch oder fest, Einzelreihen, Fluchttunnel) sowie Kosten und Optionen (Preisquelle als Auswahl Richtpreis, Angebot oder Rahmenvertrag; sie bestimmt die Datenqualität). Alle Bereiche stehen untereinander auf einer Seite; unter jedem Abschnitt zeigt eine Ergebniszeile, was die Eingaben im aktuellen Stand bewirken. Eingabefelder führen ihre Einheit unmittelbar hinter dem Feld; berechnete Werte (etwa die Greenfield-Maße) bleiben hervorgehoben. Erläuternde Infotexte erscheinen als Mausover-Hinweis am ⓘ-Symbol neben der zugehörigen Überschrift; lange Beschriftungen tragen die Erläuterung als Tooltip. Beim Bearbeiten erscheint unter dem Feld ein Wirkungstext. Vom Standard abweichende Werte sind markiert und lassen sich einzeln zurücksetzen; die Datenquelle steht am Feld. Das Suchfeld filtert die Felder nach Beschriftung, Wirkungstext und Parameterpfad. Die FFZ der WE/WA-Vorzone lassen sich auch vollständig abwählen: Das Werkzeug weist dann bei VNA im Regal auf den fehlenden Vorzonentransport hin; beim Neuladen einer Datei wird die leere Auswahl auf Schnellläufer zurückgesetzt.</p>
+      <p>Eingabe · Mengengerüst – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und automatischem, überschreibbarem Wert Paletten je LKW aus der Kreuztabelle; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Palettentyp mit Maßen aus den Stammdaten, Datenbasis (Kundendaten oder Annahme). Die kompakte Tabelle zeigt je Position eine Zeile mit Bezeichnung, Ermittlungsart und deren Hauptwert, Palette, Artikelanzahl, Stapelfaktor, Blockanteil und Datenbasis; ✎ öffnet das Detailfeld mit allen Feldern neben den Kennzahlen (Vor/Zurück, Esc schließt). Enter und Umschalt+Enter wechseln die Zeile. Sammeländerungen an ausgewählten Positionen (LKW-Typ, Palettentyp, Blockanteil, Datenbasis, Löschen) erscheinen erst mit einer Auswahl. Positionen lassen sich aus Excel einfügen (Spaltenzuordnung im Dialog), per CSV importieren und als Eingabedatei ausgeben.</p>
+      <p>Konzept · Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die kleinste machbare Halle, deren Seitenverhältnis im eingestellten Bereich liegt (Standard 1 : 1 bis 3 : 1); alternativ bleibt die Länge vorgegeben und nur die Breite wird berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Register Vorgaben zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Menü Varianten ermitteln in der Kopfzeile gesteuert: Ziel wählen und den Lauf starten. Drei Ziele stehen zur Wahl: minimaler CAPEX für den Soll-Bestand (so wenig Regal wie nötig), maximaler Flächennutzungsgrad (höchste Dichte bezogen auf die tatsächlich belegte Lagerfläche) und maximale Lagerkapazität (die Halle mit Regal füllen, ohne Rücksicht auf den Soll-Bestand; nur in der Bestandshalle). Variiert werden Feldweite (1.800 bis 3.600 mm), Regal- und Blockausrichtung und Kanaltiefe; im Greenfield zusätzlich die Zonenrollen (WE- und WA-Seite), und die Hallenmaße werden je Variante neu ermittelt. In der Bestandshalle bleiben Hallenmaße und Zonenrollen fest. Gangbreite, Stapelhöhe, Fluchttunnel, Zonentiefen, Stützraster und Blockquote bleiben Vorgaben; Varianten davon lassen sich über die Szenario-Slots vergleichen. Die Ergebnistabelle zeigt die 25 besten Varianten; ein Klick übernimmt eine Variante (rückgängig machbar).</p>
       <p>Konzept · Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe, je Artikel mindestens ein Kanal; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
       <p>Konzept · Stückliste &amp; CAPEX – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren (auch im Menü Datei) speichert die Kalkulationsgrundlage als Datei.</p>
-      <p>Bewertung · Varianten – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
-      <p>Bewertung · Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
+      <p>Bewertung · Varianten – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen, wahlweise mit Namen (beim Speichern oder nachträglich); die Vergleichstabelle hebt Abweichungen zum aktuellen Stand hervor, die Auswahlliste ruft ein Szenario auf. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
+      <p>Bewertung · Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung; die Quelle am Feld in den Vorgaben führt direkt zur Zeile. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
       <p>Bewertung · Sensitivität – Analyse: Ein-Punkt-Variation der zentralen Treiber auf Flächenbedarf und CAPEX. Das Tornado-Diagramm unter der Ergebnistabelle zeigt die Wirkung jedes Treibers als Balken; Balken nach links stehen für die untere Variante (blau), Balken nach rechts für die obere Variante (orange), die Balkenlänge folgt dem größeren Betrag aus Δ Fläche und Δ CAPEX.</p>
       <p>Ergebnis · Berichte – interner Bericht und kundenfähiger Grobkonzeptbericht, jeweils als Ansicht und Druckfenster.</p>
       <p>Ergebnis · Übersicht – Quick-Report und Hinweise zusammengefasst; der Hinweiszähler in der Kennzahlen-Leiste springt hierher.</p>
@@ -1613,8 +1617,10 @@ const TRUCKS={
   jumbo:{label:"Jumbo",fl:15.5,fw:2.5,fh:3.0,layers:1,payload:24000},
   giga:{label:"Giga",fl:21.3,fw:2.45,fh:3.2,layers:1,payload:25000}
 };
-function allTrucks(){return Object.assign({},TRUCKS,S.customTrucks||{});}
-function getTruck(k){return (S.customTrucks&&S.customTrucks[k])||TRUCKS[k]||TRUCKS.standard;}
+// Standard-LKW mit Überschreibungen (wie bei Paletten); eigene Typen unverändert
+function truckView(k){return TRUCKS[k]?Object.assign({},TRUCKS[k],(S.truckOverrides||{})[k]):null;}
+function allTrucks(){const o={};for(const k of Object.keys(TRUCKS))o[k]=truckView(k);return Object.assign(o,S.customTrucks||{});}
+function getTruck(k){return (S.customTrucks&&S.customTrucks[k])||truckView(k)||truckView("standard");}
 /* Füllmenge: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Höhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht */
 function fillTruck(tk,p){
   const t=getTruck(tk)||{};
@@ -1679,27 +1685,63 @@ function renderTruckMD(){
     for(const k of Object.keys(all)){
       const t=all[k];
       const own=!!(S.customTrucks||{})[k];
+      const ov=(S.truckOverrides||{})[k]||{};
+      // Standard-LKW: Werte überschreibbar, Referenz im Tooltip, ↺ setzt zurück
+      const cell=(f,view,step,w,unit)=>{
+        if(own)return fmt(view,f==="layers"?0:(f==="fl"?1:2))+(unit?" "+unit:"");
+        const ref=TRUCKS[k][f],refShow=f==="payload"?fmt(ref/1000,1)+" t":fmt(ref,f==="layers"?0:2)+(unit?" "+unit:"");
+        return '<input type="number" data-trk-ov="'+f+'" data-trk-key="'+k+'" value="'+(f==="payload"?view/1000:view)+'" step="'+step+'" style="width:'+w+'px" aria-label="'+escH(TRUCK_OV_LIMITS[f][2]+" "+t.label)+'" title="Ref: '+refShow+'">'+
+          (unit?' <span class="hint">'+unit+'</span>':'')+(ov[f]!==undefined?' <span class="lhm-reset" data-trk-reset="'+f+'" data-trk-key="'+k+'" role="button" tabindex="0" title="Auf Stammdatenwert '+refShow+' zurücksetzen">↺</span>':'');
+      };
       html+='<tr><td>'+escH(t.label)+(own?' <span class="hint">(eigener Typ)</span>':'')+'</td>'+
-        '<td>'+fmt(t.fl,1)+' × '+fmt(t.fw,2)+' m</td>'+
-        '<td>'+fmt(t.fh,2)+' m</td>'+
-        '<td>'+t.layers+'</td>'+
-        '<td>'+fmt(t.payload/1000,1)+' t</td>'+
+        '<td>'+(own?fmt(t.fl,1)+' × '+fmt(t.fw,2)+' m':cell("fl",t.fl,"0.1",52,"")+' × '+cell("fw",t.fw,"0.05",52,"m"))+'</td>'+
+        '<td>'+cell("fh",t.fh,"0.05",52,"m")+'</td>'+
+        '<td>'+cell("layers",t.layers,"1",40,"")+'</td>'+
+        '<td>'+(own?fmt(t.payload/1000,1)+' t':cell("payload",t.payload,"0.5",52,"t"))+'</td>'+
         '<td>'+(own?'<button class="btn danger" data-trk-del="'+k+'">Löschen</button>':'')+'</td></tr>';
     }
     html+='</tbody></table>';
     html+='<div class="lhmform">'+
-      '<input id="trk-f-name" type="text" placeholder="Bezeichnung" aria-label="Bezeichnung" maxlength="40">'+
-      '<input id="trk-f-l" type="number" placeholder="Länge m" aria-label="Länge m" min="3" max="30" step="0.1">'+
-      '<input id="trk-f-b" type="number" placeholder="Breite m" aria-label="Breite m" min="1.5" max="3.5" step="0.05">'+
-      '<input id="trk-f-h" type="number" placeholder="Höhe m" aria-label="Höhe m" min="1.8" max="4.5" step="0.05">'+
-      '<input id="trk-f-ay" type="number" placeholder="Lagen" aria-label="Lagen" min="1" max="3" step="1" title="Lagenzahl im Laderaum (etwa 2 bei festem Zwischenboden)">'+
-      '<input id="trk-f-p" type="number" placeholder="Nutzlast t" aria-label="Nutzlast t" min="0.5" max="60" step="0.5">'+
+      '<label class="mf wide"><span>Bezeichnung</span><input id="trk-f-name" type="text" aria-label="Bezeichnung" maxlength="40"></label>'+
+      '<label class="mf"><span>Länge m</span><input id="trk-f-l" type="number" aria-label="Länge m" min="3" max="30" step="0.1"></label>'+
+      '<label class="mf"><span>Breite m</span><input id="trk-f-b" type="number" aria-label="Breite m" min="1.5" max="3.5" step="0.05"></label>'+
+      '<label class="mf"><span>Höhe m</span><input id="trk-f-h" type="number" aria-label="Höhe m" min="1.8" max="4.5" step="0.05"></label>'+
+      '<label class="mf"><span>Lagen</span><input id="trk-f-ay" type="number" aria-label="Lagen" min="1" max="3" step="1" title="Lagenzahl im Laderaum (etwa 2 bei festem Zwischenboden)"></label>'+
+      '<label class="mf"><span>Nutzlast t</span><input id="trk-f-p" type="number" aria-label="Nutzlast t" min="0.5" max="60" step="0.5"></label>'+
       '<button class="btn acc" id="btn-trk-add">Hinzufügen</button>'+
       '</div>';
     box.innerHTML=html;
     const add=$("btn-trk-add");
     if(add)add.addEventListener("click",addCustomTruck);
     box.querySelectorAll("[data-trk-del]").forEach(b=>b.addEventListener("click",()=>delCustomTruck(b.dataset.trkDel)));
+    const afterTruckChange=k=>{
+      (S.items||[]).forEach(it=>{if(it&&it.truck===k&&!it.pptManual)it.ppt=fillTruck(k,it);});
+      renderTruckMD();fillTruckSel();renderItems();recalc();
+    };
+    box.querySelectorAll("input[data-trk-ov]").forEach(inp=>inp.addEventListener("change",()=>{
+      const k=inp.dataset.trkKey,f=inp.dataset.trkOv,lim=TRUCK_OV_LIMITS[f];
+      let v=parseFloat(String(inp.value).replace(",","."));
+      if(!isFinite(v)){renderTruckMD();return;}
+      if(f==="payload")v=v*1000;
+      v=f==="layers"?clamp(Math.round(v),lim[0],lim[1]):clamp(Math.round(v*100)/100,lim[0],lim[1]);
+      if(!S.truckOverrides)S.truckOverrides={};
+      const ov=S.truckOverrides[k]||(S.truckOverrides[k]={});
+      if(v===TRUCKS[k][f])delete ov[f];else ov[f]=v;
+      if(!Object.keys(ov).length)delete S.truckOverrides[k];
+      afterTruckChange(k);
+    }));
+    const reset=el=>{
+      const k=el.dataset.trkKey,f=el.dataset.trkReset;
+      if(!S.truckOverrides||!S.truckOverrides[k])return;
+      pushUndo("LKW-Stammwert zurückgesetzt ("+TRUCKS[k].label+")");
+      delete S.truckOverrides[k][f];
+      if(!Object.keys(S.truckOverrides[k]).length)delete S.truckOverrides[k];
+      afterTruckChange(k);
+    };
+    box.querySelectorAll("[data-trk-reset]").forEach(el=>{
+      el.addEventListener("click",()=>reset(el));
+      el.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();reset(el);}});
+    });
   }
   const cross=$("truck-cross");
   if(cross){
@@ -1709,7 +1751,8 @@ function renderTruckMD(){
     for(const tk of Object.keys(all)){
       html+='<tr><td>'+escH(all[tk].label)+'</td>';
       for(const pk of Object.keys(lhmAll)){
-        html+='<td class="num">'+fillTruck(tk,lhmAll[pk])+'</td>';
+        const used=(S.items||[]).filter(it=>it&&it.truck===tk&&it.lhm===pk).length;
+        html+='<td class="num'+(used?' used':'')+'"'+(used?' title="Von '+used+(used===1?' Position':' Positionen')+' genutzt"':'')+'>'+fillTruck(tk,lhmAll[pk])+'</td>';
       }
       html+='</tr>';
     }
@@ -1806,8 +1849,9 @@ function migrateFFZ(rawFfz){
   if(typeof f.vnaPnD!=="boolean")f.vnaPnD=true;
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
+  if(!S.truckOverrides||typeof S.truckOverrides!=="object")S.truckOverrides={};
 }
-const APP_VERSION="V2.25";
+const APP_VERSION="V2.26";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -1827,10 +1871,11 @@ function defaults(){
     block:{mode:"sku",quota:40,channelDepth:6,stackH:6,aVol:80,bVol:15,minFill:65,orient:"N",maxTop:7.5},
     ffz:{type:"schubmast",rackFFZ:["schubmast"],blockFFZ:["front"],zoneFFZ:["ameise"],aisle:2.8,aisleBlock:3.5,vnaPnD:true,rackBase:"lead",fieldMode:"auto",fieldWidth:2700,rackFill:"need",liftHeight:8.5,liftReserve:200,floorOnBeam:false,singleRows:false},
     lhmOverrides:{},
+    truckOverrides:{},
     fire:{sprinkler:500,tunnelInterval:35,tunnelClear:2.5,inRack:false},
     items:[],
     scenarios:[null,null,null],
-    costMeta:{date:"2026-10",source:"Richtpreis",uncertainty:20,realizationYears:0,priceEscalation:0,projectOverhead:0},
+    costMeta:{date:"2026-10",sourceKind:"richtpreis",source:"Richtpreis",uncertainty:20,realizationYears:0,priceEscalation:0,projectOverhead:0},
     prices:{frame:48,beamPair:26,grating:95,protector:85,pushThrough:12,marking:4,mount:18,demountPct:8,backMesh:42,markingRack:6,acceptance:120},
     bom:{pushThrough:true,grating:true,demount:false}
   };
@@ -1891,7 +1936,7 @@ const PARAMS=[
   {p:"volume.bufferFactor",id:"in-buffer-factor",type:"num",label:"Zugangs- und Verkehrsflächenfaktor",unit:"×",min:1,max:5,step:0.1,dec:1,visibleIf:s=>s.volume.bufferMode==="process"},
   {p:"volume.peakHourShare",id:"in-peak-hour-share",type:"num",label:"Spitzenstundenanteil am Tagesvolumen",unit:"%",min:0,max:100,step:1,dec:0},
   {p:"volume.weShare",id:"in-we-share",type:"num",label:"Anteil Wareneingang",unit:"%",min:0,max:100,step:1,dec:0},
-  {p:"volume.simultaneity",id:"in-simultaneity",type:"num",label:"Gleichzeitigkeitsfaktor WE/WA",unit:"%",min:0,max:100,step:1,dec:0},
+  {p:"volume.simultaneity",id:"in-simultaneity",type:"num",label:"Gleichzeitigkeit WE/WA",short:"Gleichzeitigkeit WE/WA",unit:"%",min:0,max:100,step:1,dec:0},
   {p:"volume.transit",id:"in-transit",type:"num",label:"Transit-/Cross-Dock-Anteil",unit:"%",min:0,max:100,step:1,dec:0,
     eff:"Mindert den bestandsrelevanten Bedarf um den Durchschub-Anteil. Der separate Cross-Dock-Puffer ist abschaltbar; nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche (Standard 0,5 Tage Standzeit, 1,5 m² je Palette) in der Brutto-Lagerfläche."},
   {p:"volume.transitBufferOn",id:"chk-transit-buf",type:"check",label:"Separaten Cross-Dock-Puffer einrechnen",short:"Separater Cross-Dock-Puffer",show:yesNo("eingerechnet","aus"),
@@ -1933,8 +1978,8 @@ const PARAMS=[
     title:"Bei VNA im Regallager: P&D-Aufsetzplätze an den Regalstirnseiten berücksichtigen (je Stirnseite 1,0 m Aufsetzplatz und 1,0 m Anfahrabstand; vermindert die nutzbare Regallänge je Reihe um 4,0 m)."},
   {p:"ffz.rackBase",id:"sel-rackbase",type:"select",label:"Bemessungsbasis der Regalgeometrie",short:"Regal-Auslegungsbasis",options:[["lead","Leitartikel (größter Regalbedarf)"],["envelope","Hüllkurve aller Regalpositionen"]],title:"Leitartikel: Position mit dem größten Brutto-Regalbedarf. Hüllkurve: Maximalmaße und Maximalgewicht aller Regalpositionen.",
     eff:"Leitartikel dimensioniert Fachhöhe und Fachlast nach der Position mit dem größten Brutto-Regalbedarf; Hüllkurve nach den Maximalmaßen und dem Maximalgewicht aller Regalpositionen."},
-  {p:"ffz.fieldMode",id:"sel-fieldmode",type:"select",label:"Lichte Feldweite",short:"Feldweite-Modus",options:[["auto","Auto-Plausibilität"],["fix","Festes Maß 1.800–3.600 mm"]]},
-  {p:"ffz.fieldWidth",id:"in-fieldWidth",type:"num",label:"Feldweite (fix)",unit:"mm",min:1800,max:3600,step:100,dec:0,visibleIf:s=>s.ffz.fieldMode==="fix",eff:"Bestimmt Paletten je Feld, Rahmenzahl und CAPEX."},
+  {p:"ffz.fieldMode",id:"sel-fieldmode",type:"select",label:"Feldweite festlegen",short:"Feldweite-Modus",options:[["auto","automatisch"],["fix","fest vorgeben"]]},
+  {p:"ffz.fieldWidth",id:"in-fieldWidth",type:"num",label:"Lichte Feldweite",labelHtml:'Lichte Feldweite <span id="lbl-fieldw-mode"></span>',unit:"mm",min:1800,max:3600,step:100,dec:0,eff:"Bestimmt Paletten je Feld, Rahmenzahl und CAPEX."},
   {p:"ffz.floorOnBeam",id:"chk-floorbeam",type:"check",label:"Bodenebene auf Traverse"},
   {p:"ffz.singleRows",id:"chk-singlerows",type:"check",label:"Einzelreihen ergänzen",title:"Wand- und Restflächen nutzen, sobald Doppelreihen nicht mehr passen."},
   {p:"ffz.rackFill",id:"sel-rackfill",type:"select",label:"Regalbelegung",short:"Regalbelegung",options:[["need","Nach Bedarf (Soll-Bestand)"],["hall","Halle mit Regalreihen füllen"]],
@@ -1944,11 +1989,13 @@ const PARAMS=[
   /* Sicherheit & Abstände */
   {p:"fire.sprinkler",id:"in-sprinkler",type:"num",label:"Sprinkler-Freiraum unter UKB",short:"Sprinkler-Freiraum",unit:"m",scale:1000,min:0,max:2000,step:50,dec:2,eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
   {p:"fire.inRack",id:"chk-inrack",type:"check",label:"In-Rack-Sprinklerung",title:"Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe."},
-  {p:"fire.tunnelInterval",id:"in-tunnelint",type:"num",label:"Fluchttunnel-Intervall",unit:"m",min:0,max:200,step:1,dec:0,eff:"Fachplätze in Tunnelzonen erhöhen den Platzbedarf."},
+  {p:"fire.tunnelInterval",id:"in-tunnelint",type:"num",label:"Fluchttunnel-Abstand (0 = keine)",short:"Fluchttunnel-Abstand",unit:"m",show:v=>v>0?fmt(v)+" m":"keine Tunnel",min:0,max:200,step:1,dec:0,eff:"Fachplätze in Tunnelzonen erhöhen den Platzbedarf."},
   {p:"fire.tunnelClear",id:"in-tunnelclear",type:"num",label:"lichte Durchgangshöhe Tunnel",short:"Durchgangshöhe Tunnel",unit:"m",min:2,max:6,step:0.1,dec:1},
   /* Kosten & Optionen */
   {p:"costMeta.date",id:"in-price-date",type:"month",label:"Preisstand"},
-  {p:"costMeta.source",id:"in-price-source",type:"text",label:"Preisquelle",placeholder:"Richtpreis oder Angebot",maxLength:200},
+  {p:"costMeta.sourceKind",id:"sel-price-kind",type:"select",label:"Preisquelle",short:"Art der Preisquelle",options:[["richtpreis","Richtpreis / Katalog"],["angebot","Angebot"],["rahmenvertrag","Rahmenvertrag"]],
+    eff:"Angebote und Rahmenverträge heben die Datenqualität der Kennzahlen; Richtpreise gelten als grobe Schätzung."},
+  {p:"costMeta.source",id:"in-price-source",type:"text",label:"Notiz zur Preisquelle",short:"Preisquelle (Notiz)",placeholder:"z. B. Angebot Fa. X vom 12.10.",maxLength:200,eff:"Freitext für Bericht und Annahmenregister; ohne Einfluss auf die Rechnung."},
   {p:"costMeta.uncertainty",id:"in-cost-unc",type:"num",label:"Kostenunsicherheit",unit:"± %",min:0,max:100,step:1,dec:0},
   {p:"costMeta.realizationYears",id:"in-realization-years",type:"num",int:true,label:"Jahre bis Realisierung",unit:"Jahre",min:0,max:30,step:1,dec:0},
   {p:"costMeta.priceEscalation",id:"in-price-escalation",type:"num",label:"Preissteigerung",unit:"% p. a.",min:0,max:100,step:0.5,dec:1,eff:"Erhöht den CAPEX bis zur Realisierung."},
@@ -1968,6 +2015,70 @@ const PARAMS=[
 ];
 /* Pfade aus defaults(), die bewusst kein Planungsparameter sind */
 const PARAM_INTERNAL_PATHS=["ffz.type"];
+// Wirkungstexte der Felder ohne eigenen Eintrag im Schema: erscheinen beim Bearbeiten unter dem Feld
+const PARAM_EFF={
+  "volume.peak":"Multipliziert den Netto-Bestand (Saisonspitze). 1,00 = Durchschnittsbestand; 1,20 = 20 % mehr Plätze.",
+  "volume.safety":"Zuschlag auf den Bestand nach dem Peak-Faktor; erhöht Regal- und Blockbedarf im gleichen Verhältnis.",
+  "volume.bufferMode":"Einfach: WE-Zonentiefe wie unter Gebäude & Flächen eingegeben. Prozessbezogen: Die Zonentiefe wächst bei Bedarf auf die aus LKW-Ankünften, Paletten und Verweildauer berechnete Pufferfläche.",
+  "volume.bufferTrucks":"Anlieferungen in der Spitzenstunde; Pufferpaletten = LKW × Paletten je LKW × Verweildauer.",
+  "volume.bufferPallets":"Paletten je ankommendem LKW; geht linear in die Pufferpaletten ein.",
+  "volume.bufferDwell":"Zeit bis zur Einlagerung; geht linear in die Pufferpaletten ein.",
+  "volume.bufferFactor":"Zuschlag für Gassen und Rangierflächen auf die reine Stellfläche der Pufferpaletten (1,0 = nur Stellfläche).",
+  "volume.peakHourShare":"Anteil des Tagesdurchsatzes in der stärksten Stunde; ergibt die Kennzahl Spitzen-Paletten je Stunde. Keine Wirkung auf Flächen.",
+  "volume.weShare":"Teilt die Spitzenstunde auf Wareneingang und Warenausgang auf (Kennzahl Spitzen WE/WA je Stunde).",
+  "volume.simultaneity":"Anteil der Spitzen, die zeitgleich auftreten; 100 % = WE- und WA-Spitzen überlagern sich vollständig. Nur Kennzahl.",
+  "volume.transit":"Anteil des Durchsatzes, der ohne Einlagerung durchläuft; vermindert den einzulagernden Bestand und speist den Transitpuffer.",
+  "volume.transitBufferOn":"Rechnet eine eigene Pufferfläche für Transitpaletten in die Brutto-Lagerfläche ein (Paletten × Standzeit × Fläche je Palette).",
+  "volume.transitDays":"Standzeit der Transitpaletten; die Pufferfläche wächst linear damit.",
+  "volume.transitAreaPerPal":"Bodenfläche je Transitpalette einschließlich Anteil an Gassen.",
+  "empty.on":"Plant ein Leergutband in verdichteter Bodenstapelung ein; es vergrößert die Lagerfläche, zählt aber nicht zur Lagerkapazität.",
+  "empty.mode":"Anteil: Leergutmenge in Prozent des Brutto-Bestands. Absolut: feste Palettenzahl.",
+  "empty.value":"Leergutmenge je nach Mengenbasis in Prozent des Brutto-Bestands oder in Paletten.",
+  "empty.stack":"Leerpaletten je Stapel (1 + x); höhere Stapel verkleinern das Leergutband.",
+  "empty.reserve":"Zuschlag auf die Stellfläche des Leerguts für Zugang und Abstände.",
+  "block.mode":"Schätzmodell: Positionen mit viel Bestand je Artikel und stapelbarer Ware gehen ins Blocklager. Quote: fester Volumenanteil. Manuell: Blockanteil je Position im Mengengerüst.",
+  "block.aVol":"Volumenanteil der stärksten 20 % der Artikel. Ein hoher Anteil heißt wenige Artikel mit viel Bestand – gut für das Blocklager.",
+  "block.bVol":"Volumenanteil der mittleren 30 % der Artikel; der Rest entfällt auf die 50 % C-Artikel.",
+  "block.stackH":"Obergrenze für den Stapelfaktor aller Positionen im Blocklager; höhere Stapel erhöhen die Plätze je Kanal.",
+  "block.orient":"Richtung der Blockkanäle: quer mit Zugang von der Nordseite oder längs mit Zugang von Westen; die Zone dieser Seite sollte WE sein.",
+  "block.maxTop":"Höchste zulässige Oberkante der gestapelten Ware; begrenzt den nutzbaren Stapelfaktor je Position.",
+  "ffz.rackFFZ":"Stapler im Regallager; bestimmt die vorbelegte Arbeitsgangbreite (größter Wert der Auswahl).",
+  "ffz.blockFFZ":"Stapler im Blocklager und für Leergut; bestimmt die vorbelegte Gangbreite zwischen den Blockbändern.",
+  "ffz.zoneFFZ":"Fahrzeuge für WE/WA und Vorzonen; dokumentiert den Betrieb, ohne Einfluss auf Flächen.",
+  "ffz.aisleBlock":"Gangbreite zwischen den Blockbändern; jedes Band erhöht die Blockgangfläche um diese Breite.",
+  "ffz.vnaPnD":"Reserviert an jeder Regalstirnseite Aufsetzplätze für den Schmalgangstapler; die nutzbare Reihenlänge sinkt.",
+  "ffz.fieldMode":"Automatisch: Feldweite nach Palettenmaß und Fachlast. Fest: eigenes Maß 1.800–3.600 mm, z. B. aus einem Bestandsregal.",
+  "ffz.floorOnBeam":"Unterste Ebene auf Traversen statt auf dem Boden: eine Traversenebene mehr in der Stückliste, alle Ebenen um eine Traversenhöhe höher.",
+  "ffz.singleRows":"Nutzt Restflächen an den Wänden mit Einzelreihen, wenn keine Doppelreihe mehr passt; erhöht die Regalkapazität.",
+  "ffz.liftHeight":"Begrenzt die Oberkante der letzten Traversenebene und damit die Ebenenzahl.",
+  "ffz.liftReserve":"Sicherheitsabstand unter der Hubhöhe; senkt die nutzbare Höhe für die oberste Traverse.",
+  "fire.inRack":"Zuschlag von 200 mm je zwei Ebenen auf die Bauhöhe des Regals; kann eine Ebene kosten.",
+  "fire.tunnelClear":"Lichte Höhe im Tunnel; Ebenen darunter entfallen in den Tunnelfeldern.",
+  "costMeta.date":"Dokumentiert den Preisstand für Bericht und Annahmenregister.",
+  "costMeta.uncertainty":"Bandbreite um den CAPEX: Kennzahl und Bericht zeigen CAPEX ± diesen Prozentsatz.",
+  "costMeta.realizationYears":"Jahre bis zur Beauftragung; zusammen mit der Preissteigerung ergibt sich der Faktor auf den CAPEX.",
+  "bom.pushThrough":"Durchschubsicherung je Fach in der Stückliste, üblich bei Rücken-an-Rücken-Reihen.",
+  "bom.grating":"Gitterroste über jedem Fluchttunnel in der Stückliste.",
+  "bom.demount":"Pauschale für Rückbau und Demontage auf die Bauteilsumme; der Prozentsatz steht unter Stückliste & CAPEX.",
+  "prices.demountPct":"Prozentsatz der Rückbaupauschale auf die Bauteilsumme; wirkt nur, wenn Rückbau eingerechnet wird.",
+  "lhmDefault":"Grundmaß für neue Positionen, den Leergutbereich und den WE-Puffer.",
+  "building.mode":"Bestandshalle: Länge und Breite sind fest, das Layout wird eingepasst. Greenfield: Die Hallenmaße werden aus dem Bedarf ermittelt.",
+  "building.ratioMin":"Untere Grenze der Proportion Längsseite zu Schmalseite für die Greenfield-Suche; gleiche Werte für „von“ und „bis“ erzwingen ein festes Verhältnis.",
+  "building.ratioMax":"Obere Grenze der Proportion Längsseite zu Schmalseite; bei vorgegebener Länge die Schwelle für den Hinweis auf eine ungünstige Halle.",
+  "building.maxL":"Grundstücksgrenze für die Nord-/Südwand; die Greenfield-Suche bleibt darunter. 0 = keine Begrenzung.",
+  "building.maxW":"Grundstücksgrenze für die Ost-/Westwand; die Greenfield-Suche bleibt darunter. 0 = keine Begrenzung.",
+  "building.zones":"Rollen der Hallenseiten; WE- und WA-Zonen werden an den gewählten Wänden von der Lagerfläche abgezogen.",
+  "building.orient":"Orthogonal: Regalreihen laufen parallel zu den Torwänden. Parallel: Gänge laufen auf die Tore zu. Bestimmt Reihenlänge und Reihenzahl.",
+  "building.gridX":"Stützenabstand entlang der Hallenlänge. Bestand: Stützen in Gängen sind harte Konflikte, in Regalfeldern oder Kanälen entfallen Plätze. Greenfield: nur Hinweis.",
+  "building.gridY":"Stützenabstand entlang der Hallenbreite. Bestand: Stützen in Gängen sind harte Konflikte, in Regalfeldern oder Kanälen entfallen Plätze. Greenfield: nur Hinweis."
+};
+for(const d of PARAMS){
+  if(d.eff)continue;
+  if(PARAM_EFF[d.p])d.eff=PARAM_EFF[d.p];
+  else if(d.p.startsWith("prices."))d.eff="Einheitspreis der Komponente; wirkt mit der Menge aus der Stückliste auf den CAPEX.";
+  else if(d.p.startsWith("building.doors."))d.eff="Tore dieser Seite; ohne Zone an der Seite erscheint ein Hinweis.";
+  else if(d.p.startsWith("building.zones."))d.eff="Rolle der Hallenseite: WE, WA oder beides; bestimmt, an welchen Wänden Zonenflächen abgezogen werden.";
+}
 const PARAM_BY_PATH=new Map(PARAMS.map(d=>[d.p,d]));
 const isRangedParam=d=>d.type==="num"||d.type==="range"||d.type==="plusx"||(d.type==="select"&&d.num);
 function paramLabel(d){return d.short||d.label;}
@@ -1991,8 +2102,15 @@ function migrateLegacyBuilding(state){
   else b.gfShape="length";
   delete b.ratio;
 }
+function toolVersionNumber(state){const m=/^V(\d+)\.(\d+)/.exec(String(state&&state.meta&&state.meta.toolVersion||""));return m?Number(m[1])+Number(m[2])/100:0;}
+function migrateLegacyCostSource(state){
+  const c=state&&state.costMeta;
+  if(!c||toolVersionNumber(state)>=2.26)return;
+  if(c.source&&String(c.source).trim()!=="Richtpreis")c.sourceKind="angebot";
+}
 function repairParamRanges(state){
   migrateLegacyBuilding(state);
+  migrateLegacyCostSource(state);
   const fixed=[];
   for(const d of PARAMS){
     if(!isRangedParam(d))continue;
@@ -2025,36 +2143,36 @@ function validateParamTypes(obj,label){
 /* Gliederung der Vorgaben: Bereiche (Unterregister) und Abschnitte. Stammdaten (pal) bleiben statisches Markup. */
 const PARAM_LAYOUT=[
   {id:"gbp",title:"Gebäude & Flächen",intro:["Baulicher Rahmen","Hallenmaße, Höhenkette, Tore, Zonen und Stützenraster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer."],sections:[
-    {title:"Halle",sub:"Länge, Breite und Unterkante Binder",items:["building.mode","building.L","building.W","building.ukb","building.gfShape","building.ratioMin","building.ratioMax","building.maxL","building.maxW",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"}]},
-    {title:"Höhenkette",sub:"Gebäude, Sprinkler, Stapler und Lagergut begrenzen unabhängig",items:["fire.sprinkler","ffz.liftHeight","ffz.liftReserve","block.maxTop"],after:'<div class="height-balance" id="height-balance"></div>'},
-    {title:"Tore und Zonen",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
+    {title:"Halle",result:"hall",sub:"Länge, Breite und Unterkante Binder",items:["building.mode","building.L","building.W","building.ukb","building.gfShape","building.ratioMin","building.ratioMax","building.maxL","building.maxW",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"}]},
+    {title:"Höhenkette",sub:"Gebäude, Sprinkler, Stapler und Lagergut begrenzen unabhängig",items:["fire.sprinkler","fire.inRack","ffz.liftHeight","ffz.liftReserve","block.maxTop"],after:'<div class="height-balance" id="height-balance"></div>'},
+    {title:"Tore und Zonen",result:"zones",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
       items:["building.zones","building.weDepth","building.waDepth"]},
-    {title:"Stützenraster",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]}]},
+    {title:"Stützenraster",result:"columns",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]},
+    {title:"Zusatzflächen",result:"extra",sub:"Technik, Sozialräume, Büro",items:["volume.operationalArea"]}]},
   {id:"vol",title:"Volumen & Puffer",intro:["Bemessungsgrößen","Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf."],sections:[
-    {title:"Bestand",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety"]},
-    {title:"Wachstum",sub:"Planungshorizont",items:["volume.planningYears","volume.growthRate","volume.skuGrowthRate"]},
-    {title:"Kapazitätsfaktoren",sub:"Reserve, Sperrung und Füllgrad",items:["volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
-    {id:"sec-buffer",title:"WE-Puffer",sub:"Durchsatzbezogene Bemessung",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor","volume.peakHourShare","volume.weShare","volume.simultaneity"]},
-    {title:"Transit- und Cross-Dock-Puffer",sub:"Nur bei separater Pufferfläche",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal","volume.operationalArea"]},
-    {title:"Leergut",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
+    {title:"Bestand",result:"stock",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety"]},
+    {title:"Wachstum",result:"growth",sub:"Planungshorizont",items:["volume.planningYears","volume.growthRate","volume.skuGrowthRate"]},
+    {title:"Kapazitätsfaktoren",result:"capacity",sub:"Reserve, Sperrung und Füllgrad",items:["volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
+    {id:"sec-buffer",title:"WE-Puffer",result:"buffer",sub:"Bemessung der Pufferfläche in den WE-Zonen",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor"]},
+    {title:"Durchsatzprofil",result:"profile",sub:"Spitzenstunde · Kennzahl, ohne Flächenwirkung",items:["volume.peakHourShare","volume.weShare","volume.simultaneity"]},
+    {title:"Transit- und Cross-Dock-Puffer",result:"transit",sub:"Separate Pufferfläche für durchlaufende Ware",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal"]},
+    {title:"Leergut",result:"empty",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
       items:["empty.on","empty.mode","empty.value","empty.stack","empty.reserve"]}]},
   {id:"ffz",title:"Lagertechnik",tip:"Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen.",
     intro:["Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis."],sections:[
     {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
-    {title:"Arbeitsgänge",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
-    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]}]},
+    {title:"Arbeitsgänge",result:"aisles",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
+    {title:"Regalsystem",result:"rack",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
+    {title:"Fluchttunnel",result:"tunnels",sub:"Fluchtwege durch die Regalreihen",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
   {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
     intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
-    {title:"Zuordnungsmodell",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
-    {title:"Kanalgeometrie",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient"]}]},
-  {id:"fir",title:"Sicherheit & Abstände",intro:["Vorgaben und Nachweise","Geometrische Sicherheitsvorgaben werden erfasst. Statik und Brandschutz bleiben Fachnachweise."],sections:[
-    {title:"Brandschutz",sub:"Sprinkler-Freiraum steht in der Höhenkette (Gebäude & Flächen)",items:["fire.inRack"]},
-    {title:"Fluchtwege",sub:"Vorplanungswerte",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
+    {title:"Zuordnungsmodell",result:"blockshare",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
+    {title:"Kanalgeometrie",result:"channels",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient"]}]},
   {id:"cost",title:"Kosten & Optionen",intro:["Preis- und Kalkulationsbasis","Die Mengenermittlung steht im Register Stückliste & CAPEX. Hier werden Preisstand, Quelle, Unsicherheit und Einrechnungsoptionen gepflegt."],sections:[
-    {title:"Hallenkosten",sub:"Betrieb",items:["building.rent"]},
-    {title:"Preisbasis",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
+    {title:"Hallenkosten",result:"rent",sub:"Betrieb",items:["building.rent"]},
+    {title:"Preisbasis",result:"prices",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.sourceKind","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
     {title:"Einrechnungsoptionen",sub:"Wirkung auf die Stückliste",items:["bom.pushThrough","bom.grating","bom.demount"],
-      after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Register <b>Stückliste &amp; CAPEX</b>.</p>'}]}
+      after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen stehen im Register Stückliste &amp; CAPEX. <button type="button" class="btn btn-quiet" data-goto="5">Einheitspreise bearbeiten →</button></p>'}]}
 ];
 const tipHtml=t=>t?' <span class="tt" data-tip="'+escH(t)+'" tabindex="0">ⓘ</span>':'';
 // Vorgabenfeld mit Statusspalte (geändert, Standard, Quelle) und Wirkungstext beim Bearbeiten
@@ -2111,7 +2229,7 @@ function renderParamForm(){
         if(typeof it==="string"){const d=PARAM_BY_PATH.get(it);if(!d)throw new Error("Parameter fehlt im Schema: "+it);h+=paramFieldHtml(d);}
         else if(it.output)h+='<div class="fld"><label>'+escH(it.label)+'</label><span class="val calc" id="'+it.output+'" style="grid-column: 2/4; justify-self: end">–</span></div>';
       }
-      h+='</div>'+(sec.after||'')+'</section>';
+      h+='</div>'+(sec.result?'<p class="sec-result" data-result="'+sec.result+'"></p>':'')+(sec.after||'')+'</section>';
     }
     host.innerHTML=h;
   }
@@ -2199,7 +2317,7 @@ function pushUndoRaw(label,snapObj){
   if(UNDO.length>UNDO_MAX)UNDO.shift();
   updateUndoBtn();
 }
-let UNDO_FOCUS_SNAP=null,UNDO_FOCUS_LABEL="";
+let UNDO_FOCUS_SNAP=null,UNDO_FOCUS_LABEL="",UNDO_FOCUS_EL=null;
 function bindFieldUndoTracking(){
   document.addEventListener("focusin",e=>{
     const t=e.target;
@@ -2208,11 +2326,13 @@ function bindFieldUndoTracking(){
     try{UNDO_FOCUS_SNAP=JSON.stringify(S);}catch(err){UNDO_FOCUS_SNAP=null;return;}
     const nm=t.id||t.getAttribute("data-bind")||t.type||"Feld";
     UNDO_FOCUS_LABEL="Feldänderung ("+nm+")";
+    UNDO_FOCUS_EL=t;
   });
   document.addEventListener("change",e=>{
     const t=e.target;
     if(!t||!t.matches||!t.matches("input,select,textarea"))return;
-    if(!t.closest||!t.closest("#panels"))return;
+    // Stammdaten-Tabellen bauen sich beim Ändern neu auf; das Feld ist dann schon aus dem Dokument entfernt
+    if(t!==UNDO_FOCUS_EL&&(!t.closest||!t.closest("#panels")))return;
     if(UNDO_FOCUS_SNAP===null)return;
     let now=null;
     try{now=JSON.stringify(S);}catch(err){}
@@ -2259,12 +2379,12 @@ function renderPalletMD(){
   }
   html+='</tbody></table>';
   html+='<div class="lhmform">'+
-    '<input id="lhm-f-name" type="text" placeholder="Bezeichnung" aria-label="Bezeichnung" maxlength="40">'+
-    '<input id="lhm-f-l" type="number" placeholder="Länge mm" aria-label="Länge mm" min="200" max="3000" step="10">'+
-    '<input id="lhm-f-b" type="number" placeholder="Breite mm" aria-label="Breite mm" min="200" max="3000" step="10">'+
-    '<input id="lhm-f-h" type="number" placeholder="Höhe mm" aria-label="Höhe mm" min="100" max="3000" step="10">'+
-    '<input id="lhm-f-g" type="number" placeholder="Gewicht kg" aria-label="Gewicht kg" min="0" max="100000" step="10">'+
-    '<input id="lhm-f-s" type="number" placeholder="Stapel x (1+x)" aria-label="Stapel x (1+x)" min="0" max="11" step="1" title="x des Referenz-Stapelfaktors in der Notation 1+x (x zusätzliche Paletten auf der untersten Palette)">'+
+    '<label class="mf wide"><span>Bezeichnung</span><input id="lhm-f-name" type="text" aria-label="Bezeichnung" maxlength="40"></label>'+
+    '<label class="mf"><span>Länge mm</span><input id="lhm-f-l" type="number" aria-label="Länge mm" min="200" max="3000" step="10"></label>'+
+    '<label class="mf"><span>Breite mm</span><input id="lhm-f-b" type="number" aria-label="Breite mm" min="200" max="3000" step="10"></label>'+
+    '<label class="mf"><span>Höhe mm</span><input id="lhm-f-h" type="number" aria-label="Höhe mm" min="100" max="3000" step="10"></label>'+
+    '<label class="mf"><span>Gewicht kg</span><input id="lhm-f-g" type="number" aria-label="Gewicht kg" min="0" max="100000" step="10"></label>'+
+    '<label class="mf"><span>Stapel x (1+x)</span><input id="lhm-f-s" type="number" aria-label="Stapel x (1+x)" min="0" max="11" step="1" title="x des Referenz-Stapelfaktors in der Notation 1+x (x zusätzliche Paletten auf der untersten Palette)"></label>'+
     '<button class="btn acc" id="btn-lhm-add">Hinzufügen</button>'+
     '</div>';
   box.innerHTML=html;
@@ -2372,6 +2492,19 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.26",date:"28.10.2026",items:[
+    "Vorgaben neu gegliedert: Durchsatzprofil (Spitzenstunde, WE-Anteil, Gleichzeitigkeit WE/WA) als eigener Abschnitt neben dem WE-Puffer; Betriebsflächen als Zusatzflächen unter Gebäude; der Bereich Brandschutz und Sicherheit entfällt – Sprinkler-Freiraum und In-Rack-Sprinklerung stehen in der Höhenkette, Fluchttunnel unter Lagertechnik.",
+    "Preisquelle als Auswahl (Richtpreis/Katalog, Angebot, Rahmenvertrag); sie allein bestimmt die Datenqualität, die Notiz dient nur der Dokumentation. Ältere Planungsdateien mit Freitext-Quelle werden als Angebot übernommen.",
+    "Ergebniszeile je Abschnitt: unter Bestand, WE-Puffer, Regal, Blocklager, ABC-Verteilung, Gängen und weiteren Abschnitten steht, was die Eingaben im aktuellen Stand bewirken (etwa Netto-Bestand, Feldweite, Plätze, Kanalzahl und -länge).",
+    "Wirkungstext für jedes Vorgabenfeld.",
+    "Feldweite: Auswahl automatisch oder fest; im Automatikmodus zeigt das Feld die ermittelte Feldweite.",
+    "LKW-Stammdaten lassen sich wie Palettenstammdaten je Projekt überschreiben und mit ↺ zurücksetzen; Grenzen werden beim Import geprüft. Die Kreuztabelle markiert die im Mengengerüst genutzten Kombinationen.",
+    "Anlegeformulare für Paletten und LKW mit sichtbaren Beschriftungen; Sprung von den Kosten zu den Einheitspreisen.",
+    "Rückgängig erfasst nun auch Änderungen an Paletten- und LKW-Stammwerten (die Tabelle baute sich beim Ändern neu auf, der Schritt ging verloren).",
+    "CSV-Import: In ganzzahligen Spalten (Artikel, Maße, Gewicht, Paletten/Tag, Stück, KLT, Ziel-Bestand) gilt „1.200“ als Tausendertrennung wie beim Einfügen aus Excel; leere Zellen bei Ermittlung und Datenbasis übernehmen den Standard statt die Datei abzuweisen.",
+    "Hilfe, FAQ und Handbuch auf den aktuellen Stand gebracht (Startseite, drei Optimierungsziele, Greenfield-Proportion, Mengengerüst mit Detailfeld und Einfügen aus Excel, Szenarien mit Namen, Rückgängig, Gliederung der Vorgaben).",
+    "Testdateien im Ordner testdaten: Planungsdatei, Eingabedatei und CSV mit allen Bedarfsarten, Paletten- und LKW-Typen, eigenen Stammdaten, Überschreibungen, Quellen und drei Szenarien."
+  ]},
   {v:"V2.25",date:"28.10.2026",items:[
     "Startseite: Einstiege (aus Excel einfügen, Planungsdatei öffnen, CSV, Beispielprojekt) und ein Fortschritt mit vier Schritten (Positionen, Halle, Annahmen belegt, Ergebnis), jeweils mit Sprung ins zuständige Register.",
     "Beispielprojekt: sechs Positionen mit allen Bedarfsarten, Greenfield-Halle aus dem Bedarf, dokumentierte Quellen; rückgängig machbar.",
@@ -2987,6 +3120,21 @@ function validateLhmOverrides(dict,label){
     }
   }
 }
+// Grenzen der LKW-Überschreibungen (Laderaum in m, Nutzlast in kg)
+const TRUCK_OV_LIMITS={fl:[3,30,"Laderaumlänge","m"],fw:[1.5,3.5,"Laderaumbreite","m"],fh:[1.8,4.5,"Innenhöhe","m"],layers:[1,3,"Lagen",""],payload:[500,60000,"Nutzlast","kg"]};
+function validateTruckOverrides(dict,label){
+  validateKeyedDictionary(dict,label);
+  for(const [key,entry] of Object.entries(dict||{})){
+    if(!TRUCKS[key])throw new Error(label+": unbekannter LKW-Typ "+key+".");
+    for(const field of Object.keys(entry)){
+      const lim=TRUCK_OV_LIMITS[field];
+      if(!lim)throw new Error(label+", "+key+": unbekanntes Überschreibungsfeld "+field+".");
+      const value=entry[field];
+      if(typeof value!=="number"||!Number.isFinite(value))throw new Error(label+", "+key+"."+field+" muss eine endliche Zahl sein.");
+      if(value<lim[0]||value>lim[1])throw new Error(label+", "+key+": "+lim[2]+" muss zwischen "+fmt(lim[0],1)+" und "+fmt(lim[1],1)+" "+lim[3]+" liegen.");
+    }
+  }
+}
 function validatePlannerStateFields(obj,label){
   if(obj.costMeta!=null&&!isPlainObject(obj.costMeta))throw new Error(label+".costMeta muss ein Objekt sein.");
   // Typen und Auswahlwerte aus dem Parameterschema; Bereichsgrenzen repariert repairParamRanges beim Übernehmen
@@ -3027,7 +3175,7 @@ function validateImportedPayload(obj,kind,depth){
   if(depth>4)throw new Error("Die Importstruktur enthält zu viele verschachtelte Szenarien.");
   if(!isPlainObject(obj))throw new Error("Die Datei muss ein JSON-Objekt oder eine JSON-Datenzuweisung enthalten.");
   assertSafeImportTree(obj,0);
-  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","costMeta"];
+  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta"];
   for(const key of objectKeys)if(obj[key]!=null&&!isPlainObject(obj[key]))throw new Error(key+" muss ein Objekt sein.");
   if(obj.meta){
     for(const key of ["name","kunde","projekt","stand"]){
@@ -3036,12 +3184,13 @@ function validateImportedPayload(obj,kind,depth){
   }
   validateParameterSources(obj.parameterSources);
   const parm=obj.parameter||{};
-  for(const key of ["building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides"]){
+  for(const key of ["building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides"]){
     if(parm[key]!=null&&!isPlainObject(parm[key]))throw new Error("parameter."+key+" muss ein Objekt sein.");
   }
   validateLhmDictionary(obj.customLhm||parm.customLhm,"Eigene Palettentypen");
   validateTruckDictionary(obj.customTrucks||parm.customTrucks,"Eigene LKW-Typen");
   validateLhmOverrides(obj.lhmOverrides||parm.lhmOverrides,"Palettenüberschreibungen");
+  validateTruckOverrides(obj.truckOverrides||parm.truckOverrides,"LKW-Überschreibungen");
   if(kind==="input"){
     if(!Array.isArray(obj.positionen))throw new Error("Eingabedatei enthält keine Positionsliste (positionen).");
     validatePositionArray(obj.positionen,"Eingabedatei");
@@ -3592,13 +3741,14 @@ function computeModelCore(){
   const transitPal=Math.round(transitDay*trV);
   const transitA=(S.volume.transitBufferOn&&transitPal>0)?transitPal*(S.volume.transitDays||0.5)*(S.volume.transitAreaPerPal||1.5)*1e6:0;
 
-  let effectiveWeDepth=Math.max(0,Number(S.building.weDepth)||0);
+  let effectiveWeDepth=Math.max(0,Number(S.building.weDepth)||0),weBuffer=null;
   if(S.volume.bufferMode==="process"){
     const pbuf=Math.max(0,Number(S.volume.bufferTrucks)||0)*Math.max(0,Number(S.volume.bufferPallets)||0)*Math.max(0,Number(S.volume.bufferDwell)||0);
     const palA=(getLhm(S.lhmDefault).l*getLhm(S.lhmDefault).b)/1e6;
     const reqA=pbuf*palA*Math.max(1,Number(S.volume.bufferFactor)||1);
     const weWallLength=Math.max(0.001,effectiveWeWallLengthM());
     effectiveWeDepth=Math.max(effectiveWeDepth,reqA/weWallLength);
+    weBuffer={pallets:pbuf,area:reqA,depth:effectiveWeDepth};
     warn.push({t:"WE-Puffer prozessbezogen: "+fmt(pbuf)+" Paletten bzw. "+fmt(reqA,1)+" m² Bemessungsfläche; wirksame WE-Zonentiefe "+fmt(effectiveWeDepth,2)+" m.",sev:false});
   }
   const geo=computeLayout(rack,block,grossRackNeed,warn,emptyCount,transitA,effectiveWeDepth);
@@ -3630,7 +3780,7 @@ function computeModelCore(){
       beforeRemovalRackCapacity:geo?geo.rackCapacityPlanned:0,plannedRackCapacity:geo?geo.capacity:0,availableRackCapacity:geo?geo.capacity:0,
       frames:bom.filter(x=>x.key==="frame").reduce((n,x)=>n+x.qty,0),
       beamPairs:bom.filter(x=>x.key==="beamPair").reduce((n,x)=>n+x.qty,0)};
-    return {bomAudit,netTotal,grossRackNeed,grossBlockNeed,rack,block,geo,bom,warn,emptyCount,trucksTotal,peakPalletsHour,peakWeHour,peakWaHour,growthFactor,skuGrowthFactor,calculatedItems:JSON.parse(JSON.stringify(S.items))};
+    return {weBuffer,bomAudit,netTotal,grossRackNeed,grossBlockNeed,rack,block,geo,bom,warn,emptyCount,trucksTotal,peakPalletsHour,peakWeHour,peakWaHour,growthFactor,skuGrowthFactor,calculatedItems:JSON.parse(JSON.stringify(S.items))};
 }
 function computeModel(){
   const originalS=S;
@@ -3699,7 +3849,7 @@ function recalc(){
   /* KPIs */
   const basisScores=S.items.length?S.items.map(i=>i.dataBasis==="customer"?100:60):[0];
   const itemQuality=basisScores.reduce((a,b)=>a+b,0)/basisScores.length;
-  const priceQuality=S.costMeta&&S.costMeta.source&&S.costMeta.source!=="Richtpreis"?80:40;
+  const priceQuality=S.costMeta&&S.costMeta.sourceKind&&S.costMeta.sourceKind!=="richtpreis"?80:40;
   const dq=Math.round(itemQuality*.45+((S.building.L>0&&S.building.W>0&&S.building.ukb>0)?100:30)*.25+priceQuality*.15+((S.ffz.liftHeight>0)?100:30)*.15);
   const dqClass=dq>=85?"A":(dq>=65?"B":"C");
   const dqEl=$("kpi-dataquality"); if(dqEl)dqEl.textContent=dq+" % · Klasse "+dqClass;
@@ -3811,6 +3961,7 @@ function recalc(){
 
   updateTotals();
   updateStartProgress(); // nach der Ampel, deren Text der Fortschritt übernimmt
+  updateSectionResults();
   for(const n of Object.keys(PANEL_RENDERERS))STALE_PANELS.add(n);
   const renderErrors=renderVisiblePanels();
   if(renderErrors.length)showRenderErrors(renderErrors);
@@ -4527,11 +4678,8 @@ function pasteItems(){
   // Ermittlungsart aus der ersten zugeordneten Bedarfsspalte, falls keine eigene Spalte
   const implied=keys.includes("demand")?null:keys.includes("trucks")?"LKW":keys.includes("palletsDay")?"Paletten":keys.includes("pcsDay")?"Stück":keys.includes("targetStock")?"Bestand":null;
   const q=v=>'"'+String(v==null?"":v).trim().replace(/"/g,'""')+'"';
-  // Ganzzahlige Felder: „1.200“ aus deutschem Excel ist Tausendertrennung, nicht 1,2
-  const whole=new Set(["skus","l","b","h","g","palletsDay","pcsDay","pcsPerKlt","targetStock"]);
-  const cell=(k,v)=>whole.has(k)&&/^\s*-?\d{1,3}(\.\d{3})+\s*$/.test(String(v||""))?String(v).replace(/\./g,""):v;
   const head=cols.map(([k])=>CSV_STD_HEAD[k]||CSV_ALIASES[k][0]).concat(implied?["ermittlung"]:[]);
-  const lines=[head.map(q).join(";")].concat(data.map(r=>cols.map(([k,i])=>cell(k,r[i])).concat(implied?[implied]:[]).map(q).join(";")));
+  const lines=[head.map(q).join(";")].concat(data.map(r=>cols.map(([k,i])=>r[i]).concat(implied?[implied]:[]).map(q).join(";")));
   return parseCsv(lines.join("\n"));
 }
 function renderPasteMap(){
@@ -6223,8 +6371,9 @@ function applyInputFile(inp,isInit){
       if(inp.parameter.customLhm)next.customLhm=deepMerge({},inp.parameter.customLhm);
       if(inp.parameter.customTrucks)next.customTrucks=deepMerge({},inp.parameter.customTrucks);
       if(inp.parameter.lhmOverrides)next.lhmOverrides=deepMerge({},inp.parameter.lhmOverrides);
+      if(inp.parameter.truckOverrides)next.truckOverrides=deepMerge({},inp.parameter.truckOverrides);
     }
-    for(const key of ["customLhm","customTrucks","lhmOverrides"]){
+    for(const key of ["customLhm","customTrucks","lhmOverrides","truckOverrides"]){
       if(inp[key]&&isPlainObject(inp[key]))next[key]=deepMerge({},inp[key]);
     }
     if(inp.lhmDefault)next.lhmDefault=String(inp.lhmDefault);
@@ -6268,7 +6417,7 @@ function exportInputFile(){
     meta:{projekt:S.meta.name,kunde:S.meta.kunde,stand:new Date().toISOString().slice(0,10)},
     parameterSources:S.parameterSources||{},
     parameter:{building:S.building,volume:S.volume,block:S.block,ffz:S.ffz,fire:S.fire,empty:S.empty,prices:S.prices,bom:S.bom,costMeta:S.costMeta,lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides},
-    lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides,bom:S.bom,
+    lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides,truckOverrides:S.truckOverrides,bom:S.bom,
     positionen:S.items
   };
   const js="window.TENDER_INPUT = "+JSON.stringify(data,null,2)+";";
@@ -6381,6 +6530,7 @@ const CSV_ALIASES={
   blockShare:["block"],
   dataBasis:["datenbasis","datenquelle","quelle"]
 };
+const CSV_WHOLE_FIELDS=["skus","l","b","h","g","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock"];
 // Eindeutiger Spaltenname je Feld für den Einfügedialog (wird über CSV_ALIASES exakt erkannt)
 const CSV_STD_HEAD={skus:"artikel",pcsPerKlt:"stück je klt",kltPerPallet:"klt je palette"};
 function parseCsv(text){
@@ -6422,8 +6572,11 @@ function parseCsv(text){
     return Number(normalized);
   };
   let sourceRow=0;
+  // Ganzzahlige Felder: „1.200“ aus deutschem Excel ist Tausendertrennung, nicht 1,2
+  const wholeCols=new Set(CSV_WHOLE_FIELDS.map(k=>map[k]).filter(col=>col>=0));
+  const thousands=(col,raw)=>wholeCols.has(col)&&/^\s*-?\d{1,3}(\.\d{3})+\s*$/.test(String(raw))?String(raw).replace(/\./g,""):raw;
   // Leere Zelle: Standardwert der Position
-  const fnum=(row,col,fb)=>col<0||String(row[col]==null?"":row[col]).trim()===""?fb:numeric(row[col],sourceRow,head[col]);
+  const fnum=(row,col,fb)=>col<0||String(row[col]==null?"":row[col]).trim()===""?fb:numeric(thousands(col,row[col]),sourceRow,head[col]);
   const out=[];const csvWarnings=[];
   for(let i=1;i<rows.length;i++){
     sourceRow=rows[i].sourceLine||i+1;
@@ -6431,7 +6584,7 @@ function parseCsv(text){
     const c=rows[i].map(x=>String(x).trim());
     const it=newItem();
     if(map.name>=0&&c[map.name])it.name=c[map.name];
-    if(map.demand>=0){const k=String(c[map.demand]||"").toLowerCase();
+    if(map.demand>=0&&String(c[map.demand]||"").trim()){const k=String(c[map.demand]||"").toLowerCase();
       if(k.includes("stück")||k.includes("stueck")||k.includes("piece"))it.demand="pieces";
       else if(k.includes("bestand")||k.includes("stock"))it.demand="stock";
       else if(k.includes("palette")||k.includes("pallet"))it.demand="pallets";
@@ -6455,7 +6608,7 @@ function parseCsv(text){
     it.kltPerPallet=fnum(c,map.kltPerPallet,it.kltPerPallet);
     it.targetStock=fnum(c,map.targetStock,it.targetStock);
     if(map.blockShare>=0)it.blockShare=fnum(c,map.blockShare,0);
-    if(map.dataBasis>=0){const k=String(c[map.dataBasis]||"").toLowerCase();
+    if(map.dataBasis>=0&&String(c[map.dataBasis]||"").trim()){const k=String(c[map.dataBasis]||"").toLowerCase();
       if(k.includes("kunde")||k==="customer")it.dataBasis="customer";
       else if(k.includes("annahme")||k==="assumption")it.dataBasis="assumption";
       else throw new Error("CSV, Zeile "+sourceRow+", Feld Datenbasis, Originalwert "+JSON.stringify(c[map.dataBasis])+": unbekannte Datenbasis.");
@@ -6926,6 +7079,46 @@ window.addEventListener("resize",updateKpiToggle);
       window.openAccessibleModal=openModal;window.closeAccessibleModal=closeModal;
       document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;const m=document.querySelector(".modal.on");if(m){e.preventDefault();closeModal(m.id);}});
     }
+// Ergebniszeile je Vorgabenabschnitt: was die Eingaben im aktuellen Stand bewirken
+const m2=a=>fmt((a||0)/1e6)+" m²";
+const SECTION_RESULTS={
+  hall:(r,g)=>g?"Halle "+fmt(g.L/1000,1)+" × "+fmt(g.W/1000,1)+" m = "+m2(g.area.hall)+" · Brutto-Lagerfläche "+m2(g.area.brutto)+" ("+fmt(g.area.brutto/g.area.hall*100)+" % belegt)":"",
+  zones:(r,g)=>g?"WE-/WA-Zonen zusammen "+m2(g.area.zone)+(S.volume.bufferMode==="process"&&r.weBuffer?" · wirksame WE-Zonentiefe "+fmt(r.weBuffer.depth,1)+" m":""):"",
+  columns:(r,g)=>{if(!g)return "";const hit=(g.cols||[]).filter(c=>c.hit>0).length;return fmt((g.cols||[]).length)+" Stützen in der Lagerfläche, davon "+fmt(hit)+" in Gängen oder Lagerplätzen"+(g.columnsAdvisory?" (Greenfield: nur Hinweis)":"");},
+  extra:(r,g)=>g&&g.area.operational>0?"Zusatzfläche "+m2(g.area.operational)+" in der Brutto-Lagerfläche":"Keine Zusatzfläche eingeplant",
+  stock:r=>r.netTotal?"Netto-Bestand "+fmt(r.netTotal)+" Pal. · Brutto Regal "+fmt(r.grossRackNeed)+" Plätze, Block "+fmt(r.grossBlockNeed)+" Plätze":"Noch kein Bestand – Positionen im Mengengerüst erfassen",
+  growth:r=>"Faktor Menge × "+fmt(r.growthFactor||1,2)+" · Artikel × "+fmt(r.skuGrowthFactor||1,2),
+  capacity:r=>"Brutto-Plätze gesamt "+fmt((r.grossRackNeed||0)+(r.grossBlockNeed||0))+" (Regal "+fmt(r.grossRackNeed)+", Block "+fmt(r.grossBlockNeed)+")",
+  buffer:r=>S.volume.bufferMode==="process"&&r.weBuffer?fmt(r.weBuffer.pallets)+" Pufferpaletten → "+fmt(r.weBuffer.area,1)+" m² · WE-Zonentiefe "+fmt(r.weBuffer.depth,1)+" m":"Geometrisch: WE-Zonentiefe "+fmt(S.building.weDepth,1)+" m (Gebäude & Flächen)",
+  profile:r=>"Spitzenstunde: WE "+fmt(r.peakWeHour,1)+" Pal./h · WA "+fmt(r.peakWaHour,1)+" Pal./h",
+  transit:(r,g)=>g&&g.area.transit>0?"Transitpuffer "+m2(g.area.transit):"Kein separater Transitpuffer",
+  empty:(r,g)=>S.empty.on?fmt(r.emptyCount)+" Leerpaletten · Leergutband "+m2(g&&g.area.leergut):"Kein Leergutbereich eingeplant",
+  aisles:(r,g)=>{const ffz=k=>Math.max(...(S.ffz[k]||[]).map(t=>FFZ[t]?FFZ[t].aisle:0),0);return "Aus FFZ: Regal "+fmt(ffz("rackFFZ"),1)+" m, Block "+fmt(ffz("blockFFZ"),1)+" m"+(g?" · Gangfläche Regal "+m2(g.area.rackAisle)+", Block "+m2(g.area.blockAisle):"");},
+  rack:(r,g)=>r.rack&&g?"Feldweite "+fmt(r.rack.fieldW)+" mm ("+r.rack.ppf+" Pal./Feld) · "+r.rack.levels+" Ebenen · "+g.nDouble+" Doppelreihen"+(g.nSingles?" + "+g.nSingles+" Einzelreihen":"")+" · "+fmt(g.capacity)+" Plätze":"Kein Regallager im aktuellen Stand",
+  tunnels:(r,g)=>!(S.fire.tunnelInterval>0)?"Keine Fluchttunnel":(r.rack&&g?fmt(g.tunnelsPerRow)+" Tunnelfeld"+(g.tunnelsPerRow===1?"":"er")+" je Reihe (Abstand "+fmt(S.fire.tunnelInterval)+" m)":""),
+  blockshare:r=>{const n=r.netTotal||0,b=S.items.reduce((a,i)=>a+(i.blockNet||0),0),c=Math.max(0,100-(S.block.aVol||0)-(S.block.bVol||0));return (n?"Blocklager "+fmt(b/n*100)+" % des Netto-Bestands ("+fmt(b)+" Pal.)":"Noch kein Bestand")+(S.block.mode==="sku"?" · ABC: A "+fmt(S.block.aVol)+" %, B "+fmt(S.block.bVol)+" %, C "+fmt(c)+" %":"");},
+  channels:(r,g)=>r.block?fmt(r.block.nL)+" Kanäle"+(g?" in "+g.bands+" Bändern":"")+" · Kanallänge ≈ "+fmt(S.block.channelDepth*r.block.laneUnit/1000,1)+" m · bis "+fmt(r.block.capChannel)+" Pal. je Kanal":"Kein Blocklager im aktuellen Stand",
+  rent:(r,g)=>S.building.rent>0&&g?"Miete "+eur(S.building.rent*g.area.hall/1e6)+" je Monat · "+eur(S.building.rent*g.area.hall/1e6*12)+" je Jahr":"Keine Miete ausgewiesen",
+  prices:r=>{const c=r.capex;if(!c)return "";return "CAPEX "+eur(c.total)+" · Preissteigerung × "+fmt(c.escalation||1,3)+" · Nebenkosten "+eur(c.overhead||0)+" · Bandbreite ± "+fmt(Number(S.costMeta.uncertainty)||0)+" %";}
+};
+// Feldweite: im Automatikmodus gesperrt, zeigt den ermittelten Wert
+function updateFieldWidthControl(){
+  const el=$("in-fieldWidth"),lab=$("lbl-fieldw-mode");if(!el)return;
+  const auto=S.ffz.fieldMode!=="fix";
+  el.disabled=auto;
+  if(auto&&document.activeElement!==el)el.value=R&&R.rack?R.rack.fieldW:"";
+  else if(!auto&&document.activeElement!==el)el.value=S.ffz.fieldWidth;
+  if(lab)lab.textContent=auto?"– automatisch ermittelt":"";
+}
+function updateSectionResults(){
+  updateFieldWidthControl();
+  const g=R&&R.geo;
+  for(const el of document.querySelectorAll(".sec-result[data-result]")){
+    const fn=SECTION_RESULTS[el.dataset.result];let t="";
+    try{t=fn?fn(R||{},g):"";}catch(e){t="";}
+    el.textContent=t?"→ "+t:"";el.hidden=!t;
+  }
+}
 // Startseite: Planungsfortschritt aus dem aktuellen Stand
 function updateStartProgress(){
   const ol=$("start-progress");if(!ol)return;
