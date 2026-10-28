@@ -233,6 +233,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 /* Szenarien: Namen und Abweichungen zum aktuellen Stand */
 .scengrp input.scen-name{width:150px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12px}
 #scen-body td.diff{font-weight:700;color:#1d4ed8}
+.sec-result{margin:8px 0 0;padding:6px 10px;border-radius:8px;background:#f0f9ff;color:#0c4a6e;font-size:12px;line-height:1.4}
 .side-table{width:auto;margin:2px 0 8px auto;border-collapse:collapse;font-size:12px}
 .side-table th,.side-table td{padding:3px 10px;text-align:center;border-bottom:1px solid var(--line)}
 .side-table thead th{font-size:11px;font-weight:600;color:var(--mut);text-transform:none}
@@ -2032,34 +2033,34 @@ function validateParamTypes(obj,label){
 /* Gliederung der Vorgaben: Bereiche (Unterregister) und Abschnitte. Stammdaten (pal) bleiben statisches Markup. */
 const PARAM_LAYOUT=[
   {id:"gbp",title:"Gebäude & Flächen",intro:["Baulicher Rahmen","Hallenmaße, Höhenkette, Tore, Zonen und Stützenraster beschreiben die Halle. Mengen- und Durchsatzannahmen stehen unter Volumen & Puffer."],sections:[
-    {title:"Halle",sub:"Länge, Breite und Unterkante Binder",items:["building.mode","building.L","building.W","building.ukb","building.gfShape","building.ratioMin","building.ratioMax","building.maxL","building.maxW",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"}]},
+    {title:"Halle",result:"hall",sub:"Länge, Breite und Unterkante Binder",items:["building.mode","building.L","building.W","building.ukb","building.gfShape","building.ratioMin","building.ratioMax","building.maxL","building.maxW",{output:"out-dim",label:"Berechnete Halle (Greenfield)",visibleIf:s=>s.building.mode==="greenfield"}]},
     {title:"Höhenkette",sub:"Gebäude, Sprinkler, Stapler und Lagergut begrenzen unabhängig",items:["fire.sprinkler","fire.inRack","ffz.liftHeight","ffz.liftReserve","block.maxTop"],after:'<div class="height-balance" id="height-balance"></div>'},
-    {title:"Tore und Zonen",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
+    {title:"Tore und Zonen",result:"zones",sub:"Bauliche Anordnung",tip:"Zonen sind unabhängig von der Regalausrichtung. Je Himmelsrichtung sind WE und WA einzeln oder gemeinsam zuschaltbar. Bei einer Kombination liegen WE und WA nebeneinander an derselben Wandlinie (je halbe Wandlänge); die Zonentiefe der Seite entspricht dem größeren der beiden Einzelwerte, nicht der Summe. Nord- und Südzonen mindern die verfügbare Regalfläche, Ost- und Westzonen verkürzen die nutzbare Regallänge. Standard: WE im Norden, WA im Süden.",
       items:["building.zones","building.weDepth","building.waDepth"]},
-    {title:"Stützenraster",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]},
-    {title:"Zusatzflächen",sub:"Technik, Sozialräume, Büro",items:["volume.operationalArea"]}]},
+    {title:"Stützenraster",result:"columns",sub:"Bestand: harte Vorgabe · Greenfield: Hinweis",items:["building.gridX","building.gridY"]},
+    {title:"Zusatzflächen",result:"extra",sub:"Technik, Sozialräume, Büro",items:["volume.operationalArea"]}]},
   {id:"vol",title:"Volumen & Puffer",intro:["Bemessungsgrößen","Bestand, Auslastung und zeitbezogene Puffer bestimmen den erforderlichen Flächen- und Kapazitätsbedarf."],sections:[
-    {title:"Bestand",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety"]},
-    {title:"Wachstum",sub:"Planungshorizont",items:["volume.planningYears","volume.growthRate","volume.skuGrowthRate"]},
-    {title:"Kapazitätsfaktoren",sub:"Reserve, Sperrung und Füllgrad",items:["volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
-    {id:"sec-buffer",title:"WE-Puffer",sub:"Bemessung der Pufferfläche in den WE-Zonen",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor"]},
-    {title:"Durchsatzprofil",sub:"Spitzenstunde · Kennzahl, ohne Flächenwirkung",items:["volume.peakHourShare","volume.weShare","volume.simultaneity"]},
-    {title:"Transit- und Cross-Dock-Puffer",sub:"Separate Pufferfläche für durchlaufende Ware",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal"]},
-    {title:"Leergut",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
+    {title:"Bestand",result:"stock",sub:"Menge und Reichweite",items:["volume.range","volume.peak","volume.safety"]},
+    {title:"Wachstum",result:"growth",sub:"Planungshorizont",items:["volume.planningYears","volume.growthRate","volume.skuGrowthRate"]},
+    {title:"Kapazitätsfaktoren",result:"capacity",sub:"Reserve, Sperrung und Füllgrad",items:["volume.strategicReserve","volume.blockedPlaces","volume.fillRack","volume.fillBlock"]},
+    {id:"sec-buffer",title:"WE-Puffer",result:"buffer",sub:"Bemessung der Pufferfläche in den WE-Zonen",items:["volume.bufferMode","volume.bufferTrucks","volume.bufferPallets","volume.bufferDwell","volume.bufferFactor"]},
+    {title:"Durchsatzprofil",result:"profile",sub:"Spitzenstunde · Kennzahl, ohne Flächenwirkung",items:["volume.peakHourShare","volume.weShare","volume.simultaneity"]},
+    {title:"Transit- und Cross-Dock-Puffer",result:"transit",sub:"Separate Pufferfläche für durchlaufende Ware",items:["volume.transit","volume.transitBufferOn","volume.transitDays","volume.transitAreaPerPal"]},
+    {title:"Leergut",result:"empty",sub:"Verdichtete Bodenstapelung",tip:"Der Leergutbereich nimmt Leerpaletten in verdichteter Bodenstapelung auf: kein Regal, keine Kanäle, hohe Stapel bei geringer Fläche. Grundmaß ist die Standardpalette. Die Stapelhöhe 1+x gilt für Leerpaletten ohne Ladung. Die Zugangsreserve (Standard 20 Prozent) deckt Bedien- und Brandschutzabstände. KLT-Leergut ist als Palettenäquivalent einzugeben. Der Bereich wird als Band zwischen Blocklager und Regalzone geführt, geht in die Flächenbedarfsrechnung und in die Greenfield-Breite ein; er erhöht keine Lagerkapazität. Brandschutzanforderungen an Leergutstapel (etwa Höhenbegrenzung) sind ein Auslegungsmerkmal der Fachplanung.",
       items:["empty.on","empty.mode","empty.value","empty.stack","empty.reserve"]}]},
   {id:"ffz",title:"Lagertechnik",tip:"Je Lagerbereich sind mehrere FFZ gleichzeitig wählbar (Mehrfachauswahl). Die Regal-Gangbreite wird beim Ändern der Regal-FFZ automatisch auf das Maximum der gewählten Typen vorbelegt (VNA 1,9 m, Schubmast 2,8 m, Frontstapler 3,5 m); beide Gangbreiten bleiben manuell übersteuerbar. Bei VNA im Regal werden mit zugeschalteten P&D-Plätzen Aufsetzzonen an den Regalstirnseiten berücksichtigt. Ständerprofil 100 mm bis 2.500 kg Fachlast, sonst 120 mm. Traversenprofil 120 mm bzw. 140 mm über 2.500 kg. Einzelreihen: Das Layout nutzt sie, sobald Doppelreihen nicht mehr passen (Wand- und Restflächen); die Stückliste erhält dann je Feld ein Rückwandgitter, und Durchschubsicherungen gelten nur für Rücken-an-Rücken-Reihen. Einseitiger Zugriff und Standsicherheit sind in der Ausführungsplanung zu prüfen.",
     intro:["Technische Auslegung","Regalgeometrie, Flurförderzeuge und Arbeitsgänge. Die Werte sind Vorplanungsparameter und ersetzen keinen Fachnachweis."],sections:[
     {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
-    {title:"Arbeitsgänge",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
-    {title:"Regalsystem",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
-    {title:"Fluchttunnel",sub:"Fluchtwege durch die Regalreihen",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
+    {title:"Arbeitsgänge",result:"aisles",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
+    {title:"Regalsystem",result:"rack",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
+    {title:"Fluchttunnel",result:"tunnels",sub:"Fluchtwege durch die Regalreihen",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
   {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
     intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
-    {title:"Zuordnungsmodell",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
-    {title:"Kanalgeometrie",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient"]}]},
+    {title:"Zuordnungsmodell",result:"blockshare",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
+    {title:"Kanalgeometrie",result:"channels",sub:"Kapazität und Abmessungen",items:["block.channelDepth","block.stackH","block.orient"]}]},
   {id:"cost",title:"Kosten & Optionen",intro:["Preis- und Kalkulationsbasis","Die Mengenermittlung steht im Register Stückliste & CAPEX. Hier werden Preisstand, Quelle, Unsicherheit und Einrechnungsoptionen gepflegt."],sections:[
-    {title:"Hallenkosten",sub:"Betrieb",items:["building.rent"]},
-    {title:"Preisbasis",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.sourceKind","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
+    {title:"Hallenkosten",result:"rent",sub:"Betrieb",items:["building.rent"]},
+    {title:"Preisbasis",result:"prices",sub:"Dokumentation und Bandbreite",items:["costMeta.date","costMeta.sourceKind","costMeta.source","costMeta.uncertainty","costMeta.realizationYears","costMeta.priceEscalation","costMeta.projectOverhead"]},
     {title:"Einrechnungsoptionen",sub:"Wirkung auf die Stückliste",items:["bom.pushThrough","bom.grating","bom.demount"],
       after:'<p class="dependency-note">Einheitspreise, Zuschläge und Ergebniskennzahlen bearbeiten Sie im Register <b>Stückliste &amp; CAPEX</b>.</p>'}]}
 ];
@@ -2118,7 +2119,7 @@ function renderParamForm(){
         if(typeof it==="string"){const d=PARAM_BY_PATH.get(it);if(!d)throw new Error("Parameter fehlt im Schema: "+it);h+=paramFieldHtml(d);}
         else if(it.output)h+='<div class="fld"><label>'+escH(it.label)+'</label><span class="val calc" id="'+it.output+'" style="grid-column: 2/4; justify-self: end">–</span></div>';
       }
-      h+='</div>'+(sec.after||'')+'</section>';
+      h+='</div>'+(sec.result?'<p class="sec-result" data-result="'+sec.result+'"></p>':'')+(sec.after||'')+'</section>';
     }
     host.innerHTML=h;
   }
@@ -3599,13 +3600,14 @@ function computeModelCore(){
   const transitPal=Math.round(transitDay*trV);
   const transitA=(S.volume.transitBufferOn&&transitPal>0)?transitPal*(S.volume.transitDays||0.5)*(S.volume.transitAreaPerPal||1.5)*1e6:0;
 
-  let effectiveWeDepth=Math.max(0,Number(S.building.weDepth)||0);
+  let effectiveWeDepth=Math.max(0,Number(S.building.weDepth)||0),weBuffer=null;
   if(S.volume.bufferMode==="process"){
     const pbuf=Math.max(0,Number(S.volume.bufferTrucks)||0)*Math.max(0,Number(S.volume.bufferPallets)||0)*Math.max(0,Number(S.volume.bufferDwell)||0);
     const palA=(getLhm(S.lhmDefault).l*getLhm(S.lhmDefault).b)/1e6;
     const reqA=pbuf*palA*Math.max(1,Number(S.volume.bufferFactor)||1);
     const weWallLength=Math.max(0.001,effectiveWeWallLengthM());
     effectiveWeDepth=Math.max(effectiveWeDepth,reqA/weWallLength);
+    weBuffer={pallets:pbuf,area:reqA,depth:effectiveWeDepth};
     warn.push({t:"WE-Puffer prozessbezogen: "+fmt(pbuf)+" Paletten bzw. "+fmt(reqA,1)+" m² Bemessungsfläche; wirksame WE-Zonentiefe "+fmt(effectiveWeDepth,2)+" m.",sev:false});
   }
   const geo=computeLayout(rack,block,grossRackNeed,warn,emptyCount,transitA,effectiveWeDepth);
@@ -3637,7 +3639,7 @@ function computeModelCore(){
       beforeRemovalRackCapacity:geo?geo.rackCapacityPlanned:0,plannedRackCapacity:geo?geo.capacity:0,availableRackCapacity:geo?geo.capacity:0,
       frames:bom.filter(x=>x.key==="frame").reduce((n,x)=>n+x.qty,0),
       beamPairs:bom.filter(x=>x.key==="beamPair").reduce((n,x)=>n+x.qty,0)};
-    return {bomAudit,netTotal,grossRackNeed,grossBlockNeed,rack,block,geo,bom,warn,emptyCount,trucksTotal,peakPalletsHour,peakWeHour,peakWaHour,growthFactor,skuGrowthFactor,calculatedItems:JSON.parse(JSON.stringify(S.items))};
+    return {weBuffer,bomAudit,netTotal,grossRackNeed,grossBlockNeed,rack,block,geo,bom,warn,emptyCount,trucksTotal,peakPalletsHour,peakWeHour,peakWaHour,growthFactor,skuGrowthFactor,calculatedItems:JSON.parse(JSON.stringify(S.items))};
 }
 function computeModel(){
   const originalS=S;
@@ -3818,6 +3820,7 @@ function recalc(){
 
   updateTotals();
   updateStartProgress(); // nach der Ampel, deren Text der Fortschritt übernimmt
+  updateSectionResults();
   for(const n of Object.keys(PANEL_RENDERERS))STALE_PANELS.add(n);
   const renderErrors=renderVisiblePanels();
   if(renderErrors.length)showRenderErrors(renderErrors);
@@ -6933,6 +6936,36 @@ window.addEventListener("resize",updateKpiToggle);
       window.openAccessibleModal=openModal;window.closeAccessibleModal=closeModal;
       document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;const m=document.querySelector(".modal.on");if(m){e.preventDefault();closeModal(m.id);}});
     }
+// Ergebniszeile je Vorgabenabschnitt: was die Eingaben im aktuellen Stand bewirken
+const m2=a=>fmt((a||0)/1e6)+" m²";
+const SECTION_RESULTS={
+  hall:(r,g)=>g?"Halle "+fmt(g.L/1000,1)+" × "+fmt(g.W/1000,1)+" m = "+m2(g.area.hall)+" · Brutto-Lagerfläche "+m2(g.area.brutto)+" ("+fmt(g.area.brutto/g.area.hall*100)+" % belegt)":"",
+  zones:(r,g)=>g?"WE-/WA-Zonen zusammen "+m2(g.area.zone)+(S.volume.bufferMode==="process"&&r.weBuffer?" · wirksame WE-Zonentiefe "+fmt(r.weBuffer.depth,1)+" m":""):"",
+  columns:(r,g)=>{if(!g)return "";const hit=(g.cols||[]).filter(c=>c.hit>0).length;return fmt((g.cols||[]).length)+" Stützen in der Lagerfläche, davon "+fmt(hit)+" in Gängen oder Lagerplätzen"+(g.columnsAdvisory?" (Greenfield: nur Hinweis)":"");},
+  extra:(r,g)=>g&&g.area.operational>0?"Zusatzfläche "+m2(g.area.operational)+" in der Brutto-Lagerfläche":"Keine Zusatzfläche eingeplant",
+  stock:r=>r.netTotal?"Netto-Bestand "+fmt(r.netTotal)+" Pal. · Brutto Regal "+fmt(r.grossRackNeed)+" Plätze, Block "+fmt(r.grossBlockNeed)+" Plätze":"Noch kein Bestand – Positionen im Mengengerüst erfassen",
+  growth:r=>"Faktor Menge × "+fmt(r.growthFactor||1,2)+" · Artikel × "+fmt(r.skuGrowthFactor||1,2),
+  capacity:r=>"Brutto-Plätze gesamt "+fmt((r.grossRackNeed||0)+(r.grossBlockNeed||0))+" (Regal "+fmt(r.grossRackNeed)+", Block "+fmt(r.grossBlockNeed)+")",
+  buffer:r=>S.volume.bufferMode==="process"&&r.weBuffer?fmt(r.weBuffer.pallets)+" Pufferpaletten → "+fmt(r.weBuffer.area,1)+" m² · WE-Zonentiefe "+fmt(r.weBuffer.depth,1)+" m":"Geometrisch: WE-Zonentiefe "+fmt(S.building.weDepth,1)+" m (Gebäude & Flächen)",
+  profile:r=>"Spitzenstunde: WE "+fmt(r.peakWeHour,1)+" Pal./h · WA "+fmt(r.peakWaHour,1)+" Pal./h",
+  transit:(r,g)=>g&&g.area.transit>0?"Transitpuffer "+m2(g.area.transit):"Kein separater Transitpuffer",
+  empty:(r,g)=>S.empty.on?fmt(r.emptyCount)+" Leerpaletten · Leergutband "+m2(g&&g.area.leergut):"Kein Leergutbereich eingeplant",
+  aisles:(r,g)=>{const ffz=k=>Math.max(...(S.ffz[k]||[]).map(t=>FFZ[t]?FFZ[t].aisle:0),0);return "Aus FFZ: Regal "+fmt(ffz("rackFFZ"),1)+" m, Block "+fmt(ffz("blockFFZ"),1)+" m"+(g?" · Gangfläche Regal "+m2(g.area.rackAisle)+", Block "+m2(g.area.blockAisle):"");},
+  rack:(r,g)=>r.rack&&g?"Feldweite "+fmt(r.rack.fieldW)+" mm ("+r.rack.ppf+" Pal./Feld) · "+r.rack.levels+" Ebenen · "+g.nDouble+" Doppelreihen"+(g.nSingles?" + "+g.nSingles+" Einzelreihen":"")+" · "+fmt(g.capacity)+" Plätze":"Kein Regallager im aktuellen Stand",
+  tunnels:(r,g)=>!(S.fire.tunnelInterval>0)?"Keine Fluchttunnel":(r.rack&&g?fmt(g.tunnelsPerRow)+" Tunnelfeld"+(g.tunnelsPerRow===1?"":"er")+" je Reihe (Abstand "+fmt(S.fire.tunnelInterval)+" m)":""),
+  blockshare:r=>{const n=r.netTotal||0,b=S.items.reduce((a,i)=>a+(i.blockNet||0),0),c=Math.max(0,100-(S.block.aVol||0)-(S.block.bVol||0));return (n?"Blocklager "+fmt(b/n*100)+" % des Netto-Bestands ("+fmt(b)+" Pal.)":"Noch kein Bestand")+(S.block.mode==="sku"?" · ABC: A "+fmt(S.block.aVol)+" %, B "+fmt(S.block.bVol)+" %, C "+fmt(c)+" %":"");},
+  channels:(r,g)=>r.block?fmt(r.block.nL)+" Kanäle"+(g?" in "+g.bands+" Bändern":"")+" · Kanallänge ≈ "+fmt(S.block.channelDepth*r.block.laneUnit/1000,1)+" m · bis "+fmt(r.block.capChannel)+" Pal. je Kanal":"Kein Blocklager im aktuellen Stand",
+  rent:(r,g)=>S.building.rent>0&&g?"Miete "+eur(S.building.rent*g.area.hall/1e6)+" je Monat · "+eur(S.building.rent*g.area.hall/1e6*12)+" je Jahr":"Keine Miete ausgewiesen",
+  prices:r=>{const c=r.capex;if(!c)return "";return "CAPEX "+eur(c.total)+" · Preissteigerung × "+fmt(c.escalation||1,3)+" · Nebenkosten "+eur(c.overhead||0)+" · Bandbreite ± "+fmt(Number(S.costMeta.uncertainty)||0)+" %";}
+};
+function updateSectionResults(){
+  const g=R&&R.geo;
+  for(const el of document.querySelectorAll(".sec-result[data-result]")){
+    const fn=SECTION_RESULTS[el.dataset.result];let t="";
+    try{t=fn?fn(R||{},g):"";}catch(e){t="";}
+    el.textContent=t?"→ "+t:"";el.hidden=!t;
+  }
+}
 // Startseite: Planungsfortschritt aus dem aktuellen Stand
 function updateStartProgress(){
   const ol=$("start-progress");if(!ol)return;
