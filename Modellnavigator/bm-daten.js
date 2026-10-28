@@ -1,12 +1,12 @@
 // Leadec Logistics Betriebsmodell – Datendatei des Modellnavigators E09
-// Erzeugt mit build_bm_daten.py 1.1 aus dem Kanon 7.5. Nicht von Hand bearbeiten.
+// Erzeugt mit build_bm_daten.py 1.2 aus dem Kanon 7.5. Nicht von Hand bearbeiten.
 window.BM = {
  "meta": {
   "titel": "Leadec Logistics Betriebsmodell",
   "darstellung": "E09 Modellnavigator",
   "fassung": "7.5",
   "erzeugt": "28.10.2026",
-  "erzeuger": "build_bm_daten.py 1.1",
+  "erzeuger": "build_bm_daten.py 1.2",
   "status": "Begleitdarstellung, nicht normativ. Bei einer Abweichung gilt das führende Dokument.",
   "quellen": [
    "A02 (A02_7.5_Modellbeschreibung.md)",
@@ -23,7 +23,38 @@ window.BM = {
    "D03 (D03_7.5_Dokumentenregister.md)",
    "D05 (D05_7.5_Werkzeugkatalog.md)"
   ],
-  "pcfDatei": "PCF_9.6_Process_Framework.html"
+  "pcfDatei": "PCF_9.6_Process_Framework.html",
+  "pruefung": {
+   "abdeckung": "758 von 758",
+   "nichtUebernommen": [],
+   "kohaerenz": [
+    "D-PW-02 stammt aus M-01-02 (Regel 1), führt Regel 9",
+    "D-TB-05 stammt aus M-08-05 (Regel 8), führt Regel –",
+    "D-KP-02 stammt aus M-04-02 (Regel 4), führt Regel 1, 6, 10",
+    "D-QV-10 stammt aus M-04-02 (Regel 4), führt Regel 2, 8, 10",
+    "Dokumente ohne Regel und ohne Mindestkriterium: D-OR-05, D-TB-05",
+    "Dokumente ohne Querbezug: D-OR-08, D-PW-10, D-PW-11, D-TB-04, D-IK-07, D-AE-01, D-AE-02, D-AE-03, D-QV-12",
+    "Betriebswerkzeuge ohne Querbezug: W-M-01, W-I-02, W-I-03, W-I-04, W-I-06, W-I-09, W-I-10",
+    "Nummernlücke in D-IK-..: D-IK-04, D-IK-05, D-IK-08, D-IK-10, D-IK-11, D-IK-12, D-IK-13, D-IK-14, D-IK-15, D-IK-16",
+    "Nummernlücke in D-PW-..: D-PW-05",
+    "Nummernlücke in K3-E-..: K3-E-03",
+    "Nummernlücke in K4-E-..: K4-E-01, K4-E-02",
+    "Komponenten ohne Betriebswerkzeug: P, Q, S",
+    "Kein Register-Dokument hat den Status freigegeben: 42 zu prüfen, 10 offen, 5 Entwurf"
+   ],
+   "hinweise": [
+    "M-01-02 Ergebnis: Dokument „Maßnahmenliste“ ohne Kennung genannt, zugeordnet zu D-IK-03",
+    "M-04-01 Ergebnis: Dokument „Wirksamkeitsnachweis“ ohne Kennung genannt, zugeordnet zu D-QV-07",
+    "M-04-02 Verweise: Dokument „Referenzlösung“ ohne Kennung genannt, zugeordnet zu D-QV-08",
+    "M-06-01 Ergebnis: Dokument „Qualifikationsmatrix“ ohne Kennung genannt, zugeordnet zu D-OR-04",
+    "M-06-01 Ergebnis: Dokument „Schulungsplan“ ohne Kennung genannt, zugeordnet zu D-OR-07",
+    "M-06-02 Ergebnis: Dokument „Maßnahmenkatalog je Szenario“ ohne Kennung genannt, zugeordnet zu D-OR-06",
+    "M-10-02 Ergebnis: Dokument „Referenzlösung“ ohne Kennung genannt, zugeordnet zu D-QV-08",
+    "M-10-03 Dokumente: Dokument „Entwicklungsplan“ ohne Kennung genannt, zugeordnet zu D-QV-11",
+    "M-10-03 Ergebnis: Dokument „Entwicklungsplan“ ohne Kennung genannt, zugeordnet zu D-QV-11",
+    "RT-1-02 Inhalte: Dokument „Entwicklungsplan“ ohne Kennung genannt, zugeordnet zu D-QV-11"
+   ]
+  }
  },
  "perspektiven": [
   {
@@ -1178,6 +1209,10 @@ window.BM = {
      "art": "nutzt"
     },
     {
+     "ziel": "D-IK-03",
+     "art": "Ergebnis"
+    },
+    {
      "ziel": "M-01-01",
      "art": "Verweis"
     },
@@ -1648,6 +1683,10 @@ window.BM = {
     },
     {
      "ziel": "M-10-02",
+     "art": "Verweis"
+    },
+    {
+     "ziel": "D-QV-08",
      "art": "Verweis"
     }
    ]
@@ -2447,6 +2486,10 @@ window.BM = {
     1
    ],
    "bezuege": [
+    {
+     "ziel": "D-QV-11",
+     "art": "nutzt"
+    },
     {
      "ziel": "M-10-01",
      "art": "Verweis"
@@ -4346,6 +4389,10 @@ window.BM = {
     {
      "ziel": "W-I-05",
      "art": "Nachweis"
+    },
+    {
+     "ziel": "D-QV-11",
+     "art": "Verweis"
     }
    ]
   },

@@ -91,6 +91,18 @@ h3.sec { font-size: 15.5px; font-weight: 800; margin: 24px 0 10px; }
 .form-grid input[type=text], .form-grid select, .form-grid textarea { border: 1px solid var(--line2); border-radius: 6px; padding: 5px 8px; background: #fff; width: 100%; }
 .form-grid textarea { min-height: 58px; resize: vertical; }
 .form-grid label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.top .tb.edit-on { background: #f59e0b; border-color: #f59e0b; color: #111827; font-weight: 700; }
+.top .tb#ed-toggle { font-size: 13.5px; }
+.ed-banner { background: #fef3c7; border-bottom: 1px solid #d97706; color: #8a4b00; font-size: 13px; padding: 6px 26px; }
+.ed-btn { font-size: 11.5px; font-weight: 700; padding: 0 7px; margin-left: 6px; border: 1px solid #d97706; border-radius: 4px; background: #fff; color: #8a4b00; vertical-align: 1px; }
+.ed-btn:hover { background: #fef3c7; }
+.vs-neu { background: #fef3c7; box-shadow: 0 0 0 2px #fef3c7; border-radius: 2px; }
+.tag.vs { border-color: #d97706; color: #8a4b00; background: #fef3c7; }
+.ed-form textarea, .ed-form input { width: 100%; border: 1px solid var(--line2); border-radius: 6px; padding: 6px 8px; font: inherit; background: #fff; }
+.ed-form textarea { min-height: 90px; resize: vertical; }
+.ed-form input { margin-top: 6px; }
+.ed-form .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.st-offen { color: #8a4b00; font-weight: 700; } .st-uebernommen { color: #15803d; font-weight: 700; } .st-veraltet { color: #b91c1c; font-weight: 700; }
 .banner { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #fef3c7; border: 1px solid #d97706; color: #8a4b00; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 13.5px; }
 .okmsg { background: #dcfce7; border: 1px solid #16a34a; color: #14532d; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: 13.5px; }
 @media (max-width: 760px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -216,6 +228,8 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 .drawer { background: #fff; width: min(760px, 100vw); height: 100%; display: flex; flex-direction: column; box-shadow: -8px 0 24px rgba(0, 0, 0, .18); }
 .d-head { display: flex; gap: 10px; align-items: flex-start; padding: 14px 18px 12px; border-bottom: 1px solid var(--line); }
 .d-head > div { flex: 1 1 auto; min-width: 0; }
+.d-head { flex-wrap: wrap; }
+#d-edit.on { background: #fef3c7; border-color: #d97706; color: #8a4b00; }
 #d-kicker { font-size: 12px; color: var(--muted); font-weight: 700; }
 #d-title { font-size: 19px; font-weight: 800; line-height: 1.25; outline: none; }
 #d-body { overflow-y: auto; padding: 14px 18px 30px; }
@@ -294,6 +308,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   <button class="nav" type="button" data-view="mx-befaehigung">Baustein und Befähigung</button>
   <div class="sb-title" title="Verknüpfung der Dokumente mit ihren Dateien">Pflegen</div>
   <button class="nav" type="button" data-view="ablage">Dokumentablage</button>
+  <button class="nav" type="button" data-view="aenderungen">Änderungsvorschläge</button>
   <div class="sb-title">Über</div>
   <button class="nav" type="button" data-view="info">Info</button>
   <div class="sb-meta" id="sb-meta"></div>
@@ -303,11 +318,13 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   <header class="top">
     <button class="tb" id="sb-toggle" type="button" aria-label="Seitenleiste ein- oder ausblenden" aria-controls="sidebar">☰</button>
     <h1 id="h-title"><span class="brand" id="h-brand">Modellnavigator · </span><span id="h-view"></span></h1>
+    <button class="tb" id="ed-toggle" type="button" aria-pressed="false" title="Bearbeiten-Modus: Änderungen als Vorschläge erfassen">✎ Bearbeiten</button>
     <div class="qs">
       <input type="search" id="q" placeholder="Suchen (Taste /)" aria-label="Objekte und Dokumente durchsuchen" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qs-pop" aria-autocomplete="list" />
       <div class="qs-pop" id="qs-pop" role="listbox" aria-label="Suchtreffer" hidden></div>
     </div>
   </header>
+  <div class="ed-banner" id="ed-banner" hidden></div>
   <main id="view" tabindex="-1"></main>
 </div>
 
@@ -316,6 +333,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     <div class="d-head">
       <button class="btn" id="d-back" type="button">Zurück</button>
       <div><div id="d-kicker"></div><h2 id="d-title" tabindex="-1"></h2></div>
+      <button class="btn" id="d-edit" type="button" aria-pressed="false" title="Bearbeiten-Modus ein- oder ausschalten">✎ Bearbeiten</button>
       <button class="btn" id="d-link" type="button" title="Adresse dieses Detailfensters kopieren">Link kopieren</button>
       <button class="btn" id="d-close" type="button">Schließen</button>
     </div>
@@ -326,16 +344,20 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <input type="file" id="pick" hidden />
 <input type="file" id="pickdir" webkitdirectory multiple hidden />
 <input type="file" id="pickreg" accept=".js,.json" hidden />
+<input type="file" id="pickaen" accept=".js,.json" hidden />
 
 <!-- Datendatei. Sie liegt im selben Ordner und trägt immer denselben Namen. -->
 <script src="bm-daten.js"></script>
 <!-- Linkregister: Zuordnung der Dokumente zu ihren Dateien. Wird im Navigator unter Dokumentablage gepflegt
      und vom Skript build_bm_daten.py nie überschrieben. Fehlt die Datei, zeigt der Navigator keine Links. -->
 <script src="bm-links.js"></script>
+<!-- Änderungsvorschläge aus dem Bearbeiten-Modus. Sie ändern den Kanon nicht und gehen über einen
+     Änderungsantrag in das Verfahren nach C07. Fehlt die Datei, beginnt die Liste leer. -->
+<script src="bm-aenderungen.js"></script>
 <script>
 (function () {
   'use strict';
-  const NAVIGATOR = { fassung: '1.4', stand: '28.10.2026' };
+  const NAVIGATOR = { fassung: '1.5', stand: '28.10.2026' };
   const $ = id => document.getElementById(id);
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
@@ -394,7 +416,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (IX) for (const o of ERG) IX.obj.delete(o.kennung);
     ERG = L.ergaenzungen.map(e => ({
       kennung: e.kennung, art: 'D', ergaenzung: true, n: e.n, ebene: 'GE', baustein: e.baustein, typ: e.typ || 'Ergänzung', regeln: e.regeln || [],
-      zweck: e.notiz || '', fundstelle: 'Linkregister', status: 'Ergänzung', profil: { 'Begründung': e.notiz || '', 'Aufgenommen am': e.aufgenommen || '' }, bezuege: []
+      zweck: e.notiz || '', fundstelle: 'Linkregister', status: 'Ergänzung', profil: { 'Aufgenommen am': e.aufgenommen || '' }, bezuege: []
     }));
     if (IX) for (const o of ERG) IX.obj.set(o.kennung, o);
     const nb = document.querySelector('.nav[data-view="ablage"]');
@@ -454,17 +476,21 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (state.ansicht === 'ablage' || state.ansicht === 'objekte') renderView();
     if ($('ovl').classList.contains('open') && state.o) open(state.o, true);
   }
+  function herunterladen(name, text, typ) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: typ }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  const heute = () => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   function linksSpeichern() {
     L.stand = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const sortiert = { stand: L.stand, basis: L.basis, links: Object.fromEntries(Object.entries(L.links).sort((a, b) => a[0].localeCompare(b[0], 'de', { numeric: true }))), ergaenzungen: L.ergaenzungen };
     const js = '// Linkregister des Modellnavigators E09. Gepflegt im Navigator unter Dokumentablage.\n'
       + '// Pfade sind relativ zum Basisordner, bei leerem Basisordner relativ zum Ordner des Navigators.\n'
       + 'window.BM_LINKS = ' + JSON.stringify(sortiert, null, 1) + ';\n';
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
-    a.download = 'bm-links.js';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    herunterladen('bm-links.js', js, 'text/javascript');
     L = normL(sortiert); LDATEI = kopie(L); linksMerken();
     ablageMsg = 'bm-links.js ist als Download gespeichert. Lege die Datei in den Ordner des Navigators und ersetze dort die bisherige Fassung.';
     renderView();
@@ -475,6 +501,96 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     r.onload = () => {
       try { const t = String(r.result); L = normL(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1))); LDATEI = kopie(L); linksMerken(); ablageMsg = `Linkregister ${f.name} geladen.`; }
       catch (err) { ablageMsg = 'Die Datei ist kein gültiges Linkregister.'; }
+      renderView();
+    };
+    r.readAsText(f, 'utf-8');
+  };
+
+  // ---------- Bearbeiten-Modus und Änderungsvorschläge ----------
+  // Bearbeitungen ändern die Datendatei nicht. Sie werden als Vorschlag mit Kanonfassung, neuer Fassung
+  // und Begründung erfasst und in bm-aenderungen.js gespeichert. Ändert sich der Kanon, zeigt der Status,
+  // ob ein Vorschlag übernommen oder veraltet ist. Ergänzende Dokumente gehören nicht zum Kanon und
+  // werden direkt im Linkregister geändert.
+  const AEN_KEY = 'bm-aenderungen-entwurf', ED_KEY = 'bm-bearbeiten';
+  const normA = x => { const a = Object.assign({ stand: '', vorschlaege: [] }, kopie(x || {})); a.vorschlaege = a.vorschlaege || []; return a; };
+  let A = normA(), ADATEI = null, bearbeiten = false, aenMsg = '';
+  const aUngespeichert = () => JSON.stringify(A) !== JSON.stringify(ADATEI || normA());
+  const vorschlag = (ziel, feld) => A.vorschlaege.find(v => v.ziel === ziel && v.feld === feld);
+  const ERG_FELD = { Bezeichnung: 'n', Zweck: 'notiz', Dokumenttyp: 'typ' };
+  const editierbarZiel = k => !/^(zelle|bk|feld|view):/.test(k);
+  // Ordnungsangaben sind keine Inhalte; sie ändern sich über die Kataloge, nicht über einen Textvorschlag.
+  const NICHT_EDITIERBAR = ['Objektart', 'Fundstelle', 'Stand', 'Aufgenommen am'];
+  function aenLaden() {
+    ADATEI = window.BM_AENDERUNGEN ? normA(window.BM_AENDERUNGEN) : null;
+    let e = null;
+    try { e = JSON.parse(localStorage.getItem(AEN_KEY) || 'null'); bearbeiten = localStorage.getItem(ED_KEY) === '1'; } catch (x) { e = null; }
+    A = e ? normA(e) : (ADATEI ? kopie(ADATEI) : normA());
+    edAnzeigen();
+  }
+  function aenMerken() {
+    try { if (aUngespeichert()) localStorage.setItem(AEN_KEY, JSON.stringify(A)); else localStorage.removeItem(AEN_KEY); } catch (x) { /* Entwurf bleibt bis zum Neuladen */ }
+    edAnzeigen();
+  }
+  function edAnzeigen() {
+    document.body.classList.toggle('bearbeiten', bearbeiten);
+    $('ed-toggle').setAttribute('aria-pressed', String(bearbeiten));
+    $('ed-toggle').classList.toggle('edit-on', bearbeiten);
+    $('d-edit').setAttribute('aria-pressed', String(bearbeiten));
+    $('d-edit').classList.toggle('on', bearbeiten);
+    $('d-edit').textContent = bearbeiten ? '✎ Bearbeiten beenden' : '✎ Bearbeiten';
+    const nb = document.querySelector('.nav[data-view="aenderungen"]');
+    if (nb) nb.classList.toggle('dirty', aUngespeichert());
+    const n = A.vorschlaege.length;
+    $('ed-banner').hidden = !bearbeiten;
+    $('ed-banner').innerHTML = `<b>Bearbeiten-Modus.</b> Öffne ein Objekt, eine Regel, einen Baustein, eine Komponente, eine Ebene oder ein Kanon-Dokument und klicke an einem Feld auf „Bearbeiten“. Änderungen werden als Vorschlag erfasst, der Kanon bleibt unverändert. ${n === 1 ? '1 Vorschlag' : n + ' Vorschläge'} · <a href="#" class="ref" data-open="view:aenderungen">ansehen</a>`;
+  }
+  $('d-edit').onclick = () => $('ed-toggle').onclick();
+  $('ed-toggle').onclick = () => {
+    bearbeiten = !bearbeiten;
+    try { localStorage.setItem(ED_KEY, bearbeiten ? '1' : '0'); } catch (x) { /* nur für diese Sitzung */ }
+    edAnzeigen(); renderView();
+    if ($('ovl').classList.contains('open') && state.o) open(state.o, true);
+  };
+  // Aktueller Kanonwert eines Feldes: Die Detailansicht des Ziels wird ohne Anzeige erzeugt.
+  function aktuellerWert(ziel, feld) {
+    const vor = [aktZiel, kvWerte];
+    aktZiel = ziel; kvWerte = {};
+    let r = null;
+    try { r = detail(ziel); } catch (x) { r = null; }
+    const w = r ? (feld === 'Bezeichnung' ? r.titel : kvWerte[feld]) : undefined;
+    [aktZiel, kvWerte] = vor;
+    return w;
+  }
+  function vsStatus(v) {
+    const akt = aktuellerWert(v.ziel, v.feld);
+    if (akt === undefined) return ['Ziel fehlt', 'veraltet'];
+    if (akt === v.neu) return ['übernommen', 'uebernommen'];
+    if (akt === v.alt) return ['offen', 'offen'];
+    return ['Kanon geändert', 'veraltet'];
+  }
+  function aenSpeichern() {
+    A.stand = heute();
+    herunterladen('bm-aenderungen.js', '// Änderungsvorschläge zum Modellnavigator E09. Erfasst im Bearbeiten-Modus.\n'
+      + '// Sie ändern den Kanon nicht; Grundlage für einen Änderungsantrag nach C07.\n'
+      + 'window.BM_AENDERUNGEN = ' + JSON.stringify(A, null, 1) + ';\n', 'text/javascript');
+    ADATEI = kopie(A); aenMerken();
+    aenMsg = 'bm-aenderungen.js ist als Download gespeichert. Lege die Datei in den Ordner des Navigators und ersetze dort die bisherige Fassung.';
+    renderView();
+  }
+  function aenCsv() {
+    const q = x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+    const kopf = ['Ziel', 'Bezeichnung', 'Feld', 'Kanonfassung', 'Vorschlag', 'Begründung', 'Erfasst am', 'Status'];
+    const zeilen = A.vorschlaege.map(v => [v.ziel, v.zielName, v.feld, v.alt, v.neu, v.begruendung, v.datum, vsStatus(v)[0]]);
+    herunterladen(`Aenderungsvorschlaege_${heute().split('.').reverse().join('-')}.csv`, '\ufeff' + [kopf].concat(zeilen).map(z => z.map(q).join(';')).join('\r\n'), 'text/csv');
+    aenMsg = 'Die Vorschläge sind als CSV-Tabelle heruntergeladen. Sie lässt sich in Excel öffnen und dem Änderungsantrag beilegen.';
+    renderView();
+  }
+  $('pickaen').onchange = () => {
+    const f = $('pickaen').files[0]; $('pickaen').value = ''; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try { const t = String(r.result); A = normA(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1))); ADATEI = kopie(A); aenMerken(); aenMsg = `Vorschläge aus ${f.name} geladen.`; }
+      catch (err) { aenMsg = 'Die Datei enthält keine gültigen Änderungsvorschläge.'; }
       renderView();
     };
     r.readAsText(f, 'utf-8');
@@ -519,6 +635,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     $('view').innerHTML = v();
     if (state.ansicht === 'objekte') bindObjekte();
     if (state.ansicht === 'ablage') bindAblage(); else ablageMsg = '';
+    if (state.ansicht !== 'aenderungen') aenMsg = '';
   }
   const head = (titel, text, rechts) => `<div class="v-head"><div><h2>${esc(titel)}</h2>${text ? `<p>${rich(text)}</p>` : ''}</div>${rechts || ''}</div>`;
 
@@ -587,7 +704,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     const t = `<div class="scroll"><table class="list"><tr><th>Objektart</th><th>Leistung</th><th>Ordnung</th><th>Regelebene</th><th>Ort der Beschreibung</th><th>Kennung</th><th class="num">Anzahl</th></tr>${B.objektarten.map(a => `<tr><td>${artTag(a.code)}</td><td>${esc(a.leistung)}</td><td>${esc(a.ordnung)}</td><td>${esc(a.regelebene)}</td><td>${rich(a.ort || '')}</td><td><span class="kenn">${esc(a.schema)}</span><br><span class="hint">etwa ${esc(a.beispiel)}</span>${a.ordnungsziffer ? `<br><span class="hint">Ordnungsziffer: ${esc(a.ordnungsziffer)}</span>` : ''}</td><td><a href="#" class="ref" data-go="objekte" data-art="${a.code}">${n(a.code)}</a></td></tr>`).join('')}</table></div>`;
     const ab = B.abgrenzung;
     const t2 = `<div class="scroll"><table class="list"><tr>${ab.kopf.map(h => `<th>${esc(h)}</th>`).join('')}</tr>${ab.zeilen.map(z => `<tr>${z.map((c, i) => i ? `<td>${esc(c)}</td>` : `<td><b>${esc(c)}</b></td>`).join('')}</tr>`).join('')}</table></div>`;
-    return head('Objektmodell', 'Jedes Objekt gehört genau einer Objektart und genau einer Ebene an. Führend ist A02 Kapitel 4.') + t
+    return head('Objektmodell', 'Sechs Objektarten mit ihrer Leistung, ihrer Ordnung und ihrer Regelebene. Führend ist A02 Kapitel 4.') + t
       + '<h3 class="sec">Abgrenzung der Objektarten im Betrieb</h3>' + t2
       + '<p class="note"><b>Lesehilfe des Navigators, nicht aus dem Kanon:</b> Drei Prüffragen grenzen einen Sachverhalt ab. Durchläuft ein Mensch feste Schritte, ist er eine Methode. Verarbeitet oder zeigt er Information, ohne zu entscheiden, ist er ein Betriebswerkzeug. Hat er Takt, leitende Rolle und Agenda, ist er eine Routine.</p>';
   };
@@ -604,7 +721,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   VIEWS.bausteine = () => head('Bausteine der Gestaltung', 'Acht Bausteine stellen Gestaltungsmittel und Best Practice bereit. Die Dokumente sind nach Baustein geordnet. Führend ist B02.')
     + `<div class="cards">${B.bausteine.map(b => { const nd = objekte(o => o.art === 'D' && o.baustein === b.code).length, nm = objekte(o => o.art === 'M' && o.baustein === b.code).length; return `<button type="button" class="card click" data-open="bs:${b.code}"><span class="kenn">${b.code}</span><h4>${esc(b.n)}</h4><p>${esc(b.leitfrage || b.gegenstand)}</p><div class="tags"><span class="cnt"><b>${nd}</b> Dokumente</span><span class="cnt"><b>${nm}</b> Methoden</span></div></button>`; }).join('')}</div>`;
 
-  VIEWS.komponenten = () => head('Befähigungskomponenten', 'Sechs gleichrangige Komponenten bündeln die Zweige aus den Bausteinen zur Ausführungsfähigkeit des Standorts. Führend ist B03.')
+  VIEWS.komponenten = () => head('Befähigungskomponenten', 'Sechs Befähigungskomponenten bündeln die Zweige, die aus mehreren Bausteinen zusammenlaufen. Führend ist B03.')
     + (einl('wirkungsprinzip') ? `<div class="note" style="margin:0 0 14px"><b>Wirkungsprinzip nach B03 Kapitel 1.2</b>${einl('wirkungsprinzip', 'margin-top:4px')}</div>` : '')
     + `<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${B.komponenten.map(k => `<button type="button" class="card click" data-open="komp:${k.code}"><span class="kenn">${k.code}</span><h4>${esc(k.n)}</h4><p>${esc(k.gegenstand)}</p>${k.weg ? `<div class="weg"><div><i>Gestaltungsmittel</i>${esc(stripRefs(k.weg.gestaltungsmittel))}</div><span aria-hidden="true">↓</span><div><i>Methode</i>${esc(stripRefs(k.weg.methode))}</div><span aria-hidden="true">↓</span><div><i>Realisierung</i>${esc(k.weg.realisierung)}</div></div>` : ''}<div class="tags">${(k.zufuehrend || []).map(b => `<span class="tag">${esc(b)}</span>`).join('')}</div></button>`).join('')}</div>`;
   const stripRefs = t => String(t || '').replace(/\s*\([^)]*\)/g, '');
@@ -646,6 +763,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (o.art === 'K') { t.push(`<span class="tag">SCORE ${o.kontext === 3 ? 'III' : 'IV'} · ${o.dimension}</span>`); if (o.pflichtkern) t.push('<span class="tag warn">Pflichtkern</span>'); }
     if (o.art === 'D' && o.status) t.push(`<span class="tag${o.ergaenzung ? ' erg' : ''}">${esc(o.status)}</span>`);
     if (linkPfad(o.kennung)) t.push('<span class="tag lnk" title="Datei verknüpft">Datei</span>');
+    if (A.vorschlaege.some(v => v.ziel === o.kennung || (o.art === 'P' && v.ziel === 'Regel ' + o.regel))) t.push('<span class="tag vs" title="Änderungsvorschlag liegt vor">Vorschlag</span>');
     return t.join('');
   }
   const listHtml = l => l.length ? ARTEN.map(a => { const g = l.filter(o => o.art === a); return g.length ? `<h3 class="grp">${artTag(a)} ${g.length}</h3>${g.map(objRow).join('')}` : ''; }).join('') : '<p class="hint">Kein Objekt entspricht der Auswahl.</p>';
@@ -716,7 +834,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 
   VIEWS['mx-befaehigung'] = () => {
     const ks = B.komponenten;
-    return head('Matrix Baustein und Befähigung', 'Welche Bausteine der Gestaltung welchen Befähigungskomponenten zuführen. Grundlage sind die zuführenden Bausteine nach B03 Kapitel 3, abgeleitet aus der Prüfmatrix in C01 Anhang A.8. Die Begleitdarstellung E07 zeigt dieselbe Zuordnung mit Regeln und Mindestkriterien.')
+    return head('Matrix Baustein und Befähigung', 'Welche Bausteine der Gestaltung welchen Befähigungskomponenten zuführen. Grundlage sind die zuführenden Bausteine nach B03 Kapitel 3, abgeleitet aus der Prüfmatrix in C01 Anhang A.8. Die Begleitdarstellung E07 zeigt diese Zuführung.')
       + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${ks.map(k => `<th>${refBtn('komp:' + k.code, k.code)}<span class="sub">${esc(k.n)}</span></th>`).join('')}</tr>${B.bausteine.map(b => `<tr><th class="rh">${refBtn('bs:' + b.code, b.code)} ${esc(b.n)}</th>${ks.map(k => { const on = (k.zufuehrend || []).includes(b.code); const nm = objekte(o => o.art === 'M' && o.baustein === b.code && (o.komponenten || []).includes(k.code)).length; return `<td${on || nm ? ` class="hit" data-open="bk:${b.code}|${k.code}" tabindex="0" role="button" aria-label="${esc(b.n)} und ${esc(k.n)}"` : ''}>${on ? '<span class="dot" title="führt zu"></span>' : ''}${nm ? `<div class="hint">${nm} M</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</table></div>
       <p class="hint" style="margin-top:8px">Punkt: Der Baustein führt der Komponente zu. Zahl: Methoden des Bausteins mit dieser Komponente nach D02-MET.</p>`;
   };
@@ -795,6 +913,36 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     }
   }, true);
 
+  VIEWS.aenderungen = () => {
+    const vs = A.vorschlaege.map(v => ({ v, st: vsStatus(v) }));
+    const zahl = s => vs.filter(x => x.st[1] === s).length;
+    const zeilen = vs.map(({ v, st }, i) => `<tr><td>${refBtn(v.ziel, v.ziel.replace(/^(bs|komp|ebene|kanon):/, ''))}<br><span class="hint">${esc(v.zielName || '')}</span></td><td style="white-space:nowrap;hyphens:none"><b>${esc(v.feld)}</b></td><td>${rich(v.alt)}</td><td><span class="vs-neu">${rich(v.neu)}</span></td><td>${esc(v.begruendung || '')}<br><span class="hint">${esc(v.datum || '')}</span></td><td class="st-${st[1]}">${esc(st[0])}</td><td class="akt" style="white-space:nowrap"><button type="button" class="btn" data-aen-weg="${i}" style="font-size:12px;padding:2px 8px">Löschen</button></td></tr>`).join('');
+    return head('Änderungsvorschläge', 'Im Bearbeiten-Modus erfasste Vorschläge zu Texten des Modells. Der Kanon bleibt unverändert. Vorschläge gehen über einen Änderungsantrag D-KP-02 in das Verfahren M-04-02 nach C07.')
+      + (aUngespeichert() ? `<div class="banner"><b>Ungespeicherte Vorschläge.</b> Sie liegen nur in diesem Browser, bis du sie speicherst. <button type="button" class="btn primary" data-a="speichern">Vorschläge speichern</button> <button type="button" class="btn" data-a="verwerfen">Änderungen verwerfen</button></div>` : '')
+      + (aenMsg ? `<div class="okmsg" role="status">${esc(aenMsg)}</div>` : '')
+      + `<div class="card"><table class="kv">
+          <tr><td>Datei</td><td>${ADATEI ? `bm-aenderungen.js${ADATEI.stand ? ' vom ' + esc(ADATEI.stand) : ''}` : 'keine Datei bm-aenderungen.js im Ordner des Navigators'}</td></tr>
+          <tr><td>Vorschläge</td><td>${vs.length} gesamt · <span class="st-offen">${zahl('offen')} offen</span> · <span class="st-uebernommen">${zahl('uebernommen')} im Kanon übernommen</span> · <span class="st-veraltet">${zahl('veraltet')} veraltet</span></td></tr>
+          <tr><td>Status</td><td><span class="st-offen">offen</span>: Kanon unverändert. <span class="st-uebernommen">übernommen</span>: Der Kanon enthält die vorgeschlagene Fassung. <span class="st-veraltet">Kanon geändert</span>: Der Kanon hat sich anders geändert, der Vorschlag ist zu prüfen.</td></tr>
+        </table>
+        <p style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ${bearbeiten ? 'on' : 'primary'}" data-a="modus">${bearbeiten ? 'Bearbeiten-Modus beenden' : 'Bearbeiten-Modus starten'}</button><button type="button" class="btn" data-a="speichern">Vorschläge speichern</button><button type="button" class="btn" data-a="laden">Vorschläge laden</button><button type="button" class="btn" data-a="csv" ${vs.length ? '' : 'disabled'}>Als Tabelle exportieren (CSV)</button>${zahl('uebernommen') ? '<button type="button" class="btn" data-a="aufraeumen">Übernommene entfernen</button>' : ''}</p></div>`
+      + (vs.length ? `<h3 class="sec">Vorschläge</h3><div class="scroll"><table class="list"><tr><th>Ziel</th><th>Feld</th><th>Kanonfassung</th><th>Vorschlag</th><th>Begründung</th><th>Status</th><th></th></tr>${zeilen}</table></div>` : '<p class="hint" style="margin-top:14px">Noch kein Vorschlag. Starte den Bearbeiten-Modus und öffne ein Element.</p>');
+  };
+  document.addEventListener('click', e => {
+    const w = e.target.closest('[data-aen-weg]');
+    if (w) { e.preventDefault(); const v = A.vorschlaege[+w.dataset.aenWeg]; if (!v || !confirm(`Vorschlag zu ${v.ziel} · ${v.feld} löschen?`)) return; A.vorschlaege.splice(+w.dataset.aenWeg, 1); aenMerken(); aenMsg = 'Vorschlag gelöscht.'; renderView(); return; }
+    const b = e.target.closest('[data-a]');
+    if (!b) return;
+    e.preventDefault();
+    const a = b.dataset.a;
+    if (a === 'modus') $('ed-toggle').click();
+    else if (a === 'speichern') aenSpeichern();
+    else if (a === 'laden') { $('pickaen').value = ''; $('pickaen').click(); }
+    else if (a === 'csv') aenCsv();
+    else if (a === 'aufraeumen') { A.vorschlaege = A.vorschlaege.filter(v => vsStatus(v)[1] !== 'uebernommen'); aenMerken(); aenMsg = 'Übernommene Vorschläge entfernt.'; renderView(); }
+    else if (a === 'verwerfen') { if (!confirm('Alle ungespeicherten Änderungen an den Vorschlägen verwerfen?')) return; A = ADATEI ? kopie(ADATEI) : normA(); aenMerken(); aenMsg = 'Änderungen verworfen.'; renderView(); }
+  }, true);
+
   VIEWS.info = () => {
     const m = B.meta;
     const cnt = ARTEN.map(a => `<tr><td>${artTag(a)}</td><td>${objekte(o => o.art === a).length}</td></tr>`).join('');
@@ -808,20 +956,28 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
         <tr><td>Pflege</td><td>Die Datendatei wird nicht von Hand bearbeitet. Ändert sich ein Katalog, erzeugt das Skript sie neu. Führend bleiben die Dokumente des Kanons.</td></tr>
       </table></div>
       <h3 class="sec">Bestand</h3><table class="list" style="max-width:360px"><tr><th>Objektart</th><th>Anzahl</th></tr>${cnt}</table>
-      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Die Taste / springt in die Suche; Pfeiltasten wählen einen Treffer, Enter öffnet ihn. Escape schließt das Detailfenster. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
+      ${(m.pruefung) ? `<h3 class="sec">Prüfbericht der Datendatei</h3><div class="card"><p><b>Abdeckung:</b> ${esc(m.pruefung.abdeckung)} Textteilen der Quellen übernommen.${m.pruefung.nichtUebernommen.length ? ' Nicht übernommen: ' + m.pruefung.nichtUebernommen.map(esc).join('; ') : ''}</p>
+        ${m.pruefung.kohaerenz.length ? `<p style="margin-top:10px"><b>Kohärenz:</b> Hinweise für die Modellverantwortung. Sie sind keine Fehler der Datendatei, sondern Prüfpunkte in den Quellen.</p><ul style="margin:6px 0 0 18px">${m.pruefung.kohaerenz.map(x => `<li>${rich(x)}</li>`).join('')}</ul>` : ''}
+        ${m.pruefung.hinweise.length ? `<p style="margin-top:10px"><b>Zuordnung beim Erzeugen:</b></p><ul style="margin:6px 0 0 18px">${m.pruefung.hinweise.map(x => `<li>${rich(x)}</li>`).join('')}</ul>` : ''}</div>` : ''}
+      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Die Taste / springt in die Suche; Pfeiltasten wählen einen Treffer, Enter öffnet ihn. Escape schließt das Detailfenster. „Bearbeiten“ in der Kopfzeile schaltet den Bearbeiten-Modus ein: Felder im Detailfenster lassen sich dann als Änderungsvorschlag überarbeiten, gesammelt unter Änderungsvorschläge. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
   };
 
   // ---------- Detailfenster ----------
   let stack = [], lastFocus = null;
   function open(key, fromStack) {
     if (key.startsWith('view:')) { go(key.slice(5)); return; }
+    aktZiel = editierbarZiel(key) ? key : null; kvWerte = {};
     const r = detail(key);
+    drawerWerte = Object.assign({ Bezeichnung: r ? r.titel : '' }, kvWerte);
+    const titelZeile = r && aktZiel && bearbeiten ? kv([['Bezeichnung', r.titel]]) : '';
+    aktZiel = null; kvWerte = null;
     if (!r) return;
+    const vt = bearbeiten && vorschlag(key, 'Bezeichnung');
     if (!$('ovl').classList.contains('open')) { lastFocus = document.activeElement; stack = []; }
     if (!fromStack) stack.push(key);
     $('d-kicker').innerHTML = r.kicker;
-    $('d-title').textContent = r.titel;
-    $('d-body').innerHTML = r.body;
+    $('d-title').textContent = vt ? vt.neu : r.titel;
+    $('d-body').innerHTML = titelZeile + r.body;
     $('d-body').scrollTop = 0;
     $('d-back').hidden = stack.length < 2;
     $('ovl').classList.add('open');
@@ -842,6 +998,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   $('d-back').onclick = () => { stack.pop(); const k = stack[stack.length - 1]; if (k) open(k, true); };
   $('ovl').addEventListener('click', e => { if (e.target === $('ovl')) closeDrawer(); });
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && e.target.closest && e.target.closest('.ed-form')) { e.preventDefault(); open(state.o, true); return; }
     if (e.key === 'Escape' && $('ovl').classList.contains('open')) closeDrawer();
     if (e.key === 'Tab' && $('ovl').classList.contains('open')) {
       const f = [...document.querySelectorAll('.drawer button, .drawer a[href], .drawer [tabindex]')].filter(x => !x.hidden && x.offsetParent !== null);
@@ -851,7 +1008,52 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('td[data-open]')) { e.preventDefault(); open(e.target.dataset.open); }
   });
 
-  const kv = rows => `<table class="kv">${rows.filter(r => r && r[1] !== undefined && r[1] !== null && r[1] !== '').map(([k, v, raw]) => `<tr><td>${esc(k)}</td><td>${raw ? v : rich(v)}</td></tr>`).join('')}</table>`;
+  // aktZiel ist das Element, dessen Detailansicht gerade entsteht; kvWerte sammelt dabei die Textfelder.
+  let aktZiel = null, kvWerte = null, drawerWerte = {};
+  function feldWert(k, v) {
+    const o = IX.obj.get(aktZiel), erg = !!(o && o.ergaenzung);
+    const vs = erg ? null : vorschlag(aktZiel, k);
+    let h = vs && bearbeiten
+      ? `<span class="vs-neu">${rich(vs.neu)}</span> <span class="tag vs">Vorschlag</span><div class="hint" style="margin-top:3px">Kanon: ${rich(v)}</div>`
+      : rich(v) + (vs ? ' <span class="tag vs" title="Für dieses Feld liegt ein Änderungsvorschlag vor">Vorschlag offen</span>' : '');
+    if (bearbeiten && (erg ? ERG_FELD[k] : !NICHT_EDITIERBAR.includes(k))) h += `<button type="button" class="ed-btn" data-edit="${esc(k)}">${vs ? 'Vorschlag ändern' : 'Bearbeiten'}</button>`;
+    return `<div data-feld="${esc(k)}">${h}</div>`;
+  }
+  const kv = rows => `<table class="kv">${rows.filter(r => r && r[1] !== undefined && r[1] !== null && r[1] !== '').map(([k, v, raw]) => {
+    if (kvWerte && !raw) kvWerte[k] = String(v);
+    return `<tr><td>${esc(k)}</td><td>${raw ? v : (aktZiel ? feldWert(k, String(v)) : rich(v))}</td></tr>`;
+  }).join('')}</table>`;
+  $('d-body').addEventListener('click', e => {
+    const b = e.target.closest('[data-edit]');
+    if (b) {
+      e.preventDefault(); e.stopPropagation();
+      const feld = b.dataset.edit, ziel = state.o, o = IX.obj.get(ziel), erg = !!(o && o.ergaenzung);
+      const vs = erg ? null : vorschlag(ziel, feld);
+      const box = b.closest('[data-feld]');
+      box.innerHTML = `<div class="ed-form" data-ziel-feld="${esc(feld)}"><textarea aria-label="Neue Fassung für ${esc(feld)}">${esc(vs ? vs.neu : (drawerWerte[feld] === '–' ? '' : drawerWerte[feld] || ''))}</textarea>${erg ? '' : `<input type="text" placeholder="Begründung für den Änderungsantrag" aria-label="Begründung" value="${esc(vs ? vs.begruendung || '' : '')}" />`}<div class="row"><button type="button" class="btn primary" data-ed="ok">${erg ? 'Speichern' : 'Als Vorschlag übernehmen'}</button><button type="button" class="btn" data-ed="abbruch">Abbrechen</button>${vs ? '<button type="button" class="btn" data-ed="weg">Vorschlag löschen</button>' : ''}</div>${erg ? '<p class="hint" style="margin-top:4px">Ergänzende Dokumente sind nicht kanonisch und werden direkt im Linkregister geändert.</p>' : `<p class="hint" style="margin-top:4px">Kanon: ${rich(drawerWerte[feld] || '')}</p>`}</div>`;
+      box.querySelector('textarea').focus();
+      return;
+    }
+    const a = e.target.closest('[data-ed]');
+    if (!a) return;
+    e.preventDefault(); e.stopPropagation();
+    const form = a.closest('.ed-form'), feld = form.dataset.zielFeld, ziel = state.o, o = IX.obj.get(ziel);
+    if (a.dataset.ed === 'ok') {
+      const neu = form.querySelector('textarea').value.replace(/\s+/g, ' ').trim(), alt = drawerWerte[feld] || '';
+      if (o && o.ergaenzung) {
+        const eintrag = L.ergaenzungen.find(x => x.kennung === ziel);
+        if (eintrag && neu) { eintrag[ERG_FELD[feld]] = neu; linksMerken(); }
+      } else {
+        A.vorschlaege = A.vorschlaege.filter(v => !(v.ziel === ziel && v.feld === feld));
+        if (neu && neu !== alt) A.vorschlaege.push({ ziel, zielName: drawerWerte.Bezeichnung, feld, alt, neu, begruendung: (form.querySelector('input') || {}).value || '', datum: heute() });
+        aenMerken();
+      }
+    } else if (a.dataset.ed === 'weg') {
+      A.vorschlaege = A.vorschlaege.filter(v => !(v.ziel === ziel && v.feld === feld)); aenMerken();
+    }
+    open(ziel, true);
+    if (state.ansicht === 'aenderungen' || state.ansicht === 'objekte' || state.ansicht === 'ablage') renderView();
+  });
   const relItem = (k, extra) => { const o = IX.obj.get(k); if (!o) return ''; return `<button type="button" class="rel-item" data-open="${esc(k)}"><span class="kenn">${esc(k)}</span><span>${esc(o.n)}${extra ? ` <span class="hint">· ${esc(extra)}</span>` : ''}${linkPfad(k) ? ' <span class="tag lnk" title="Datei verknüpft">Datei</span>' : ''}</span>${artTag(o.art)}</button>`; };
   // Gruppen sind einklappbar. Hauptlisten stehen offen; in den Bezugslisten nach Objektart
   // sind lange Gruppen anfangs zu, sofern es mehrere gibt, damit die Übersicht über alle Arten sichtbar bleibt.
@@ -881,7 +1083,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   function dObjekt(k) {
     const o = IX.obj.get(k); if (!o) return null;
     if (o.art === 'P') return dRegel(o.regel);
-    const rows = [['Zweck', o.zweck], ['Objektart', ART_N[o.art]], ['Ebene', `${esc(ebeneName(o.ebene))} (${o.ebene})`, true]];
+    const rows = [['Zweck', o.ergaenzung ? (o.zweck || '–') : o.zweck], ['Objektart', ART_N[o.art]], ['Ebene', `${esc(ebeneName(o.ebene))} (${o.ebene})`, true]];
     if (o.art === 'M') rows.push(['Regel', o.regel ? `${refBtn('Regel ' + o.regel, 'Regel ' + o.regel)} ${esc(IX.regel.get(o.regel).kurz)}` : 'regelübergreifend', true], ['Baustein', o.baustein ? refBtn('bs:' + o.baustein, o.baustein + ' ' + bsName(o.baustein)) : 'bausteinübergreifend', true], ['Befähigungskomponente', (o.komponenten || []).length ? o.komponenten.map(c => refBtn('komp:' + c, c + ' ' + kompName(c))).join(', ') : 'keine Realisierung', true]);
     if (o.art === 'D') rows.push(['Baustein', refBtn('bs:' + o.baustein, o.baustein + ' ' + bsName(o.baustein)), true], ['Dokumenttyp', o.typ], ['Regel der Nachweisverwendung', (o.regeln || []).length ? o.regeln.map(r => refBtn('Regel ' + r, 'Regel ' + r)).join(', ') + (o.mindestkriterium ? ', Mindestkriterium' : '') : (o.mindestkriterium ? 'Mindestkriterium' : 'keine'), true]);
     if (o.art === 'W') rows.push(['Befähigungskomponente', o.komponenten.map(c => refBtn('komp:' + c, c + ' ' + kompName(c))).join(', '), true]);
@@ -1063,6 +1265,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     B = data;
     index();
     linksLaden();
+    aenLaden();
     const m = B.meta;
     document.title = `${m.titel} · Modellnavigator · Fassung ${m.fassung}`;
     $('h-brand').textContent = `${m.titel} · `;

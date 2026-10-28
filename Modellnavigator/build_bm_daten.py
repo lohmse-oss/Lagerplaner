@@ -14,7 +14,9 @@ Aufruf:
 Die Ausgabe ist bm-daten.js mit window.BM = {...}. Das Skript endet mit einem
 Prüfbericht. Bei einem Fehler endet es mit dem Rückgabewert 1.
 
-Der Prüfbericht enthält eine Abdeckungsprüfung. Sie meldet jeden Absatz,
+Der Prüfbericht enthält eine Kohärenzprüfung der Querbezüge und eine
+Abdeckungsprüfung. Beide melden Hinweise und brechen nicht ab. Die
+Abdeckungsprüfung meldet jeden Absatz,
 jeden Listenpunkt und jede Tabellenzelle einer Quelle, deren Text nicht in der
 Datendatei steht. Was bewusst nicht übernommen wird, steht mit Begründung in
 NICHT_UEBERNOMMEN.
@@ -27,7 +29,7 @@ import subprocess
 import sys
 from html.parser import HTMLParser
 
-ERZEUGER = 'build_bm_daten.py 1.1'
+ERZEUGER = 'build_bm_daten.py 1.2'
 KANON_FASSUNG = '7.5'
 PCF_DATEI = 'PCF_9.6_Process_Framework.html'
 
@@ -316,11 +318,27 @@ def baue(dokumente):
             o['bezuege'].append({'ziel': k, 'art': 'Beobachtungsgröße'})
         objekte.append(o)
 
+    # Register-Dokumente nach Namen. Nennt ein Profil ein Dokument nur mit seiner Bezeichnung und ohne
+    # Indexmarke, ordnet das Skript es über die exakte Bezeichnung zu und meldet das als Hinweis.
+    dok_namen = {z[2]: z[0] for t in d03.tabelle('Kennung', 'Typ', 'Bezeichnung') for z in t['zeilen']}
+    def namen(text, wer, feld):
+        treffer = []
+        for teil in re.split(r',\s*|;\s*|\.\s+| und ', text or ''):
+            if re.search(r'\([^)]*\b(D-[A-Z]{2}-\d{2})', teil):
+                continue
+            teil = re.sub(r'\s*\([^)]*\)', '', teil).strip().rstrip('.')
+            if teil in dok_namen:
+                treffer.append(dok_namen[teil])
+                w.append(f'{wer} {feld}: Dokument „{teil}“ ohne Kennung genannt, zugeordnet zu {dok_namen[teil]}')
+        return treffer
+
     # Methoden nach D02-MET
     profile = {}
     for d in dokumente.values():
         for k, p in d.profile(r'^(M-\d{2}-\d{2})\b').items():
             pf = {name: R(d, wert) for name, wert in p['felder'].items()}
+            if k in profile:
+                w.append(f'{k}: Methodenprofil mehrfach, in {profile[k][0]} und {d.kennung}')
             profile[k] = (d.kennung, pf)
     for z in d02.tabelle('Kennung', 'Methode')[0]['zeilen']:
         k = z[0]
@@ -330,13 +348,15 @@ def baue(dokumente):
         ort, f = profile.get(k, (None, {}))
         if not f:
             w.append(f'{k}: kein Methodenprofil in den Quellen')
+        elif z[6] != ort and not (z[6] == 'D02-MET' and ort == 'D02'):
+            w.append(f'{k}: D02-MET nennt Fundstelle {z[6]}, das Profil steht in {ort}')
         o = {'kennung': k, 'art': 'M', 'n': z[1], 'ebene': EBENE_NAME[z[5]], 'regel': regel, 'baustein': baustein, 'komponenten': komp,
              'zweck': f.get('Zweck', ''), 'fundstelle': z[6], 'profil': {x: f[x] for x in ('Kaskadenstufe', 'Auslöser', 'Ergebnis', 'Dokumente', 'Verweise') if x in f},
              'stufen': [s['nr'] for s in stufen if s['n'] in f.get('Kaskadenstufe', '')], 'bezuege': []}
         if 'Alle Ebenen der Kaskade' in f.get('Kaskadenstufe', ''):
             o['stufen'] = [1, 2, 3, 4]
         for feld, art in (('Dokumente', 'nutzt'), ('Ergebnis', 'Ergebnis'), ('Verweise', 'Verweis')):
-            for x in kennungen(f.get(feld, '')):
+            for x in kennungen(f.get(feld, '')) + namen(f.get(feld, ''), k, feld):
                 if x != k and not any(b['ziel'] == x for b in o['bezuege']):
                     o['bezuege'].append({'ziel': x, 'art': art})
         objekte.append(o)
@@ -372,7 +392,7 @@ def baue(dokumente):
              'profil': {'Leitende Rolle': z[1], 'Takt': z[3], 'Dauer': z[4], **{x: f[x] for x in ('Teilnehmer', 'Inhalte', 'Kennzahlensatz', 'Board', 'Nachweis') if x in f}},
              'bezuege': []}
         for feld, art in (('Nachweis', 'Nachweis'), ('Kennzahlensatz', 'Kennzahl'), ('Inhalte', 'Verweis')):
-            for x in kennungen(f.get(feld, '')):
+            for x in kennungen(f.get(feld, '')) + namen(f.get(feld, ''), k, feld):
                 if not any(b['ziel'] == x for b in o['bezuege']):
                     o['bezuege'].append({'ziel': x, 'art': art})
         objekte.append(o)
@@ -476,6 +496,67 @@ def baue(dokumente):
     return daten, fehler, w, zaehl
 
 
+def kohaerenz(daten):
+    """Prüft Querbezüge der Datendatei auf Stimmigkeit. Liefert Hinweise, keine Fehler."""
+    h = []
+    obj = {o['kennung']: o for o in daten['objekte']}
+    komp = {k['code']: k for k in daten['komponenten']}
+    # B02 Befähigungskomponente je Baustein gegen B03 zuführende Bausteine je Komponente
+    for b in daten['bausteine']:
+        nach_b02 = {c for c, k in komp.items() if k['n'].lower()[:6] in (b.get('befaehigung') or '').lower()}
+        nach_b03 = {c for c, k in komp.items() if b['code'] in k.get('zufuehrend', [])}
+        if nach_b02 != nach_b03:
+            h.append(f"Baustein {b['code']}: B02 nennt Komponenten {', '.join(sorted(nach_b02)) or '–'}, B03 führt ihn bei {', '.join(sorted(nach_b03)) or '–'}")
+    # Methode mit Baustein und Komponente: Der Baustein muss der Komponente nach B03 zuführen
+    for o in daten['objekte']:
+        if o['art'] == 'M' and o['baustein'] and len(o['komponenten']) < 6:
+            for c in o['komponenten']:
+                if o['baustein'] not in komp[c].get('zufuehrend', []):
+                    h.append(f"{o['kennung']}: Baustein {o['baustein']} führt der Komponente {c} nach B03 nicht zu")
+    # Herkunft eines Dokuments und Nennung durch die Methode
+    for o in daten['objekte']:
+        if o['art'] == 'D':
+            for b in o['bezuege']:
+                m = obj.get(b['ziel'])
+                if m and m['art'] == 'M' and not any(x['ziel'] == o['kennung'] for x in m['bezuege']):
+                    h.append(f"{o['kennung']} nennt {m['kennung']} als Herkunft, {m['kennung']} nennt das Dokument nicht")
+                # Die Spalte Regel in D03-DOK folgt der Prüfmatrix; fehlt die Regel der Herkunftsmethode, ist das ein Prüfpunkt.
+                if m and m['art'] == 'M' and m['regel'] and m['regel'] not in o['regeln']:
+                    h.append(f"{o['kennung']} stammt aus {m['kennung']} (Regel {m['regel']}), führt Regel {', '.join(map(str, o['regeln'])) or '–'}")
+    # Dokumente ohne Nachweisverwendung
+    ohne = [o['kennung'] for o in daten['objekte'] if o['art'] == 'D' and not o['regeln'] and not o['mindestkriterium']]
+    if ohne:
+        h.append('Dokumente ohne Regel und ohne Mindestkriterium: ' + ', '.join(ohne))
+    # Objekte, die kein anderes Objekt nennt und die selbst nichts nennen
+    genannt = {b['ziel'] for o in daten['objekte'] for b in o['bezuege']}
+    for art, name in (('D', 'Dokumente'), ('W', 'Betriebswerkzeuge')):
+        lose = [o['kennung'] for o in daten['objekte'] if o['art'] == art and not o['bezuege'] and o['kennung'] not in genannt]
+        if lose:
+            h.append(f'{name} ohne Querbezug: ' + ', '.join(lose))
+    # Lücken in den Nummernfolgen
+    reihen = {}
+    for k in obj:
+        m = re.match(r'^(.*-)(\d{2})$', k)
+        if m:
+            reihen.setdefault(m.group(1), []).append(int(m.group(2)))
+    for r, n in sorted(reihen.items()):
+        fehlt = [f'{r}{i:02d}' for i in range(1, max(n) + 1) if i not in n]
+        if fehlt:
+            h.append(f'Nummernlücke in {r}..: ' + ', '.join(fehlt))
+    # Komponenten ohne Betriebswerkzeug
+    leer = [c for c in komp if not any(o['art'] == 'W' and c in o['komponenten'] for o in daten['objekte'])]
+    if leer:
+        h.append('Komponenten ohne Betriebswerkzeug: ' + ', '.join(leer))
+    # Freigabestand des Registers
+    status = {}
+    for o in daten['objekte']:
+        if o['art'] == 'D':
+            status[o['status']] = status.get(o['status'], 0) + 1
+    if not any(s.lower().startswith('freigegeben') for s in status):
+        h.append('Kein Register-Dokument hat den Status freigegeben: ' + ', '.join(f'{n} {s}' for s, n in sorted(status.items(), key=lambda x: -x[1])))
+    return h
+
+
 def norm_abdeckung(s):
     s = re.sub(r'[*_`]', '', s)
     return re.sub(r'\s+', ' ', s).strip().lower()
@@ -543,19 +624,27 @@ def main():
     ziel = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else 'bm-daten.js')
     dokumente = lade_quellen(ordner)
     daten, fehler, warnungen, zaehl = baue(dokumente)
+    print('Objekte je Art: ' + ', '.join(f'{a} {n}' for a, n in zaehl.items()))
+    koh = kohaerenz(daten)
+    for x in koh:
+        print('Kohärenz: ' + x)
+    abd = abdeckung(dokumente, daten)
+    gesamt, offen = sum(g for g, _ in abd.values()), sum(len(f) for _, f in abd.values())
+    print(f'Abdeckung: {gesamt - offen} von {gesamt} Textteilen der Quellen übernommen')
+    luecken = []
+    for kennung, (g, fehlt) in sorted(abd.items()):
+        for titel, text in fehlt:
+            kurz = text if len(text) <= 100 else text[:97] + '...'
+            luecken.append(f'{kennung} {titel}: {kurz}')
+            print(f'Nicht übernommen: {kennung} {titel}: {kurz}')
+    # Der Prüfbericht geht mit in die Datendatei, damit der Navigator ihn zeigen kann.
+    daten['meta']['pruefung'] = {'abdeckung': f'{gesamt - offen} von {gesamt}', 'nichtUebernommen': luecken,
+                                 'kohaerenz': koh, 'hinweise': warnungen}
     js = ('// Leadec Logistics Betriebsmodell – Datendatei des Modellnavigators E09\n'
           '// Erzeugt mit ' + ERZEUGER + ' aus dem Kanon ' + KANON_FASSUNG + '. Nicht von Hand bearbeiten.\n'
           'window.BM = ' + json.dumps(daten, ensure_ascii=False, indent=1) + ';\n')
     ziel.write_text(js, encoding='utf-8')
     print(f'Datendatei geschrieben: {ziel} ({len(js) // 1024} KB)')
-    print('Objekte je Art: ' + ', '.join(f'{a} {n}' for a, n in zaehl.items()))
-    abd = abdeckung(dokumente, daten)
-    gesamt, offen = sum(g for g, _ in abd.values()), sum(len(f) for _, f in abd.values())
-    print(f'Abdeckung: {gesamt - offen} von {gesamt} Textteilen der Quellen übernommen')
-    for kennung, (g, fehlt) in sorted(abd.items()):
-        for titel, text in fehlt:
-            kurz = text if len(text) <= 100 else text[:97] + '...'
-            print(f'Nicht übernommen: {kennung} {titel}: {kurz}')
     for x in warnungen:
         print('Hinweis: ' + x)
     for x in fehler:
