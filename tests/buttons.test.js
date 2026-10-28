@@ -4,13 +4,14 @@
 //   Teil 2  Einzeltests: jede Aktion im leeren Projekt und mit Daten, mit erwarteter Wirkung
 //   Teil 3  Bestätigungsdialoge: jeweils OK und Abbrechen
 //   Teil 4  Rückgängig: legt eine Aktion einen Rückgängig-Schritt an, stellt Rückgängig den Stand exakt wieder her
-//   Teil 5  Paarweise: jede Aktion gefolgt von jeder Aktion (A → B), mit und ohne Daten im Wechsel
+//   Teil 5  Paarweise: Aktion A gefolgt von Aktion B, mit und ohne Daten im Wechsel. Standard: jedes 6. der
+//           72 × 72 Paare (rund 4 Minuten); mit --voll alle Paare (rund 25 Minuten)
 //   Teil 6  Zufallsfolgen: reproduzierbar über einen Startwert
 //
 // Nach jedem Schritt gelten die Grundregeln aus check(): keine Seitenfehler, Planungsstand und Browserspeicher
 // bleiben ladbar, genau ein Register sichtbar, kein Darstellungsfehler, kein waagerechter Seitenüberlauf.
 //
-// Ausführen:  node tests/buttons.test.js [--seed=N] [--folgen=N] [--schritte=N] [--teil=1,2,...]
+// Ausführen:  node tests/buttons.test.js [--voll] [--seed=N] [--folgen=N] [--schritte=N] [--teil=1,2,...]
 // Benötigt das npm-Paket "playwright" mit Chromium.
 "use strict";
 const path = require("path");
@@ -24,6 +25,8 @@ const ARGS = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/
 const SEED = Number(ARGS.seed || 20261027);
 const SEQUENCES = Number(ARGS.folgen || 40);
 const STEPS = Number(ARGS.schritte || 25);
+const FULL = "voll" in ARGS;
+const PAIR_STRIDE = FULL ? 1 : 6;
 const PARTS = new Set(String(ARGS.teil || "1,2,3,4,5,6").split(",").map(Number));
 
 /* ============================ Testdateien ============================ */
@@ -642,14 +645,16 @@ async function part(name, fn) {
     return `${n} Aktionen mit Rückgängig-Schritt`;
   });
 
-  if (PARTS.has(5)) await part("Teil 5: paarweise Kombinationen A → B", async () => {
-    let n = 0, skipped = 0, k = 0;
+  if (PARTS.has(5)) await part(`Teil 5: paarweise Kombinationen A → B${FULL ? " (vollständig)" : ` (jedes ${PAIR_STRIDE}. Paar)`}`, async () => {
+    let n = 0, skipped = 0, k = 0, slow = 0;
     const failures = [];
     const list = ACTIONS;
     for (const first of list) for (const second of list) {
       k++;
+      // Ohne --voll nur jedes PAIR_STRIDE. Paar; der Startwert verschiebt die Auswahl, so deckt man über Läufe alles ab
+      if ((k + SEED) % PAIR_STRIDE) continue;
       // Langsame Aktionen (Optimierung) nur in jedem 4. Paar
-      if ((first.slow || second.slow) && k % 4) { skipped++; continue; }
+      if ((first.slow || second.slow) && slow++ % 4) { skipped++; continue; }
       await resetCtx(ctx, k % 2 === 0);
       try {
         await act(ctx, first); await checkRules(ctx, "nach A");
