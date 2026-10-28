@@ -199,7 +199,7 @@ const ACTIONS = [
   ...["gbp", "vol", "pal", "ffz", "blk", "fir", "cost"].map((pg) => ({
     key: "Vorgaben-Bereich " + pg, covers: ["#ptab-" + pg],
     run: async (p) => { await go(p, 1); await p.click("#ptab-" + pg); },
-    expect: async (a, b, p) => assert.equal(await p.getAttribute("#ptab-" + pg, "aria-selected"), "true"),
+    expect: async (a, b, p) => assert.equal(await p.getAttribute("#ptab-" + pg, "aria-current"), "true"),
   })),
   {
     key: "Startseite: Sprungziele", covers: ["goto"],
@@ -469,6 +469,27 @@ const ACTIONS = [
       await p.click('[data-param-source="volume.fillRack"]');
     },
     expect: async (a, b, p) => { assert.equal(b.tab, "7"); assert.equal(await p.evaluate(() => document.activeElement.closest("tr").dataset.sourcePath), "volume.fillRack"); },
+  },
+
+  {
+    key: "Start: Beispielprojekt laden", covers: ["#start-example"], confirm: true,
+    run: async (p) => { await go(p, 0); await p.click("#start-example"); },
+    expect: (a, b, p, ctx) => (ctx.confirm || !a.items) ? assert.equal(b.items, 6) : assert.deepEqual(b.names, a.names),
+  },
+  {
+    key: "Start: Planungsdatei öffnen", covers: ["#start-open"], confirm: true,
+    run: async (p) => { await go(p, 0); await chooseFile(p, "#start-open", FIXTURES.project); },
+    expect: (a, b, p, ctx) => (ctx.confirm || !a.items) ? assert.deepEqual(b.names, ["Datei-1", "Datei-2"]) : assert.deepEqual(b.names, a.names),
+  },
+  {
+    key: "Start: Mengengerüst aus CSV", covers: ["#start-csv"], confirm: true,
+    run: async (p) => { await go(p, 0); await chooseFile(p, "#start-csv", FIXTURES.csv); },
+    expect: (a, b, p, ctx) => (ctx.confirm || !a.items) ? assert.deepEqual(b.names, ["CSV-A", "CSV-B", "CSV-C"]) : assert.deepEqual(b.names, a.names),
+  },
+  {
+    key: "Start: aus Excel einfügen", covers: ["#start-paste"],
+    run: async (p) => { await go(p, 0); await p.click("#start-paste"); await p.fill("#paste-area", PASTE_TEXT); await p.click("#btn-paste-append"); },
+    expect: (a, b) => { assert.equal(b.tab, "2"); assert.equal(b.items, a.items + 2); },
   },
 
   /* ---------- Stammdaten ---------- */

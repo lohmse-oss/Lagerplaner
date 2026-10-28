@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.24</title>
+<title>Lagerplaner V2.25</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -137,8 +137,7 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .ptabs{position:sticky;top:-12px;z-index:10;display:flex;gap:6px;flex-wrap:wrap;background:var(--bg);padding:12px 0 8px;margin:-12px 0 10px;border-bottom:1px solid var(--line)}
 .ptabs button{border:1px solid var(--line);background:#f8fafc;color:var(--mut);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
 .ptabs button.on{background:#dbeafe;color:#1d4ed8;border-color:#2563eb;box-shadow:inset 0 -3px 0 #2563eb}
-.pgroup{display:none;background:transparent;border:0;border-radius:0 10px 10px 10px;padding:14px}
-.pgroup.on{display:block}
+.pgroup{display:block;background:transparent;border:0;border-radius:0 10px 10px 10px;padding:14px}
 .pgroup h3{margin:10px 0 8px;font-size:13px}
 .param-intro{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:12px 14px;margin-bottom:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px}
 .param-intro b{display:block;margin-bottom:3px}
@@ -215,6 +214,25 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .paste-map select{width:100%;font-size:11.5px}
 .paste-preview{max-height:180px;overflow:auto}
 .paste-preview table{font-size:11.5px}
+/* Startseite: Einstieg und Fortschritt */
+.start-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.start-progress{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.start-progress li{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;display:flex;gap:8px;align-items:flex-start;background:#fff}
+.start-progress li .st{flex:0 0 18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#e2e8f0;color:#475569}
+.start-progress li.done .st{background:#dcfce7;color:#15803d}
+.start-progress li.open .st{background:#fef3c7;color:#b45309}
+.start-progress li b{display:block;font-size:12px}
+.start-progress li span.t{color:var(--mut)}
+/* Vorgaben als eine Seite: Abschnittsnavigation und Feldsuche */
+.ptabs .psearch{margin-left:auto;display:flex;align-items:center;gap:6px}
+.ptabs .psearch input{width:200px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12px;background:#fff}
+.ptabs .psearch span{font-size:11px;color:var(--mut);white-space:nowrap}
+.pgroup{scroll-margin-top:72px}
+.pgroup+.pgroup{border-top:1px dashed var(--line);margin-top:6px}
+#pgroups.searching .param-intro,#pgroups.searching .search-off{display:none!important}
+/* Szenarien: Namen und Abweichungen zum aktuellen Stand */
+.scengrp input.scen-name{width:150px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12px}
+#scen-body td.diff{font-weight:700;color:#1d4ed8}
 .side-table{width:auto;margin:2px 0 8px auto;border-collapse:collapse;font-size:12px}
 .side-table th,.side-table td{padding:3px 10px;text-align:center;border-bottom:1px solid var(--line)}
 .side-table thead th{font-size:11px;font-weight:600;color:var(--mut);text-transform:none}
@@ -432,7 +450,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.24</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.25</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -537,6 +555,16 @@ details.obs[open] summary{margin-bottom:4px}
 
       <div id="panels">
         <div class="panel on" id="panel-0" role="tabpanel" aria-labelledby="tab-0">
+          <div class="card start-card">
+            <h3>Loslegen</h3>
+            <div class="start-actions">
+              <button type="button" class="btn acc" id="start-paste">Positionen aus Excel einfügen</button>
+              <button type="button" class="btn" id="start-open">Planungsdatei öffnen …</button>
+              <button type="button" class="btn" id="start-csv">Mengengerüst aus CSV …</button>
+              <button type="button" class="btn" id="start-example">Beispielprojekt laden</button>
+            </div>
+            <ol class="start-progress" id="start-progress" aria-label="Planungsfortschritt"></ol>
+          </div>
           <div class="card">
             <h3>
               Willkommen
@@ -601,19 +629,20 @@ details.obs[open] summary{margin-bottom:4px}
           </div>
         </div>
         <div class="panel" id="panel-1" role="tabpanel" aria-labelledby="tab-1">
-          <div class="ptabs" id="ptabs" role="tablist" aria-label="Bereiche der Vorgaben">
-            <button type="button" role="tab" id="ptab-gbp" aria-controls="pg-gbp" data-pg="gbp" class="on">1 Gebäude &amp; Flächen</button>
-            <button type="button" role="tab" id="ptab-vol" aria-controls="pg-vol" data-pg="vol">2 Volumen &amp; Puffer</button>
-            <button type="button" role="tab" id="ptab-pal" aria-controls="pg-pal" data-pg="pal">3 Stammdaten</button>
-            <button type="button" role="tab" id="ptab-ffz" aria-controls="pg-ffz" data-pg="ffz">4 Lagertechnik</button>
-            <button type="button" role="tab" id="ptab-blk" aria-controls="pg-blk" data-pg="blk">5 Blocklager</button>
-            <button type="button" role="tab" id="ptab-fir" aria-controls="pg-fir" data-pg="fir">6 Sicherheit &amp; Abstände</button>
-            <button type="button" role="tab" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">7 Kosten &amp; Optionen</button>
+          <div class="ptabs" id="ptabs" role="navigation" aria-label="Bereiche der Vorgaben">
+            <button type="button" id="ptab-gbp" aria-controls="pg-gbp" data-pg="gbp" class="on">1 Gebäude &amp; Flächen</button>
+            <button type="button" id="ptab-vol" aria-controls="pg-vol" data-pg="vol">2 Volumen &amp; Puffer</button>
+            <button type="button" id="ptab-pal" aria-controls="pg-pal" data-pg="pal">3 Stammdaten</button>
+            <button type="button" id="ptab-ffz" aria-controls="pg-ffz" data-pg="ffz">4 Lagertechnik</button>
+            <button type="button" id="ptab-blk" aria-controls="pg-blk" data-pg="blk">5 Blocklager</button>
+            <button type="button" id="ptab-fir" aria-controls="pg-fir" data-pg="fir">6 Sicherheit &amp; Abstände</button>
+            <button type="button" id="ptab-cost" aria-controls="pg-cost" data-pg="cost">7 Kosten &amp; Optionen</button>
+            <span class="psearch"><input type="search" id="param-search" placeholder="Feld suchen …" aria-label="Vorgaben durchsuchen" /><span id="param-search-count" aria-live="polite"></span></span>
           </div>
           <div id="pgroups">
-            <div class="pgroup on" id="pg-gbp" role="tabpanel" aria-labelledby="ptab-gbp"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup on" id="pg-gbp" role="region" aria-labelledby="ptab-gbp"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-pal" role="tabpanel" aria-labelledby="ptab-pal">
+            <div class="pgroup" id="pg-pal" role="region" aria-labelledby="ptab-pal">
               <h3>
                 Paletten- und LKW-Stammdaten
                 <span
@@ -660,14 +689,14 @@ details.obs[open] summary{margin-bottom:4px}
               </div>
             </div>
 
-            <div class="pgroup" id="pg-vol" role="tabpanel" aria-labelledby="ptab-vol"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup" id="pg-vol" role="region" aria-labelledby="ptab-vol"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-blk" role="tabpanel" aria-labelledby="ptab-blk"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup" id="pg-blk" role="region" aria-labelledby="ptab-blk"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-ffz" role="tabpanel" aria-labelledby="ptab-ffz"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup" id="pg-ffz" role="region" aria-labelledby="ptab-ffz"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
 
-            <div class="pgroup" id="pg-fir" role="tabpanel" aria-labelledby="ptab-fir"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
-            <div class="pgroup" id="pg-cost" role="tabpanel" aria-labelledby="ptab-cost"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup" id="pg-fir" role="region" aria-labelledby="ptab-fir"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
+            <div class="pgroup" id="pg-cost" role="region" aria-labelledby="ptab-cost"><!-- Inhalt erzeugt renderParamForm() aus PARAM_LAYOUT und PARAMS --></div>
           </div>
         </div>
         <div class="panel" id="panel-10" role="tabpanel" aria-labelledby="tab-10">
@@ -1229,9 +1258,9 @@ details.obs[open] summary{margin-bottom:4px}
                   <tr>
                     <th style="width: 220px">Metrik</th>
                     <th>Aktuell</th>
-                    <th>Slot 1</th>
-                    <th>Slot 2</th>
-                    <th>Slot 3</th>
+                    <th id="scen-h1">Slot 1</th>
+                    <th id="scen-h2">Slot 2</th>
+                    <th id="scen-h3">Slot 3</th>
                   </tr>
                 </thead>
                 <tbody id="scen-body"></tbody>
@@ -1457,7 +1486,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.24 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.25 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1499,14 +1528,14 @@ details.obs[open] summary{margin-bottom:4px}
     <details class="obs" open><summary>Kurzhilfe: Arbeitsablauf</summary><div>
       <ol style="margin:6px 0 0;padding-left:20px;line-height:1.7">
         <li>Start: Die Startseite zeigt die vier Phasen mit ihren Registern; jeder Eintrag springt ins Register.</li>
-        <li>Eingabe · Vorgaben: Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen). Vom Standard abweichende Werte sind mit einem Punkt markiert und lassen sich mit „↺ Standard“ zurücksetzen; die Zahl am Bereich nennt die Abweichungen. Die Datenquelle steht direkt am Feld („Kunde ✓“, „Annahme“, „Quelle fehlt“); ein Klick öffnet die Zeile im Annahmenregister. Beim Bearbeiten erscheint unter dem Feld, wie der Wert wirkt.</li>
+        <li>Eingabe · Vorgaben: Alle Bereiche stehen untereinander auf einer Seite; die nummerierten Knöpfe springen zum Bereich, das Suchfeld „Feld suchen“ filtert nach Beschriftung und Wirkung (Esc leert). Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen). Vom Standard abweichende Werte sind mit einem Punkt markiert und lassen sich mit „↺ Standard“ zurücksetzen; die Zahl am Bereich nennt die Abweichungen. Die Datenquelle steht direkt am Feld („Kunde ✓“, „Annahme“, „Quelle fehlt“); ein Klick öffnet die Zeile im Annahmenregister. Beim Bearbeiten erscheint unter dem Feld, wie der Wert wirkt.</li>
         <li>Eingabe · Mengengerüst: Positionen erfassen, aus Excel einfügen (Zellen kopieren, Strg+V; Spalten werden anhand der Überschriften zugeordnet) oder per CSV importieren; die Eingabedatei lädt das Menü Datei. Die Tabelle zeigt je Position eine Zeile; ✎ öffnet alle Felder im Detailfeld neben den Kennzahlen. Enter springt zur nächsten Zeile.</li>
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
         <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
         <li>Konzept · Stückliste &amp; CAPEX: Mengen und Kosten prüfen, Einheitspreise anpassen.</li>
         <li>Bei Bedarf Layout-Optimierung über das Menü Varianten ermitteln in der Kopfzeile: Ziel wählen (minimaler CAPEX für den Soll-Bestand, maximaler Flächennutzungsgrad oder – nur in der Bestandshalle – maximale Lagerkapazität), Lauf starten, Ergebnis im Register Layout prüfen und eine Variante per Klick übernehmen. Während des Laufs erscheint oben eine Statusleiste mit Abbruchmöglichkeit.</li>
-        <li>Bewertung · Varianten: bis zu drei Szenarien speichern und vergleichen; zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen.</li>
+        <li>Bewertung · Varianten: bis zu drei Szenarien mit Namen speichern und vergleichen (Abweichungen zum aktuellen Stand sind hervorgehoben); zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen.</li>
         <li>Bewertung · Sensitivität: wirksamste Annahmen erkennen; das Tornado-Diagramm zeigt die Wirkung je Treiber.</li>
         <li>Bewertung · Annahmen: Datenbasis, Datenlücken und Parameterquellen prüfen; bei Bedarf den Fragekatalog für den Kunden erzeugen.</li>
         <li>Ergebnis · Übersicht: Kurzbericht und alle Plausibilitätshinweise lesen.</li>
@@ -1778,7 +1807,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.24";
+const APP_VERSION="V2.25";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2343,6 +2372,13 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.25",date:"28.10.2026",items:[
+    "Startseite: Einstiege (aus Excel einfügen, Planungsdatei öffnen, CSV, Beispielprojekt) und ein Fortschritt mit vier Schritten (Positionen, Halle, Annahmen belegt, Ergebnis), jeweils mit Sprung ins zuständige Register.",
+    "Beispielprojekt: sechs Positionen mit allen Bedarfsarten, Greenfield-Halle aus dem Bedarf, dokumentierte Quellen; rückgängig machbar.",
+    "Vorgaben auf einer Seite: alle Bereiche untereinander in der Reihenfolge der Nummern; die Bereichsknöpfe springen zum Abschnitt und markieren beim Scrollen den sichtbaren Bereich. Feldsuche über Beschriftung, Wirkungstext und Parameterpfad; Abschnitte ohne Treffer werden ausgeblendet.",
+    "Szenarien mit Namen (beim Speichern oder nachträglich); Namen in Vergleichstabelle und Auswahlliste; Abweichungen zum aktuellen Stand in der Vergleichstabelle hervorgehoben.",
+    "Greenfield-Hinweise erscheinen nicht mehr doppelt."
+  ]},
   {v:"V2.24",date:"28.10.2026",items:[
     "Vorgaben: Vom Standard abweichende Werte sind markiert (Punkt vor der Beschriftung) und lassen sich je Feld mit „↺ Standard“ zurücksetzen (rückgängig machbar). Zähler an den Vorgabenbereichen und Abschnitten nennen die Zahl der Abweichungen; berechnete Greenfield-Hallenmaße zählen nicht.",
     "Datenquelle am Feld: dokumentierte Quellen erscheinen als „Kunde“, „Annahme“ oder „Vorgabe“ (✓ bestätigt, ! Wert seither geändert); geänderte Werte ohne Quelle als „Quelle fehlt“. Ein Klick öffnet die Zeile im Annahmenregister.",
@@ -2978,7 +3014,7 @@ function validateScenarioList(scenarios,label,depth){
   for(let i=0;i<scenarios.length;i++){
     const sc=scenarios[i];if(sc==null)continue;
     if(!isPlainObject(sc))throw new Error(label+", Slot "+(i+1)+" ist ungültig.");
-    for(const field of ["stand","projekt"])if(sc[field]!=null&&(typeof sc[field]!=="string"||sc[field].length>200))throw new Error(label+", Slot "+(i+1)+": ungültiger Text.");
+    for(const field of ["stand","projekt","name"])if(sc[field]!=null&&(typeof sc[field]!=="string"||sc[field].length>200))throw new Error(label+", Slot "+(i+1)+": ungültiger Text.");
     if(sc.metrics!=null&&!isPlainObject(sc.metrics))throw new Error(label+", Slot "+(i+1)+": Kennzahlen sind ungültig.");
     if(sc.data!=null){
       if(depth>0)throw new Error("Verschachtelte Szenario-Snapshots sind nicht erlaubt.");
@@ -3606,7 +3642,7 @@ function computeModel(){
       const searchWarnings=model.warn.filter(w=>w.t.startsWith("Greenfield:"));
       model=computeModelAtDimensions(model.geo.L,model.geo.W);
       model.geo.hallSearch=searchInfo;model.geo.ratioApplied=true;
-      model.warn.push(...searchWarnings);
+      model.warn.push(...searchWarnings.filter(w=>!model.warn.some(x=>x.t===w.t)));
     }
     model.feasibility=assessModelFeasibility(model);
     return model;
@@ -3774,6 +3810,7 @@ function recalc(){
   }
 
   updateTotals();
+  updateStartProgress(); // nach der Ampel, deren Text der Fortschritt übernimmt
   for(const n of Object.keys(PANEL_RENDERERS))STALE_PANELS.add(n);
   const renderErrors=renderVisiblePanels();
   if(renderErrors.length)showRenderErrors(renderErrors);
@@ -5184,7 +5221,8 @@ function saveScenario(i){
   const ex=S.scenarios[i-1];
   if(ex&&ex.data&&!confirm("Slot "+i+" ist belegt ("+(ex.projekt||"ohne Titel")+", "+ex.stand+"). Überschreiben?"))return;
   const snap=JSON.parse(JSON.stringify({...S,scenarios:undefined}));
-  S.scenarios[i-1]={stand:new Date().toLocaleString("de-DE"),projekt:S.meta.name||"ohne Titel",metrics:scenMetrics(),data:snap};
+  const nameIn=document.querySelector('[data-scen-name="'+i+'"]'),name=String(nameIn&&nameIn.value||"").trim().slice(0,80)||(ex&&ex.name)||"Variante "+i;
+  S.scenarios[i-1]={name,stand:new Date().toLocaleString("de-DE"),projekt:S.meta.name||"ohne Titel",metrics:scenMetrics(),data:snap};
   renderScenarios();
   persistState();
 }
@@ -5211,6 +5249,7 @@ function clearScenario(i){
   renderScenarios();
   persistState();
 }
+function scenarioTitle(sc,i){return sc&&sc.name?sc.name:"Slot "+(i+1)+(sc&&sc.projekt?" · "+sc.projekt:"");}
 function renderScenarios(){
   const tb=$("scen-body"),bar=$("scenbar");
   if(!tb)return;
@@ -5218,7 +5257,7 @@ function renderScenarios(){
   if(picker){
     const previous=picker.value;
     let options='<option value="">Kein gespeichertes Szenario</option>';
-    for(let i=0;i<3;i++){const sc=S.scenarios[i];if(sc)options+='<option value="'+(i+1)+'">Slot '+(i+1)+' · '+escH(sc.projekt||"ohne Titel")+' · '+escH(sc.stand||"ohne Stand")+'</option>';}
+    for(let i=0;i<3;i++){const sc=S.scenarios[i];if(sc)options+='<option value="'+(i+1)+'">'+escH(scenarioTitle(sc,i))+' · '+escH(sc.stand||"ohne Stand")+'</option>';}
     picker.innerHTML=options;
     if(previous&&S.scenarios[Number(previous)-1])picker.value=previous;
     if(loadBtn)loadBtn.disabled=!picker.value;
@@ -5227,7 +5266,8 @@ function renderScenarios(){
     let bh="";
     for(let i=0;i<3;i++){
       const sc=S.scenarios[i];
-      bh+='<div class="scengrp"><span class="scenlbl">Slot '+(i+1)+(sc?(escH(sc.projekt||"")+" · "+escH(sc.stand||"")):"")+'</span>'+
+      bh+='<div class="scengrp"><span class="scenlbl">Slot '+(i+1)+'</span>'+
+        '<input type="text" class="scen-name" data-scen-name="'+(i+1)+'" maxlength="80" value="'+escH(sc&&sc.name||"")+'" placeholder="Name, z. B. Schmalgang" aria-label="Name Szenario '+(i+1)+'" title="'+escH(sc?(sc.projekt||"")+" · "+(sc.stand||""):"Name beim Speichern")+'">'+
         '<button class="btn" data-scen-save="'+(i+1)+'">Speichern</button>'+
         '<button class="btn" data-scen-load="'+(i+1)+'"'+(sc?"":" disabled")+'>Laden</button>'+
         '<button class="btn danger" data-scen-clear="'+(i+1)+'"'+(sc?"":" disabled")+'>Leeren</button></div>';
@@ -5252,11 +5292,17 @@ function renderScenarios(){
     ["Reichweite (Tage)",m=>fmt(m.reichweite,1)]
   ];
   const cur=scenMetrics();
+  for(let i=0;i<3;i++){const h=$("scen-h"+(i+1));if(h)h.textContent=S.scenarios[i]?scenarioTitle(S.scenarios[i],i):"Slot "+(i+1);}
   let html="";
   for(const [label,fn] of MDEF){
-    html+='<tr><td>'+label+'</td><td>'+fn(cur)+'</td>';
-    for(const sc of S.scenarios||[]){
-      html+='<td>'+(sc&&sc.metrics?escH(fn(sc.metrics)):'<span class="hint">–</span>')+'</td>';
+    const now=String(fn(cur));
+    html+='<tr><td>'+label+'</td><td>'+escH(now)+'</td>';
+    for(let i=0;i<3;i++){
+      const sc=(S.scenarios||[])[i];
+      if(!sc||!sc.metrics){html+='<td><span class="hint">–</span></td>';continue;}
+      const v=String(fn(sc.metrics));
+      // Abweichung zum aktuellen Stand hervorheben
+      html+='<td'+(v!==now?' class="diff" title="Abweichung zum aktuellen Stand ('+escH(now)+')"':'')+'>'+escH(v)+'</td>';
     }
     html+='</tr>';
   }
@@ -6562,22 +6608,71 @@ function initKpiPanel(){
   if(collapsed)setKpisCollapsed(true,false);else updateKpiToggle();
   btn.addEventListener("click",()=>setKpisCollapsed(!$("app").classList.contains("kpis-collapsed"),true));
 }
+// Vorgaben als eine Seite: die Bereichsknöpfe springen zum Abschnitt, der sichtbare Abschnitt ist markiert
+function setCurrentPGroup(id){
+  for(const b of document.querySelectorAll("#ptabs button[data-pg]")){
+    const on=b.dataset.pg===id;b.classList.toggle("on",on);
+    if(on)b.setAttribute("aria-current","true");else b.removeAttribute("aria-current");
+  }
+}
 function initPTabs(){
   const wrap=$("ptabs");
   if(!wrap)return;
   const btns=Array.prototype.slice.call(wrap.querySelectorAll("button[data-pg]"));
-  const show=id=>{
-    btns.forEach(b=>{const on=b.dataset.pg===id;b.classList.toggle("on",on);b.setAttribute("aria-selected",on?"true":"false");b.tabIndex=on?0:-1;});
-    document.querySelectorAll("#pgroups .pgroup").forEach(g=>g.classList.toggle("on",g.id==="pg-"+id));
+  // Bereiche in der Reihenfolge der nummerierten Knöpfe untereinander
+  for(const b of btns){const g=$("pg-"+b.dataset.pg);if(g)$("pgroups").appendChild(g);}
+  const go=id=>{
+    const g=$("pg-"+id);if(!g)return;
+    if($("pgroups").classList.contains("searching")){$("param-search").value="";applyParamSearch();}
+    setCurrentPGroup(id);SPY_LOCK=Date.now();
+    g.scrollIntoView({block:"start"});
   };
-  btns.forEach(b=>b.addEventListener("click",()=>show(b.dataset.pg)));
+  btns.forEach(b=>b.addEventListener("click",()=>go(b.dataset.pg)));
   wrap.addEventListener("keydown",ev=>{
     if(ev.key!=="ArrowLeft"&&ev.key!=="ArrowRight")return;
     const i=btns.indexOf(document.activeElement);if(i<0)return;
     ev.preventDefault();const j=(i+(ev.key==="ArrowRight"?1:-1)+btns.length)%btns.length;
-    show(btns[j].dataset.pg);btns[j].focus();
+    go(btns[j].dataset.pg);btns[j].focus();
   });
-  show("gbp");
+  // Mitlaufende Markierung beim Scrollen (nicht unmittelbar nach einem Sprung)
+  let SPY_LOCK=0,raf=0;
+  $("panels").addEventListener("scroll",()=>{
+    if(raf||!$("panel-1").classList.contains("on")||Date.now()-SPY_LOCK<400)return;
+    raf=requestAnimationFrame(()=>{
+      raf=0;
+      const top=$("panels").getBoundingClientRect().top+90;
+      let cur=btns[0].dataset.pg,best=-Infinity;
+      for(const b of btns){const g=$("pg-"+b.dataset.pg);if(!g||!g.offsetParent)continue;const t=g.getBoundingClientRect().top;if(t<=top&&t>best){best=t;cur=b.dataset.pg;}}
+      setCurrentPGroup(cur);
+    });
+  });
+  $("param-search").addEventListener("input",applyParamSearch);
+  $("param-search").addEventListener("keydown",ev=>{if(ev.key==="Escape"&&ev.target.value){ev.preventDefault();ev.stopPropagation();ev.target.value="";applyParamSearch();}});
+  setCurrentPGroup("gbp");
+}
+// Feldsuche: Beschriftung, Wirkungstext und Pfad; Abschnitte und Bereiche ohne Treffer werden ausgeblendet
+function applyParamSearch(){
+  const q=String($("param-search").value||"").trim().toLowerCase(),host=$("pgroups");
+  host.classList.toggle("searching",!!q);
+  let hits=0;
+  for(const row of host.querySelectorAll(".fld.pfld")){
+    const lab=row.querySelector("label"),eff=row.querySelector(".eff");
+    const text=((lab?lab.textContent:"")+" "+(eff?eff.textContent:"")+" "+(row.dataset.p||"")).toLowerCase();
+    const hit=!q||text.includes(q);
+    row.classList.toggle("search-off",!hit);
+    if(hit&&q&&!row.classList.contains("conditional-off"))hits++;
+  }
+  for(const sec of host.querySelectorAll(".param-section")){
+    // Tabelle Tore und Zonen: Treffer über ihre Begriffe
+    const table=sec.querySelector(".side-table"),tableHit=!!table&&/^(tor|zone|we\b|wa\b|we-|wa-|hallenseite)/.test(q);
+    sec.classList.toggle("search-off",!!q&&!tableHit&&!sec.querySelector(".fld.pfld:not(.search-off):not(.conditional-off)"));
+  }
+  for(const g of host.querySelectorAll(".pgroup")){
+    let off=false;
+    if(q)off=g.id==="pg-pal"?!g.textContent.toLowerCase().includes(q):!g.querySelector(".param-section:not(.search-off)");
+    g.classList.toggle("search-off",off);
+  }
+  $("param-search-count").textContent=q?(hits+(hits===1?" Treffer":" Treffer")):"";
 }
 function initButtons(){
   const cancelOpt=$("btn-opt-cancel");if(cancelOpt)cancelOpt.addEventListener("click",cancelOptimizationRun);
@@ -6648,6 +6743,10 @@ function initButtons(){
   });
   $("btn-save").addEventListener("click",saveProject);
   $("btn-load").addEventListener("click",()=>$("jsonFile").click());
+  $("start-open").addEventListener("click",()=>$("jsonFile").click());
+  $("start-csv").addEventListener("click",()=>$("csvFile").click());
+  $("start-paste").addEventListener("click",ev=>{showTab(2);openPasteDialog("",ev.currentTarget);});
+  $("start-example").addEventListener("click",loadExampleProject);
   $("jsonFile").addEventListener("change",ev=>{
     const f=ev.target.files[0];if(!f)return;
     if(f.size>10000000){alert("Die Planungsdatei ist größer als 10 MB und wurde nicht geladen.");ev.target.value="";return;}
@@ -6798,6 +6897,13 @@ function initButtons(){
     else if(t.dataset.scenLoad)restoreScenario(+t.dataset.scenLoad);
     else if(t.dataset.scenClear)clearScenario(+t.dataset.scenClear);
   });
+  // Namen belegter Slots direkt umbenennen
+  if(sbar)sbar.addEventListener("change",ev=>{
+    const i=+(ev.target.dataset&&ev.target.dataset.scenName),sc=S.scenarios[i-1];
+    if(!i||!sc)return;
+    sc.name=String(ev.target.value||"").trim().slice(0,80)||"Variante "+i;
+    renderScenarios();persistState();
+  });
 }
 window.addEventListener("resize",()=>{drawLayout();drawSection();drawBlockSection();});
 window.addEventListener("resize",updateKpiToggle);
@@ -6812,6 +6918,52 @@ window.addEventListener("resize",updateKpiToggle);
       window.openAccessibleModal=openModal;window.closeAccessibleModal=closeModal;
       document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;const m=document.querySelector(".modal.on");if(m){e.preventDefault();closeModal(m.id);}});
     }
+// Startseite: Planungsfortschritt aus dem aktuellen Stand
+function updateStartProgress(){
+  const ol=$("start-progress");if(!ol)return;
+  const n=S.items.length,g=S.building.mode==="greenfield";
+  const hallDone=g||["building.L","building.W","building.ukb"].some(p=>JSON.stringify(getP(S,p))!==JSON.stringify(getP(PARAMETER_SOURCE_DEFAULTS,p))||parameterSourceInfo(p).source!=="unknown");
+  const changed=PARAMS.filter(d=>isParameterSourcePath(d.p)&&d.render!==false&&paramIsChanged(d));
+  const documented=changed.filter(d=>parameterSourceInfo(d.p).source!=="unknown").length;
+  const amp=$("kpi-ampel"),ampText=amp?amp.textContent.trim():"";
+  const ok=R&&R.geo&&assessModelFeasibility(R).feasible;
+  const steps=[
+    [n>0,"Positionen erfassen",n?n+(n===1?" Position im Mengengerüst":" Positionen im Mengengerüst"):"Noch keine Positionen",2],
+    [hallDone,"Halle festlegen",g?"Greenfield: Halle wird aus dem Bedarf ermittelt":"Bestandshalle "+fmt(S.building.L,1)+" × "+fmt(S.building.W,1)+" m, UKB "+fmt(S.building.ukb,1)+" m"+(hallDone?"":" (Standardwerte prüfen)"),1],
+    [changed.length===0||documented===changed.length,"Annahmen belegen",changed.length?documented+" von "+changed.length+" geänderten Vorgaben mit Quelle":"Alle Vorgaben auf Standard",7],
+    [n>0&&ok,"Ergebnis prüfen",n?ampText:"Ampel nach Erfassung der Positionen",10]
+  ];
+  ol.innerHTML=steps.map(([done,title,text,tab],i)=>'<li class="'+(done?"done":(n||i===0?"open":""))+'"><span class="st" aria-hidden="true">'+(done?"✓":i+1)+'</span><span><b><button type="button" class="linkbtn" data-goto="'+tab+'">'+escH(title)+'</button></b><span class="t">'+escH(text)+'</span></span></li>').join("");
+}
+// Beispielprojekt zum Ausprobieren: sechs Positionen, Greenfield-Halle aus dem Bedarf
+function exampleProject(){
+  const st=defaults();
+  st.meta.name="Beispielprojekt Kontraktlogistik";st.meta.kunde="Musterkunde";
+  Object.assign(st.building,{mode:"greenfield",ukb:10});
+  st.ffz.rackBase="envelope";
+  const at=new Date().toISOString();
+  st.parameterSources={"building.ukb":{source:"customer",confirmed:true,reference:"Beispiel: Gebäudesteckbrief",changedAt:at,value:10},
+    "building.mode":{source:"customer",confirmed:true,reference:"Beispiel: Ausschreibung Neubau",changedAt:at,value:"greenfield"},
+    "ffz.rackBase":{source:"assumption",confirmed:false,reference:"Gemischte Ladungsträger",changedAt:at,value:"envelope"}};
+  const mk=(name,o)=>Object.assign(newItem(),{name,dataBasis:"customer"},o);
+  st.items=[
+    mk("Getränke",{demand:"truck",trucks:4,skus:40,stack:2}),
+    mk("Konserven",{demand:"pallets",palletsDay:60,skus:120,stack:2}),
+    mk("Drogerie",{demand:"truck",trucks:2,skus:600}),
+    mk("Elektro-Kleinteile",{demand:"pieces",pcsDay:12000,pcsPerKlt:25,kltPerPallet:24,skus:900,dataBasis:"assumption"}),
+    mk("Saisonware",{demand:"stock",targetStock:900,skus:30,stack:3}),
+    mk("Papier",{demand:"truck",trucks:1.5,skus:15,lhm:"indu",l:1200,b:1000,h:1100,g:600})
+  ];
+  return st;
+}
+function loadExampleProject(){
+  if(S.items.length&&!confirm("Aktuellen Planungsstand durch das Beispielprojekt ersetzen? Rückgängig ist möglich."))return;
+  pushUndo("Beispielprojekt geladen");
+  const keep=S.scenarios;
+  S=exampleProject();S.scenarios=keep||[null,null,null];
+  syncAll();refreshModeUI();renderItems();recalc();
+  showNotice("Beispielprojekt geladen: sechs Positionen, Greenfield-Halle aus dem Bedarf. Werte frei ändern oder über Datei › Neue Planung neu beginnen.",8000);
+}
 // Vorgabenfelder: Abweichung vom Standard und dokumentierte Quelle am Feld
 const PARAM_SOURCE_CHIP={customer:["Kunde","src-customer"],assumption:["Annahme","src-assumption"],default:["Vorgabe",""]};
 function paramIsChanged(d){
