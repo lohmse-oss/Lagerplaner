@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.13</title>
+<title>Lagerplaner V2.14</title>
 <style>
 :root{
   --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --mut:#64748b; --line:#e2e8f0;
@@ -320,7 +320,7 @@ details.obs[open] summary{margin-bottom:4px}
 <body>
 <div id="app">
 <header>
-  <h1>Lagerplaner <span class="v" id="app-ver" title="Änderungslog öffnen">V2.13</span></h1>
+  <h1>Lagerplaner <span class="v" id="app-ver" title="Änderungslog öffnen">V2.14</span></h1>
   <input id="in-projname" type="text" placeholder="Projektname" style="width:180px">
   <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" style="width:200px">
   <div class="hdr-actions">
@@ -618,13 +618,13 @@ details.obs[open] summary{margin-bottom:4px}
         <p class="hint">Dieses Register löst die Berechnung in ihrer tatsächlichen Reihenfolge auf. Jeder Schritt nennt seine Eingabefelder und seine Formel. Die Schaltfläche Berechnung aktualisieren durchläuft alle Schritte vollständig; Zwischenergebnisse erscheinen in der Artikeltabelle, im Layout, in den Berichten und in der Status-Seitenleiste.</p>
         <div style="overflow:auto;max-height:64vh">
         <table><thead><tr><th style="width:34px">Nr.</th><th style="width:220px">Schritt</th><th>Eingabefelder</th><th>Rechenweg (Ergebnisgröße)</th></tr></thead><tbody>
-          <tr><td>1</td><td>Bedarf je Position</td><td>Tab 2: Ermittlung, Bedarfseingabe, LKW-Typ, Paletten je LKW</td><td>LKW/Tag: Paletten/Tag = LKW/Tag × Paletten je LKW (Vorbelegung aus der Kreuztabelle, überschreibbar) · Paletten/Tag: direkte Eingabe · Stückbasis: Paletten/Tag = Stück/Tag ÷ Stück je KLT ÷ KLT je Palette · Ziel-Bestand: Bestand direkt vorgegeben, Paletten/Tag = Ziel-Bestand ÷ Reichweite (Paletten/Tag je Position)</td></tr>
-          <tr><td>2</td><td>LKW-Volumen je Tag</td><td>aus Schritt 1 und Füllmenge der Kreuztabelle</td><td>LKW/Tag = Paletten/Tag ÷ Füllmenge des LKW-Typs; im Modus LKW/Tag direkte Eingabe (Kachel LKW/Tag der Status-Seitenleiste)</td></tr>
+          <tr><td>1</td><td>Bedarf je Position</td><td>Tab 2: Ermittlung, Bedarfseingabe, LKW-Typ, Paletten je LKW</td><td>LKW/Tag: Paletten/Tag = LKW/Tag × Paletten je LKW (automatisch aus der Kreuztabelle; ein eigener Wert überschreibt sie) · Paletten/Tag: direkte Eingabe · Stückbasis: Paletten/Tag = Stück/Tag ÷ Stück je KLT ÷ KLT je Palette · Ziel-Bestand: Bestand direkt vorgegeben, Paletten/Tag = Ziel-Bestand ÷ Reichweite (Paletten/Tag je Position)</td></tr>
+          <tr><td>2</td><td>LKW-Volumen je Tag</td><td>aus Schritt 1 und Füllmenge der Kreuztabelle</td><td>LKW/Tag = Paletten/Tag × Wachstumsfaktor ÷ Füllmenge des LKW-Typs; im Modus LKW/Tag Eingabe × Wachstumsfaktor (Kachel LKW/Tag der Status-Seitenleiste)</td></tr>
           <tr><td>3</td><td>Netto-Bestand je Position</td><td>Tab 1: Lagerreichweite, Transit-/Cross-Dock-Anteil</td><td>Bemessungsbestand = Paletten/Tag × Reichweite × Peak-Faktor × (1 + Sicherheitsbestand ÷ 100) × (1 − Transitanteil ÷ 100); im Modus Ziel-Bestand: Netto = Ziel-Bestand × (1 − Transitanteil ÷ 100). Transitpaletten verbrauchen keine Stellfläche; nur bei zugeschaltetem separatem Puffer entsteht eine Bodenfläche (Standzeit × Fläche je Palette)</td></tr>
           <tr><td>4</td><td>Blockverteilung je Position</td><td>Tab 1: Verteilungsmethode, Volumenquote, ABC-Anteile, Mindest-Kanalfüllgrad; Tab 2: Artikel, Stapel 1+x, Blockanteil</td><td>Quote: Blockpaletten = Netto × Quote · Manuell: Blockpaletten = Netto × Blockanteil · Artikelbasiert: drei Artikelklassen (obere 20 Prozent der Artikel erhalten A-Volumenanteil, mittlere 30 Prozent den B-Anteil, untere 50 Prozent den Rest); eine Klasse qualifiziert sich, wenn der Artikel stapelbar ist (mindestens 1+1) und das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Nutzbarer Stapel = Minimum aus Artikel-Stapel, max. Stapelhöhe und OK Lagergut ÷ Palettenhöhe; die Kippgrenze 6:1 wird als Hinweis ausgewiesen. Effektiver Blockanteil = Blockpaletten ÷ Netto (Spalte Block %)</td></tr>
           <tr><td>5</td><td>Brutto-Bedarf</td><td>Tab 1: Füllgrad Regal, Füllgrad Block</td><td>Brutto Regal = Aufrunden(Regalpaletten ÷ Füllgrad Regal) · Brutto Block = Aufrunden(Blockpaletten ÷ Füllgrad Block) (Bedarf an Regal- und Blockplätzen)</td></tr>
           <tr><td>6</td><td>Regalgeometrie</td><td>Tab 1: Auslegungsbasis, Feldweite, Bodenebene, Brandschutz; Gebäude: UKB</td><td>Leitartikel oder Hüllkurve legen Palette und Fachlast fest; Fachlast bestimmt Ständer- und Traversenprofil (100/120 mm bzw. 120/140 mm) · Feldweite automatisch aus den Kandidaten 1.800, 2.250, 2.700, 3.100, 3.600 mm (kleinster Kandidat mit mindestens drei Paletten je Feld) oder fest · Ebenen = 1 + Abrunden((Minimum aus (Gebäudegrenze minus Ladeeinheitenhöhe) und nutzbarer Hubhöhe, danach minus Bodenoffset) ÷ Ebenenraster); passt keine Ebene, entsteht keine Regalkapazität; Raster = Palettenhöhe + 150 mm Hubspiel + Traversenprofil, bei In-Rack-Sprinklerung +100 mm je Ebene (Felder, Ebenen, Paletten je Feld, Regalhöhe)</td></tr>
-          <tr><td>7</td><td>Blockgeometrie</td><td>Tab 1: Kanaltiefe, max. Stapelhöhe, Blockausrichtung; Tab 4: Block-Leitartikel</td><td>Kanalbreite = breiteste Palettenbreite + 150 mm · Kanaltiefe = (längste Palettenlänge + 50 mm) × Kanaltiefe in Paletten (konservative Maßhüllkurve über die Positionen) · wirksame Stapelhöhe je Position = Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe und Oberkante Lagergut ÷ Palettenhöhe · Kanalkapazität je Position = Kanaltiefe × wirksame Stapelhöhe · Kanäle = Summe je Position aus Aufrunden(Brutto Block je Position ÷ Kanalkapazität je Position) · Bänder und Bandabstand folgen aus der Ausrichtung; der Bandabstand entspricht der Block-Gangbreite (Kanäle, Bänder, Blocktiefe)</td></tr>
+          <tr><td>7</td><td>Blockgeometrie</td><td>Tab 1: Kanaltiefe, max. Stapelhöhe, Blockausrichtung; Tab 4: Block-Leitartikel</td><td>Kanalbreite = breiteste Palettenbreite + 150 mm · Kanaltiefe = (längste Palettenlänge + 50 mm) × Kanaltiefe in Paletten (konservative Maßhüllkurve über die Positionen) · wirksame Stapelhöhe je Position = Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe und Oberkante Lagergut ÷ Palettenhöhe · Kanalkapazität je Position = Kanaltiefe (ganze Paletten) × wirksame Stapelhöhe · Kanäle sind artikelrein: je Position Artikel im Block × Aufrunden(Brutto Block ÷ Artikel im Block ÷ Kanalkapazität), ohne Artikelangabe Aufrunden(Brutto Block ÷ Kanalkapazität); Artikel im Block sind artikelbasiert die qualifizierten Klassen, bei Quote und manuell anteilig zum Blockvolumen · Bänder und Bandabstand folgen aus der Ausrichtung; der Bandabstand entspricht der Block-Gangbreite (Kanäle, Bänder, Blocktiefe)</td></tr>
           <tr><td>8</td><td>Leergut</td><td>Tab 1: Volumen &amp; Puffer (Menge, Stapelhöhe, Zugangsreserve)</td><td>Leerpaletten = Anteil am Brutto-Bedarf oder absolute Zahl · Stapel = Aufrunden(Leerpaletten ÷ Stapelhöhe) · Bandtiefe = Stapelfläche × (1 + Zugangsreserve) ÷ nutzbare Länge, aufgerundet auf 10 mm; das Band verbraucht Fläche und erhöht keine Kapazität</td></tr>
           <tr><td>9</td><td>Layout und Kapazität</td><td>Tab 1: Gebäude, Tore, Zonen, Stützraster, FFZ, Gangbreiten, VNA-P&amp;D, Fluchttunnel, Einzelreihen; Greenfield-Parameter</td><td>Nutzbare Länge = Hallenlänge − 2 × 1,0 m Randgang − Ost-/Westzonen; bei VNA-P&amp;D abzüglich 4,0 m je Reihe · Vor der ersten Doppelreihe liegt ein Führungsgang in Regal-Gangbreite; jede Regalreihe ist über einen realen Fahrgang bedienbar · Doppelreihen = Minimum(passende Anzahl, Aufrunden(Regalbedarf ÷ (2 × Kapazität je Reihe))); Kapazität je Reihe = Felder × Paletten je Feld × Ebenen − Fluchttunnelverlust · Einzelreihen füllen Restbedarf auf Wand- und Restflächen · Hallenstützen werden geprüft; im Bestandsmodus werden je kollidierender Stütze in einem Regal die Plätze eines Felds abgezogen · Greenfield: benötigte Hallenbreite = WE-Zone + Block + Abstand + Leergut + Führungsgang + Doppelreihen × Raster + WA-Zone (Kapazität Regal/Block, Deckungsgrad, Kollisionshinweise)</td></tr>
           <tr><td>10</td><td>Brutto-Lagerfläche</td><td>aus Schritt 6 bis 9</td><td>Summe aus Regalstellflächen, Regal-Arbeitsgängen, Blockstellflächen, Blockgassen, WE-/WA-Zonen, Abstandsflächen, Leergutband und Transitpuffer; gegenübergestellt der Hallenfläche mit freier Fläche und Nutzungsgrad (Flächenbedarfsrechnung unter dem Layout)</td></tr>
@@ -663,7 +663,7 @@ details.obs[open] summary{margin-bottom:4px}
           <th scope="col"><input type="checkbox" id="sel-all" aria-label="Alle Positionen auswählen"></th>
           <th scope="col">Pos</th><th scope="col">Bezeichnung</th>
           <th scope="col">Ermittlung</th><th scope="col" class="bed">Bedarfseingabe</th>
-          <th scope="col" title="Anzahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Wirksam nur im artikelbasierten Modus der Blockverteilung.">Artikel</th>
+          <th scope="col" title="Anzahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Bestimmt im artikelbasierten Modus die Blockverteilung und in allen Modi die Mindestzahl artikelreiner Blockkanäle.">Artikel</th>
           <th scope="col" title="Herkunft der Mengenangabe dieser Position: Kundenangabe oder Planerannahme.">Basis</th><th scope="col">LHM-Typ</th>
           <th scope="col">Länge mm</th><th scope="col">Breite mm</th><th scope="col">Höhe mm</th>
           <th scope="col">Gewicht kg</th>
@@ -862,7 +862,7 @@ details.obs[open] summary{margin-bottom:4px}
 </aside>
 </div>
 
-<footer id="app-footer">Lagerplaner V2.13 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip: tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+<footer id="app-footer">Lagerplaner V2.14 · Änderungslog über die Versionsangabe im Kopf · Kontraktlogistik Solution Design · Drei-Datei-Prinzip: tender-input.js (Eingabe) · Frontend-Datei (Engine) · Planungs-JSON (Output) · vollständige lokale Berechnung, keine Serverabhängigkeit · Planungsstand im lokalen Browserspeicher dieses Geräts · Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-json"><div class="box">
@@ -909,7 +909,7 @@ details.obs[open] summary{margin-bottom:4px}
     </div></details>
     <details class="obs"><summary>Eingabedaten: Bedarfsermittlung · Mengengerüst-Import · Drei-Datei-Prinzip</summary><div>
       <ul>
-        <li>Bedarfsermittlung je Position wählbar: <code>LKW/Tag × LKW-Typ × Paletten je LKW</code> (Umrechnungswert vorbelegt aus der Kreuztabelle, überschreibbar), <code>Paletten/Tag</code>, <code>Stückbasis</code> (Stück/Tag ÷ Stück/KLT ÷ KLT/Palette) oder <code>Ziel-Bestand</code>; die Kachel LKW/Tag in der Status-Seitenleiste weist das hergeleitete LKW-Volumen aus.</li>
+        <li>Bedarfsermittlung je Position wählbar: <code>LKW/Tag × LKW-Typ × Paletten je LKW</code> (Umrechnungswert automatisch aus der Kreuztabelle, überschreibbar), <code>Paletten/Tag</code>, <code>Stückbasis</code> (Stück/Tag ÷ Stück/KLT ÷ KLT/Palette) oder <code>Ziel-Bestand</code>; die Kachel LKW/Tag in der Status-Seitenleiste weist das hergeleitete LKW-Volumen aus.</li>
         <li>Der Netto-Bestand ergibt sich aus Paletten/Tag × Lagerreichweite. Im Modus Ziel-Bestand wird der Bestand direkt vorgegeben.</li>
         <li>Mengengerüst-Import (CSV): Spaltenüberschriften werden automatisch erkannt – <code>Bezeichnung; Ermittlung; LKW-Typ; LKW/Tag; Paletten/Tag; Stueck/Tag; Stueck/KLT; KLT/Palette; Ziel-Bestand; Artikel; LHM; Laenge; Breite; Hoehe; Gewicht; Stapelfaktor; Blockanteil; Datenbasis</code>. Trennzeichen Komma oder Semikolon. Die Spalte Artikel (Anzahl unterschiedlicher Artikel je Position) wird auch über die Überschrift SKU erkannt.</li>
         <li>Paletten-Stammdaten: Die Registerkarte Parameter führt Euro-, Industrie- und Halbpalette mit Grundmaß, Standardhöhe 1,0 m (Referenz EPal 1.200 × 800 × 1.000 mm BTH), Gewicht und Referenz-Stapelfaktor. Neue Positionen übernehmen die eingestellte Standardpalette; je Position bleiben alle Werte übersteuerbar.</li>
@@ -927,12 +927,12 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Warum greift der Blockzugang standardmäßig von der Nordseite?</b> In der Grundeinstellung laufen die Kanäle quer mit Zugang von der Nordseite; die Zone Nord ist dafür als WE-Zone zu konfigurieren. Wird die Blockausrichtung auf Kanäle längs gestellt, wechselt der Zugang auf die Westseite über die Längsgasse; dann ist die Zone West als WE-Zone zu konfigurieren. Der Report weist eine nicht passende Zonenrolle als Hinweis aus.</p>
       <p><b>Werden Kollisionen mit Hallenstützen von der Kapazität abgezogen?</b> Jede Stütze wird gegen Regale, Blockkanäle und Arbeitsgänge geprüft. Im Bestandsmodus werden je kollidierender Stütze in einem Regal die Plätze eines Felds (Paletten je Feld × Ebenen) von der Regalkapazität abgezogen; blockierte Blockkanäle werden mit mindestens ihrer Kanalkapazität im Hinweis ausgewiesen. Im Greenfield-Modus erfolgt kein Abzug, weil das Stützenraster dort mit der Hallenplanung abzustimmen ist. Das Optimierungsziel Mindestfläche bleibt nominal, da der Flächenbedarf ohne Stützenabzug ermittelt wird.</p>
       <p><b>Wann zeigt die Planungs-Ampel Rot?</b> Rot ist Hard Stops vorbehalten: Deckungsgrad unter 100 Prozent, fehlender Bestand oder harte Kollisionen. Hart sind Stützen, die Regalplätze oder Blockkanäle zerstören, sowie Stützen in der Zugangsgasse des Blocklagers. Kritische Hinweise ohne harte Kollision führen zu Gelb. Gelb meldet ebenfalls Deckungsgrade über 115 Prozent sowie Hallennutzung unter 65 oder über 90 Prozent. Grün gilt bei 100 bis 115 Prozent Deckung und 65 bis 90 Prozent Hallennutzung ohne Hinweise.</p>
-      <p><b>Wofür wird die Spalte Artikel benötigt?</b> Die Artikelanzahl ist die Zahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Sie wirkt ausschließlich im artikelbasierten Modus der Blockverteilung: Der Bestand wird in drei Artikelklassen geteilt (obere 20 Prozent der Artikel, mittlere 30, untere 50), denen je ein Volumenanteil zugeordnet wird. Eine Klasse qualifiziert sich für das Blocklager, wenn das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Ohne Artikelangabe qualifiziert sich die Position nicht und läuft vollständig über das Regal; der Report weist dies als Datenlücke aus. In den Modi Volumenquote und Manuell hat die Artikelanzahl keine Wirkung.</p>
+      <p><b>Wofür wird die Spalte Artikel benötigt?</b> Die Artikelanzahl ist die Zahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Sie wirkt ausschließlich im artikelbasierten Modus der Blockverteilung: Der Bestand wird in drei Artikelklassen geteilt (obere 20 Prozent der Artikel, mittlere 30, untere 50), denen je ein Volumenanteil zugeordnet wird. Eine Klasse qualifiziert sich für das Blocklager, wenn das Volumen je Artikel die Mindestfüllung eines Kanals erreicht. Ohne Artikelangabe qualifiziert sich die Position nicht und läuft vollständig über das Regal; der Report weist dies als Datenlücke aus. In den Modi Volumenquote und Manuell bestimmt sie die Mindestzahl der Blockkanäle: Kanäle sind artikelrein, die Artikel im Block werden anteilig zum Blockvolumen angesetzt.</p>
       <p><b>Was bedeutet der Prozentwert in der Spalte Blockanteil?</b> Im manuellen Modus ist er die Eingabe. In allen anderen Modi zeigt er den berechneten effektiven Blockanteil: Blockpaletten der Position im Verhältnis zum Netto-Bestand der Position, gerundet auf ganze Prozent.</p>
       <p><b>Was ist die Brutto-Lagerfläche?</b> Sie ist der Flächenbedarf des eigentlichen Lagers: Regalstellflächen, Regal-Arbeitsgänge, Blockstellflächen, Blockgassen, Leergutband, WE-/WA-Zonen und Abstandsflächen. Die Hallenfläche aus den Gebäudeangaben ist meist größer, weil Randwege, Technik- und Sozialflächen sowie Fehlflächen außerhalb des Werkzeugs liegen. Die Flächenbedarfsrechnung unter dem Hallenlayout weist beide Größen, die freie Fläche und den Nutzungsgrad aus.</p>
       <p><b>Wie wirken sich das Seitenverhältnis und der Leergutbereich im Greenfield-Modus aus?</b> Ohne gewähltes Verhältnis bleibt die Hallenlänge eine Eingabe, und das Werkzeug berechnet die benötigte Hallenbreite. Mit festem Verhältnis (1:1 bis 3:1) werden beide Hallenmaße berechnet, und zwar als kleinste Halle im 0,5-Meter-Raster, die den Bedarf deckt. Der Leergutband verbraucht Fläche und vergrößert daher die berechnete Hallenbreite; er zählt nicht zur Lagerkapazität.</p>
       <p><b>Was macht die Schaltfläche Rückgängig?</b> Sie stellt den Planungsstand vor der letzten strukturellen Änderung wieder her, etwa vor einem CSV-Import, dem Laden einer Projekt- oder Eingabedatei, einem Optimierungslauf, einer Zuweisung an ausgewählte Positionen, dem Löschen von Positionen oder dem Zurücksetzen der Planung. Es werden bis zu 20 Schritte vorgehalten, ausschließlich im Arbeitsspeicher der laufenden Sitzung; nach dem Schließen des Tabs ist der Verlauf verloren. Eine Wiederherstellen-Funktion für rückgängig gemachte Schritte gibt es nicht.</p>
-      <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW ist manuell und wird aus der Kreuztabelle der Registerkarte Parameter (Paletten &amp; LKW) vorbelegt; er gilt dann überschreibbar für diese Position, und die Bedarfsermittlung rechnet mit dem eingetragenen Wert. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Status-Seitenleiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Festwerte der LKW-Stammdaten; die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
+      <p><b>Wofür dient der LKW-Typ in den Eingabedaten?</b> Im Modus LKW/Tag werden drei Angaben je Position erfasst: LKW/Tag, LKW-Typ und Paletten je LKW. Der Wert Paletten je LKW folgt automatisch der Kreuztabelle und passt sich an, wenn Maße, Gewicht, Stapelfaktor oder LKW-Typ der Position geändert werden. Ein eigener Wert überschreibt ihn; ein leeres Feld kehrt zum automatischen Wert zurück. Die Kreuztabelle berechnet die Füllmenge aus den Abmaßen beider Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, begrenzt durch den Stapelfaktor der Palette, Begrenzung durch die Nutzlast je Palettengewicht. In den Modi Paletten/Tag, Stückbasis und Ziel-Bestand dient der LKW-Typ der Herleitung des LKW-Volumens je Tag (Paletten je Tag geteilt durch die Füllmenge); die Status-Seitenleiste weist die Summe als Kachel LKW/Tag aus. Die Presets (7,5t, Standard, Mega, Jumbo, Giga) sind Festwerte der LKW-Stammdaten; die Füllmenge weist ausschließlich die Kreuztabelle je Palettentyp aus. Eigene Typen (etwa Sondermaß) lassen sich in den LKW-Stammdaten anlegen.</p>
       <p><b>Wie werden Transitpaletten, Miete und Rückbau berücksichtigt?</b> Der Transit-/Cross-Dock-Anteil (Registerkarte Parameter, Volumen und Reichweite) mindert den bestandsrelevanten Bedarf je Position um den Durchschub-Anteil. Der Durchschub verbraucht keine Regal- oder Blockfläche. Der separate Cross-Dock-Puffer ist abschaltbar (Standard aus): Nur bei zugeschaltetem Puffer erhält der Durchschub eine Bodenpufferfläche mit den einstellbaren Annahmen 0,5 Tage Standzeit und 1,5 Quadratmeter je Palette; sie erscheint als eigene Zeile der Brutto-Lagerfläche. Wird Cross-Docking innerhalb der dimensionierten WE-/WA-Zonen abgewickelt, bleibt der Puffer ausgeschaltet, um eine Doppelberechnung zu vermeiden. Die Miete Halle (Registerkarte Parameter, Gebäude und Bauraum) berechnet bei Angabe eines Quadratmeterpreises die monatlichen und jährlichen Mietkosten der Hallenfläche und weist sie in der Flächenbedarfsrechnung und in den Berichten aus. Die Rückbau- und Demontage-Pauschale ist in der Stückliste zuschaltbar und erhöht als Prozentsatz der Bauteilsumme den Gesamt-CAPEX.</p>
       <p><b>Woran erkenne ich eine zu kleine WE-Zone?</b> Das Werkzeug prüft die Fläche aller Zonen mit der Rolle WE gegen die gleichzeitige Abfertigung an den WE-Toren. Je Tor setzt es ein Standard-Fahrzeug mit der Füllmenge der Euro-Referenzpalette an und je Palette 2,0 Quadratmeter Bereitstellungsfläche. Reicht die Zonenfläche nicht aus, erscheint ein Hinweis mit Bedarfs- und Ist-Wert.</p>
       <p><b>Wie wird der Stapelfaktor angegeben und begrenzt?</b> Der Stapelfaktor wird in der Notation 1+x angegeben: x ist die Zahl der Paletten, die zusätzlich auf der untersten Palette stehen (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf, 1+6 = sieben Paletten). Im Regal steht je Fach und Ebene eine Palette; der Faktor wirkt dort nicht. Im Blocklager gilt je Position das Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut (Planungsvorgabe, Standard 7,5 m; ab 7,5 m Lagerguthöhe fordert die Industriebaurichtlinie selbsttätige Feuerlöschanlagen). Die Kippgrenze 6:1 (Stapelhöhe zur Schmalseite der Grundfläche) wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet ausgewiesen; liegt der nutzbare Stapel darüber, meldet das Werkzeug einen Hinweis zur gesonderten Standsicherheitsprüfung und begrenzt nicht hart. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m ergibt sich 1+6 (7 × 1,0 m = 7,0 m).</p>
@@ -944,9 +944,9 @@ details.obs[open] summary{margin-bottom:4px}
       <p>Farbliche Kennzeichnung der Registerkarten: Jede Registerkarte trägt eine vollflächige Pastellfläche nach Planungsphase. Neutral grau kennzeichnet die Willkommensseite (0 Info). Blau kennzeichnet die Dateneingabe (1 Parameter, 2 Input). Grün kennzeichnet die Hallenplanung und Modellierung (3 Layout, 4 Regal &amp; Block, 5 Equipment, 6 Szenarien). Violett kennzeichnet die Auswertung und Dokumentation (7 Annahmen, 8 Sensitivität, 9 Berichte, 10 Report, 11 Berechnungsfolge). Die aktive Registerkarte hebt sich innerhalb ihrer Phase durch satte Rahmenfarbe und kräftigen Text ab. Die Zuordnung steht zusätzlich als Tooltip an jeder Registerkarte.</p>
       <p>0 Info – Willkommensseite: Einstieg mit grobem Ablaufdiagramm des Arbeitsablaufs, Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start.</p>
       <p>1 Parameter – Planungsvorgaben: Gebäude und Bauraum (Modus Bestandshalle oder Greenfield, Hallenmaße, Tore, Zonen je Himmelsrichtung, Stützenraster, Miete Halle), Paletten- und LKW-Stammdaten (Palettentypen Euro, Industrie, Halbpalette sowie eigene Typen; LKW-Typen 7,5t, Standard, Mega, Jumbo, Giga sowie eigene Typen; berechnete Kreuztabelle der Füllmenge je LKW und Palettentyp), Volumen, Reichweite und Leergut (Lagerreichweite, Füllgrade, Transit-/Cross-Dock-Anteil; Leergutbereich verdichtet als angegliederte Gruppe mit Mengenbasis, Stapelhöhe und Zugangsreserve), Blocklager- und ABC/XYZ-Logik (Verteilungsmethode, Kanaltiefe, Stapelhöhe, Ausrichtung, ABC-Anteile), FFZ und Regaltechnik (Mehrfachauswahl der Flurförderzeuge je Lagerbereich, getrennte Gangbreiten für Regal und Block, P&D-Plätze bei VNA, Regal-Auslegungsbasis, Feldweite, Einzelreihen) sowie Brandschutz und Sicherheit (Sprinkler-Freiraum, Fluchttunnel, In-Rack-Sprinklerung). Die Gruppen liegen als Karteireiter vor; je Karteireiter ist eine Gruppe sichtbar. Eingabefelder führen ihre Einheit unmittelbar hinter dem Feld; berechnete Werte (etwa die Greenfield-Maße) bleiben hervorgehoben. Erläuternde Infotexte erscheinen als Mausover-Hinweis am ⓘ-Symbol neben der zugehörigen Überschrift; lange Beschriftungen tragen die Erläuterung als Tooltip. Die FFZ der WE/WA-Vorzone lassen sich auch vollständig abwählen: Das Werkzeug weist dann bei VNA im Regal auf den fehlenden Vorzonentransport hin; beim Neuladen einer Datei wird die leere Auswahl auf Schnellläufer zurückgesetzt.</p>
-      <p>2 Input – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und manuellem, aus der Kreuztabelle vorbelegtem Wert Paletten je LKW; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Paletten-Stammdaten (Euro, Industrie, Halbpalette; Standardhöhe 1,0 m; wählbare Standardpalette), inhaltsadaptive Spaltenbreiten; die Datenzellen brechen Text nicht um, jede Auswahlliste zeigt jeden Eintrag vollständig, und bei Platzbedarf scrollt die Tabelle waagerecht, Datenbasis (Kundendaten oder Annahme), Batch-Änderungen an ausgewählte Positionen (LKW-Typ, LHM-Typ, Blockanteil, Datenbasis), CSV-Import und Erzeugung der Eingabedatei.</p>
+      <p>2 Input – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und automatischem, überschreibbarem Wert Paletten je LKW aus der Kreuztabelle; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Paletten-Stammdaten (Euro, Industrie, Halbpalette; Standardhöhe 1,0 m; wählbare Standardpalette), inhaltsadaptive Spaltenbreiten; die Datenzellen brechen Text nicht um, jede Auswahlliste zeigt jeden Eintrag vollständig, und bei Platzbedarf scrollt die Tabelle waagerecht, Datenbasis (Kundendaten oder Annahme), Batch-Änderungen an ausgewählte Positionen (LKW-Typ, LHM-Typ, Blockanteil, Datenbasis), CSV-Import und Erzeugung der Eingabedatei.</p>
       <p>3 Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die Hallenbreite aus dem Bedarf; mit festem Seitenverhältnis (etwa 2:1) werden beide Hallenmaße als kleinste bedarfsdeckende Fläche im 0,5-m-Raster berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Registerkarte Parameter zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Dropdown neben der Schaltfläche Berechnung aktualisieren gesteuert: Ziel (CAPEX, Gangfläche, kombiniert, Mindestfläche) und veränderbare Parameter wählen und den Lauf starten. Zur Wahl stehen Regalausrichtung (orthogonal oder parallel zu Toren), Blockausrichtung (Kanäle quer mit Zugang Nord oder längs mit Längsgasse und Zugang West), Feldweite, Gangbreite, Blockparameter, Fluchttunnel-Intervall, Zonentiefen, Volumenquote sowie die Umgebungsparameter Stützraster (Paarungen 5×10 bis 12,5×25 plus die eingestellte Kombination) und Zonenrollen (16 Kombinationen aus WE- und WA-Seite). Der Lauf erfolgt dreistufig: Stufe 1 variiert die Layoutparameter, Stufe 2 prüft bei zugeschalteten Umgebungsparametern Stützraster und Zonenrollen, Stufe 3 verfeinert die Layoutparameter mit der besten Umgebung. Varianten mit Blockzugang ohne passende WE-Zone werden verworfen. Die Ergebnistabelle zeigt die 25 besten Varianten mit Stützraster und Zonenrollen; die gewählte Variante wird übernommen.</p>
-      <p>4 Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
+      <p>4 Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe, je Artikel mindestens ein Kanal; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
       <p>5 Equipment – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren speichert die Kalkulationsgrundlage als Datei.</p>
       <p>6 Szenarien – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
       <p>7 Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
@@ -986,7 +986,10 @@ function fillTruck(tk,p){
   const fit=(x,y)=>Math.floor(mL/x)*Math.floor(mW/y);
   const pos=Math.max(fit(l,b),fit(b,l));
   const heightLayers=Math.floor(mH/h);
-  const lay=Math.min(Math.floor(vehicleLayers),heightLayers);
+  // Stapelfaktor der Ladeeinheit begrenzt die Lagen im Fahrzeug (1 = nicht stapelbar).
+  const st=Number(p&&p.stack);
+  const stackLayers=Number.isFinite(st)&&st>=1?Math.floor(st):Infinity;
+  const lay=Math.min(Math.floor(vehicleLayers),heightLayers,stackLayers);
   if(pos<1||lay<1)return 0;
   const byArea=pos*lay;
   if(g>0&&Number.isFinite(payload)&&payload>0){
@@ -1025,7 +1028,7 @@ function delCustomTruck(k){
   pushUndo("LKW-Typ gelöscht ("+S.customTrucks[k].label+")");
   delete S.customTrucks[k];
   (S.items||[]).forEach(it=>{
-    if(it&&it.truck===k){it.truck="standard";it.ppt=fillTruck("standard",it);}
+    if(it&&it.truck===k){it.truck="standard";it.pptManual=false;it.ppt=fillTruck("standard",it);}
   });
   renderTruckMD();fillTruckSel();renderItems();recalc();
 }
@@ -1073,7 +1076,7 @@ function renderTruckMD(){
       html+='</tr>';
     }
     html+='</tbody></table></div>';
-    html+='<p class="hint" style="margin:6px 0 0">Berechnet aus beiden Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, Begrenzung durch die Nutzlast je Palettengewicht. Die Zellwerte gelten für die Stammdaten-Referenzmaße; Positionen mit abweichenden Maßen rechnen mit ihren Positionsmaßen. Die Werte dienen als Vorbelegung des Eingabefelds Paletten je LKW und bleiben je Position überschreibbar.</p>';
+    html+='<p class="hint" style="margin:6px 0 0">Berechnet aus beiden Stammdaten: Stellplätze je Laderaum in günstigster Ausrichtung, Lagen aus beladener Palettenhöhe gegen die Innenhöhe, begrenzt durch den Stapelfaktor der Palette, Begrenzung durch die Nutzlast je Palettengewicht. Die Zellwerte gelten für die Stammdaten-Referenzmaße; Positionen mit abweichenden Maßen rechnen mit ihren Positionsmaßen. Die Werte dienen als Vorbelegung des Eingabefelds Paletten je LKW und bleiben je Position überschreibbar.</p>';
     cross.innerHTML=html;
   }
   foldHints();
@@ -1168,11 +1171,11 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.13";
+const APP_VERSION="V2.14";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
-  return {name:"Neue Position",demand:"truck",trucks:1,truck:"standard",palletsDay:0,pcsDay:0,pcsPerKlt:0,kltPerPallet:0,targetStock:0,skus:0,lhm:k,l:p.l,b:p.b,h:p.h,g:p.g,stack:p.stack,blockShare:0,dataBasis:"assumption"};
+  return {name:"Neue Position",demand:"truck",trucks:1,truck:"standard",palletsDay:0,pcsDay:0,pcsPerKlt:0,kltPerPallet:0,targetStock:0,skus:0,lhm:k,l:p.l,b:p.b,h:p.h,g:p.g,stack:p.stack,blockShare:0,dataBasis:"assumption",pptManual:false};
 }
 function defaults(){
   return {
@@ -1351,7 +1354,7 @@ function renderPalletMD(){
         if(!it||it.lhm!==k)return;
         if((attr==="h"&&it.h===prev.h)||(attr==="g"&&it.g===prev.g)||(attr==="stack"&&it.stack===prev.stack)){
           it[attr]=now[attr];
-          it.ppt=fillTruck(it.truck,it);
+          if(!it.pptManual)it.ppt=fillTruck(it.truck,it);
         }
       });
       renderPalletMD();renderTruckMD();renderItems();recalc();
@@ -1419,6 +1422,13 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.14",date:"27.10.2026",items:[
+    "Paletten je LKW folgen ohne bewusste Überschreibung stets der Kreuztabelle; Änderungen an Maßen und Gewicht wirken sofort. Ältere Planungsdateien rechnen mit dem automatischen Wert.",
+    "LKW-Füllmenge berücksichtigt den Stapelfaktor: nicht stapelbare Ladeeinheiten werden im Mega-Trailer einlagig geladen.",
+    "LKW/Tag enthält das Mengenwachstum in allen Ermittlungsmodi.",
+    "Blockkanäle sind artikelrein: je Artikel im Block mindestens ein Kanal. Im Quoten- und Manuellmodus anteilige Artikelzahl nach Blockvolumen.",
+    "Kanaltiefe in ganzen Paletten; Kapazität und Geometrie verwenden denselben Wert."
+  ]},
   {v:"V2.13",date:"27.10.2026",items:[
     "Stufe 7: HTML-Verschachtelung der Lagerreichweite korrigiert. Bestandsparameter stehen als getrennte Zeilen im Bemessungskasten.",
     "Gesamtregression und gezielte echte Chromium-Pruefungen dokumentiert. Zielumgebungsfreigabe bleibt gesondert."
@@ -1843,7 +1853,7 @@ function assertSafeImportTree(value,depth){
     }
   }
 }
-const ITEM_NUMERIC_FIELDS=["trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus","l","b","h","g","stack","blockShare","net","trucksDay","blockNet","rackNet","blockGross","rackGross"];
+const ITEM_NUMERIC_FIELDS=["blockSkus","trucks","ppt","palletsDay","pcsDay","pcsPerKlt","kltPerPallet","targetStock","skus","l","b","h","g","stack","blockShare","net","trucksDay","blockNet","rackNet","blockGross","rackGross"];
 function validatePositionArray(items,label){
   if(!Array.isArray(items))throw new Error(label+" muss eine Liste sein.");
   if(items.length>10000)throw new Error(label+" enthaelt mehr als 10.000 Positionen.");
@@ -1855,6 +1865,7 @@ function validatePositionArray(items,label){
     if(it.name!=null&&(typeof it.name!=="string"||it.name.length>2000))issue(row,"name",it.name,"ungueltige Bezeichnung");
     if(it.demand!=null&&!["truck","pallets","pieces","stock"].includes(it.demand))issue(row,"demand",it.demand,"unbekannte Bedarfsermittlung");
     if(it.dataBasis!=null&&!["customer","assumption"].includes(it.dataBasis))issue(row,"dataBasis",it.dataBasis,"unbekannte Datenbasis");
+    if(it.pptManual!==undefined&&typeof it.pptManual!=="boolean")issue(row,"pptManual",it.pptManual,"wahr/falsch erwartet");
     for(const key of ITEM_NUMERIC_FIELDS){
       if(it[key]!==undefined&&(typeof it[key]!=="number"||!Number.isFinite(it[key])))issue(row,key,it[key],"endliche Zahl erwartet");
     }
@@ -2144,6 +2155,10 @@ function downloadBlob(blob,filename){
 }
 
 /* ============================ Engine ============================ */
+function blockChannelDepth(){
+  // Kanaltiefe in ganzen Paletten; Kapazität und Geometrie verwenden denselben Wert.
+  return clamp(Math.round(Number(S.block.channelDepth)||1),1,20);
+}
 function tippingStackLimit(l,b,h){
   const base=Math.min(Math.max(0,Number(l)||0),Math.max(0,Number(b)||0));
   return Math.max(1,Math.floor(6*base/Math.max(1,Number(h)||1)));
@@ -2365,7 +2380,10 @@ function computeModelCore(){
         const kltDay=(it.pcsDay||0)/Math.max(1,it.pcsPerKlt||1);
         palletsDay=kltDay/Math.max(0.001,it.kltPerPallet||1);
       }else{
-        if(!(it.ppt>0))it.ppt=fillTruck(it.truck,it);
+        // Ohne bewusste Überschreibung folgt der Wert stets der Kreuztabelle (Maße, Gewicht, Stapelfaktor, LKW-Typ).
+        const autoPpt=fillTruck(it.truck,it);
+        if(!(it.pptManual===true&&it.ppt>0)){it.pptManual=false;it.ppt=autoPpt;}
+        else if(autoPpt>0&&it.ppt>autoPpt)warn.push({t:"Position "+(ii+1)+" ("+(it.name||"ohne Name")+"): Manuell gesetzte "+fmt(it.ppt)+" Paletten je LKW liegen über der Kreuztabelle ("+fmt(autoPpt)+"). Wert prüfen.",sev:false});
         palletsDay=(it.trucks||0)*it.ppt;
       }
       it.net=Math.round(palletsDay*growthFactor*S.volume.range*Math.max(1,S.volume.peak)*(1+clamp(S.volume.safety,0,100)/100)*(1-trV));
@@ -2376,10 +2394,10 @@ function computeModelCore(){
     if(truckFill<1&&(palletsDay>0||(it.trucks||0)>0)){
       warn.push({t:"Position "+(ii+1)+" ("+(it.name||"ohne Name")+"): Die Palette passt mit den hinterlegten Maßen, der LKW-Innenhöhe oder Nutzlast nicht in den gewählten LKW-Typ ("+(getTruck(it.truck).label||it.truck)+"). Fahrzeugtyp, Palettenmaße, Gewicht und LKW-Stammdaten prüfen.",sev:true});
     }
-    it.trucksDay=it.demand==="truck"?(it.trucks||0)*growthFactor:(palletsDay>0&&truckFill>0?palletsDay/truckFill:0);
+    it.trucksDay=it.demand==="truck"?(it.trucks||0)*growthFactor:(palletsDay>0&&truckFill>0?palletsDay*growthFactor/truckFill:0);
     trucksTotal+=it.trucksDay;
     netTotal+=it.net;
-    let blockNet=0;
+    let blockNet=0,blockSkus=0;
     if(S.block.mode==="quota"){blockNet=it.net*clamp(S.block.quota,0,100)/100;}
     else if(S.block.mode==="manual"){blockNet=it.net*clamp(it.blockShare||0,0,100)/100;}
     else{
@@ -2395,17 +2413,20 @@ function computeModelCore(){
         if(effStack>kippCap){
           warn.push({t:"Position "+(ii+1)+" ("+it.name+"): Der Stapel 1+"+(effStack-1)+" liegt über der rechnerischen Kippgrenze 6:1 (aufgerundet 1+"+(kippCap-1)+"); Standsicherheit des Stapels gesondert nachweisen.",sev:false});
         }
-        const cap=S.block.channelDepth*effStack;
+        const cap=blockChannelDepth()*effStack;
         const aV=clamp(S.block.aVol,0,100)/100,bV=clamp(S.block.bVol,0,100)/100;
         const segs=[[0.2,aV],[0.3,bV],[0.5,Math.max(0,1-aV-bV)]];
         for(const sg of segs){
           const vol=it.net*sg[1];
           const skusN=Math.max(1,Math.round(it.skus*skuGrowthFactor*sg[0]));
-          if(effStack>1&&(vol/skusN)>=S.block.minFill/100*cap)blockNet+=vol;
+          if(effStack>1&&(vol/skusN)>=S.block.minFill/100*cap){blockNet+=vol;blockSkus+=skusN;}
         }
       }else skuMissing=true;
     }
     blockNet=Math.min(blockNet,it.net);
+    // Quote/manuell: Artikel im Block anteilig zum Blockvolumen (neutrale Annahme ohne Artikelverteilung).
+    if(S.block.mode!=="sku"&&it.skus>0&&blockNet>0&&it.net>0)blockSkus=Math.ceil(it.skus*skuGrowthFactor*blockNet/it.net);
+    it.blockSkus=blockNet>0?blockSkus:0;
     it.blockNet=Math.round(blockNet);
     it.rackNet=it.net-it.blockNet;
     it.blockGross=Math.ceil(it.blockNet/fillB*strategicFactor/availabilityFactor);
@@ -2478,7 +2499,7 @@ function computeModelCore(){
   const bl=blockItems.length?blockItems.reduce((a,b)=>b.blockGross>a.blockGross?b:a):null;
   let block=null;
   if(bl&&grossBlockNeed>0){
-    const channelDepth=clamp(Math.round(Number(S.block.channelDepth)||1),1,20);
+    const channelDepth=blockChannelDepth();
     const globalStack=clamp(Math.round(Number(S.block.stackH)||1),1,9);
     const limMM=Math.max(0,Number(S.block.maxTop)||7.5)*1000;
     const channelGroups=blockItems.map(it=>{
@@ -2487,7 +2508,12 @@ function computeModelCore(){
       const topCap=Math.max(1,Math.floor(limMM/ih));
       const effectiveStack=Math.max(1,Math.min(requested,globalStack,topCap));
       const laneCapacity=channelDepth*effectiveStack;
-      const channels=Math.ceil(Math.max(0,Number(it.blockGross)||0)/laneCapacity);
+      const gross=Math.max(0,Number(it.blockGross)||0);
+      const volumeChannels=Math.ceil(gross/laneCapacity);
+      // Kanäle sind artikelrein: je Artikel mindestens ein Kanal, Rundung je Artikel.
+      const skuCount=Math.max(0,Math.round(Number(it.blockSkus)||0));
+      const channels=(skuCount>0&&gross>0)?skuCount*Math.ceil(gross/skuCount/laneCapacity):volumeChannels;
+      if(channels>volumeChannels)warn.push({t:"Position "+(S.items.indexOf(it)+1)+" ("+(it.name||"ohne Name")+"): "+fmt(skuCount)+" Artikel im Blocklager erfordern artikelreine Kanäle; Kanalzahl "+fmt(channels)+" statt "+fmt(volumeChannels)+" nach reinem Volumen.",sev:false});
       if(S.block.mode!=="sku"&&requested>effectiveStack){
         warn.push({t:"Position "+(S.items.indexOf(it)+1)+" ("+(it.name||"ohne Name")+"): Die Blockstapelhöhe wird von "+requested+" auf "+effectiveStack+" Paletten je Kanal begrenzt (globale Stapelhöhe bzw. Oberkante Lagergut).",sev:false});
       }
@@ -2742,7 +2768,7 @@ function renderWays(g){
   const add=(label,von,nach,len)=>{if(len>0)rows.push({label,von,nach,len:len/1000});};
   add("Tiefe WE-Zone (Nord)","Nordwand","Block-/Regalzone",g.zoneND);
   add("Tiefe Blockbereich (Bänder inkl. Gassen)","Nordzone","Südkante Block",g.blockDepth);
-  add("Länge eines Blockkanals","Kanalzugang","Kanalende",bl?bl.laneUnit*S.block.channelDepth:0);
+  add("Länge eines Blockkanals","Kanalzugang","Kanalende",bl?bl.laneUnit*blockChannelDepth():0);
   add("Abstand Block – Regalzone","Südkante Block","Nordkante Regalzone",bl?500:0);
   add("Tiefe Leergutband","Blockbereich","Regalzone",g.lgDepth);
   add("Tiefe Regalzone (inkl. Arbeitsgänge)","Nordkante Regalzone","Südkante Regalzone",g.regionH);
@@ -2858,7 +2884,7 @@ function computeLayout(rack,block,needRack,warn,emptyCount,transitA,effectiveWeD
   const bOrient=(S.block.orient==="W")?"W":"N";
   let laneDepthY=0,bands=0,lanesPerBand=0;
   if(block){
-    laneDepthY=block.laneUnit*S.block.channelDepth;
+    laneDepthY=block.laneUnit*blockChannelDepth();
     if(bOrient==="N"){
       lanesPerBand=Math.max(1,Math.floor(areaLen/block.laneW));
       bands=Math.max(1,Math.ceil(block.nL/lanesPerBand));
@@ -3146,7 +3172,7 @@ function renderItems(){
     else if(dem==="stock")bed=frow("Ziel-Bestand",num("targetStock","1",0,"Paletten",76,true),"Vorgegebener Bestand in Paletten")+frow("LKW-Typ",selTruck,"Dient der Herleitung von LKW/Tag aus Paletten/Tag und Füllmenge");
     else bed=frow("LKW/Tag",num("trucks","0.5",0,"LKW",56,true),"Ankünfte je Tag, 0,5er Schritte zulässig")+
       frow("LKW-Typ",selTruck)+
-      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Vorbelegt aus der Kreuztabelle (Registerkarte Parameter, Paletten & LKW), überschreibbar; die Bedarfsermittlung rechnet mit diesem Wert");
+      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Automatisch aus der Kreuztabelle (Registerkarte Parameter, Paletten & LKW) nach Maßen, Gewicht und Stapelfaktor. Ein eigener Wert überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.");
     const nameIn='<input type="text" data-i="'+idx+'" data-k="name" value="'+escH(it.name)+'">';
     tr.appendChild(mk('<input type="checkbox" class="sel-cb" data-sel="'+idx+'" aria-label="Position '+(idx+1)+' auswählen">'));
     tr.appendChild(mk(String(idx+1)));
@@ -3191,17 +3217,21 @@ function initItems(){
       S.items[i].lhm=t.value;
       const p=getLhm(t.value);
       if(p){S.items[i].l=p.l;S.items[i].b=p.b;S.items[i].h=p.h;S.items[i].g=p.g;S.items[i].stack=p.stack;}
-      S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
+      S.items[i].pptManual=false;S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
       renderItems();recalc();return;
     }
     if(t.dataset.k==="truck"){
       S.items[i].truck=t.value;
-      S.items[i].ppt=fillTruck(t.value,S.items[i]);
+      S.items[i].pptManual=false;S.items[i].ppt=fillTruck(t.value,S.items[i]);
       renderItems();recalc();return;
     }
     const v=(t.type==="number")?(parseFloat(String(t.value).replace(",","."))||0):t.value;
     S.items[i][t.dataset.k]=v;
+    // Eigener Wert > 0 überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.
+    if(t.dataset.k==="ppt")S.items[i].pptManual=v>0;
     recalc();
+    const pptIn=tb.querySelector('input[data-i="'+i+'"][data-k="ppt"]');
+    if(pptIn&&pptIn!==t&&!S.items[i].pptManual)pptIn.value=S.items[i].ppt>0?S.items[i].ppt:"";
   });
   tb.addEventListener("click",ev=>{
     const d=ev.target.dataset&&ev.target.dataset.del;
@@ -3326,10 +3356,10 @@ function drawLayout(){
     ctx.fillRect(X(r.x),Y(r.y),r.w*sc,r.h*sc);
     ctx.strokeRect(X(r.x),Y(r.y),r.w*sc,r.h*sc);
     const horizLane=r.w>=r.h;
-    const unit=S.block.channelDepth>0?((horizLane?r.w:r.h)+200)/S.block.channelDepth:0;
+    const unit=((horizLane?r.w:r.h)+200)/blockChannelDepth();
     if(unit*sc>6){
       ctx.strokeStyle="#fcd34d";ctx.setLineDash([4,4]);
-      for(let i=1;i<S.block.channelDepth;i++){
+      for(let i=1;i<blockChannelDepth();i++){
         ctx.beginPath();
         if(horizLane){
           ctx.moveTo(X(r.x),Y(r.y+50+i*unit-50));
@@ -3617,7 +3647,7 @@ function drawBlockSection(){
   if(!b){ctx.fillStyle="#94a3b8";ctx.font="13px system-ui";ctx.fillText("Kein Blockbedarf – der gesamte Bestand läuft über das Regal.",16,26);return;}
   const g=R.geo;
   const bAisle=g.aisleBlk||g.aisle;
-  const cd=Math.max(1,S.block.channelDepth),sh=Math.max(1,S.block.stackH);
+  const cd=blockChannelDepth(),sh=Math.max(1,S.block.stackH);
   const palW=b.laneUnit,palH=b.bl.h;
 
   /* --- Kanalschnitt: Seitenansicht eines Kanals (links) --- */
@@ -5170,7 +5200,7 @@ function parseCsv(text){
     if(map.stack>=0){const sv=String(c[map.stack]||"").trim();const match=/^1\s*\+\s*(\d+)$/.exec(sv);it.stack=match?1+Number(match[1]):numeric(sv,sourceRow,head[map.stack]);}
     if(map.truck>=0){const raw=String(c[map.truck]||"").trim().toLowerCase();const all=allTrucks();const key=Object.keys(all).find(k=>String(k).toLowerCase()===raw||String(all[k].label||"").trim().toLowerCase()===raw);if(key)it.truck=key;else if(raw)csvWarnings.push("CSV, Zeile "+sourceRow+", Feld LKW-Typ, Originalwert "+c[map.truck]);}
     it.trucks=fnum(c,map.trucks,it.trucks);
-    if(map.ppt>=0)it.ppt=fnum(c,map.ppt,it.ppt);
+    if(map.ppt>=0){it.ppt=fnum(c,map.ppt,it.ppt);it.pptManual=it.ppt>0;}
     it.palletsDay=fnum(c,map.palletsDay,it.palletsDay);
     it.pcsDay=fnum(c,map.pcsDay,it.pcsDay);
     it.pcsPerKlt=fnum(c,map.pcsPerKlt,it.pcsPerKlt);
@@ -5400,7 +5430,7 @@ function initButtons(){
   $("btn-sel-truck").addEventListener("click",()=>{
     const t=$("sel-truck").value;
     pushUndo("LKW-Typ zugewiesen ("+selectedIdx().length+" Positionen)");
-    selectedIdx().forEach(i=>{S.items[i].truck=t;S.items[i].ppt=fillTruck(t,S.items[i]);});
+    selectedIdx().forEach(i=>{S.items[i].truck=t;S.items[i].pptManual=false;S.items[i].ppt=fillTruck(t,S.items[i]);});
     renderItems();recalc();
   });
   $("btn-sel-lhm").addEventListener("click",()=>{
@@ -5410,7 +5440,7 @@ function initButtons(){
       S.items[i].lhm=k;
       const p=getLhm(k);
       if(p){S.items[i].l=p.l;S.items[i].b=p.b;S.items[i].h=p.h;S.items[i].g=p.g;S.items[i].stack=p.stack;}
-      S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
+      S.items[i].pptManual=false;S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
     });
     renderItems();recalc();
   });
