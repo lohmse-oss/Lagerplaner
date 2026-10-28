@@ -135,7 +135,8 @@ function installHelpers() {
         : d.phase ? "phase:" + d.phase
         : d.goto ? (el.closest("#kpis") ? "kpi-goto" : "goto")
         : d.scenSave ? "scen-save" : d.scenLoad ? "scen-load" : d.scenClear ? "scen-clear"
-        : d.del !== undefined ? "item-del" : d.edit !== undefined ? "item-edit" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del"
+        : d.del !== undefined ? "item-del" : d.edit !== undefined ? "item-edit"
+        : d.paramReset ? "param-reset" : d.paramSource ? "param-source" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del"
         : d.sourceSave !== undefined ? "source-save" : d.optIdx !== undefined ? "opt-row"
         : "?" + el.outerHTML.slice(0, 80);
       keys.add(key);
@@ -449,6 +450,27 @@ const ACTIONS = [
     expect: async (a, b, p) => { assert.equal(b.selected, 0); assert.equal(await p.isVisible("#selbar"), false); },
   },
 
+  {
+    key: "Vorgabe auf Standard zurücksetzen", covers: ["param-reset"],
+    run: async (p) => {
+      await go(p, 1); await p.click("#ptab-vol");
+      await p.fill("#in-fillRack", "78"); await p.dispatchEvent("#in-fillRack", "change");
+      await p.evaluate(() => recalc());
+      await p.click('[data-param-reset="volume.fillRack"]');
+    },
+    expect: async (a, b, p) => { assert.equal(await p.inputValue("#in-fillRack"), "85"); assert.ok(b.undo > a.undo); },
+  },
+  {
+    key: "Quelle am Feld öffnet das Annahmenregister", covers: ["param-source"],
+    run: async (p) => {
+      await go(p, 1); await p.click("#ptab-vol");
+      await p.fill("#in-fillRack", "78"); await p.dispatchEvent("#in-fillRack", "change");
+      await p.evaluate(() => recalc());
+      await p.click('[data-param-source="volume.fillRack"]');
+    },
+    expect: async (a, b, p) => { assert.equal(b.tab, "7"); assert.equal(await p.evaluate(() => document.activeElement.closest("tr").dataset.sourcePath), "volume.fillRack"); },
+  },
+
   /* ---------- Stammdaten ---------- */
   {
     key: "Palettentyp anlegen und löschen", covers: ["#btn-lhm-add", "lhm-del"],
@@ -636,6 +658,7 @@ async function part(name, fn) {
         saveScenario(1);
         S.customLhm = { u1: { label: "X", l: 1200, b: 800, h: 1000, g: 300, stack: 1 } };
         S.lhmOverrides = { euro: { h: 1100 } };
+        S.volume.fillRack = 80; // geänderte Vorgabe: Zurücksetzen und Quelle am Feld
         S.customTrucks.t1 = { label: "Y", fl: 13, fw: 2.4, fh: 2.7, layers: 1, payload: 24000 };
         renderPalletMD(); renderTruckMD(); recalc();
         renderOptResults([{ o: "quer", bo: "N", w: 2700, n: 1, cap: 1, deck: 100, aisleA: 1, wReq: 1, area: 1, capex: 1, capexPP: 1, gx: 12, gy: 24, zones: {}, feasible: true, score: 0 }], null, "capex");
