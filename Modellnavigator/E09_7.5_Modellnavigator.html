@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Leadec Logistics Betriebsmodell · Modellnavigator</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #0f172a; --ink2: #334155; --muted: #64748b; --line: #e2e8f0; --line2: #cbd5e1;
+  --bg: #f1f5f9; --card: #ffffff; --soft: #f8fafc; --hover: #eff6ff;
+  --side: #0f172a; --side-ink: #cbd5e1; --side-line: #1e293b;
+  --accent: #2563eb; --accent-soft: #dbeafe; --accent-ink: #1e40af;
+  --perf: #c2702b; --perf-soft: #fdf1e6;
+  --fu: #1e3a5f; --be: #284b75; --ge: #355d8c; --no: #4a71a2; --au: #6584b2;
+  --a-P: #4a71a2; --a-D: #2e7d4f; --a-M: #b36b00; --a-W: #12707d; --a-RT: #6a4ba3; --a-K: #9b1c1c;
+  --sidebar-width: 248px;
+  font-family: "Segoe UI", "Source Sans Pro", system-ui, sans-serif;
+  color: var(--ink);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); line-height: 1.45; font-size: 14.5px; }
+.card, .blk, .regel-card, td { hyphens: auto; overflow-wrap: break-word; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+a { color: var(--accent-ink); }
+
+/* Seitenleiste */
+.sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); background: var(--side); color: #fff; display: flex; flex-direction: column; gap: 4px; padding: 14px 12px; overflow-y: auto; z-index: 40; transition: transform .2s ease; }
+.sb-brand { padding: 4px 6px 12px; border-bottom: 1px solid var(--side-line); margin-bottom: 6px; }
+.sb-brand b { display: block; font-size: 15px; letter-spacing: .01em; }
+.sb-brand span { font-size: 12px; color: var(--side-ink); }
+.sb-title { font-size: 11.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; padding: 10px 8px 4px; }
+.nav { display: block; width: 100%; text-align: left; background: transparent; border: 1px solid transparent; color: #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 14px; }
+.nav:hover { background: #1e293b; }
+.nav.on { background: var(--accent-soft); color: var(--accent-ink); font-weight: 700; }
+.nav:focus-visible { outline-color: #f59e0b; }
+.sb-meta { margin-top: auto; padding: 12px 8px 4px; border-top: 1px solid var(--side-line); font-size: 11.5px; color: var(--side-ink); line-height: 1.5; }
+
+/* Hauptbereich */
+.main { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; transition: margin-left .2s ease; }
+body.sb-zu .sidebar { transform: translateX(-100%); }
+body.sb-zu .main { margin-left: 0; }
+.top { position: sticky; top: 0; z-index: 30; background: var(--side); color: #fff; display: flex; align-items: center; gap: 12px; padding: 9px 18px; }
+.top h1 { font-size: 17px; font-weight: 700; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top .tb { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 16px; line-height: 1.2; }
+.top .tb:focus-visible { outline-color: #f59e0b; }
+.top input { width: min(360px, 40vw); border: 1px solid #334155; background: #1e293b; color: #fff; border-radius: 6px; padding: 6px 10px; }
+.top input::placeholder { color: #94a3b8; }
+#view { padding: 22px 26px 40px; max-width: 1440px; width: 100%; outline: none; }
+.v-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.v-head h2 { font-size: 22px; font-weight: 800; }
+.v-head p { color: var(--muted); max-width: 820px; margin-top: 3px; }
+.hint { font-size: 12.5px; color: var(--muted); }
+h3.sec { font-size: 15.5px; font-weight: 800; margin: 24px 0 10px; }
+
+/* Bausteine der Oberfläche */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.card.click { cursor: pointer; text-align: left; width: 100%; font: inherit; color: inherit; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }
+.card.click:hover { border-color: var(--accent); background: var(--hover); }
+.card h4 { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+.card p { color: var(--ink2); font-size: 13.5px; }
+.kenn { font-family: Consolas, "Courier New", monospace; font-size: 12px; font-weight: 700; color: var(--muted); }
+.tag { display: inline-block; font-size: 11.5px; font-weight: 700; border: 1px solid var(--line2); border-radius: 10px; padding: 0 7px; background: var(--soft); color: var(--ink2); white-space: nowrap; }
+.tag.art { color: #fff; border-color: transparent; }
+.tag.art-P { background: var(--a-P); } .tag.art-D { background: var(--a-D); } .tag.art-M { background: var(--a-M); }
+.tag.art-W { background: var(--a-W); } .tag.art-RT { background: var(--a-RT); } .tag.art-K { background: var(--a-K); }
+.tag.warn { border-color: #d97706; color: #8a4b00; background: #fef3c7; }
+.tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.cnt { display: inline-flex; gap: 4px; align-items: baseline; font-size: 12px; border: 1px solid var(--line2); border-radius: 4px; padding: 1px 6px; background: #fff; color: var(--ink2); }
+.cnt b { font-size: 13px; }
+.ref { color: var(--accent-ink); text-decoration: underline; text-decoration-color: #93c5fd; text-underline-offset: 2px; cursor: pointer; white-space: nowrap; font-weight: 600; }
+.ref:hover { background: var(--hover); }
+.btn { border: 1px solid var(--line2); background: #fff; border-radius: 6px; padding: 5px 11px; font-size: 13.5px; font-weight: 600; }
+.btn:hover { border-color: var(--accent); background: var(--hover); }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: #1d4ed8; }
+table.kv { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.kv td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.kv td:first-child { width: 190px; color: var(--muted); font-weight: 700; }
+table.list { width: 100%; border-collapse: collapse; font-size: 13.5px; background: #fff; }
+table.list th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 700; padding: 7px 8px; border-bottom: 2px solid var(--line2); background: var(--soft); }
+table.list td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.scroll { overflow-x: auto; }
+.note { font-size: 13px; color: var(--ink2); background: var(--soft); border-left: 4px solid var(--line2); padding: 10px 12px; margin-top: 14px; }
+
+/* Startsicht Ebenenmodell */
+.em { display: grid; grid-template-columns: 150px minmax(0, 1fr) 230px; gap: 8px; }
+.persp { grid-column: 1; border: 1px solid var(--line); border-left: 6px solid var(--fu); background: #fff; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: center; }
+.persp.PE { border-left-color: var(--perf); }
+.persp b { font-size: 15px; }
+.persp span { font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+.band { grid-column: 2; display: grid; grid-template-columns: 172px minmax(0, 1fr); background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.band-head { color: #fff; padding: 12px 14px; text-align: left; border: 0; display: flex; flex-direction: column; gap: 3px; }
+.band-head:hover { filter: brightness(1.12); }
+.band-head b { font-size: 18px; font-weight: 800; }
+.band-head .code { font-size: 11.5px; opacity: .8; font-weight: 700; letter-spacing: .05em; }
+.band-head .lf { font-size: 12.5px; opacity: .92; }
+.band-head .ptag { display: none; }
+.b-FU { background: var(--fu); } .b-BE { background: var(--be); } .b-GE { background: var(--ge); } .b-NO { background: var(--no); } .b-AU { background: var(--au); }
+.blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; padding: 6px; }
+.blk { border: 1px solid var(--line2); border-radius: 5px; background: #fff; padding: 8px 9px; text-align: left; display: flex; flex-direction: column; gap: 3px; min-height: 78px; }
+.blk:hover { border-color: var(--accent); background: var(--hover); }
+.blk b { font-size: 13px; font-weight: 800; }
+.blk span.t { font-size: 12px; color: var(--ink2); }
+.blk .foot { margin-top: auto; display: flex; gap: 4px; flex-wrap: wrap; padding-top: 4px; }
+.blk.feld { padding: 6px; gap: 4px; }
+.blk.feld .rp { display: block; width: 100%; text-align: left; border: 0; border-radius: 3px; padding: 3px 6px; font-size: 12px; font-weight: 700; }
+.rp.v { background: #e2e8f0; color: var(--ink); }
+.rp.w { background: var(--fu); color: #fff; }
+.rp:hover { outline: 2px solid var(--accent); }
+.side-col { grid-column: 3; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 8px; }
+.side-box { border: 1px solid var(--line2); border-radius: 6px; background: #fff; text-align: left; padding: 0; overflow: hidden; }
+.side-box:hover { border-color: var(--accent); }
+.side-box h4 { background: #e8eef7; font-size: 13.5px; font-weight: 800; padding: 7px 10px; }
+.side-box p { font-size: 12.5px; color: var(--ink2); padding: 8px 10px; }
+.em-foot { font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+
+/* Wirkungskette */
+.chain { display: flex; flex-direction: column; gap: 0; max-width: 760px; }
+.chain .step { display: grid; grid-template-columns: 150px 1fr; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); background: #fff; text-align: left; padding: 0; }
+.chain .step .n { color: #fff; padding: 10px 12px; font-weight: 800; }
+.chain .step .t { padding: 10px 12px; font-size: 13.5px; color: var(--ink2); }
+.chain .arr { text-align: center; color: var(--muted); font-size: 18px; line-height: 1.4; }
+
+/* Regeln */
+.felder { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.feld-col { display: flex; flex-direction: column; gap: 8px; }
+.feld-col h4 { font-size: 13.5px; font-weight: 800; color: #fff; background: var(--no); border-radius: 6px; padding: 8px 10px; }
+.regel-card { text-align: left; background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--line2); border-radius: 6px; padding: 10px; }
+.regel-card.w { border-top-color: var(--fu); }
+.regel-card:hover { border-color: var(--accent); background: var(--hover); }
+.regel-card b { display: block; font-size: 14px; }
+.regel-card .rolle { font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.regel-card p { font-size: 12.5px; color: var(--ink2); margin-top: 4px; }
+
+/* Komponenten */
+.weg { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; margin-top: 8px; }
+.weg > div { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 10px; background: var(--soft); border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; font-size: 12.5px; }
+.weg > div i { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding-top: 2px; }
+.weg > span { padding-left: 56px; color: var(--muted); line-height: 1.1; font-size: 12px; }
+
+/* Objekte */
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+.filters input[type=search] { flex: 1 1 240px; border: 1px solid var(--line2); border-radius: 6px; padding: 6px 10px; }
+.filters select { border: 1px solid var(--line2); border-radius: 6px; padding: 5px 8px; background: #fff; max-width: 220px; }
+.artchips { display: flex; gap: 6px; flex-wrap: wrap; }
+.obj-list { display: flex; flex-direction: column; gap: 6px; }
+.obj-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--line2); border-radius: 6px; padding: 8px 12px; text-align: left; width: 100%; }
+.obj-row:hover { border-color: var(--accent); background: var(--hover); }
+.obj-row .nm { font-weight: 700; font-size: 14px; }
+.obj-row .zw { font-size: 12.5px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.obj-row .rt { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.obj-row.a-P { border-left-color: var(--a-P); } .obj-row.a-D { border-left-color: var(--a-D); } .obj-row.a-M { border-left-color: var(--a-M); }
+.obj-row.a-W { border-left-color: var(--a-W); } .obj-row.a-RT { border-left-color: var(--a-RT); } .obj-row.a-K { border-left-color: var(--a-K); }
+
+/* Matrizen */
+table.mx { border-collapse: separate; border-spacing: 3px; font-size: 13px; }
+table.mx th { font-size: 12px; color: var(--muted); font-weight: 700; padding: 4px 6px; text-align: center; vertical-align: bottom; }
+table.mx th.rh { text-align: left; white-space: nowrap; color: var(--ink); }
+table.mx td { min-width: 74px; height: 40px; text-align: center; border-radius: 4px; background: var(--soft); border: 1px solid var(--line); }
+table.mx td.hit { cursor: pointer; }
+table.mx td.hit:hover { outline: 2px solid var(--accent); }
+table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: var(--a-D); font-weight: 800; }
+.dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--be); }
+
+/* Detailfenster */
+.ovl { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: none; z-index: 100; justify-content: flex-end; }
+.ovl.open { display: flex; }
+.drawer { background: #fff; width: min(760px, 100vw); height: 100%; display: flex; flex-direction: column; box-shadow: -8px 0 24px rgba(0, 0, 0, .18); }
+.d-head { display: flex; gap: 10px; align-items: flex-start; padding: 14px 18px 12px; border-bottom: 1px solid var(--line); }
+.d-head > div { flex: 1 1 auto; min-width: 0; }
+#d-kicker { font-size: 12px; color: var(--muted); font-weight: 700; }
+#d-title { font-size: 19px; font-weight: 800; line-height: 1.25; outline: none; }
+#d-body { overflow-y: auto; padding: 14px 18px 30px; }
+#d-body h3 { font-size: 14.5px; font-weight: 800; margin: 18px 0 8px; }
+.rel-group { margin-bottom: 10px; }
+.rel-group > div:first-child { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.rel-list { display: flex; flex-direction: column; gap: 4px; }
+.rel-item { display: grid; grid-template-columns: 90px 1fr auto; gap: 8px; align-items: center; border: 1px solid var(--line); border-radius: 5px; padding: 5px 8px; background: #fff; text-align: left; width: 100%; font-size: 13.5px; }
+.rel-item:hover { border-color: var(--accent); background: var(--hover); }
+.err { padding: 30px; font-size: 16px; color: #9b1c1c; }
+
+@media (max-width: 1100px) {
+  .felder { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .em { grid-template-columns: 120px minmax(0, 1fr); }
+  .side-col { grid-column: 1 / -1; grid-row: auto; order: 99; flex-direction: row; flex-wrap: wrap; }
+  .wk { grid-template-columns: minmax(0, 1fr) !important; }
+  .side-col > * { flex: 1 1 220px; }
+}
+@media (max-width: 760px) {
+  body { font-size: 14px; }
+  .sidebar { transform: translateX(-100%); }
+  body.sb-auf .sidebar { transform: none; }
+  .main { margin-left: 0; }
+  .top { padding: 8px 12px; }
+  .top input { width: 42vw; }
+  #view { padding: 16px 14px 32px; }
+  .em { grid-template-columns: minmax(0, 1fr); }
+  .persp { display: none; }
+  .band { grid-column: 1; grid-template-columns: minmax(0, 1fr); }
+  .side-col { grid-column: 1; }
+  .band-head .ptag { display: inline; font-size: 11px; opacity: .85; }
+  .blocks { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .obj-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .obj-row .rt { justify-content: flex-start; }
+  .weg > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  table.kv td:first-child { width: 120px; }
+  .rel-item { grid-template-columns: 1fr; gap: 2px; }
+  .chain .step { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .sidebar, .main { transition: none; } }
+@media print {
+  .sidebar, .top, .ovl, .filters { display: none !important; }
+  .main { margin-left: 0 !important; }
+  body { background: #fff; }
+  #view { padding: 0; max-width: none; }
+  .card, .band, .blk { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class="sidebar" id="sidebar" aria-label="Ansichten">
+  <div class="sb-brand"><b>Modellnavigator</b><span>Leadec Logistics Betriebsmodell</span></div>
+  <div class="sb-title">Modell</div>
+  <button class="nav" type="button" data-view="start">Ebenenmodell</button>
+  <button class="nav" type="button" data-view="wirkung">Wirkungskette</button>
+  <button class="nav" type="button" data-view="bewertung">Bewertungsperspektiven</button>
+  <button class="nav" type="button" data-view="objektmodell">Objektmodell</button>
+  <div class="sb-title">Ordnung</div>
+  <button class="nav" type="button" data-view="regeln">Goldene Regeln</button>
+  <button class="nav" type="button" data-view="bausteine">Bausteine</button>
+  <button class="nav" type="button" data-view="komponenten">Befähigungskomponenten</button>
+  <button class="nav" type="button" data-view="fuehrung">Führung und SCORE</button>
+  <div class="sb-title">Objekte</div>
+  <button class="nav" type="button" data-view="objekte">Alle Objekte</button>
+  <div class="sb-title">Querbezüge</div>
+  <button class="nav" type="button" data-view="mx-regel">Regel und Baustein</button>
+  <button class="nav" type="button" data-view="mx-befaehigung">Baustein und Befähigung</button>
+  <div class="sb-title">Kanon</div>
+  <button class="nav" type="button" data-view="kanon">Dokumente und Einstieg</button>
+  <button class="nav" type="button" data-view="info">Info</button>
+  <div class="sb-meta" id="sb-meta"></div>
+</nav>
+
+<div class="main">
+  <header class="top">
+    <button class="tb" id="sb-toggle" type="button" aria-label="Seitenleiste ein- oder ausblenden" aria-controls="sidebar">☰</button>
+    <h1 id="h-title">Leadec Logistics Betriebsmodell</h1>
+    <input type="search" id="q" placeholder="Kennung oder Begriff suchen" aria-label="Objekte durchsuchen" />
+  </header>
+  <main id="view" tabindex="-1"></main>
+</div>
+
+<div class="ovl" id="ovl">
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title">
+    <div class="d-head">
+      <button class="btn" id="d-back" type="button">Zurück</button>
+      <div><div id="d-kicker"></div><h2 id="d-title" tabindex="-1"></h2></div>
+      <button class="btn" id="d-close" type="button">Schließen</button>
+    </div>
+    <div id="d-body"></div>
+  </aside>
+</div>
+<input type="file" id="fileinput" accept=".js,.json" hidden />
+
+<!-- Datendatei. Sie liegt im selben Ordner und trägt immer denselben Namen. -->
+<script src="bm-daten.js"></script>
+<script>
+(function () {
+  'use strict';
+  const NAVIGATOR = { fassung: '1.0', stand: '28.10.2026' };
+  const $ = id => document.getElementById(id);
+  const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
+
+  let B = null, IX = null;
+  const ARTEN = ['P', 'D', 'M', 'W', 'RT', 'K'];
+  const ART_N = { P: 'Prinzip', D: 'Dokument', M: 'Methode', W: 'Betriebswerkzeug', RT: 'Routine', K: 'Kennzahl' };
+  const ART_PL = { P: 'Prinzipien', D: 'Dokumente', M: 'Methoden', W: 'Betriebswerkzeuge', RT: 'Routinen', K: 'Kennzahlen' };
+
+  // ---------- Index ----------
+  function index() {
+    const obj = new Map(B.objekte.map(o => [o.kennung, o]));
+    const ein = new Map();
+    B.objekte.forEach(o => o.bezuege.forEach(b => { if (!ein.has(b.ziel)) ein.set(b.ziel, []); ein.get(b.ziel).push({ von: o.kennung, art: b.art }); }));
+    // Bezug Dokument → Regel aus dem Merkmal Regel
+    B.objekte.filter(o => o.art === 'D').forEach(o => (o.regeln || []).forEach(r => { const k = 'Regel ' + r; if (!ein.has(k)) ein.set(k, []); ein.get(k).push({ von: o.kennung, art: 'Nachweis zur Regel' }); }));
+    IX = {
+      obj, ein,
+      ebene: new Map(B.ebenen.map(e => [e.code, e])),
+      bs: new Map(B.bausteine.map(b => [b.code, b])),
+      komp: new Map(B.komponenten.map(k => [k.code, k])),
+      regel: new Map(B.regeln.map(r => [r.nr, r])),
+      feld: new Map(B.felder.map(f => [f.nr, f])),
+      kanon: new Map(B.kanon.map(k => [k.kennung, k])),
+      stufe: new Map(B.stufen.map(s => [s.nr, s])),
+      dim: new Map(B.dimensionen.map(d => [d.code, d])),
+    };
+  }
+  const objekte = (f) => B.objekte.filter(f);
+  const kompName = c => (IX.komp.get(c) || { n: c }).n;
+  const bsName = c => (IX.bs.get(c) || { n: c || 'bausteinübergreifend' }).n;
+  const ebeneName = c => (IX.ebene.get(c) || { n: c }).n;
+
+  // ---------- Verweise im Text ----------
+  const REF_RE = /\b(M-\d{2}-\d{2}|D-[A-Z]{2}-\d{2}|W-[RMIPQS]-\d{2}|RT-\d-\d{2}|K[34]-[SCORE]-\d{2}|D0\d-[A-Z]+|[ABCE]0\d|Regel \d{1,2})\b/g;
+  function rich(text) {
+    return esc(text).replace(REF_RE, m => {
+      if (IX.obj.has(m)) return `<a href="#" class="ref" data-open="${m}" title="${esc(IX.obj.get(m).n)}">${m}</a>`;
+      if (IX.kanon.has(m)) return `<a href="#" class="ref" data-open="kanon:${m}" title="${esc(IX.kanon.get(m).n)}">${m}</a>`;
+      return m;
+    });
+  }
+  const refBtn = (key, label, title) => `<a href="#" class="ref" data-open="${esc(key)}"${title ? ` title="${esc(title)}"` : ''}>${esc(label)}</a>`;
+  const artTag = a => `<span class="tag art art-${a}">${ART_N[a]}</span>`;
+
+  // ---------- Zustand und Adresse ----------
+  // Die Adresse hält Ansicht, Filter und das geöffnete Detail. So lässt sich jede Sicht als Link teilen.
+  let state = { ansicht: 'start' };
+  const readHash = () => { const p = new URLSearchParams(location.hash.slice(1)); const s = {}; p.forEach((v, k) => { s[k] = v; }); if (!s.ansicht) s.ansicht = 'start'; return s; };
+  const writeHash = (s, push) => { const p = new URLSearchParams(); Object.entries(s).forEach(([k, v]) => { if (v != null && v !== '') p.set(k, v); }); const h = '#' + p.toString(); if (h === location.hash) return; if (push) history.pushState(null, '', h); else history.replaceState(null, '', h); };
+  function go(ansicht, extra) {
+    state = Object.assign({ ansicht }, extra || {});
+    writeHash(state, true);
+    renderView();
+    closeDrawer(true);
+    $('view').focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+    if (matchMedia('(max-width:760px)').matches) document.body.classList.remove('sb-auf');
+  }
+
+  // ---------- Ansichten ----------
+  const VIEWS = {};
+  function renderView() {
+    document.querySelectorAll('.nav[data-view]').forEach(b => { const on = b.dataset.view === state.ansicht; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); });
+    const v = VIEWS[state.ansicht] || VIEWS.start;
+    $('view').innerHTML = v();
+    if (state.ansicht === 'objekte') bindObjekte();
+  }
+  const head = (titel, text, rechts) => `<div class="v-head"><div><h2>${esc(titel)}</h2>${text ? `<p>${text}</p>` : ''}</div>${rechts || ''}</div>`;
+
+  // Startsicht: Ebenenmodell nach dem Bild von E01
+  VIEWS.start = () => {
+    const band = (code, blocks) => {
+      const e = IX.ebene.get(code);
+      const p = B.perspektiven.find(x => x.ebenen.includes(code));
+      return `<div class="band"><button type="button" class="band-head b-${code}" data-open="ebene:${code}" aria-label="Ebene ${esc(e.n)}"><span class="code">${code}${p ? ` <span class="ptag">· ${esc(p.n)}</span>` : ''}</span><b>${esc(e.n)}</b><span class="lf">${esc(e.leitfrage)}</span></button><div class="blocks">${blocks}</div></div>`;
+    };
+    const blk = (key, titel, text, foot) => `<button type="button" class="blk" data-open="${esc(key)}"><b>${esc(titel)}</b><span class="t">${esc(text)}</span>${foot ? `<span class="foot">${foot}</span>` : ''}</button>`;
+    const cnt = (n, l) => `<span class="cnt"><b>${n}</b> ${esc(l)}</span>`;
+    const k3 = objekte(o => o.art === 'K' && o.kontext === 3), k4 = objekte(o => o.art === 'K' && o.kontext === 4);
+    const fuBlocks = B.bloecke.FU.map(b => {
+      const foot = { score3: cnt(k3.length, 'Kennzahlen') + cnt(k3.filter(o => o.pflichtkern).length, 'Pflichtkern'), score4: cnt(k4.length, 'Kennzahlen') + cnt(B.dimensionen.length, 'Dimensionen'), kaskade: cnt(B.stufen.length, 'Kaskadenstufen'), routinen: cnt(objekte(o => o.art === 'RT').length, 'Routinen'), status: cnt(B.statusbewertung.length, 'Status') }[b.id];
+      return blk(b.obj || ('view:' + b.ziel), b.n, b.text, foot);
+    }).join('');
+    const beBlocks = B.komponenten.map(k => blk('komp:' + k.code, k.code + ' ' + k.n, k.gegenstand, cnt(objekte(o => o.art === 'M' && (o.komponenten || []).includes(k.code)).length, 'Methoden') + cnt(objekte(o => o.art === 'W' && o.komponenten.includes(k.code)).length, 'Werkzeuge'))).join('');
+    const geBlocks = B.bausteine.map(b => {
+      const kk = [...(b.kernkomponente || '').matchAll(/\b(C0\d) [^:.]+:/g)].map(m => m[1]);
+      return blk('bs:' + b.code, b.n, b.gegenstand, cnt(objekte(o => o.art === 'D' && o.baustein === b.code).length, 'Dokumente') + kk.map(c => `<span class="tag">${c}</span>`).join(''));
+    }).join('');
+    const noBlocks = B.felder.map(f => `<div class="blk feld"><button type="button" class="rp v" style="background:transparent;padding:0 2px;font-size:12.5px" data-open="feld:${f.nr}">${esc(f.n)}</button>${f.regeln.map((r, i) => `<button type="button" class="rp ${i ? 'w' : 'v'}" data-open="Regel ${r}">${r} ${esc(IX.regel.get(r).kurz)}</button>`).join('')}<span class="foot">${cnt('1–4', 'Reifegradstufen')}</span></div>`).join('')
+      + blk('view:regeln', 'Mindestkriterien', 'Recht und Sicherheit, für jedes Feld', cnt(B.mindestkriterien.gegenstaende.length, 'Gegenstände'));
+    const auBlocks = B.bloecke.AU.map(b => blk(b.obj || b.ziel, b.n, b.text, b.obj ? `<span class="kenn">${esc(b.obj)}</span>` : '')).join('');
+    const persp = (code, n, span) => { const p = B.perspektiven.find(x => x.code === code); return `<div class="persp ${code}" style="grid-row: span ${span}"><b>${esc(p.n)}</b><span>${esc(p.text)}</span></div>`; };
+    const rueck = B.wirkungskette[1] || '';
+    const extern = B.wirkungskette[2] || '';
+    return head('Ebenenmodell', 'Fünf Ebenen mit ihren Komponenten. Ein Klick auf eine Ebene zeigt ihr Raster. Ein Klick auf einen Block führt zur Ordnung und zu den Objekten.')
+      + `<div class="em">
+        ${persp('PE', 'Performance', 1)}${band('FU', fuBlocks)}
+        <div class="side-col">
+          <button type="button" class="side-box" data-open="view:wirkung"><h4>Rückführung</h4><p>${esc(rueck)}</p></button>
+          <button type="button" class="side-box" data-open="M-04-02"><h4>Interner und externer Pfad</h4><p>${esc(extern)}</p></button>
+        </div>
+        ${persp('ST', 'Struktur', 2)}${band('BE', beBlocks)}${band('GE', geBlocks)}
+        ${persp('MA', 'Maßstab', 2)}${band('NO', noBlocks)}${band('AU', auBlocks)}
+      </div>
+      <p class="em-foot">Ausrichtung und Normierung liefern den Maßstab. Gestaltung und Befähigung bilden die Struktur. Die Führung erzeugt und steuert die Performance. Führend ist A02 Kapitel 2.</p>`;
+  };
+
+  VIEWS.wirkung = () => {
+    const reihe = ['AU', 'NO', 'GE', 'BE', 'FU'];
+    const chain = reihe.map((c, i) => { const e = IX.ebene.get(c); return `${i ? '<div class="arr" aria-hidden="true">↓</div>' : ''}<button type="button" class="step" data-open="ebene:${c}"><span class="n b-${c}">${esc(e.n)}</span><span class="t">${esc(e.leitfrage)}<br><span class="hint">${esc(e.ordnung)}</span></span></button>`; }).join('');
+    const bsp = `<div class="scroll"><table class="list"><tr><th>Teil</th><th>Fundstelle</th><th>Inhalt</th></tr>${B.beispiel.map(z => `<tr><td><b>${esc(z.teil)}</b></td><td>${rich(z.fundstelle)}</td><td>${rich(z.inhalt)}</td></tr>`).join('')}</table></div>`;
+    return head('Wirkungskette und Rückführung', 'Die Ebenen wirken als Kette aufeinander. Die Rückführung reicht von der Führung zurück in Gestaltung und Befähigung.')
+      + `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px" class="wk">
+        <div class="chain">${chain}<div class="arr" aria-hidden="true">↺</div><button type="button" class="step" data-open="M-04-02"><span class="n" style="background:var(--perf)">Rückführung</span><span class="t">Interner Pfad über Verbesserung, externer Pfad über Kundenänderung. Verfahren nach C07.</span></button></div>
+        <div>${B.wirkungskette.map(p => `<p style="margin-bottom:10px">${rich(p)}</p>`).join('')}</div>
+      </div>
+      <h3 class="sec">Beispiel Warenannahme</h3><p class="hint" style="margin-bottom:8px">Durchgängiges, nicht normatives Beispiel am Hauptprozess PR-IN-03.</p>${bsp}`;
+  };
+
+  VIEWS.bewertung = () => {
+    const t = `<div class="scroll"><table class="list"><tr><th>Merkmal</th><th>Strukturbewertung</th><th>Performancebewertung</th></tr>${B.bewertung.map(z => `<tr><td><b>${esc(z[0])}</b></td><td>${rich(z[1])}</td><td>${rich(z[2])}</td></tr>`).join('')}</table></div>`;
+    const g = `<div class="cards">${B.grundsaetze.map(x => `<div class="card"><h4>${esc(x.n)}</h4><p>${rich(x.text)}</p></div>`).join('')}</div>`;
+    return head('Bewertungsperspektiven', 'Struktur und Performance werden getrennt bewertet und nicht verrechnet. Führend ist A02 Kapitel 1.2 und 5.') + t + '<h3 class="sec">Grundsätze</h3>' + g;
+  };
+
+  VIEWS.objektmodell = () => {
+    const n = a => objekte(o => o.art === a).length;
+    const t = `<div class="scroll"><table class="list"><tr><th>Objektart</th><th>Leistung</th><th>Ordnung</th><th>Regelebene</th><th>Kennung</th><th class="num">Anzahl</th></tr>${B.objektarten.map(a => `<tr><td>${artTag(a.code)}</td><td>${esc(a.leistung)}</td><td>${esc(a.ordnung)}</td><td>${esc(a.regelebene)}</td><td><span class="kenn">${esc(a.schema)}</span><br><span class="hint">etwa ${esc(a.beispiel)}</span></td><td><a href="#" class="ref" data-go="objekte" data-art="${a.code}">${n(a.code)}</a></td></tr>`).join('')}</table></div>`;
+    const ab = B.abgrenzung;
+    const t2 = `<div class="scroll"><table class="list"><tr>${ab.kopf.map(h => `<th>${esc(h)}</th>`).join('')}</tr>${ab.zeilen.map(z => `<tr>${z.map((c, i) => i ? `<td>${esc(c)}</td>` : `<td><b>${esc(c)}</b></td>`).join('')}</tr>`).join('')}</table></div>`;
+    return head('Objektmodell', 'Jedes Objekt gehört genau einer Objektart und genau einer Ebene an. Führend ist A02 Kapitel 4.') + t
+      + '<h3 class="sec">Abgrenzung der Objektarten im Betrieb</h3>' + t2
+      + '<p class="note">Drei Prüffragen grenzen einen Sachverhalt ab. Durchläuft ein Mensch feste Schritte, ist er eine Methode. Verarbeitet oder zeigt er Information, ohne zu entscheiden, ist er ein Betriebswerkzeug. Hat er Takt, leitende Rolle und Agenda, ist er eine Routine.</p>';
+  };
+
+  VIEWS.regeln = () => {
+    const cols = B.felder.map(f => `<div class="feld-col"><h4>${f.nr} ${esc(f.n)}</h4>${f.regeln.map((r, i) => { const R = IX.regel.get(r); const nm = objekte(o => o.art === 'M' && o.regel === r).length, nd = objekte(o => o.art === 'D' && (o.regeln || []).includes(r)).length; return `<button type="button" class="regel-card ${i ? 'w' : ''}" data-open="Regel ${r}"><span class="rolle">${esc(R.rolle)}</span><b>Regel ${r} ${esc(R.kurz)}</b><p>${esc(R.leitsatz)}</p><span class="tags"><span class="cnt"><b>${nm}</b> Methoden</span><span class="cnt"><b>${nd}</b> Dokumente</span></span></button>`; }).join('')}</div>`).join('');
+    const mk = `<div class="card"><h4>Mindestkriterien</h4><p>${esc(B.mindestkriterien.text.join(' '))}</p><div class="tags">${B.mindestkriterien.gegenstaende.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div></div>`;
+    return head('Goldene Regeln', 'Zehn Regeln in fünf Entwicklungsfeldern. In jedem Feld schafft die erste Regel die Voraussetzung, die zweite beschreibt die Wirkung. Führend ist B01.')
+      + `<div class="felder">${cols}</div><p class="note">${esc(B.reihenfolge.join(' '))}</p><h3 class="sec">Zweite Normquelle</h3>${mk}`;
+  };
+
+  VIEWS.bausteine = () => head('Bausteine der Gestaltung', 'Acht Bausteine stellen Gestaltungsmittel und Best Practice bereit. Die Dokumente sind nach Baustein geordnet. Führend ist B02.')
+    + `<div class="cards">${B.bausteine.map(b => { const nd = objekte(o => o.art === 'D' && o.baustein === b.code).length, nm = objekte(o => o.art === 'M' && o.baustein === b.code).length; return `<button type="button" class="card click" data-open="bs:${b.code}"><span class="kenn">${b.code}</span><h4>${esc(b.n)}</h4><p>${esc(b.leitfrage || b.gegenstand)}</p><div class="tags"><span class="cnt"><b>${nd}</b> Dokumente</span><span class="cnt"><b>${nm}</b> Methoden</span></div></button>`; }).join('')}</div>`;
+
+  VIEWS.komponenten = () => head('Befähigungskomponenten', 'Sechs gleichrangige Komponenten bündeln die Zweige aus den Bausteinen zur Ausführungsfähigkeit des Standorts. Führend ist B03.')
+    + `<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${B.komponenten.map(k => `<button type="button" class="card click" data-open="komp:${k.code}"><span class="kenn">${k.code}</span><h4>${esc(k.n)}</h4><p>${esc(k.gegenstand)}</p>${k.weg ? `<div class="weg"><div><i>Gestaltungsmittel</i>${esc(stripRefs(k.weg.gestaltungsmittel))}</div><span aria-hidden="true">↓</span><div><i>Methode</i>${esc(stripRefs(k.weg.methode))}</div><span aria-hidden="true">↓</span><div><i>Realisierung</i>${esc(k.weg.realisierung)}</div></div>` : ''}<div class="tags">${(k.zufuehrend || []).map(b => `<span class="tag">${esc(b)}</span>`).join('')}</div></button>`).join('')}</div>`;
+  const stripRefs = t => String(t || '').replace(/\s*\([^)]*\)/g, '');
+
+  VIEWS.fuehrung = () => {
+    const kask = B.stufen.map(s => { const rt = objekte(o => o.art === 'RT' && o.stufe === s.nr); const nm = objekte(o => o.art === 'M' && (o.stufen || []).includes(s.nr)).length; return `<tr><td><b>${s.nr} ${esc(s.n)}</b></td><td>${rt.length ? rt.map(o => `<div>${refBtn(o.kennung, o.kennung)} ${esc(o.n)} <span class="hint">· ${esc(o.profil.Takt)} · ${esc(o.profil['Leitende Rolle'])}</span></div>`).join('') : '<span class="hint">keine eigene Routine</span>'}</td><td><a href="#" class="ref" data-go="objekte" data-art="M" data-stufe="${s.nr}">${nm} Methoden</a></td></tr>`; }).join('');
+    const score = `<div class="scroll"><table class="list"><tr><th>Dimension</th><th>SCORE III · Shopfloor Control</th><th>SCORE IV · Performance Management</th></tr>${B.dimensionen.map(d => `<tr><td><b>${d.code} ${esc(d.n)}</b><br><span class="hint">${esc(d.gegenstand)}</span></td>${[3, 4].map(c => `<td>${objekte(o => o.art === 'K' && o.kontext === c && o.dimension === d.code).map(o => `<div>${refBtn(o.kennung, o.kennung)} ${esc(o.n)}${o.pflichtkern ? ' <span class="tag warn">Pflichtkern</span>' : ''}</div>`).join('')}</td>`).join('')}</tr>`).join('')}</table></div>`;
+    const status = B.statusbewertung.length ? `<div class="scroll"><table class="list"><tr><th>Status</th><th>Bedingung</th><th>Reaktion</th></tr>${B.statusbewertung.map(z => `<tr><td><b>${esc(z[0])}</b></td><td>${esc(z[1])}</td><td>${esc(z[2])}</td></tr>`).join('')}</table></div><p class="hint" style="margin-top:6px">Statusbewertung nach ${refBtn('M-08-03', 'M-08-03')}. Die Farbdarstellung am Board legt C05 fest.</p>` : '';
+    return head('Führung und SCORE', 'Die Führung bewertet die Leistung mit SCORE und steuert den Betrieb über Routinen der Führungskaskade. Führend sind B04, C04 und C05.')
+      + `<h3 class="sec" style="margin-top:0">Führungskaskade und Routinen</h3><div class="scroll"><table class="list"><tr><th>Kaskadenstufe</th><th>Routinen nach C05</th><th>Methoden</th></tr>${kask}</table></div>`
+      + `<h3 class="sec">Kennzahlen nach Dimension und Kontext</h3>${score}<h3 class="sec">Statusbewertung</h3>${status}`;
+  };
+
+  // Objektkatalog mit Filtern
+  const F_KEYS = ['q', 'art', 'ebene', 'regel', 'baustein', 'komp', 'stufe'];
+  function filtern() {
+    const q = (state.q || '').trim().toLowerCase();
+    const arts = (state.art || '').split(',').filter(Boolean);
+    return B.objekte.filter(o => {
+      if (arts.length && !arts.includes(o.art)) return false;
+      if (state.ebene && o.ebene !== state.ebene) return false;
+      if (state.regel && !(String(o.regel) === state.regel || (o.regeln || []).map(String).includes(state.regel))) return false;
+      if (state.baustein && o.baustein !== state.baustein) return false;
+      if (state.komp && !(o.komponenten || []).includes(state.komp)) return false;
+      if (state.stufe && !((o.stufen || []).includes(+state.stufe) || o.stufe === +state.stufe)) return false;
+      if (q) { const t = [o.kennung, o.n, o.zweck, o.typ, ...Object.values(o.profil || {})].join(' ').toLowerCase(); if (!q.split(/\s+/).every(w => t.includes(w))) return false; }
+      return true;
+    }).sort((a, b) => ARTEN.indexOf(a.art) - ARTEN.indexOf(b.art) || (a.art === 'P' ? a.regel - b.regel : a.kennung.localeCompare(b.kennung, 'de', { numeric: true })));
+  }
+  function objTags(o) {
+    const t = [`<span class="tag">${o.ebene}</span>`];
+    if (o.art === 'M' || o.art === 'P') t.push(`<span class="tag">${o.regel ? 'Regel ' + o.regel : 'regelübergreifend'}</span>`);
+    if (o.art === 'D' && o.regeln && o.regeln.length) t.push(`<span class="tag">Regel ${o.regeln.join(', ')}</span>`);
+    if (o.art === 'D' && o.mindestkriterium) t.push('<span class="tag warn">Mindestkriterium</span>');
+    if (o.baustein) t.push(`<span class="tag">${o.baustein}</span>`);
+    if (o.komponenten && o.komponenten.length) t.push(`<span class="tag">${o.komponenten.length === 6 ? 'alle Komponenten' : o.komponenten.join(', ')}</span>`);
+    if (o.art === 'RT') t.push(`<span class="tag">Stufe ${o.stufe}</span>`);
+    if (o.art === 'K') { t.push(`<span class="tag">SCORE ${o.kontext === 3 ? 'III' : 'IV'} · ${o.dimension}</span>`); if (o.pflichtkern) t.push('<span class="tag warn">Pflichtkern</span>'); }
+    if (o.art === 'D' && o.status) t.push(`<span class="tag">${esc(o.status)}</span>`);
+    return t.join('');
+  }
+  const objRow = o => `<button type="button" class="obj-row a-${o.art}" data-open="${esc(o.kennung)}"><span class="kenn">${esc(o.kennung)}</span><span><span class="nm">${esc(o.n)}</span><span class="zw" style="display:block">${esc(o.zweck || (o.typ ? o.typ + ' · ' + bsName(o.baustein) : (o.profil && o.profil.Fundstelle) || ''))}</span></span><span class="rt">${artTag(o.art)}${objTags(o)}</span></button>`;
+  VIEWS.objekte = () => {
+    const arts = (state.art || '').split(',').filter(Boolean);
+    const opt = (key, vals, label) => `<select data-f="${key}" aria-label="${label}"><option value="">${label}: alle</option>${vals.map(([v, l]) => `<option value="${esc(v)}" ${String(state[key] || '') === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+    const liste = filtern();
+    return head('Alle Objekte', `${B.objekte.length} Objekte in sechs Objektarten. Filter und Suche wirken zusammen. Die Adresse der Seite hält die Auswahl fest.`)
+      + `<div class="filters">
+        <input type="search" data-f="q" value="${esc(state.q || '')}" placeholder="Kennung, Bezeichnung oder Inhalt" aria-label="Suche in den Objekten" />
+        <div class="artchips" role="group" aria-label="Objektart">${ARTEN.map(a => `<button type="button" class="btn ${arts.includes(a) ? 'on' : ''}" data-artchip="${a}" aria-pressed="${arts.includes(a)}">${ART_PL[a]} (${objekte(o => o.art === a).length})</button>`).join('')}</div>
+        ${opt('ebene', B.ebenen.map(e => [e.code, e.n]), 'Ebene')}
+        ${opt('regel', B.regeln.map(r => [r.nr, 'Regel ' + r.nr + ' ' + r.kurz]), 'Regel')}
+        ${opt('baustein', B.bausteine.map(b => [b.code, b.code + ' ' + b.n]), 'Baustein')}
+        ${opt('komp', B.komponenten.map(k => [k.code, k.code + ' ' + k.n]), 'Komponente')}
+        ${opt('stufe', B.stufen.map(s => [s.nr, s.nr + ' ' + s.n]), 'Kaskadenstufe')}
+        <button type="button" class="btn" id="f-reset">Filter zurücksetzen</button>
+      </div>
+      <p class="hint" id="f-cnt" aria-live="polite" style="margin-bottom:8px">${liste.length} von ${B.objekte.length} Objekten</p>
+      <div class="obj-list" id="obj-list">${liste.map(objRow).join('') || '<p class="hint">Kein Objekt entspricht der Auswahl.</p>'}</div>`;
+  };
+  function bindObjekte() {
+    const upd = () => { writeHash(state, false); const l = filtern(); $('obj-list').innerHTML = l.map(objRow).join('') || '<p class="hint">Kein Objekt entspricht der Auswahl.</p>'; $('f-cnt').textContent = `${l.length} von ${B.objekte.length} Objekten`; };
+    document.querySelectorAll('[data-f]').forEach(el => { el[el.tagName === 'INPUT' ? 'oninput' : 'onchange'] = () => { state[el.dataset.f] = el.value; upd(); }; });
+    document.querySelectorAll('[data-artchip]').forEach(b => b.onclick = () => { const s = new Set((state.art || '').split(',').filter(Boolean)); s.has(b.dataset.artchip) ? s.delete(b.dataset.artchip) : s.add(b.dataset.artchip); state.art = [...s].join(','); b.classList.toggle('on'); b.setAttribute('aria-pressed', String(s.has(b.dataset.artchip))); upd(); });
+    $('f-reset').onclick = () => { F_KEYS.forEach(k => delete state[k]); renderView(); writeHash(state, false); };
+  }
+
+  // Matrix Regel und Baustein aus Methoden und Dokumenten
+  function zelle(r, b) {
+    const ms = objekte(o => o.art === 'M' && o.regel === r && (b === '–' ? !o.baustein : o.baustein === b));
+    const ds = b === '–' ? [] : objekte(o => o.art === 'D' && o.baustein === b && (o.regeln || []).includes(r));
+    return { ms, ds };
+  }
+  VIEWS['mx-regel'] = () => {
+    const cols = [...B.bausteine.map(b => b.code), '–'];
+    const rows = [...B.regeln.map(r => r.nr), 0];
+    let max = 1; rows.forEach(r => cols.forEach(c => { const z = zelle(r, c); max = Math.max(max, z.ms.length + z.ds.length); }));
+    const td = (r, c) => { const z = zelle(r, c), n = z.ms.length + z.ds.length; if (!n) return '<td></td>'; const a = 0.08 + 0.42 * n / max; return `<td class="hit" style="background:rgba(37,99,235,${a.toFixed(2)})" data-open="zelle:${r}|${c}" tabindex="0" role="button" aria-label="Regel ${r || 'übergreifend'}, Baustein ${c}: ${z.ms.length} Methoden, ${z.ds.length} Dokumente">${z.ms.length ? `<span class="m">M ${z.ms.length}</span>` : ''}${z.ms.length && z.ds.length ? ' · ' : ''}${z.ds.length ? `<span class="d">D ${z.ds.length}</span>` : ''}</td>`; };
+    return head('Matrix Regel und Baustein', 'Je Zelle die Methoden mit Regel und Baustein nach D02-MET und die Dokumente mit Nachweisverwendung für die Regel nach D03-DOK. Die Prüfkriterien der Prüfmatrix in C01 Anhang A folgen in einer späteren Ausbaustufe.')
+      + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${cols.map(c => `<th title="${esc(bsName(c === '–' ? null : c))}">${c === '–' ? 'übergreifend' : c}</th>`).join('')}</tr>${rows.map(r => `<tr><th class="rh">${r ? `${refBtn('Regel ' + r, 'Regel ' + r)} ${esc(IX.regel.get(r).kurz)}` : 'regelübergreifend'}</th>${cols.map(c => td(r, c)).join('')}</tr>`).join('')}</table></div>
+      <p class="hint" style="margin-top:8px"><span style="color:var(--a-M);font-weight:800">M</span> Methoden · <span style="color:var(--a-D);font-weight:800">D</span> Dokumente. Ein Klick auf eine Zelle zeigt die Objekte.</p>`;
+  };
+
+  VIEWS['mx-befaehigung'] = () => {
+    const ks = B.komponenten;
+    return head('Matrix Baustein und Befähigung', 'Welche Bausteine der Gestaltung welchen Befähigungskomponenten zuführen. Grundlage sind die zuführenden Bausteine nach B03 Kapitel 3, abgeleitet aus der Prüfmatrix in C01 Anhang A.8. Die Begleitdarstellung E07 zeigt dieselbe Zuordnung mit Regeln und Mindestkriterien.')
+      + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${ks.map(k => `<th>${refBtn('komp:' + k.code, k.code)}<br><span style="font-weight:400">${esc(k.n)}</span></th>`).join('')}</tr>${B.bausteine.map(b => `<tr><th class="rh">${refBtn('bs:' + b.code, b.code)} ${esc(b.n)}</th>${ks.map(k => { const on = (k.zufuehrend || []).includes(b.code); const nm = objekte(o => o.art === 'M' && o.baustein === b.code && (o.komponenten || []).includes(k.code)).length; return `<td${on || nm ? ` class="hit" data-open="bk:${b.code}|${k.code}" tabindex="0" role="button" aria-label="${esc(b.n)} und ${esc(k.n)}"` : ''}>${on ? '<span class="dot" title="führt zu"></span>' : ''}${nm ? `<div class="hint">${nm} M</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</table></div>
+      <p class="hint" style="margin-top:8px">Punkt: Der Baustein führt der Komponente zu. Zahl: Methoden des Bausteins mit dieser Komponente nach D02-MET.</p>`;
+  };
+
+  VIEWS.kanon = () => {
+    const gruppen = [['A', 'Modellbeschreibung'], ['B', 'Ebenendetaillierung'], ['C', 'Kernkomponenten'], ['D', 'Kataloge'], ['E', 'Begleitdarstellungen']];
+    const pcf = B.meta.pcfDatei;
+    return head('Dokumente und Einstieg', 'Der Kanon besteht aus vier Dokumentgruppen und den Begleitdarstellungen. Bei einem Widerspruch gilt das führende Dokument. Führend ist A02 Kapitel 6.')
+      + gruppen.map(([g, n]) => `<h3 class="sec">${g} · ${esc(n)}</h3><div class="cards">${B.kanon.filter(k => k.gruppe === g).map(k => `<button type="button" class="card click" data-open="kanon:${esc(k.kennung)}"><span class="kenn">${esc(k.kennung)}</span>${k.vorgemerkt ? ` <span class="tag warn">vorgemerkt ${esc(k.vorgemerkt)}</span>` : ''}<h4>${esc(k.n)}</h4><p>${esc(stripRefs(k.inhalt))}</p></button>`).join('')}</div>`).join('')
+      + `<h3 class="sec">Einstieg je Rolle</h3><div class="scroll"><table class="list"><tr><th>Rolle</th><th>Einstieg</th></tr>${B.einstieg.map(z => `<tr><td><b>${esc(z.rolle)}</b></td><td>${rich(z.einstieg)}</td></tr>`).join('')}</table></div>`
+      + `<h3 class="sec">Process Framework</h3><div class="card"><p>Das Process Framework ist ein eigenständiges Werkzeug zu C02. Es führt den Prozessbestand von der Leistungsdomäne bis zum Arbeitsschritt.</p><p style="margin-top:8px"><a class="btn primary" href="${esc(pcf)}" target="_blank" rel="noopener">Process Framework öffnen</a> <span class="hint">${esc(pcf)} im selben Ordner</span></p></div>`;
+  };
+
+  VIEWS.info = () => {
+    const m = B.meta;
+    const cnt = ARTEN.map(a => `<tr><td>${artTag(a)}</td><td>${objekte(o => o.art === a).length}</td></tr>`).join('');
+    return head('Info', esc(m.status))
+      + `<div class="card"><table class="kv">
+        <tr><td>Darstellung</td><td>${esc(m.darstellung)} · Navigator ${NAVIGATOR.fassung} vom ${NAVIGATOR.stand}</td></tr>
+        <tr><td>Kanon</td><td>Fassung ${esc(m.fassung)}</td></tr>
+        <tr><td>Datendatei</td><td>erzeugt am ${esc(m.erzeugt)} mit ${esc(m.erzeuger)}</td></tr>
+        <tr><td>Quellen</td><td>${m.quellen.map(q => esc(q)).join('<br>')}</td></tr>
+        <tr><td>Pflege</td><td>Die Datendatei wird nicht von Hand bearbeitet. Ändert sich ein Katalog, erzeugt das Skript sie neu. Führend bleiben die Dokumente des Kanons.</td></tr>
+      </table></div>
+      <h3 class="sec">Bestand</h3><table class="list" style="max-width:360px"><tr><th>Objektart</th><th>Anzahl</th></tr>${cnt}</table>
+      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Escape schließt das Detailfenster. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
+  };
+
+  // ---------- Detailfenster ----------
+  let stack = [], lastFocus = null;
+  function open(key, fromStack) {
+    if (key.startsWith('view:')) { go(key.slice(5)); return; }
+    const r = detail(key);
+    if (!r) return;
+    if (!$('ovl').classList.contains('open')) { lastFocus = document.activeElement; stack = []; }
+    if (!fromStack) stack.push(key);
+    $('d-kicker').innerHTML = r.kicker;
+    $('d-title').textContent = r.titel;
+    $('d-body').innerHTML = r.body;
+    $('d-body').scrollTop = 0;
+    $('d-back').hidden = stack.length < 2;
+    $('ovl').classList.add('open');
+    state.o = key; writeHash(state, false);
+    $('d-title').focus();
+  }
+  function closeDrawer(silent) {
+    if (!$('ovl').classList.contains('open')) return;
+    $('ovl').classList.remove('open');
+    stack = [];
+    if (!silent) { delete state.o; writeHash(state, false); if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
+  }
+  $('d-close').onclick = () => closeDrawer();
+  $('d-back').onclick = () => { stack.pop(); const k = stack[stack.length - 1]; if (k) open(k, true); };
+  $('ovl').addEventListener('click', e => { if (e.target === $('ovl')) closeDrawer(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('ovl').classList.contains('open')) closeDrawer();
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('td[data-open]')) { e.preventDefault(); open(e.target.dataset.open); }
+  });
+
+  const kv = rows => `<table class="kv">${rows.filter(r => r && r[1] !== undefined && r[1] !== null && r[1] !== '').map(([k, v, raw]) => `<tr><td>${esc(k)}</td><td>${raw ? v : rich(v)}</td></tr>`).join('')}</table>`;
+  const relItem = (k, extra) => { const o = IX.obj.get(k); if (!o) return ''; return `<button type="button" class="rel-item" data-open="${esc(k)}"><span class="kenn">${esc(k)}</span><span>${esc(o.n)}${extra ? ` <span class="hint">· ${esc(extra)}</span>` : ''}</span>${artTag(o.art)}</button>`; };
+  const relList = (titel, ks, extraFn) => ks.length ? `<div class="rel-group"><div>${esc(titel)} (${ks.length})</div><div class="rel-list">${ks.map(k => relItem(k, extraFn ? extraFn(k) : '')).join('')}</div></div>` : '';
+  const byArt = (ks, prefix) => ARTEN.map(a => relList((prefix || '') + ART_PL[a], ks.filter(k => (IX.obj.get(k) || {}).art === a))).join('');
+  const goLink = (label, params) => `<a href="#" class="ref" data-go="objekte" ${Object.entries(params).map(([k, v]) => `data-${k}="${esc(v)}"`).join(' ')}>${esc(label)}</a>`;
+
+  function detail(key) {
+    const [typ, arg] = key.includes(':') ? [key.split(':')[0], key.slice(key.indexOf(':') + 1)] : ['obj', key];
+    if (typ === 'obj') return key.startsWith('Regel ') ? dRegel(+key.slice(6)) : dObjekt(key);
+    if (typ === 'ebene') return dEbene(arg);
+    if (typ === 'bs') return dBaustein(arg);
+    if (typ === 'komp') return dKomponente(arg);
+    if (typ === 'feld') return dFeld(+arg);
+    if (typ === 'kanon') return dKanon(arg);
+    if (typ === 'zelle') { const [r, b] = arg.split('|'); const z = zelle(+r, b); return { kicker: 'Matrix Regel und Baustein', titel: `${+r ? 'Regel ' + r + ' ' + IX.regel.get(+r).kurz : 'regelübergreifend'} · ${b === '–' ? 'bausteinübergreifend' : bsName(b)}`, body: relList('Methoden', z.ms.map(o => o.kennung)) + relList('Dokumente', z.ds.map(o => o.kennung)) }; }
+    if (typ === 'bk') { const [b, k] = arg.split('|'); const K = IX.komp.get(k); const ms = objekte(o => o.art === 'M' && o.baustein === b && (o.komponenten || []).includes(k)); return { kicker: 'Matrix Baustein und Befähigung', titel: `${bsName(b)} · ${K.n}`, body: `<p>${(K.zufuehrend || []).includes(b) ? 'Der Baustein führt der Komponente nach B03 Kapitel 3 zu.' : 'Der Baustein ist nach B03 Kapitel 3 kein zuführender Baustein dieser Komponente.'}</p><p style="margin-top:8px">${refBtn('bs:' + b, b + ' ' + bsName(b))} · ${refBtn('komp:' + k, k + ' ' + K.n)}</p><h3>Methoden</h3>${relList('Methoden des Bausteins mit dieser Komponente', ms.map(o => o.kennung)) || '<p class="hint">Nach D02-MET ist keine Methode des Bausteins dieser Komponente zugeordnet.</p>'}<h3>Werkzeuge der Komponente</h3>${relList('Betriebswerkzeuge', objekte(o => o.art === 'W' && o.komponenten.includes(k)).map(o => o.kennung)) || '<p class="hint">Kein Betriebswerkzeug.</p>'}` }; }
+    return null;
+  }
+
+  function dObjekt(k) {
+    const o = IX.obj.get(k); if (!o) return null;
+    if (o.art === 'P') return dRegel(o.regel);
+    const rows = [['Zweck', o.zweck], ['Objektart', ART_N[o.art]], ['Ebene', `${esc(ebeneName(o.ebene))} (${o.ebene})`, true]];
+    if (o.art === 'M') rows.push(['Regel', o.regel ? `${refBtn('Regel ' + o.regel, 'Regel ' + o.regel)} ${esc(IX.regel.get(o.regel).kurz)}` : 'regelübergreifend', true], ['Baustein', o.baustein ? refBtn('bs:' + o.baustein, o.baustein + ' ' + bsName(o.baustein)) : 'bausteinübergreifend', true], ['Befähigungskomponente', (o.komponenten || []).length ? o.komponenten.map(c => refBtn('komp:' + c, c + ' ' + kompName(c))).join(', ') : 'keine Realisierung', true]);
+    if (o.art === 'D') rows.push(['Baustein', refBtn('bs:' + o.baustein, o.baustein + ' ' + bsName(o.baustein)), true], ['Dokumenttyp', o.typ], ['Regel der Nachweisverwendung', (o.regeln || []).length ? o.regeln.map(r => refBtn('Regel ' + r, 'Regel ' + r)).join(', ') + (o.mindestkriterium ? ', Mindestkriterium' : '') : (o.mindestkriterium ? 'Mindestkriterium' : 'keine'), true]);
+    if (o.art === 'W') rows.push(['Befähigungskomponente', o.komponenten.map(c => refBtn('komp:' + c, c + ' ' + kompName(c))).join(', '), true]);
+    if (o.art === 'RT') rows.push(['Kaskadenstufe', `${o.stufe} ${esc(IX.stufe.get(o.stufe).n)}`, true]);
+    if (o.art === 'K') rows.push(['Kontext', o.kontext === 3 ? 'SCORE III · Shopfloor Control' : 'SCORE IV · Performance Management'], ['Dimension', `${o.dimension} ${IX.dim.get(o.dimension).n}`], ['Bereich', o.pflichtkern ? 'Pflichtkern' : (o.kontext === 3 ? (o.profil.Bereich || 'Wahl') : 'SCORE IV')]);
+    Object.entries(o.profil || {}).forEach(([n, v]) => { if (!['Bereich', 'Fundstelle', 'Regel'].includes(n)) rows.push([n, v]); });
+    rows.push(['Fundstelle', o.fundstelle]);
+    const aus = o.bezuege.map(b => b.ziel);
+    const ein = (IX.ein.get(k) || []).map(x => x.von).filter((x, i, a) => a.indexOf(x) === i);
+    return {
+      kicker: `${artTag(o.art)} <span class="kenn" style="margin-left:6px">${esc(o.kennung)}</span>`,
+      titel: o.n,
+      body: kv(rows)
+        + (aus.length ? `<h3>Nennt</h3>${byArt(aus)}` : '')
+        + (ein.length ? `<h3>Wird genannt von</h3>${byArt(ein)}` : '')
+        + `<p class="note">Kurzprofil aus ${esc(o.fundstelle)}. Führend ist das Dokument des Kanons.</p>`
+    };
+  }
+
+  function dRegel(nr) {
+    const R = IX.regel.get(nr); if (!R) return null;
+    const F = IX.feld.get(R.feld);
+    const ms = objekte(o => o.art === 'M' && o.regel === nr).map(o => o.kennung);
+    const ds = objekte(o => o.art === 'D' && (o.regeln || []).includes(nr)).map(o => o.kennung);
+    const partner = F.regeln.find(x => x !== nr);
+    return {
+      kicker: `${artTag('P')} <span class="kenn" style="margin-left:6px">Regel ${nr}</span>`,
+      titel: `Regel ${nr} ${R.n}`,
+      body: kv([['Leitsatz', R.leitsatz], ['Anforderung', R.anforderung], ['Wirkung', R.wirkung], ['Entwicklungsfeld', `${refBtn('feld:' + F.nr, F.nr + ' ' + F.n)} · ${esc(R.rolle)}, gepaart mit ${refBtn('Regel ' + partner, 'Regel ' + partner)}`, true], ['Prüfende Stufen', R.pruefendeStufen], ['Beobachtungsgröße', R.beobachtungsgroesse], ['Beispiel Warenannahme', R.beispiel], ['Fundstelle', 'B01']])
+        + `<h3>Methoden der Regel</h3>${relList('Methoden nach D02-MET', ms, k => bsName(IX.obj.get(k).baustein)) || '<p class="hint">Keine Methode.</p>'}`
+        + `<h3>Dokumente mit Nachweisverwendung</h3>${relList('Dokumente nach D03-DOK', ds, k => bsName(IX.obj.get(k).baustein)) || '<p class="hint">Kein Dokument.</p>'}`
+        + `<p class="note">Die Beobachtungsgröße ist ein Indiz für die Wirkung und kein Prüfkriterium. Leitsatz, Anforderung und Wirkung sind wörtlich aus B01 übernommen.</p>`
+    };
+  }
+
+  function dEbene(code) {
+    const e = IX.ebene.get(code); if (!e) return null;
+    const p = B.perspektiven.find(x => x.ebenen.includes(code));
+    const n = a => objekte(o => o.art === a && o.ebene === code).length;
+    const zahlen = ARTEN.filter(a => n(a)).map(a => `<div>${goLink(`${n(a)} ${ART_PL[a]}`, { art: a, ebene: code })}</div>`).join('') || '<p class="hint">Die Ebene führt keine eigene Objektart und nutzt Objekte anderer Ebenen.</p>';
+    let extra = '';
+    if (code === 'AU') extra = `<h3>Ausrichtung</h3>${B.ausrichtung.map(t => `<p style="margin-bottom:8px">${rich(t)}</p>`).join('')}`;
+    if (code === 'NO') extra = `<h3>Entwicklungsfelder</h3>${B.felder.map(f => `<div>${refBtn('feld:' + f.nr, f.nr + ' ' + f.n)}: ${f.regeln.map(r => refBtn('Regel ' + r, 'Regel ' + r + ' ' + IX.regel.get(r).kurz)).join(' und ')}</div>`).join('')}`;
+    if (code === 'GE') extra = `<h3>Bausteine</h3>${B.bausteine.map(b => `<div>${refBtn('bs:' + b.code, b.code + ' ' + b.n)}</div>`).join('')}<h3>Verbindlichkeit der Modellvorgaben</h3><div class="scroll"><table class="list"><tr><th>Klasse</th><th>Bedeutung</th><th>Anpassung am Standort</th></tr>${B.bausteinZusatz.verbindlichkeit.map(z => `<tr><td><b>${esc(z[0])}</b></td><td>${esc(z[1])}</td><td>${esc(z[2])}</td></tr>`).join('')}</table></div>`;
+    if (code === 'BE') extra = `<h3>Befähigungskomponenten</h3>${B.komponenten.map(k => `<div>${refBtn('komp:' + k.code, k.code + ' ' + k.n)} · <span class="hint">${esc(k.gegenstand)}</span></div>`).join('')}`;
+    if (code === 'FU') extra = `<h3>Führung</h3><p><a href="#" class="ref" data-open="view:fuehrung">Führungskaskade, Routinen und SCORE</a></p>`;
+    return {
+      kicker: `Ebene · ${code}${p ? ' · Perspektive ' + esc(p.n) : ''}`,
+      titel: e.n,
+      body: kv([['Leitfrage', e.leitfrage], ['Bewertung', e.bewertung], ['Ordnung', e.ordnung], ['Operationalisierung', e.operationalisierung], ['Nachweis', e.nachweis], ['Führender Ort', e.fuehrenderOrt]])
+        + `<h3>Objekte der Ebene</h3>${zahlen}` + extra
+    };
+  }
+
+  function dFeld(nr) {
+    const f = IX.feld.get(nr); if (!f) return null;
+    return { kicker: 'Entwicklungsfeld', titel: `${f.nr} ${f.n}`, body: `<p>${esc(B.reihenfolge.join(' '))}</p>` + f.regeln.map((r, i) => { const R = IX.regel.get(r); return `<h3>${i ? 'Wirkung' : 'Voraussetzung'}: ${refBtn('Regel ' + r, 'Regel ' + r + ' ' + R.kurz)}</h3><p>${esc(R.leitsatz)}</p><p class="hint">${esc(R.pruefendeStufen)}</p>`; }).join('') };
+  }
+
+  function dBaustein(code) {
+    const b = IX.bs.get(code); if (!b) return null;
+    const ds = objekte(o => o.art === 'D' && o.baustein === code).map(o => o.kennung);
+    const ms = objekte(o => o.art === 'M' && o.baustein === code).map(o => o.kennung);
+    const ks = B.komponenten.filter(k => (k.zufuehrend || []).includes(code));
+    let extra = '';
+    if (code === 'PW') extra += `<p style="margin:12px 0"><a class="btn primary" href="${esc(B.meta.pcfDatei)}" target="_blank" rel="noopener">Process Framework öffnen</a></p>`;
+    if (code === 'KP') extra += `<h3>Klassen der Kundenänderung</h3><div class="scroll"><table class="list"><tr><th>Klasse</th><th>Gegenstand</th><th>Entscheidung und Weg</th></tr>${B.bausteinZusatz.kundenaenderung.map(z => `<tr><td><b>${esc(z[0])}</b></td><td>${rich(z[1])}</td><td>${rich(z[2])}</td></tr>`).join('')}</table></div><h3>Partnerarten</h3><div class="scroll"><table class="list"><tr><th>Partnerart</th><th>Weisungsrecht</th><th>Steuerungsform</th></tr>${B.bausteinZusatz.partnerarten.map(z => `<tr><td><b>${esc(z[0])}</b><br><span class="hint">${esc(z[1])}</span></td><td>${esc(z[2])}</td><td>${rich(z[3])}</td></tr>`).join('')}</table></div>`;
+    return {
+      kicker: `Baustein der Gestaltung · ${code}`,
+      titel: b.n,
+      body: kv([['Gegenstand', b.gegenstand], ['Leitfrage', b.leitfrage], ['Kernkomponente', b.kernkomponente], ['Befähigungskomponente', ks.map(k => refBtn('komp:' + k.code, k.code + ' ' + k.n)).join(', ') || '–', true], ['Prüfschwerpunkt', b.pruefschwerpunkt], ['Schnittstellen', b.schnittstellen], ['Fundstelle', 'B02 Kapitel 4']])
+        + extra
+        + `<h3>Dokumente</h3>${relList('Dokumente nach D03-DOK', ds, k => IX.obj.get(k).typ + ' · ' + IX.obj.get(k).status)}`
+        + `<h3>Methoden</h3>${relList('Methoden mit diesem Baustein nach D02-MET', ms) || '<p class="hint">Keine eigene Methode.</p>'}`
+    };
+  }
+
+  function dKomponente(code) {
+    const k = IX.komp.get(code); if (!k) return null;
+    const ms = objekte(o => o.art === 'M' && (o.komponenten || []).includes(code)).map(o => o.kennung);
+    const ws = objekte(o => o.art === 'W' && o.komponenten.includes(code)).map(o => o.kennung);
+    return {
+      kicker: `Befähigungskomponente · ${code}`,
+      titel: k.n,
+      body: kv([['Gegenstand', k.gegenstand], ['Erfüllt, wenn', k.erfuellt],
+        ['Gestaltungsmittel', k.weg && k.weg.gestaltungsmittel], ['Methode oder Verfahren', k.weg && k.weg.methode], ['Realisierung', k.weg && k.weg.realisierung],
+        ['Zuführende Bausteine', (k.zufuehrend || []).map(b => refBtn('bs:' + b, b + ' ' + bsName(b))).join(', '), true],
+        ['Typische Nachweisobjekte', k.nachweisobjekte], ['Abgrenzung', k.abgrenzung], ['Fundstelle', 'B03 Kapitel 3']])
+        + `<h3>Methoden</h3>${relList('Methoden mit dieser Komponente nach D02-MET', ms, x => (IX.obj.get(x).komponenten.length === 6 ? 'alle Komponenten' : '')) || '<p class="hint">Keine Methode.</p>'}`
+        + `<h3>Betriebswerkzeuge</h3>${relList('Betriebswerkzeuge nach D05-WZ', ws) || '<p class="hint">Die Komponente hat kein eigenes Betriebswerkzeug.</p>'}`
+    };
+  }
+
+  function dKanon(kenn) {
+    const k = IX.kanon.get(kenn); if (!k) return null;
+    const objs = B.objekte.filter(o => o.fundstelle === kenn || o.fundstelle.startsWith(kenn + ' ')).map(o => o.kennung);
+    const ebenen = B.ebenen.filter(e => e.fuehrenderOrt.split(/[ ,]+/).includes(kenn));
+    return {
+      kicker: `Kanon · Gruppe ${k.gruppe}`,
+      titel: `${k.kennung} ${k.n}`,
+      body: kv([['Inhalt', k.inhalt], ['Führender Ort für', ebenen.map(e => refBtn('ebene:' + e.code, 'Ebene ' + e.n)).join(', '), true], ['Stand', k.vorgemerkt ? `vorgemerkt in der Änderungsliste ${k.vorgemerkt}` : 'Fassung ' + B.meta.fassung]])
+        + (kenn === 'C02' ? `<p style="margin:12px 0"><a class="btn primary" href="${esc(B.meta.pcfDatei)}" target="_blank" rel="noopener">Process Framework öffnen</a></p>` : '')
+        + (objs.length ? `<h3>Objekte mit Fundstelle in ${esc(kenn)}</h3>${byArt(objs)}` : '')
+    };
+  }
+
+  // ---------- Ereignisse ----------
+  document.addEventListener('click', e => {
+    const nav = e.target.closest('[data-view]');
+    if (nav) { e.preventDefault(); go(nav.dataset.view); return; }
+    const g = e.target.closest('[data-go]');
+    if (g) { e.preventDefault(); const p = {}; ['art', 'ebene', 'regel', 'baustein', 'komp', 'stufe'].forEach(k => { if (g.dataset[k]) p[k] = g.dataset[k]; }); go(g.dataset.go, p); return; }
+    const o = e.target.closest('[data-open]');
+    if (o) { e.preventDefault(); open(o.dataset.open); }
+  });
+  let qTimer = null;
+  // Die Kopfsuche durchsucht immer den ganzen Bestand. Filter der Objektsicht setzt sie zurück.
+  $('q').addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => { const v = $('q').value; if (state.ansicht === 'objekte' && F_KEYS.every(k => k === 'q' || !state[k])) { state.q = v; renderView(); writeHash(state, false); } else { go('objekte', { q: v }); } $('q').focus(); }, 250); });
+  $('q').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const l = filtern(); if (l.length === 1) open(l[0].kennung); } });
+  $('sb-toggle').onclick = () => { if (matchMedia('(max-width:760px)').matches) document.body.classList.toggle('sb-auf'); else document.body.classList.toggle('sb-zu'); };
+  const onNav = () => {
+    const s = readHash();
+    const viewChanged = s.ansicht !== state.ansicht || F_KEYS.some(k => (s[k] || '') !== (state[k] || ''));
+    state = s;
+    if (viewChanged) renderView();
+    if (s.o) { if (!$('ovl').classList.contains('open') || stack[stack.length - 1] !== s.o) open(s.o); } else closeDrawer(true);
+  };
+  window.addEventListener('hashchange', onNav);
+  window.addEventListener('popstate', onNav);
+
+  // ---------- Start ----------
+  function start(data) {
+    B = data;
+    index();
+    const m = B.meta;
+    document.title = `${m.titel} · Modellnavigator · Fassung ${m.fassung}`;
+    $('h-title').textContent = `${m.titel} · Modellnavigator`;
+    $('sb-meta').innerHTML = `Kanon ${esc(m.fassung)} · Navigator ${NAVIGATOR.fassung}<br>Datendatei vom ${esc(m.erzeugt)}<br>${esc(m.status)}`;
+    state = readHash();
+    renderView();
+    if (state.o) open(state.o);
+  }
+  if (window.BM && window.BM.objekte) start(window.BM);
+  else {
+    $('view').innerHTML = `<div class="err"><p>Die Datendatei bm-daten.js wurde nicht gefunden. Sie muss im selben Ordner liegen wie diese Seite.</p><p style="margin-top:12px"><button class="btn primary" id="f-open" type="button">Datendatei öffnen</button></p></div>`;
+    $('f-open').onclick = () => $('fileinput').click();
+    $('fileinput').onchange = ev => { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const t = String(r.result); start(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1))); } catch (err) { alert('Die Datei ist keine gültige Datendatei des Modellnavigators.'); } }; r.readAsText(f, 'utf-8'); };
+  }
+})();
+</script>
+</body>
+</html>
