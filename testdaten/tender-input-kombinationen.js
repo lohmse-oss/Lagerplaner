@@ -9,49 +9,49 @@ window.TENDER_INPUT = {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": 165
     },
     "building.W": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": 110
     },
     "building.ukb": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 3",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": 10.5
     },
     "volume.range": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": 12
     },
     "volume.peak": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Erfahrungswert Saisonspitze",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": 1.15
     },
     "volume.transit": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4.2 (Wert seither geändert)",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": 8
     },
     "ffz.rackBase": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Gemischte Ladungsträger",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T21:31:59.404Z",
       "value": "envelope"
     }
   },
@@ -124,15 +124,15 @@ window.TENDER_INPUT = {
     "ffz": {
       "type": "schubmast",
       "rackFFZ": [
-        "schubmast",
-        "hochhub"
+        "schubmast"
       ],
       "blockFFZ": [
-        "front"
+        "front",
+        "hochhub"
       ],
       "zoneFFZ": [
         "ameise",
-        "hochhub"
+        "front"
       ],
       "aisle": 2.8,
       "aisleBlock": 3.5,
@@ -144,7 +144,16 @@ window.TENDER_INPUT = {
       "liftHeight": 8.5,
       "liftReserve": 200,
       "floorOnBeam": false,
-      "singleRows": true
+      "singleRows": true,
+      "shifts": 2,
+      "shiftHours": 7.5,
+      "daysWeek": 6,
+      "energy": "li",
+      "environment": "normal",
+      "procurement": "leasing",
+      "termMonths": 60,
+      "vnaGuide": "rail",
+      "vnaCab": "up"
     },
     "fire": {
       "sprinkler": 500,
@@ -258,6 +267,18 @@ window.TENDER_INPUT = {
   "truckOverrides": {
     "standard": {
       "fl": 13.6
+    }
+  },
+  "ffzFleet": {
+    "schubmast": {
+      "count": 4
+    },
+    "front": {
+      "count": 3,
+      "note": "Zwei Fahrzeuge mit Kabine für den Außeneinsatz am Leergutplatz"
+    },
+    "ameise": {
+      "count": 6
     }
   },
   "bom": {

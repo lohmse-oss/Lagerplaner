@@ -29,6 +29,7 @@ Drei Dateien zum Ausprobieren möglichst vieler Kombinationen. `tests/testdaten.
   - prozessbezogener WE-Puffer;
   - Transit mit Cross-Dock-Puffer;
   - Leergut, Einzelreihen, Miete, Rückbau;
+  - Flurförderzeuge: Schubmast im Regal, Frontstapler und Hochhubwagen im Block, Mitgänger und Frontstapler in der Vorzone; Anzahl für drei Typen eingetragen, eine Bemerkung; Schichtmodell und Leasing für das FFZ-Anforderungsblatt;
   - Preisquelle Angebot;
   - dokumentierte Quellen, davon eine mit seither geändertem Wert.
 - **Szenarien:**

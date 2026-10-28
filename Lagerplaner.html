@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.27</title>
+<title>Lagerplaner V2.28</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -353,6 +353,18 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .kpi .v.red{color:var(--red)}
 .kpi .v.amber{color:var(--amber)}
 .kpi .v.green{color:#16a34a}
+.ffz-spec{margin:10px 0 18px}
+.ffz-spec h4{margin:0 0 6px}
+.ffz-fleet{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 8px}
+.ffz-fleet .mf{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mut)}
+.ffz-fleet input[data-fleet-count]{width:90px}
+.ffz-fleet .ffz-note{flex:1 1 260px}
+.ffz-fleet .ffz-note input{width:100%}
+.ffz-tab{width:100%}
+.ffz-tab tr.ffz-grp th{background:var(--bg);text-align:left;font-size:11px;text-transform:none;padding-top:6px}
+.ffz-tab tr.ffz-supplier td{color:var(--mut,#64748b)}
+.ffz-tab td.ffz-open{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(148,163,184,.12) 6px 12px)}
+.ffz-tab tr.ffz-open td{color:#b45309}
 #kpis [data-goto]{cursor:pointer}
 #kpis [data-goto]:hover{border-color:#94a3b8}
 #kpis [data-goto]:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
@@ -455,7 +467,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.27</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.28</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -1205,6 +1217,24 @@ details.obs[open] summary{margin-bottom:4px}
               </span>
             </div>
           </div>
+          <div class="card" id="ffz-spec-card">
+            <h3>
+              Flurförderzeuge – Anforderungsblatt für die Lieferantenanfrage
+              <span
+                class="tt"
+                data-tip="Je Fahrzeugtyp ein Anforderungsblatt in der Gliederung des Typenblatts nach VDI 2198. Planung: aus Layout, Regal, Blocklager und Mengengerüst abgeleitet. Vorgabe: aus Lagertechnik › Einsatz und Beschaffung. Lieferant: vom Anbieter auszufüllen. Die Anzahl tragen Sie selbst ein. Zeilennummern in Anlehnung an VDI 2198; maßgeblich ist das Typenblatt des Herstellers."
+                tabindex="0"
+              >
+                ⓘ
+              </span>
+            </h3>
+            <div class="rowbtns" style="margin: 0 0 8px">
+              <button class="btn" id="btn-ffz-print">Anforderungsblatt drucken</button>
+              <button class="btn" id="btn-ffz-csv">Als CSV exportieren</button>
+              <button type="button" class="btn" data-goto="1" data-goto-pg="ffz">Einsatz und Beschaffung bearbeiten</button>
+            </div>
+            <div id="ffz-spec"></div>
+          </div>
           <div class="card">
             <h3>
               Kalkulationsgrundlagen
@@ -1489,7 +1519,7 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.27 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.28 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1536,7 +1566,7 @@ details.obs[open] summary{margin-bottom:4px}
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
         <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
-        <li>Konzept · Stückliste &amp; CAPEX: Mengen und Kosten prüfen, Einheitspreise anpassen.</li>
+        <li>Konzept · Stückliste &amp; CAPEX: Mengen und Kosten prüfen, Einheitspreise anpassen; das FFZ-Anforderungsblatt je Fahrzeugtyp mit eigener Stückzahl ergänzen und für die Lieferantenanfrage drucken oder als CSV ausgeben.</li>
         <li>Bei Bedarf Layout-Optimierung über das Menü Varianten ermitteln in der Kopfzeile: Ziel wählen (minimaler CAPEX für den Soll-Bestand, maximaler Flächennutzungsgrad oder – nur in der Bestandshalle – maximale Lagerkapazität), Lauf starten, Ergebnis im Register Layout prüfen und eine Variante per Klick übernehmen. Während des Laufs erscheint oben eine Statusleiste mit Abbruchmöglichkeit.</li>
         <li>Bewertung · Varianten: bis zu drei Szenarien mit Namen speichern und vergleichen (Abweichungen zum aktuellen Stand sind hervorgehoben); zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen.</li>
         <li>Bewertung · Sensitivität: wirksamste Annahmen erkennen; das Tornado-Diagramm zeigt die Wirkung je Treiber.</li>
@@ -1581,6 +1611,7 @@ details.obs[open] summary{margin-bottom:4px}
       <p><b>Woran erkenne ich eine zu kleine WE-Zone?</b> Das Werkzeug prüft die Fläche aller Zonen mit der Rolle WE gegen die gleichzeitige Abfertigung an den WE-Toren. Je Tor setzt es ein Standard-Fahrzeug mit der Füllmenge der Euro-Referenzpalette an und je Palette 2,0 Quadratmeter Bereitstellungsfläche. Reicht die Zonenfläche nicht aus, erscheint ein Hinweis mit Bedarfs- und Ist-Wert.</p>
       <p><b>Wie wird der Stapelfaktor angegeben und begrenzt?</b> Der Stapelfaktor wird in der Notation 1+x angegeben: x ist die Zahl der Paletten, die zusätzlich auf der untersten Palette stehen (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf, 1+6 = sieben Paletten). Im Regal steht je Fach und Ebene eine Palette; der Faktor wirkt dort nicht. Im Blocklager gilt je Position das Minimum aus Artikel-Stapelfaktor, max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut (Planungsvorgabe, Standard 7,5 m; ab 7,5 m Lagerguthöhe fordert die Industriebaurichtlinie selbsttätige Feuerlöschanlagen). Die Kippgrenze 6:1 (Stapelhöhe zur Schmalseite der Grundfläche) wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet ausgewiesen; liegt der nutzbare Stapel darüber, meldet das Werkzeug einen Hinweis zur gesonderten Standsicherheitsprüfung und begrenzt nicht hart. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m ergibt sich 1+6 (7 × 1,0 m = 7,0 m).</p>
       <p><b>Was unterscheidet Regalausrichtung und Blockausrichtung?</b> Die Regalausrichtung legt fest, ob die Regalreihen orthogonal oder parallel zu den Toren laufen. Die Blockausrichtung legt die Kanalrichtung im Nordband fest: Kanäle quer laufen in Hallenbreite mit Zugang von der Nordseite (Zone Nord als WE), Kanäle längs laufen in Hallenlänge mit Zugang über eine Längsgasse von Westen (Zone West als WE). Der Optimierungslauf variiert beide Ausrichtungen und vergleicht die Varianten.</p>
+      <p><b>Wie leitet das FFZ-Anforderungsblatt seine Werte ab?</b> Grundlage sind die Positionen in den Einsatzbereichen des Fahrzeugtyps (Regal, Block, Vorzone). Tragfähigkeit Q: schwerste Ladeeinheit, auf 100 kg aufgerundet. Lastschwerpunktabstand c: halbe Länge der längsten Ladeeinheit (Aufnahme längs). Hub h3: im Regal oberste Traverse plus Bedienreserve, im Block die Oberkante des höchsten Stapels unter der obersten Palette plus Bedienreserve, auf 50 mm aufgerundet; dazu die Resttragfähigkeit in dieser Höhe. Arbeitsgangbreite Ast: höchstens die geplante Gangbreite. Gabellänge: längste Ladeeinheit minus 50 mm. Zinkenverstellung wird empfohlen, wenn die Ladeeinheitsbreiten um mindestens 150 mm streuen. Bei Frontstaplern in der Vorzone begrenzt die kleinste LKW-Innenhöhe minus 100 mm die Bauhöhe h1; bei zweilagig beladenen LKW kommt ein Freihub über der höchsten Ladeeinheit hinzu. Beim VNA stehen Gangführung, Fahrerplatz, P&D-Plätze und die Bodenebenheit nach DIN 15185-1 im Blatt. Die Anzahl der Fahrzeuge tragen Sie selbst ein; der Spitzenumschlag des Lagers steht als Grundlage der Flottenbemessung dabei. Die Zeilennummern folgen VDI 2198 sinngemäß; maßgeblich sind die Typenblätter und Tragfähigkeitsdiagramme des Herstellers.</p>
       <p><b>Was unterscheidet Eingabedatei und Planungsdatei?</b> tender-input.js enthält die Ausschreibungsdaten (Positionen und Vorgaben). Das Planungs-JSON enthält den vollständigen Ergebnisstand. Drei-Datei-Prinzip: Eingabedatei, Frontend-Datei, Planungsdatei.</p>
       <p><b>Welche Daten verlässt den Rechner?</b> Keine. Alle Berechnungen laufen lokal im Browser; es besteht keine Serververbindung.</p>
     </div></details>
@@ -1591,7 +1622,7 @@ details.obs[open] summary{margin-bottom:4px}
       <p>Eingabe · Mengengerüst – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und automatischem, überschreibbarem Wert Paletten je LKW aus der Kreuztabelle; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Palettentyp mit Maßen aus den Stammdaten, Datenbasis (Kundendaten oder Annahme). Die kompakte Tabelle zeigt je Position eine Zeile mit Bezeichnung, Ermittlungsart und deren Hauptwert, Palette, Artikelanzahl, Stapelfaktor, Blockanteil und Datenbasis; ✎ öffnet das Detailfeld mit allen Feldern neben den Kennzahlen (Vor/Zurück, Esc schließt). Enter und Umschalt+Enter wechseln die Zeile. Sammeländerungen an ausgewählten Positionen (LKW-Typ, Palettentyp, Blockanteil, Datenbasis, Löschen) erscheinen erst mit einer Auswahl. Positionen lassen sich aus Excel einfügen (Spaltenzuordnung im Dialog), per CSV importieren und als Eingabedatei ausgeben.</p>
       <p>Konzept · Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die kleinste machbare Halle, deren Seitenverhältnis im eingestellten Bereich liegt (Standard 1 : 1 bis 3 : 1); alternativ bleibt die Länge vorgegeben und nur die Breite wird berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Register Vorgaben zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Menü Varianten ermitteln in der Kopfzeile gesteuert: Ziel wählen und den Lauf starten. Drei Ziele stehen zur Wahl: minimaler CAPEX für den Soll-Bestand (so wenig Regal wie nötig), maximaler Flächennutzungsgrad (höchste Dichte bezogen auf die tatsächlich belegte Lagerfläche) und maximale Lagerkapazität (die Halle mit Regal füllen, ohne Rücksicht auf den Soll-Bestand; nur in der Bestandshalle). Variiert werden Feldweite (1.800 bis 3.600 mm), Regal- und Blockausrichtung und Kanaltiefe; im Greenfield zusätzlich die Zonenrollen (WE- und WA-Seite), und die Hallenmaße werden je Variante neu ermittelt. In der Bestandshalle bleiben Hallenmaße und Zonenrollen fest. Gangbreite, Stapelhöhe, Fluchttunnel, Zonentiefen, Stützraster und Blockquote bleiben Vorgaben; Varianten davon lassen sich über die Szenario-Slots vergleichen. Die Ergebnistabelle zeigt die 25 besten Varianten; ein Klick übernimmt eine Variante (rückgängig machbar).</p>
       <p>Konzept · Regal &amp; Block – Regalschnitt und Blockstruktur: Regalschnitt mit Ebenen, UKB und Tunnelfeldern; Blockstruktur mit Kanalschnitt (Tiefe, Stapelhöhe 1+x, maximale Kanalkapazität) und Band-Draufsicht (Kanäle je Band, Arbeitsgang). Kanalzahl und Kapazität berechnet das Werkzeug je Position mit der jeweils wirksamen Stapelhöhe, je Artikel mindestens ein Kanal; die Kanalabmessungen folgen der größten Palette. Der Kanalschnitt zeigt die eingestellten Grenzen.</p>
-      <p>Konzept · Stückliste &amp; CAPEX – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren (auch im Menü Datei) speichert die Kalkulationsgrundlage als Datei.</p>
+      <p>Konzept · Stückliste &amp; CAPEX – Stückliste und CAPEX: Mengen aus dem Layout, Einheitspreise, Montagepauschale, optionale Rückbau- und Demontage-Pauschale (Prozentsatz der Bauteilsumme), CAPEX je Stellplatz. Gitterroste je Fluchttunnel sind optional zuschaltbar; Einzelreihen erhalten je Feld ein Rückwandgitter; Markierungsmaterial Regale und Regalprüfung Erstabnahme sind feste Positionen; bei reinem Blocklager erscheint die Bodenmarkierung der Blockbereiche. Die Schaltfläche Stückliste als CSV exportieren (auch im Menü Datei) speichert die Kalkulationsgrundlage als Datei. Das FFZ-Anforderungsblatt fasst je gewähltem Fahrzeugtyp die Anforderungen für die Lieferantenanfrage zusammen, gegliedert wie das Typenblatt nach VDI 2198 (Kennzeichen, Gewichte, Grundabmessungen, Leistungsdaten, Energie, Sonstiges, Betrieb und Beschaffung). Jede Zeile nennt ihre Herkunft: Planung (aus dem Modell abgeleitet), Vorgabe (Lagertechnik › Einsatz und Beschaffung sowie Anzahl und Bemerkung je Fahrzeugtyp) oder Lieferant (im Angebot anzugeben). Druckansicht und CSV dienen als Anlage zur Anfrage.</p>
       <p>Bewertung · Varianten – Vergleich: drei Slots speichern den vollständigen Planungsstand samt Kennzahlen, wahlweise mit Namen (beim Speichern oder nachträglich); die Vergleichstabelle hebt Abweichungen zum aktuellen Stand hervor, die Auswahlliste ruft ein Szenario auf. Die Karte Planungsstände vergleichen (Diff) lädt eine gespeicherte Planungsdatei (JSON) und weist nur Abweichungen zum aktuellen Stand aus: globale Parameter, Zonenrollen und positionsbezogene Felder; neue und entfernte Positionen werden gesondert markiert. Die Vergleichsdatei verändert die aktuelle Planung nicht.</p>
       <p>Bewertung · Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung; die Quelle am Feld in den Vorgaben führt direkt zur Zeile. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
       <p>Bewertung · Sensitivität – Analyse: Ein-Punkt-Variation der zentralen Treiber auf Flächenbedarf und CAPEX. Das Tornado-Diagramm unter der Ergebnistabelle zeigt die Wirkung jedes Treibers als Balken; Balken nach links stehen für die untere Variante (blau), Balken nach rechts für die obere Variante (orange), die Balkenlänge folgt dem größeren Betrag aus Δ Fläche und Δ CAPEX.</p>
@@ -1851,8 +1882,9 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
   if(!S.truckOverrides||typeof S.truckOverrides!=="object")S.truckOverrides={};
+  if(!S.ffzFleet||typeof S.ffzFleet!=="object")S.ffzFleet={};
 }
-const APP_VERSION="V2.27";
+const APP_VERSION="V2.28";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -1870,7 +1902,8 @@ function defaults(){
     empty:{on:false,mode:"percent",value:5,stack:10,reserve:20},
     volume:{range:10,peak:1,safety:0,planningYears:0,growthRate:0,skuGrowthRate:0,peakHourShare:12,weShare:50,simultaneity:100,strategicReserve:0,blockedPlaces:0,operationalArea:0,bufferMode:"simple",bufferTrucks:2,bufferPallets:33,bufferDwell:1,bufferFactor:1.5,fillRack:85,fillBlock:70,transit:0,transitBufferOn:false,transitDays:0.5,transitAreaPerPal:1.5},
     block:{mode:"sku",quota:40,channelDepth:6,stackH:6,aVol:80,bVol:15,minFill:65,orient:"N",maxTop:7.5},
-    ffz:{type:"schubmast",rackFFZ:["schubmast"],blockFFZ:["front"],zoneFFZ:["ameise"],aisle:2.8,aisleBlock:3.5,vnaPnD:true,rackBase:"lead",fieldMode:"auto",fieldWidth:2700,rackFill:"need",liftHeight:8.5,liftReserve:200,floorOnBeam:false,singleRows:false},
+    ffz:{type:"schubmast",rackFFZ:["schubmast"],blockFFZ:["front"],zoneFFZ:["ameise"],aisle:2.8,aisleBlock:3.5,vnaPnD:true,rackBase:"lead",fieldMode:"auto",fieldWidth:2700,rackFill:"need",liftHeight:8.5,liftReserve:200,floorOnBeam:false,singleRows:false,shifts:2,shiftHours:8,daysWeek:5,energy:"li",environment:"normal",procurement:"kauf",termMonths:60,vnaGuide:"rail",vnaCab:"up"},
+    ffzFleet:{},
     lhmOverrides:{},
     truckOverrides:{},
     fire:{sprinkler:500,tunnelInterval:35,tunnelClear:2.5,inRack:false},
@@ -1987,6 +2020,16 @@ const PARAMS=[
     visibleIf:s=>s.building.mode!=="greenfield",eff:"Halle füllen: alle passenden Regalreihen werden gebaut, unabhängig vom Bedarf (Kapazitätsreserve, höherer CAPEX). Blocklager bleibt nach Bedarf."},
   {p:"ffz.liftHeight",id:"in-liftheight",type:"num",label:"Maximale Hubhöhe des Regal-FFZ",short:"Maximale Hubhöhe",unit:"m",min:1,max:20,step:0.1,dec:1,title:"Begrenzt die Oberkante der letzten Traversenebene."},
   {p:"ffz.liftReserve",id:"in-liftreserve",type:"num",label:"Bedienreserve unter maximaler Hubhöhe",short:"Bedienreserve Hubhöhe",unit:"m",scale:1000,min:0,max:1000,step:50,dec:2,title:"Abzug von der maximalen Hubhöhe für Handhabungsreserve."},
+  /* Einsatz und Beschaffung der FFZ: nur für das Anforderungsblatt, ohne Rechenwirkung */
+  {p:"ffz.shifts",id:"in-ffz-shifts",type:"num",label:"Schichten je Tag",unit:"",min:1,max:3,step:1,dec:0,eff:"Einsatzzeit der Fahrzeuge; bestimmt mit Schichtdauer und Betriebstagen die Betriebsstunden im Anforderungsblatt (Batterie, Ladetechnik)."},
+  {p:"ffz.shiftHours",id:"in-ffz-shifthours",type:"num",label:"Dauer je Schicht",unit:"h",min:4,max:12,step:0.5,dec:1,eff:"Einsatzzeit je Schicht für Betriebsstunden und Energiebedarf im Anforderungsblatt."},
+  {p:"ffz.daysWeek",id:"in-ffz-days",type:"num",label:"Betriebstage je Woche",unit:"",min:1,max:7,step:1,dec:0,eff:"Betriebstage für die Betriebsstunden je Jahr im Anforderungsblatt."},
+  {p:"ffz.energy",id:"sel-ffz-energy",type:"select",label:"Energiesystem",short:"FFZ-Energiesystem",options:[["li","Lithium-Ionen"],["pb","Blei-Säure"],["open","Vorschlag des Lieferanten"]],eff:"Vorgabe zum Antrieb im Anforderungsblatt; bestimmt mit dem Schichtmodell Batterie und Ladetechnik."},
+  {p:"ffz.environment",id:"sel-ffz-env",type:"select",label:"Einsatzumgebung",short:"FFZ-Einsatzumgebung",options:[["normal","Halle, temperiert (+5 bis +40 °C)"],["cold","Kühlbereich (0 bis +8 °C)"],["frozen","Tiefkühlbereich (bis −28 °C)"],["outdoor","Halle und Außenbereich"]],eff:"Umgebungsangabe im Anforderungsblatt (Kälteausführung, Bereifung, Wetterschutz)."},
+  {p:"ffz.procurement",id:"sel-ffz-proc",type:"select",label:"Beschaffungsart",short:"FFZ-Beschaffung",options:[["kauf","Kauf"],["miete","Miete"],["leasing","Leasing"]],eff:"Angefragte Beschaffungsart im Anforderungsblatt."},
+  {p:"ffz.termMonths",id:"in-ffz-term",type:"num",label:"Laufzeit",unit:"Monate",min:6,max:120,step:6,dec:0,visibleIf:s=>s.ffz.procurement!=="kauf",eff:"Vertragslaufzeit bei Miete oder Leasing im Anforderungsblatt."},
+  {p:"ffz.vnaGuide",id:"sel-vna-guide",type:"select",label:"Gangführung VNA",short:"VNA-Gangführung",options:[["rail","Schienenführung"],["wire","Induktive Führung"],["open","Vorschlag des Lieferanten"]],visibleIf:s=>(s.ffz.rackFFZ||[]).indexOf("vna")>=0,eff:"Führungsart im Schmalgang; Vorgabe im Anforderungsblatt des VNA."},
+  {p:"ffz.vnaCab",id:"sel-vna-cab",type:"select",label:"Fahrerplatz VNA",short:"VNA-Fahrerplatz",options:[["up","Mann-oben (hebender Fahrerplatz)"],["down","Mann-unten"]],visibleIf:s=>(s.ffz.rackFFZ||[]).indexOf("vna")>=0,eff:"Bedienart des VNA im Anforderungsblatt; Mann-oben erlaubt Kommissionierung in der Höhe."},
   /* Sicherheit & Abstände */
   {p:"fire.sprinkler",id:"in-sprinkler",type:"num",label:"Sprinkler-Freiraum unter UKB",short:"Sprinkler-Freiraum",unit:"m",scale:1000,min:0,max:2000,step:50,dec:2,eff:"Mindert die nutzbare Regalhöhe und gegebenenfalls die Ebenenzahl."},
   {p:"fire.inRack",id:"chk-inrack",type:"check",label:"In-Rack-Sprinklerung",title:"Zuschlag +200 mm je 2 Ebenen auf die benötigte Bauhöhe."},
@@ -2164,7 +2207,8 @@ const PARAM_LAYOUT=[
     {title:"Flurförderzeuge",sub:"Einsatz nach Lagerbereich",items:["ffz.rackFFZ","ffz.blockFFZ","ffz.zoneFFZ"]},
     {title:"Arbeitsgänge",result:"aisles",sub:"Aus Fahrzeugauswahl abgeleitet und übersteuerbar",items:["ffz.aisle","ffz.aisleBlock","ffz.vnaPnD"]},
     {title:"Regalsystem",result:"rack",sub:"Geometrische Vorbemessung",items:["building.orient","ffz.rackBase","ffz.fieldMode","ffz.fieldWidth","ffz.floorOnBeam","ffz.singleRows","ffz.rackFill"]},
-    {title:"Fluchttunnel",result:"tunnels",sub:"Fluchtwege durch die Regalreihen",items:["fire.tunnelInterval","fire.tunnelClear"]}]},
+    {title:"Fluchttunnel",result:"tunnels",sub:"Fluchtwege durch die Regalreihen",items:["fire.tunnelInterval","fire.tunnelClear"]},
+    {title:"Einsatz und Beschaffung",result:"ffzuse",sub:"Angaben für das FFZ-Anforderungsblatt, ohne Rechenwirkung",items:["ffz.shifts","ffz.shiftHours","ffz.daysWeek","ffz.energy","ffz.environment","ffz.procurement","ffz.termMonths","ffz.vnaGuide","ffz.vnaCab"]}]},
   {id:"blk",title:"Blocklager",tip:"Artikelbasierter Modus: Ein Segment qualifiziert sich für das Blocklager, wenn der mittlere Bestand je Artikel den Mindestfüllgrad eines Kanals erreicht und der Artikel stapelbar ist (mindestens 1+1). Der nutzbare Stapelfaktor (Notation 1+x) wird je Position hart begrenzt durch die max. Stapelhöhe (Standard 1+5) und die Oberkante Lagergut. Die Kippgrenze 6:1 wird je Position auf die nächstniedrigere vollständige Palettenzahl abgerundet und als Hinweis gemeldet, wenn der Stapel darüber liegt. Referenz Standard-EPal 1.200 × 800 × 1.000 mm (BTH): Bei OK Lagergut 7,5 m sind 1+6 Paletten (7,0 m) möglich. Bei Kanälen längs (Zugang West) ist die Zone West als WE-Zone zu konfigurieren.",
     intro:["Blocklagerauslegung","Zuordnungsmodell und Kanalgeometrie werden getrennt dargestellt."],sections:[
     {title:"Zuordnungsmodell",result:"blockshare",sub:"Regal- oder Blockanteil",items:["block.mode","block.quota","block.aVol","block.bVol","block.minFill"]},
@@ -2493,6 +2537,12 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.28",date:"28.10.2026",items:[
+    "FFZ-Anforderungsblatt für die Lieferantenanfrage (Register Stückliste & CAPEX): je gewähltem Fahrzeugtyp ein Blatt in der Gliederung des Typenblatts nach VDI 2198. Aus der Planung abgeleitet: Tragfähigkeit, Lastschwerpunktabstand, Hubhöhe mit Resttragfähigkeit (Regal und Blockstapel), Arbeitsgangbreite, Gabellänge, Zinkenverstellung, Seitenschieber, maximale Ladeeinheit; bei Frontstaplern in der Vorzone Bauhöhe und Freihub für den LKW; beim VNA Gangführung, Fahrerplatz, P&D und Bodenebenheit. Anzahl und Bemerkung je Fahrzeugtyp durch den Nutzer; Herstellerangaben als offene Zeilen.",
+    "Neue Vorgaben unter Lagertechnik › Einsatz und Beschaffung: Schichtmodell (Betriebsstunden je Jahr), Energiesystem, Einsatzumgebung, Beschaffungsart mit Laufzeit, Gangführung und Fahrerplatz des VNA. Sie wirken nur im Anforderungsblatt.",
+    "Druckansicht und CSV-Export des Anforderungsblatts; Anzahl und Bemerkung sind Teil der Planungs- und Eingabedatei und werden beim Import geprüft.",
+    "Testdaten: FFZ-Auswahl auf die in der Oberfläche angebotenen Typen korrigiert, Fahrzeuganzahl und Einsatzangaben ergänzt."
+  ]},
   {v:"V2.27",date:"28.10.2026",items:[
     "Hinweis bei nicht stapelbarer Ware im Blocklager (Volumenquote oder manueller Blockanteil): nennt Positionen und Palettenzahl, Ursache und Abhilfe; kritisch, wenn die Blockfläche das Regal verdrängt. Bisher meldete das Werkzeug in diesem Fall nur fehlende Regalkapazität.",
     "Wirkungstext der Volumenquote und FAQ ergänzt."
@@ -3140,6 +3190,16 @@ function validateTruckOverrides(dict,label){
     }
   }
 }
+function validateFfzFleet(dict,label){
+  validateKeyedDictionary(dict,label);
+  for(const [key,entry] of Object.entries(dict||{})){
+    if(!FFZ[key])throw new Error(label+": unbekannter FFZ-Typ "+key+".");
+    if(!isPlainObject(entry))throw new Error(label+", "+key+" muss ein Objekt sein.");
+    for(const field of Object.keys(entry))if(field!=="count"&&field!=="note")throw new Error(label+", "+key+": unbekanntes Feld "+field+".");
+    if(entry.count!=null&&!(Number.isInteger(entry.count)&&entry.count>=0&&entry.count<=999))throw new Error(label+", "+key+": Anzahl muss eine ganze Zahl zwischen 0 und 999 sein.");
+    if(entry.note!=null&&(typeof entry.note!=="string"||entry.note.length>200))throw new Error(label+", "+key+": Bemerkung muss Text mit höchstens 200 Zeichen sein.");
+  }
+}
 function validatePlannerStateFields(obj,label){
   if(obj.costMeta!=null&&!isPlainObject(obj.costMeta))throw new Error(label+".costMeta muss ein Objekt sein.");
   // Typen und Auswahlwerte aus dem Parameterschema; Bereichsgrenzen repariert repairParamRanges beim Übernehmen
@@ -3180,7 +3240,7 @@ function validateImportedPayload(obj,kind,depth){
   if(depth>4)throw new Error("Die Importstruktur enthält zu viele verschachtelte Szenarien.");
   if(!isPlainObject(obj))throw new Error("Die Datei muss ein JSON-Objekt oder eine JSON-Datenzuweisung enthalten.");
   assertSafeImportTree(obj,0);
-  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta"];
+  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta","ffzFleet"];
   for(const key of objectKeys)if(obj[key]!=null&&!isPlainObject(obj[key]))throw new Error(key+" muss ein Objekt sein.");
   if(obj.meta){
     for(const key of ["name","kunde","projekt","stand"]){
@@ -3189,13 +3249,14 @@ function validateImportedPayload(obj,kind,depth){
   }
   validateParameterSources(obj.parameterSources);
   const parm=obj.parameter||{};
-  for(const key of ["building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides"]){
+  for(const key of ["building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","ffzFleet"]){
     if(parm[key]!=null&&!isPlainObject(parm[key]))throw new Error("parameter."+key+" muss ein Objekt sein.");
   }
   validateLhmDictionary(obj.customLhm||parm.customLhm,"Eigene Palettentypen");
   validateTruckDictionary(obj.customTrucks||parm.customTrucks,"Eigene LKW-Typen");
   validateLhmOverrides(obj.lhmOverrides||parm.lhmOverrides,"Palettenüberschreibungen");
   validateTruckOverrides(obj.truckOverrides||parm.truckOverrides,"LKW-Überschreibungen");
+  validateFfzFleet(obj.ffzFleet||parm.ffzFleet,"FFZ-Anzahl");
   if(kind==="input"){
     if(!Array.isArray(obj.positionen))throw new Error("Eingabedatei enthält keine Positionsliste (positionen).");
     validatePositionArray(obj.positionen,"Eingabedatei");
@@ -3988,7 +4049,7 @@ function recalc(){
 }
 /* Register, deren Inhalt aus dem Ergebnis gezeichnet wird. Nach jeder Neuberechnung gelten sie als veraltet;
    gezeichnet wird nur das sichtbare Register, die übrigen beim Öffnen (showTab). */
-const PANEL_RENDERERS={"2":[updateAllCalc],"3":[drawLayout],"4":[drawSection,drawBlockSection],"5":[renderBOM],"6":[renderScenarios],"7":[renderRegister],"9":[renderReports]};
+const PANEL_RENDERERS={"2":[updateAllCalc],"3":[drawLayout],"4":[drawSection,drawBlockSection],"5":[renderBOM,renderFfzSpec],"6":[renderScenarios],"7":[renderRegister],"9":[renderReports]};
 const STALE_PANELS=new Set();
 function renderVisiblePanels(){
   const errors=[];
@@ -5284,6 +5345,164 @@ function renderBOM(){
   });
   renderBomTotals();
 }
+/* ============================ FFZ-Anforderungsblatt ============================ */
+/* Je Fahrzeugtyp die Anforderungen für die Lieferantenanfrage, gegliedert wie das Typenblatt nach VDI 2198.
+   Herkunft: Planung (aus dem Modell abgeleitet), Vorgabe (Lagertechnik › Einsatz und Beschaffung), Lieferant (vom Anbieter anzugeben). */
+const FFZ_AREAS=[["rackFFZ","rack","Regallager"],["blockFFZ","block","Blocklager / Leergut"],["zoneFFZ","zone","WE/WA & Vorzone"]];
+const FFZ_OPERATOR={schubmast:"Fahrersitz oder Fahrerstand",front:"Fahrersitz",hochhub:"Mitgänger oder Standplattform",ameise:"Mitgänger oder Standplattform"};
+const FFZ_MAST=new Set(["vna","schubmast","front","hochhub"]);
+const FFZ_GROUPS=[["0","Einsatz"],["1","Kennzeichen"],["2","Gewichte"],["4","Grundabmessungen"],["5","Leistungsdaten"],["6","Energie"],["10","Sonstiges"],["9","Betrieb und Beschaffung"]];
+const FFZ_ROW_GROUP={"Anzahl":"0","Einsatzbereiche":"0","Resttragfähigkeit in Hubhöhe h3 bei c":"4","Zinkenverstellung":"4","Seitenschieber":"4","Ladeeinheit max. L × B × H":"4","Anforderungen aus der Planung":"4"};
+function ffzFleetTypes(){
+  const out=[];
+  for(const [key] of FFZ_AREAS)for(const t of S.ffz[key]||[])if(FFZ[t]&&!out.includes(t))out.push(t);
+  return out;
+}
+function ffzOperatingHours(){
+  const f=S.ffz;
+  return Math.round((Number(f.shifts)||0)*(Number(f.shiftHours)||0)*(Number(f.daysWeek)||0)*52);
+}
+const ceilTo=(v,step)=>Math.ceil(v/step)*step;
+function ffzAreaItems(area){
+  const items=(S.items||[]).filter(Boolean);
+  if(area==="rack")return items.filter(i=>(i.rackNet||0)>0);
+  if(area==="block")return items.filter(i=>(i.blockNet||0)>0);
+  return items.filter(i=>(i.net||0)>0||(i.palletsDay||0)>0);
+}
+function ffzOptionLabel(path,value){
+  const d=PARAM_BY_PATH.get(path);const o=d&&d.options&&d.options.find(x=>x[0]===value);
+  return o?o[1]:String(value);
+}
+function buildFfzSpecs(){
+  const f=S.ffz,reserve=clamp(Number(f.liftReserve)||0,0,1000);
+  const specs=[];
+  for(const t of ffzFleetTypes()){
+    const areas=FFZ_AREAS.filter(([key])=>(f[key]||[]).includes(t));
+    const items=[...new Set(areas.flatMap(([,area])=>ffzAreaItems(area)))];
+    const rows=[];
+    const add=(nr,merkmal,zeichen,einheit,wert,art,hinweis)=>rows.push({nr,merkmal,zeichen,einheit,wert,art,hinweis:hinweis||""});
+    const fleet=(S.ffzFleet||{})[t]||{};
+    const kind=t==="vna"?(f.vnaCab==="down"?"Mann-unten":"Mann-oben (hebender Fahrerplatz)"):FFZ_OPERATOR[t];
+    // Kennzeichen
+    add("","Anzahl","","Stück",fleet.count>0?fmt(fleet.count):"",fleet.count>0?"Vorgabe":"offen",fleet.count>0?"":"Anzahl eintragen");
+    add("","Einsatzbereiche","","",areas.map(a=>a[2]).join(", "),"Planung");
+    add("1.1","Hersteller","","","","Lieferant");
+    add("1.2","Typzeichen des Herstellers","","","","Lieferant");
+    add("1.3","Antrieb","","","Elektro, "+ffzOptionLabel("ffz.energy",f.energy),"Vorgabe");
+    add("1.4","Bedienung","","",kind,"Vorgabe");
+    if(items.length){
+      const gMax=Math.max(...items.map(i=>Number(i.g)||0));
+      const lMax=Math.max(...items.map(i=>Number(i.l)||0)),bMin=Math.min(...items.map(i=>Number(i.b)||0)),bMax=Math.max(...items.map(i=>Number(i.b)||0));
+      const hMax=Math.max(...items.map(i=>Number(i.h)||0));
+      const q=ceilTo(Math.max(gMax,1),100);
+      add("1.5","Tragfähigkeit/Last","Q","t","≥ "+fmt(q/1000,1),"Planung","schwerste Ladeeinheit "+fmt(gMax)+" kg");
+      add("1.6","Lastschwerpunktabstand","c","mm",fmt(lMax/2),"Planung","Ladeeinheit "+fmt(lMax)+" mm in Gabelrichtung (Aufnahme längs)");
+      // Hubhöhe aus dem höchsten Einlagerpunkt der bedienten Bereiche
+      const lifts=[];
+      if(areas.some(a=>a[1]==="rack")&&R.rack)lifts.push([R.rack.topBeam+reserve,"oberste Traverse "+fmt(R.rack.topBeam)+" mm + Bedienreserve "+fmt(reserve)+" mm"]);
+      if(areas.some(a=>a[1]==="block")&&R.block){
+        for(const grp of R.block.channelGroups||[]){
+          const top=(grp.effectiveStack-1)*(Number(grp.item.h)||0);
+          lifts.push([top+reserve,"Blockstapel 1+"+(grp.effectiveStack-1)+" mit "+fmt(grp.item.h)+" mm Ladeeinheitshöhe + Bedienreserve"]);
+        }
+      }
+      const lift=lifts.length?lifts.reduce((a,b)=>b[0]>a[0]?b:a):null;
+      if(FFZ_MAST.has(t)){
+        if(lift&&lift[0]>reserve)add("4.4","Hub","h3","mm","≥ "+fmt(ceilTo(lift[0],50)),"Planung",lift[1]);
+        else add("4.4","Hub","h3","mm","Bodenabstellung","Planung","kein Einlagern in der Höhe");
+        if(lift&&lift[0]>reserve)add("","Resttragfähigkeit in Hubhöhe h3 bei c","","t","≥ "+fmt(q/1000,1),"Planung","Tragfähigkeitsdiagramm des Herstellers beilegen");
+      }
+      // Einsatz im LKW (Vorzone): Bauhöhe und Freihub
+      if(areas.some(a=>a[1]==="zone")&&(t==="front"||t==="schubmast")){
+        const zoneTrucks=[...new Set(ffzAreaItems("zone").map(i=>i.truck))].map(k=>getTruck(k)).filter(Boolean);
+        if(zoneTrucks.length){
+          const fhMin=Math.min(...zoneTrucks.map(x=>x.fh));
+          add("4.2","Bauhöhe Hubgerüst eingefahren","h1","mm","≤ "+fmt(Math.floor((fhMin*1000-100)/50)*50),"Planung","bei Einsatz im LKW: kleinste Innenhöhe "+fmt(fhMin,2)+" m − 100 mm");
+          if(zoneTrucks.some(x=>(x.layers||1)>1))add("4.3","Freihub","h2","mm","≥ "+fmt(ceilTo(hMax+100,50)),"Planung","zweilagige Beladung: Ladeeinheitshöhe "+fmt(hMax)+" mm + 100 mm");
+        }
+      }
+      add("4.22","Gabelzinkenmaße","s/e/l","mm","l ≥ "+fmt(ceilTo(lMax-50,50)),"Planung","Gabellänge aus Ladeeinheit "+fmt(lMax)+" mm − 50 mm; s und e vom Lieferanten");
+      if(bMax-bMin>=150)add("","Zinkenverstellung","","","empfohlen","Planung","Ladeeinheitsbreiten "+fmt(bMin)+" bis "+fmt(bMax)+" mm");
+      if(areas.some(a=>a[1]==="rack")&&t!=="vna")add("","Seitenschieber","","","erforderlich","Planung","Regalbedienung");
+      add("","Ladeeinheit max. L × B × H","","mm",fmt(lMax)+" × "+fmt(bMax)+" × "+fmt(hMax),"Planung",[...new Set(items.map(i=>(getLhm(i.lhm)||{}).label).filter(Boolean))].join(", "));
+    }else add("","Anforderungen aus der Planung","","","","offen","Keine Positionen in den Einsatzbereichen; Mengengerüst und Berechnung prüfen");
+    // Arbeitsgang
+    const asts=[];
+    if(areas.some(a=>a[1]==="rack"))asts.push([f.aisle,"Regalgang"]);
+    if(areas.some(a=>a[1]==="block"))asts.push([f.aisleBlock,"Blockgasse"]);
+    if(asts.length){const a=asts.reduce((x,y)=>y[0]<x[0]?y:x);add("4.33/4.34","Arbeitsgangbreite (inkl. Sicherheitsabstand)","Ast","mm","≤ "+fmt(a[0]*1000),"Planung",a[1]+" der Planung");}
+    add("4.35","Wenderadius","Wa","mm","","Lieferant");
+    add("4.19","Gesamtlänge","l1","mm","","Lieferant");
+    add("4.21","Gesamtbreite","b1","mm","","Lieferant");
+    add("2.1","Eigengewicht","","kg","","Lieferant");
+    add("5.1","Fahrgeschwindigkeit mit/ohne Last","","km/h","","Lieferant");
+    if(FFZ_MAST.has(t))add("5.2","Hubgeschwindigkeit mit/ohne Last","","m/s","","Lieferant");
+    add("6.4","Batteriespannung/Nennkapazität","","V/Ah","","Lieferant");
+    add("6.6","Energieverbrauch nach VDI-Zyklus","","kWh/h","","Lieferant");
+    add("10.7","Schalldruckpegel am Fahrerohr","","dB(A)","","Lieferant");
+    // Vorgaben zu Einsatz und Beschaffung
+    add("","Einsatzzeit","","h/Jahr",fmt(ffzOperatingHours()),"Vorgabe",fmt(f.shifts)+" Schicht(en) à "+fmt(f.shiftHours,1)+" h, "+fmt(f.daysWeek)+" Tage je Woche");
+    add("","Einsatzumgebung","","",ffzOptionLabel("ffz.environment",f.environment),"Vorgabe");
+    if(R.peakPalletsHour>0)add("","Spitzenumschlag des Lagers","","Pal./h",fmt(R.peakPalletsHour,1),"Planung","WE "+fmt(R.peakWeHour,1)+", WA "+fmt(R.peakWaHour,1)+"; Grundlage der Flottenbemessung");
+    if(t==="vna"){
+      add("","Gangführung","","",ffzOptionLabel("ffz.vnaGuide",f.vnaGuide),"Vorgabe");
+      add("","Übergabeplätze (P&D) an den Regalstirnseiten","","",f.vnaPnD?"vorgesehen":"nicht vorgesehen","Vorgabe");
+      add("","Bodenebenheit","","","nach DIN 15185-1","Planung","Schmalgangbetrieb");
+    }
+    add("","Beschaffungsart","","",ffzOptionLabel("ffz.procurement",f.procurement)+(f.procurement!=="kauf"?", "+fmt(f.termMonths)+" Monate":""),"Vorgabe");
+    add("","Preis bzw. Monatsrate je Fahrzeug","","€","","Lieferant");
+    if(fleet.note)add("","Bemerkung","","",fleet.note,"Vorgabe");
+    // Gliederung wie im Typenblatt; Zeilen ohne VDI-Nummer ordnen sich ihrer Gruppe zu
+    for(const r of rows)r.grp=r.nr?r.nr.split(".")[0]:(FFZ_ROW_GROUP[r.merkmal]||"9");
+    rows.sort((a,b)=>FFZ_GROUPS.findIndex(g=>g[0]===a.grp)-FFZ_GROUPS.findIndex(g=>g[0]===b.grp));
+    specs.push({type:t,label:FFZ_LABEL[t]||t,areas:areas.map(a=>a[2]),count:fleet.count||0,note:fleet.note||"",rows});
+  }
+  return specs;
+}
+function ffzSpecTableHtml(spec){
+  const cell=v=>v===""?'<td class="ffz-open"></td>':'<td>'+escH(v)+'</td>';
+  return '<table class="ffz-tab"><thead><tr><th style="width:62px">Nr.</th><th>Merkmal</th><th style="width:52px">Zeichen</th><th style="width:60px">Einheit</th><th>Anforderung</th><th style="width:76px">Herkunft</th><th>Erläuterung</th></tr></thead><tbody>'+
+    spec.rows.map((r,i)=>(i===0||spec.rows[i-1].grp!==r.grp?'<tr class="ffz-grp"><th colspan="7">'+escH((FFZ_GROUPS.find(g=>g[0]===r.grp)||["",""])[1])+'</th></tr>':'')+'<tr class="ffz-'+(r.art==="Lieferant"?"supplier":r.art==="offen"?"open":"set")+'"><td>'+escH(r.nr)+'</td><td>'+escH(r.merkmal)+'</td><td>'+escH(r.zeichen)+'</td><td>'+escH(r.einheit)+'</td>'+cell(r.wert)+'<td>'+escH(r.art)+'</td><td class="hint">'+escH(r.hinweis)+'</td></tr>').join("")+
+    '</tbody></table>';
+}
+function renderFfzSpec(){
+  const box=$("ffz-spec");if(!box)return;
+  const specs=buildFfzSpecs();
+  if(!specs.length){box.innerHTML='<p class="hint">Keine Flurförderzeuge gewählt. Die Auswahl steht unter Vorgaben › Lagertechnik.</p>';return;}
+  box.innerHTML=specs.map(sp=>'<section class="ffz-spec" data-ffz="'+escH(sp.type)+'"><h4>'+escH(sp.label)+' <span class="hint">· '+escH(sp.areas.join(", "))+'</span></h4>'+
+    '<div class="ffz-fleet"><label class="mf"><span>Anzahl</span><input type="number" min="0" max="999" step="1" data-fleet-count="'+escH(sp.type)+'" value="'+(sp.count||"")+'" placeholder="–"></label>'+
+    '<label class="mf ffz-note"><span>Bemerkung für die Anfrage</span><input type="text" maxlength="200" data-fleet-note="'+escH(sp.type)+'" value="'+escH(sp.note)+'" placeholder="z. B. Kommissionierung in Ebene 1"></label></div>'+
+    ffzSpecTableHtml(sp)+'</section>').join("");
+  const setFleet=(t,field,value)=>{
+    if(!S.ffzFleet)S.ffzFleet={};
+    const e=Object.assign({},S.ffzFleet[t]);
+    if(value===""||value==null||value===0)delete e[field];else e[field]=value;
+    if(Object.keys(e).length)S.ffzFleet[t]=e;else delete S.ffzFleet[t];
+    persistState();renderFfzSpec();
+  };
+  box.querySelectorAll("input[data-fleet-count]").forEach(inp=>inp.addEventListener("change",()=>{
+    const v=inp.value.trim()===""?0:clamp(Math.round(Number(String(inp.value).replace(",","."))||0),0,999);
+    setFleet(inp.dataset.fleetCount,"count",v);
+  }));
+  box.querySelectorAll("input[data-fleet-note]").forEach(inp=>inp.addEventListener("change",()=>setFleet(inp.dataset.fleetNote,"note",String(inp.value).trim().slice(0,200))));
+}
+function ffzSpecPrintHtml(){
+  const specs=buildFfzSpecs();
+  if(!specs.length)return '<p>Keine Flurförderzeuge gewählt.</p>';
+  const head='<p>Projekt: '+escH(S.meta.name||"–")+(S.meta.kunde?' · Kunde: '+escH(S.meta.kunde):'')+' · Stand: '+escH(new Date().toLocaleDateString("de-DE"))+'</p>'+
+    '<p>Anforderungen aus der Vorplanung, gegliedert in Anlehnung an das Typenblatt nach VDI 2198. „Planung“: aus Layout, Regal und Mengengerüst abgeleitet; „Vorgabe“: vom Auftraggeber festgelegt; „Lieferant“: bitte im Angebot angeben. Maßgeblich sind die Typenblätter und Tragfähigkeitsdiagramme des Herstellers.</p>';
+  return head+specs.map(sp=>'<h2>'+escH(sp.label)+(sp.count?' · '+fmt(sp.count)+' Stück':'')+'</h2>'+ffzSpecTableHtml(sp)).join("");
+}
+function exportFfzSpecCsv(){
+  const specs=buildFfzSpecs();
+  if(!specs.length){alert("Keine Flurförderzeuge gewählt.");return;}
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const lines=["Fahrzeugtyp;Anzahl;Gruppe;Nr.;Merkmal;Zeichen;Einheit;Anforderung;Herkunft;Erläuterung"];
+  for(const sp of specs)for(const r of sp.rows)lines.push([q(sp.label),sp.count||"",q((FFZ_GROUPS.find(g=>g[0]===r.grp)||["",""])[1]),q(r.nr),q(r.merkmal),q(r.zeichen),q(r.einheit),q(r.wert),q(r.art),q(r.hinweis)].join(";"));
+  const name=(S.meta.name||"projekt").replace(/[^\w\-]+/g,"_")+"_FFZ-Anforderungen.csv";
+  try{downloadBlob(new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}),name);}
+  catch(e){console.warn("Download des FFZ-Anforderungsblatts fehlgeschlagen:",e);}
+}
 /* CAPEX des aktuellen Ergebnisses; rechnet ausschließlich über calculateCapex */
 function computeCapexSummary(){
   const c=calculateCapex(R.bom);
@@ -6390,8 +6609,9 @@ function applyInputFile(inp,isInit){
       if(inp.parameter.customTrucks)next.customTrucks=deepMerge({},inp.parameter.customTrucks);
       if(inp.parameter.lhmOverrides)next.lhmOverrides=deepMerge({},inp.parameter.lhmOverrides);
       if(inp.parameter.truckOverrides)next.truckOverrides=deepMerge({},inp.parameter.truckOverrides);
+      if(inp.parameter.ffzFleet)next.ffzFleet=deepMerge({},inp.parameter.ffzFleet);
     }
-    for(const key of ["customLhm","customTrucks","lhmOverrides","truckOverrides"]){
+    for(const key of ["customLhm","customTrucks","lhmOverrides","truckOverrides","ffzFleet"]){
       if(inp[key]&&isPlainObject(inp[key]))next[key]=deepMerge({},inp[key]);
     }
     if(inp.lhmDefault)next.lhmDefault=String(inp.lhmDefault);
@@ -6435,7 +6655,7 @@ function exportInputFile(){
     meta:{projekt:S.meta.name,kunde:S.meta.kunde,stand:new Date().toISOString().slice(0,10)},
     parameterSources:S.parameterSources||{},
     parameter:{building:S.building,volume:S.volume,block:S.block,ffz:S.ffz,fire:S.fire,empty:S.empty,prices:S.prices,bom:S.bom,costMeta:S.costMeta,lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides},
-    lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides,truckOverrides:S.truckOverrides,bom:S.bom,
+    lhmDefault:S.lhmDefault,customLhm:S.customLhm,customTrucks:S.customTrucks,lhmOverrides:S.lhmOverrides,truckOverrides:S.truckOverrides,ffzFleet:S.ffzFleet,bom:S.bom,
     positionen:S.items
   };
   const js="window.TENDER_INPUT = "+JSON.stringify(data,null,2)+";";
@@ -6724,7 +6944,10 @@ function initTabs(){
   // Sprungziele (Kennzahlen, Startseite): Klick oder Eingabetaste wechselt ins Register
   document.addEventListener("click",ev=>{
     const t=ev.target.closest&&ev.target.closest("[data-goto]");
-    if(t)showTab(t.dataset.goto);
+    if(!t)return;
+    showTab(t.dataset.goto);
+    // Optional: Bereich der Vorgaben ansteuern
+    if(t.dataset.gotoPg){const b=$("ptab-"+t.dataset.gotoPg);if(b)b.click();}
   });
   document.querySelectorAll("#kpis [data-goto]").forEach(el=>{
     el.tabIndex=0;el.setAttribute("role","link");
@@ -7013,6 +7236,8 @@ function initButtons(){
       drawLayout();
     });
   }
+  $("btn-ffz-print").addEventListener("click",()=>openPrintWindow("FFZ-Anforderungsblatt – "+(S.meta.name||"Projekt"),ffzSpecPrintHtml()));
+  $("btn-ffz-csv").addEventListener("click",exportFfzSpecCsv);
   $("btn-bom-csv").addEventListener("click",()=>{
     const bom=R.bom||[];
     if(!bom.length){alert("Keine Stückliste vorhanden – bitte zuerst Positionen erfassen und berechnen.");return;}
@@ -7100,6 +7325,7 @@ window.addEventListener("resize",updateKpiToggle);
 // Ergebniszeile je Vorgabenabschnitt: was die Eingaben im aktuellen Stand bewirken
 const m2=a=>fmt((a||0)/1e6)+" m²";
 const SECTION_RESULTS={
+  ffzuse:()=>{const n=ffzFleetTypes().length;return fmt(ffzOperatingHours())+" Betriebsstunden je Fahrzeug und Jahr"+(n?" · Anforderungsblatt für "+n+(n===1?" Fahrzeugtyp":" Fahrzeugtypen")+" unter Stückliste & CAPEX":"");},
   hall:(r,g)=>g?"Halle "+fmt(g.L/1000,1)+" × "+fmt(g.W/1000,1)+" m = "+m2(g.area.hall)+" · Brutto-Lagerfläche "+m2(g.area.brutto)+" ("+fmt(g.area.brutto/g.area.hall*100)+" % belegt)":"",
   zones:(r,g)=>g?"WE-/WA-Zonen zusammen "+m2(g.area.zone)+(S.volume.bufferMode==="process"&&r.weBuffer?" · wirksame WE-Zonentiefe "+fmt(r.weBuffer.depth,1)+" m":""):"",
   columns:(r,g)=>{if(!g)return "";const hit=(g.cols||[]).filter(c=>c.hit>0).length;return fmt((g.cols||[]).length)+" Stützen in der Lagerfläche, davon "+fmt(hit)+" in Gängen oder Lagerplätzen"+(g.columnsAdvisory?" (Greenfield: nur Hinweis)":"");},
