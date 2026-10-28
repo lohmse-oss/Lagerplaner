@@ -616,7 +616,8 @@ const ACTIONS = [
   /* ---------- Bewertung und Ergebnis ---------- */
   {
     key: "Sensitivitätsanalyse", covers: ["#btn-sensi"],
-    run: async (p) => { await go(p, 8); await p.click("#btn-sensi"); },
+    // Im Greenfield rechnet jeder Treiber die Halle neu (einige Sekunden); der Klick wartet auf das Ende
+    run: async (p) => { await go(p, 8); await p.click("#btn-sensi", { timeout: 30000 }); },
     expect: (a, b) => a.items ? assert.ok(b.sensi > 5) : assert.equal(b.sensi, 0),
   },
   {
