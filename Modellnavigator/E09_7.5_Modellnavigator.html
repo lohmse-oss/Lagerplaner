@@ -49,6 +49,16 @@ body.sb-zu .main { margin-left: 0; }
 .top .tb:focus-visible { outline-color: #f59e0b; }
 .top input { width: min(360px, 40vw); border: 1px solid #334155; background: #1e293b; color: #fff; border-radius: 6px; padding: 6px 10px; }
 .top input::placeholder { color: #94a3b8; }
+.top h1 .brand { font-weight: 400; color: #94a3b8; }
+.qs { position: relative; }
+.qs-pop { position: absolute; right: 0; top: calc(100% + 6px); width: min(520px, calc(100vw - 24px)); max-height: min(70vh, 520px); overflow-y: auto; background: #fff; color: var(--ink); border: 1px solid var(--line2); border-radius: 8px; box-shadow: 0 12px 32px rgba(15, 23, 42, .25); padding: 4px; z-index: 60; }
+.qs-item { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; text-align: left; background: transparent; border: 0; border-radius: 5px; padding: 6px 8px; font-size: 13.5px; }
+.qs-item:hover, .qs-item.act { background: var(--hover); }
+.qs-item .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qs-all { display: block; width: 100%; text-align: left; background: var(--soft); border: 0; border-top: 1px solid var(--line); border-radius: 0 0 5px 5px; padding: 8px; margin-top: 4px; font-size: 13px; font-weight: 600; color: var(--accent-ink); }
+.qs-all.act, .qs-all:hover { background: var(--hover); }
+.qs-leer { padding: 10px; font-size: 13px; color: var(--muted); }
+kbd { font-family: inherit; font-size: 11px; border: 1px solid var(--line2); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: #fff; color: var(--ink2); }
 #view { padding: 22px 26px 40px; max-width: 1440px; width: 100%; outline: none; }
 .v-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
 .v-head h2 { font-size: 22px; font-weight: 800; }
@@ -149,6 +159,14 @@ table.list td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical
 .filters input[type=search] { flex: 1 1 240px; border: 1px solid var(--line2); border-radius: 6px; padding: 6px 10px; }
 .filters select { border: 1px solid var(--line2); border-radius: 6px; padding: 5px 8px; background: #fff; max-width: 220px; }
 .artchips { display: flex; gap: 6px; flex-wrap: wrap; }
+.f-more { display: contents; }
+#f-toggle { display: none; }
+.f-aktiv { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+.f-chip { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent-ink); border-radius: 12px; padding: 1px 4px 1px 10px; font-size: 12.5px; font-weight: 600; }
+.f-chip span { font-size: 15px; line-height: 1; padding: 0 4px; }
+.f-chip:hover { background: #bfdbfe; }
+h3.grp { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 2px; display: flex; gap: 8px; align-items: center; }
+h3.grp:first-child { margin-top: 0; }
 .obj-list { display: flex; flex-direction: column; gap: 6px; }
 .obj-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--line2); border-radius: 6px; padding: 8px 12px; text-align: left; width: 100%; }
 .obj-row:hover { border-color: var(--accent); background: var(--hover); }
@@ -161,7 +179,8 @@ table.list td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical
 /* Matrizen */
 table.mx { border-collapse: separate; border-spacing: 3px; font-size: 13px; }
 table.mx th { font-size: 12px; color: var(--muted); font-weight: 700; padding: 4px 6px; text-align: center; vertical-align: bottom; }
-table.mx th.rh { text-align: left; white-space: nowrap; color: var(--ink); }
+table.mx th.rh { text-align: left; white-space: nowrap; color: var(--ink); position: sticky; left: 0; z-index: 1; background: #fff; padding-right: 10px; box-shadow: -14px 0 0 #fff; }
+table.mx th .sub { display: block; font-weight: 400; font-size: 11px; line-height: 1.25; max-width: 96px; margin: 2px auto 0; }
 table.mx td { min-width: 74px; height: 40px; text-align: center; border-radius: 4px; background: var(--soft); border: 1px solid var(--line); }
 table.mx td.hit { cursor: pointer; }
 table.mx td.hit:hover { outline: 2px solid var(--accent); }
@@ -199,6 +218,11 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   .main { margin-left: 0; }
   .top { padding: 8px 12px; }
   .top input { width: 42vw; }
+  .top h1 .brand { display: none; }
+  .filters .f-more { display: none; }
+  .filters.auf .f-more { display: contents; }
+  #f-toggle { display: inline-block; }
+  table.mx th.rh { white-space: normal; min-width: 112px; max-width: 132px; }
   #view { padding: 16px 14px 32px; }
   .em { grid-template-columns: minmax(0, 1fr); }
   .persp { display: none; }
@@ -236,9 +260,8 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   <button class="nav" type="button" data-view="bausteine">Bausteine</button>
   <button class="nav" type="button" data-view="komponenten">Befähigungskomponenten</button>
   <button class="nav" type="button" data-view="fuehrung">Führung und SCORE</button>
-  <div class="sb-title">Objekte</div>
+  <div class="sb-title">Objekte und Querbezüge</div>
   <button class="nav" type="button" data-view="objekte">Alle Objekte</button>
-  <div class="sb-title">Querbezüge</div>
   <button class="nav" type="button" data-view="mx-regel">Regel und Baustein</button>
   <button class="nav" type="button" data-view="mx-befaehigung">Baustein und Befähigung</button>
   <div class="sb-title">Kanon</div>
@@ -250,8 +273,11 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <div class="main">
   <header class="top">
     <button class="tb" id="sb-toggle" type="button" aria-label="Seitenleiste ein- oder ausblenden" aria-controls="sidebar">☰</button>
-    <h1 id="h-title">Leadec Logistics Betriebsmodell</h1>
-    <input type="search" id="q" placeholder="Kennung oder Begriff suchen" aria-label="Objekte durchsuchen" />
+    <h1 id="h-title"><span class="brand" id="h-brand">Modellnavigator · </span><span id="h-view"></span></h1>
+    <div class="qs">
+      <input type="search" id="q" placeholder="Suchen (Taste /)" aria-label="Objekte und Dokumente durchsuchen" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qs-pop" aria-autocomplete="list" />
+      <div class="qs-pop" id="qs-pop" role="listbox" aria-label="Suchtreffer" hidden></div>
+    </div>
   </header>
   <main id="view" tabindex="-1"></main>
 </div>
@@ -261,6 +287,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     <div class="d-head">
       <button class="btn" id="d-back" type="button">Zurück</button>
       <div><div id="d-kicker"></div><h2 id="d-title" tabindex="-1"></h2></div>
+      <button class="btn" id="d-link" type="button" title="Adresse dieses Detailfensters kopieren">Link kopieren</button>
       <button class="btn" id="d-close" type="button">Schließen</button>
     </div>
     <div id="d-body"></div>
@@ -273,7 +300,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <script>
 (function () {
   'use strict';
-  const NAVIGATOR = { fassung: '1.0', stand: '28.10.2026' };
+  const NAVIGATOR = { fassung: '1.1', stand: '28.10.2026' };
   const $ = id => document.getElementById(id);
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
@@ -339,10 +366,12 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   function renderView() {
     document.querySelectorAll('.nav[data-view]').forEach(b => { const on = b.dataset.view === state.ansicht; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); });
     const v = VIEWS[state.ansicht] || VIEWS.start;
+    const nb = document.querySelector(`.nav[data-view="${VIEWS[state.ansicht] ? state.ansicht : 'start'}"]`);
+    $('h-view').textContent = nb ? nb.textContent : '';
     $('view').innerHTML = v();
     if (state.ansicht === 'objekte') bindObjekte();
   }
-  const head = (titel, text, rechts) => `<div class="v-head"><div><h2>${esc(titel)}</h2>${text ? `<p>${text}</p>` : ''}</div>${rechts || ''}</div>`;
+  const head = (titel, text, rechts) => `<div class="v-head"><div><h2>${esc(titel)}</h2>${text ? `<p>${rich(text)}</p>` : ''}</div>${rechts || ''}</div>`;
 
   // Startsicht: Ebenenmodell nach dem Bild von E01
   VIEWS.start = () => {
@@ -461,27 +490,51 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (o.art === 'D' && o.status) t.push(`<span class="tag">${esc(o.status)}</span>`);
     return t.join('');
   }
+  const listHtml = l => l.length ? ARTEN.map(a => { const g = l.filter(o => o.art === a); return g.length ? `<h3 class="grp">${artTag(a)} ${g.length}</h3>${g.map(objRow).join('')}` : ''; }).join('') : '<p class="hint">Kein Objekt entspricht der Auswahl.</p>';
+  function aktivChips() {
+    const lab = {
+      ebene: v => 'Ebene ' + ebeneName(v), regel: v => 'Regel ' + v + ' ' + ((IX.regel.get(+v) || {}).kurz || ''), baustein: v => v + ' ' + bsName(v),
+      komp: v => v + ' ' + kompName(v), stufe: v => 'Stufe ' + v + ' ' + ((IX.stufe.get(+v) || {}).n || ''), q: v => '„' + v + '“'
+    };
+    const c = [];
+    (state.art || '').split(',').filter(Boolean).forEach(a => c.push([`art:${a}`, ART_PL[a]]));
+    ['q', 'ebene', 'regel', 'baustein', 'komp', 'stufe'].forEach(k => { if (state[k]) c.push([k, lab[k](state[k])]); });
+    return c.length ? `<span class="hint">Aktive Filter:</span>${c.map(([k, l]) => `<button type="button" class="f-chip" data-unset="${esc(k)}" aria-label="Filter ${esc(l)} entfernen">${esc(l)}<span aria-hidden="true">×</span></button>`).join('')}` : '';
+  }
+  let filterAuf = false;
   const objRow = o => `<button type="button" class="obj-row a-${o.art}" data-open="${esc(o.kennung)}"><span class="kenn">${esc(o.kennung)}</span><span><span class="nm">${esc(o.n)}</span><span class="zw" style="display:block">${esc(o.zweck || (o.typ ? o.typ + ' · ' + bsName(o.baustein) : (o.profil && o.profil.Fundstelle) || ''))}</span></span><span class="rt">${artTag(o.art)}${objTags(o)}</span></button>`;
   VIEWS.objekte = () => {
     const arts = (state.art || '').split(',').filter(Boolean);
     const opt = (key, vals, label) => `<select data-f="${key}" aria-label="${label}"><option value="">${label}: alle</option>${vals.map(([v, l]) => `<option value="${esc(v)}" ${String(state[key] || '') === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
     const liste = filtern();
     return head('Alle Objekte', `${B.objekte.length} Objekte in sechs Objektarten. Filter und Suche wirken zusammen. Die Adresse der Seite hält die Auswahl fest.`)
-      + `<div class="filters">
+      + `<div class="filters${filterAuf ? ' auf' : ''}" id="filters">
         <input type="search" data-f="q" value="${esc(state.q || '')}" placeholder="Kennung, Bezeichnung oder Inhalt" aria-label="Suche in den Objekten" />
         <div class="artchips" role="group" aria-label="Objektart">${ARTEN.map(a => `<button type="button" class="btn ${arts.includes(a) ? 'on' : ''}" data-artchip="${a}" aria-pressed="${arts.includes(a)}">${ART_PL[a]} (${objekte(o => o.art === a).length})</button>`).join('')}</div>
+        <button type="button" class="btn" id="f-toggle" aria-expanded="${filterAuf}">Weitere Filter</button>
+        <div class="f-more">
         ${opt('ebene', B.ebenen.map(e => [e.code, e.n]), 'Ebene')}
         ${opt('regel', B.regeln.map(r => [r.nr, 'Regel ' + r.nr + ' ' + r.kurz]), 'Regel')}
         ${opt('baustein', B.bausteine.map(b => [b.code, b.code + ' ' + b.n]), 'Baustein')}
         ${opt('komp', B.komponenten.map(k => [k.code, k.code + ' ' + k.n]), 'Komponente')}
         ${opt('stufe', B.stufen.map(s => [s.nr, s.nr + ' ' + s.n]), 'Kaskadenstufe')}
         <button type="button" class="btn" id="f-reset">Filter zurücksetzen</button>
+        </div>
       </div>
+      <div class="f-aktiv" id="f-aktiv">${aktivChips()}</div>
       <p class="hint" id="f-cnt" aria-live="polite" style="margin-bottom:8px">${liste.length} von ${B.objekte.length} Objekten</p>
-      <div class="obj-list" id="obj-list">${liste.map(objRow).join('') || '<p class="hint">Kein Objekt entspricht der Auswahl.</p>'}</div>`;
+      <div class="obj-list" id="obj-list">${listHtml(liste)}</div>`;
   };
   function bindObjekte() {
-    const upd = () => { writeHash(state, false); const l = filtern(); $('obj-list').innerHTML = l.map(objRow).join('') || '<p class="hint">Kein Objekt entspricht der Auswahl.</p>'; $('f-cnt').textContent = `${l.length} von ${B.objekte.length} Objekten`; };
+    const upd = () => { writeHash(state, false); const l = filtern(); $('obj-list').innerHTML = listHtml(l); $('f-cnt').textContent = `${l.length} von ${B.objekte.length} Objekten`; $('f-aktiv').innerHTML = aktivChips(); };
+    $('f-toggle').onclick = () => { filterAuf = !filterAuf; $('filters').classList.toggle('auf', filterAuf); $('f-toggle').setAttribute('aria-expanded', String(filterAuf)); };
+    $('f-aktiv').onclick = e => {
+      const c = e.target.closest('[data-unset]'); if (!c) return;
+      const k = c.dataset.unset;
+      if (k.startsWith('art:')) state.art = (state.art || '').split(',').filter(a => a && a !== k.slice(4)).join(',');
+      else delete state[k];
+      renderView(); writeHash(state, false);
+    };
     document.querySelectorAll('[data-f]').forEach(el => { el[el.tagName === 'INPUT' ? 'oninput' : 'onchange'] = () => { state[el.dataset.f] = el.value; upd(); }; });
     document.querySelectorAll('[data-artchip]').forEach(b => b.onclick = () => { const s = new Set((state.art || '').split(',').filter(Boolean)); s.has(b.dataset.artchip) ? s.delete(b.dataset.artchip) : s.add(b.dataset.artchip); state.art = [...s].join(','); b.classList.toggle('on'); b.setAttribute('aria-pressed', String(s.has(b.dataset.artchip))); upd(); });
     $('f-reset').onclick = () => { F_KEYS.forEach(k => delete state[k]); renderView(); writeHash(state, false); };
@@ -499,14 +552,14 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     let max = 1; rows.forEach(r => cols.forEach(c => { const z = zelle(r, c); max = Math.max(max, z.ms.length + z.ds.length); }));
     const td = (r, c) => { const z = zelle(r, c), n = z.ms.length + z.ds.length; if (!n) return '<td></td>'; const a = 0.08 + 0.42 * n / max; return `<td class="hit" style="background:rgba(37,99,235,${a.toFixed(2)})" data-open="zelle:${r}|${c}" tabindex="0" role="button" aria-label="Regel ${r || 'übergreifend'}, Baustein ${c}: ${z.ms.length} Methoden, ${z.ds.length} Dokumente">${z.ms.length ? `<span class="m">M ${z.ms.length}</span>` : ''}${z.ms.length && z.ds.length ? ' · ' : ''}${z.ds.length ? `<span class="d">D ${z.ds.length}</span>` : ''}</td>`; };
     return head('Matrix Regel und Baustein', 'Je Zelle die Methoden mit Regel und Baustein nach D02-MET und die Dokumente mit Nachweisverwendung für die Regel nach D03-DOK. Die Prüfkriterien der Prüfmatrix in C01 Anhang A folgen in einer späteren Ausbaustufe.')
-      + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${cols.map(c => `<th title="${esc(bsName(c === '–' ? null : c))}">${c === '–' ? 'übergreifend' : c}</th>`).join('')}</tr>${rows.map(r => `<tr><th class="rh">${r ? `${refBtn('Regel ' + r, 'Regel ' + r)} ${esc(IX.regel.get(r).kurz)}` : 'regelübergreifend'}</th>${cols.map(c => td(r, c)).join('')}</tr>`).join('')}</table></div>
+      + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${cols.map(c => `<th title="${esc(bsName(c === '–' ? null : c))}">${c === '–' ? 'übergreifend' : `${refBtn('bs:' + c, c)}<span class="sub">${esc(bsName(c))}</span>`}</th>`).join('')}</tr>${rows.map(r => `<tr><th class="rh">${r ? `${refBtn('Regel ' + r, 'Regel ' + r)} ${esc(IX.regel.get(r).kurz)}` : 'regelübergreifend'}</th>${cols.map(c => td(r, c)).join('')}</tr>`).join('')}</table></div>
       <p class="hint" style="margin-top:8px"><span style="color:var(--a-M);font-weight:800">M</span> Methoden · <span style="color:var(--a-D);font-weight:800">D</span> Dokumente. Ein Klick auf eine Zelle zeigt die Objekte.</p>`;
   };
 
   VIEWS['mx-befaehigung'] = () => {
     const ks = B.komponenten;
     return head('Matrix Baustein und Befähigung', 'Welche Bausteine der Gestaltung welchen Befähigungskomponenten zuführen. Grundlage sind die zuführenden Bausteine nach B03 Kapitel 3, abgeleitet aus der Prüfmatrix in C01 Anhang A.8. Die Begleitdarstellung E07 zeigt dieselbe Zuordnung mit Regeln und Mindestkriterien.')
-      + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${ks.map(k => `<th>${refBtn('komp:' + k.code, k.code)}<br><span style="font-weight:400">${esc(k.n)}</span></th>`).join('')}</tr>${B.bausteine.map(b => `<tr><th class="rh">${refBtn('bs:' + b.code, b.code)} ${esc(b.n)}</th>${ks.map(k => { const on = (k.zufuehrend || []).includes(b.code); const nm = objekte(o => o.art === 'M' && o.baustein === b.code && (o.komponenten || []).includes(k.code)).length; return `<td${on || nm ? ` class="hit" data-open="bk:${b.code}|${k.code}" tabindex="0" role="button" aria-label="${esc(b.n)} und ${esc(k.n)}"` : ''}>${on ? '<span class="dot" title="führt zu"></span>' : ''}${nm ? `<div class="hint">${nm} M</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</table></div>
+      + `<div class="scroll card" style="padding:10px"><table class="mx"><tr><th></th>${ks.map(k => `<th>${refBtn('komp:' + k.code, k.code)}<span class="sub">${esc(k.n)}</span></th>`).join('')}</tr>${B.bausteine.map(b => `<tr><th class="rh">${refBtn('bs:' + b.code, b.code)} ${esc(b.n)}</th>${ks.map(k => { const on = (k.zufuehrend || []).includes(b.code); const nm = objekte(o => o.art === 'M' && o.baustein === b.code && (o.komponenten || []).includes(k.code)).length; return `<td${on || nm ? ` class="hit" data-open="bk:${b.code}|${k.code}" tabindex="0" role="button" aria-label="${esc(b.n)} und ${esc(k.n)}"` : ''}>${on ? '<span class="dot" title="führt zu"></span>' : ''}${nm ? `<div class="hint">${nm} M</div>` : ''}</td>`; }).join('')}</tr>`).join('')}</table></div>
       <p class="hint" style="margin-top:8px">Punkt: Der Baustein führt der Komponente zu. Zahl: Methoden des Bausteins mit dieser Komponente nach D02-MET.</p>`;
   };
 
@@ -522,7 +575,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   VIEWS.info = () => {
     const m = B.meta;
     const cnt = ARTEN.map(a => `<tr><td>${artTag(a)}</td><td>${objekte(o => o.art === a).length}</td></tr>`).join('');
-    return head('Info', esc(m.status))
+    return head('Info', m.status)
       + `<div class="card"><table class="kv">
         <tr><td>Darstellung</td><td>${esc(m.darstellung)} · Navigator ${NAVIGATOR.fassung} vom ${NAVIGATOR.stand}</td></tr>
         <tr><td>Kanon</td><td>Fassung ${esc(m.fassung)}</td></tr>
@@ -531,7 +584,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
         <tr><td>Pflege</td><td>Die Datendatei wird nicht von Hand bearbeitet. Ändert sich ein Katalog, erzeugt das Skript sie neu. Führend bleiben die Dokumente des Kanons.</td></tr>
       </table></div>
       <h3 class="sec">Bestand</h3><table class="list" style="max-width:360px"><tr><th>Objektart</th><th>Anzahl</th></tr>${cnt}</table>
-      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Escape schließt das Detailfenster. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
+      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Die Taste / springt in die Suche; Pfeiltasten wählen einen Treffer, Enter öffnet ihn. Escape schließt das Detailfenster. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
   };
 
   // ---------- Detailfenster ----------
@@ -558,10 +611,19 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (!silent) { delete state.o; writeHash(state, false); if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
   }
   $('d-close').onclick = () => closeDrawer();
+  $('d-link').onclick = () => {
+    const b = $('d-link'), ok = t => { b.textContent = t; setTimeout(() => { b.textContent = 'Link kopieren'; }, 1600); };
+    try { navigator.clipboard.writeText(location.href).then(() => ok('Kopiert'), () => ok('Nicht möglich')); } catch (err) { ok('Nicht möglich'); }
+  };
   $('d-back').onclick = () => { stack.pop(); const k = stack[stack.length - 1]; if (k) open(k, true); };
   $('ovl').addEventListener('click', e => { if (e.target === $('ovl')) closeDrawer(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && $('ovl').classList.contains('open')) closeDrawer();
+    if (e.key === 'Tab' && $('ovl').classList.contains('open')) {
+      const f = [...document.querySelectorAll('.drawer button, .drawer a[href], .drawer [tabindex]')].filter(x => !x.hidden && x.offsetParent !== null);
+      if (f.length && (e.shiftKey ? document.activeElement === f[0] || !e.target.closest('.drawer') : document.activeElement === f[f.length - 1])) { e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus(); }
+    }
+    if (e.key === '/' && !e.target.matches('input, select, textarea') && !$('ovl').classList.contains('open')) { e.preventDefault(); $('q').focus(); $('q').select(); }
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('td[data-open]')) { e.preventDefault(); open(e.target.dataset.open); }
   });
 
@@ -703,10 +765,53 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     const o = e.target.closest('[data-open]');
     if (o) { e.preventDefault(); open(o.dataset.open); }
   });
-  let qTimer = null;
-  // Die Kopfsuche durchsucht immer den ganzen Bestand. Filter der Objektsicht setzt sie zurück.
-  $('q').addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => { const v = $('q').value; if (state.ansicht === 'objekte' && F_KEYS.every(k => k === 'q' || !state[k])) { state.q = v; renderView(); writeHash(state, false); } else { go('objekte', { q: v }); } $('q').focus(); }, 250); });
-  $('q').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const l = filtern(); if (l.length === 1) open(l[0].kennung); } });
+  // Die Kopfsuche durchsucht immer den ganzen Bestand und den Kanon. Sie zeigt die besten Treffer
+  // direkt an; der letzte Eintrag führt in die Objektliste mit allen Treffern.
+  const QS_MAX = 8;
+  let qsAkt = -1;
+  function suche(q) {
+    const w = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!w.length) return { treffer: [], gesamt: 0 };
+    const rang = (kenn, n, rest) => {
+      const k = kenn.toLowerCase(), nl = n.toLowerCase(), t = [k, nl, rest].join(' ');
+      if (!w.every(x => t.includes(x))) return -1;
+      const q0 = w.join(' ');
+      return k === q0 ? 0 : k.startsWith(q0) ? 1 : w.every(x => nl.includes(x)) ? (nl.startsWith(w[0]) ? 2 : 3) : 4;
+    };
+    const obj = B.objekte.map(o => ({ key: o.art === 'P' ? 'Regel ' + o.regel : o.kennung, kenn: o.kennung, n: o.n, tag: artTag(o.art), r: rang(o.kennung, o.n, [o.zweck, o.typ, ...Object.values(o.profil || {})].join(' ').toLowerCase()) }));
+    const kan = B.kanon.map(k => ({ key: 'kanon:' + k.kennung, kenn: k.kennung, n: k.n, tag: '<span class="tag">Kanon</span>', r: rang(k.kennung, k.n, String(k.inhalt || '').toLowerCase()) }));
+    const alle = obj.concat(kan).filter(x => x.r >= 0).sort((a, b) => a.r - b.r);
+    return { treffer: alle.slice(0, QS_MAX), gesamt: obj.filter(x => x.r >= 0).length };
+  }
+  function qsZeigen() {
+    const v = $('q').value.trim(), pop = $('qs-pop');
+    if (!v) { qsZu(); return; }
+    const { treffer, gesamt } = suche(v);
+    qsAkt = treffer.length ? 0 : -1;
+    pop.innerHTML = (treffer.length ? treffer.map((t, i) => `<button type="button" class="qs-item" role="option" id="qs-${i}" data-open="${esc(t.key)}" tabindex="-1"><span class="kenn">${esc(t.kenn)}</span><span class="nm">${esc(t.n)}</span>${t.tag}</button>`).join('') : '<div class="qs-leer">Kein Treffer.</div>')
+      + (gesamt ? `<button type="button" class="qs-all" role="option" id="qs-${treffer.length}" data-qs-all tabindex="-1">Alle ${gesamt} Objekttreffer in der Objektliste anzeigen</button>` : '');
+    pop.hidden = false;
+    $('q').setAttribute('aria-expanded', 'true');
+    qsMark();
+  }
+  function qsMark() {
+    const items = $('qs-pop').querySelectorAll('[role=option]');
+    items.forEach((x, i) => x.classList.toggle('act', i === qsAkt));
+    if (items[qsAkt]) { $('q').setAttribute('aria-activedescendant', items[qsAkt].id); items[qsAkt].scrollIntoView({ block: 'nearest' }); } else $('q').removeAttribute('aria-activedescendant');
+  }
+  function qsZu() { $('qs-pop').hidden = true; $('q').setAttribute('aria-expanded', 'false'); $('q').removeAttribute('aria-activedescendant'); qsAkt = -1; }
+  const qsAlle = () => { const v = $('q').value.trim(); qsZu(); $('q').value = ''; go('objekte', { q: v }); };
+  $('q').addEventListener('input', qsZeigen);
+  $('q').addEventListener('focus', () => { if ($('q').value.trim()) qsZeigen(); });
+  $('q').addEventListener('keydown', e => {
+    const items = $('qs-pop').querySelectorAll('[role=option]');
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if ($('qs-pop').hidden) qsZeigen(); else if (items.length) { qsAkt = (qsAkt + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; qsMark(); } }
+    else if (e.key === 'Enter') { e.preventDefault(); const it = items[qsAkt]; if (!it) return; if (it.hasAttribute('data-qs-all')) qsAlle(); else { qsZu(); open(it.dataset.open); } }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); if (!$('qs-pop').hidden) qsZu(); else { $('q').value = ''; $('q').blur(); } }
+  });
+  $('qs-pop').addEventListener('mousedown', e => e.preventDefault());
+  $('qs-pop').addEventListener('click', e => { if (e.target.closest('[data-qs-all]')) { e.stopPropagation(); qsAlle(); } else if (e.target.closest('[data-open]')) qsZu(); });
+  $('q').addEventListener('blur', () => setTimeout(qsZu, 120));
   $('sb-toggle').onclick = () => { if (matchMedia('(max-width:760px)').matches) document.body.classList.toggle('sb-auf'); else document.body.classList.toggle('sb-zu'); };
   const onNav = () => {
     const s = readHash();
@@ -724,7 +829,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     index();
     const m = B.meta;
     document.title = `${m.titel} · Modellnavigator · Fassung ${m.fassung}`;
-    $('h-title').textContent = `${m.titel} · Modellnavigator`;
+    $('h-brand').textContent = `${m.titel} · `;
     $('sb-meta').innerHTML = `Kanon ${esc(m.fassung)} · Navigator ${NAVIGATOR.fassung}<br>Datendatei vom ${esc(m.erzeugt)}<br>${esc(m.status)}`;
     state = readHash();
     renderView();
