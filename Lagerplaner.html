@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.22</title>
+<title>Lagerplaner V2.23</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -168,6 +168,37 @@ main{flex:1;display:flex;flex-direction:column;min-width:0}
 .param-result .unit{color:var(--mut);font-size:11.5px}
 .conditional-off{display:none!important}
 .dependency-note{font-size:11px;color:#64748b;margin:6px 0 0;line-height:1.45}
+/* Mengengerüst: kompakte Tabelle, Detailfeld, Einfügedialog */
+#itemsBody td{vertical-align:middle}
+.dem-main{display:flex;align-items:center;gap:6px}
+#itemsBody .dem-main input{width:72px;flex:0 0 72px}
+.dem-main .unit,.dem-sub,.lhm-sum small{color:var(--mut);font-size:11px;white-space:nowrap}
+.dem-sub{margin-top:2px;overflow:hidden;text-overflow:ellipsis}
+.lhm-sum{font-size:12px;line-height:1.35;cursor:pointer}
+.lhm-sum small{display:block;white-space:normal}
+#itemsBody tr.is-open{background:#eff6ff}
+.selbar[hidden]{display:none!important}
+.drawer{position:fixed;top:0;right:340px;bottom:0;width:min(400px,100vw);background:#fff;border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(15,23,42,.18);z-index:45;display:flex;flex-direction:column}
+.drawer[hidden]{display:none}
+/* Detailfeld links neben der Kennzahlenleiste; die Tabelle rückt ein und bleibt vollständig erreichbar */
+#app.kpis-collapsed .drawer{right:44px}
+#panel-2.drawer-open{padding-right:412px}
+.drawer-head{display:flex;align-items:center;gap:4px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.drawer-head h3{margin:0 auto 0 0;font-size:14px}
+.drawer-head .btn{font-size:16px;line-height:1;padding:4px 10px}
+.drawer-body{overflow:auto;padding:4px 14px 18px}
+.drawer-body h4{margin:14px 0 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.drawer .fld{grid-template-columns:minmax(0,1fr) 130px 56px}
+.drawer .fld select{grid-column:2/4}
+.drawer .res{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:12px}
+.drawer .res b{text-align:right}
+.paste-map{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.paste-map .pcol{min-width:150px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11.5px}
+.paste-map .pcol b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.paste-map .pcol span{display:block;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.paste-map select{width:100%;font-size:11.5px}
+.paste-preview{max-height:180px;overflow:auto}
+.paste-preview table{font-size:11.5px}
 .side-table{width:auto;margin:2px 0 8px auto;border-collapse:collapse;font-size:12px}
 .side-table th,.side-table td{padding:3px 10px;text-align:center;border-bottom:1px solid var(--line)}
 .side-table thead th{font-size:11px;font-weight:600;color:var(--mut);text-transform:none}
@@ -337,9 +368,12 @@ details.obs[open] summary{margin-bottom:4px}
 /* ============================ Schmale Bildschirme ============================ */
 @media(max-width:1250px){
   #kpis{width:300px;flex-basis:300px}
+  .drawer{right:300px}
   #app~.toast{right:318px}
 }
 @media(max-width:1100px){
+  .drawer,#app.kpis-collapsed .drawer{right:0}
+  #panel-2.drawer-open{padding-right:0}
   #app~.toast,#app.kpis-collapsed~.toast{right:18px}
   #body{display:block;overflow:auto}
   #kpis,#app.kpis-collapsed #kpis{width:auto;border-left:0;border-top:1px solid var(--line);padding:10px 14px 16px}
@@ -381,7 +415,7 @@ details.obs[open] summary{margin-bottom:4px}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.22</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.23</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -512,7 +546,7 @@ details.obs[open] summary{margin-bottom:4px}
                 <p>Vorgaben pflegen und Positionen erfassen.</p>
                 <ul>
                   <li><button type="button" class="linkbtn" data-goto="1">Vorgaben</button> Gebäude, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit, Kosten.</li>
-                  <li><button type="button" class="linkbtn" data-goto="2">Mengengerüst</button> Positionen erfassen oder per CSV importieren, Bedarfsermittlung je Position, Sammeländerungen.</li>
+                  <li><button type="button" class="linkbtn" data-goto="2">Mengengerüst</button> Positionen erfassen, aus Excel einfügen oder per CSV importieren, Details je Position, Sammeländerungen.</li>
                 </ul>
               </section>
               <section class="phase-card p-eng">
@@ -818,13 +852,14 @@ details.obs[open] summary{margin-bottom:4px}
         <div class="panel" id="panel-2" role="tabpanel" aria-labelledby="tab-2">
           <div class="rowbtns">
             <button class="btn acc" id="btn-add-item">+ Position</button>
+            <button class="btn" id="btn-paste" title="Zellen aus Excel oder einer anderen Tabelle einfügen; Spalten werden anhand der Überschriften zugeordnet">Aus Excel einfügen</button>
             <button class="btn" id="btn-csv">Mengengerüst importieren (CSV)</button>
+            <span class="hint">Tipp: Zellen in Excel markieren, kopieren und hier mit Strg+V einfügen.</span>
           </div>
           <div class="card">
             <h3>Artikelgruppen / Ausschreibungspositionen</h3>
-            <p style="margin: 0 0 4px; font-weight: 600; font-size: 12px">Batch-Änderungen</p>
-            <div class="selbar" role="group" aria-label="Batch-Änderungen">
-              <span id="sel-count">0 Positionen ausgewählt</span>
+            <div class="selbar" id="selbar" role="group" aria-label="Sammeländerungen für ausgewählte Positionen" hidden>
+              <b id="sel-count">0 Positionen ausgewählt</b>
               <button class="btn danger" id="btn-sel-del" disabled="">Auswahl löschen</button>
               <label for="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird">LKW-Typ:</label>
               <select id="sel-truck" title="LKW-Typ, der den ausgewählten Positionen zugewiesen wird"></select>
@@ -849,56 +884,45 @@ details.obs[open] summary{margin-bottom:4px}
                 <option value="assumption">Planerannahme</option>
               </select>
               <button class="btn" id="btn-sel-basis" disabled="">Basis zuweisen</button>
+              <button class="btn btn-quiet" type="button" id="btn-sel-clear">Auswahl aufheben</button>
             </div>
             <div class="table-width-tools">
-              <span>Spalten an den Trennlinien ziehen</span>
+              <span class="hint" id="sel-hint">Kästchen links markieren, um mehrere Positionen gemeinsam zu ändern · Enter springt zur nächsten Zeile · Details öffnen alle Felder einer Position</span>
               <button class="btn btn-quiet" type="button" id="btn-cols-auto">Breiten automatisch</button>
               <button class="btn btn-quiet" type="button" id="btn-cols-reset">Standardbreiten</button>
             </div>
             <div class="items-table-scroll" role="region" aria-label="Artikeltabelle">
-              <table id="items-table" style="width: 1820px">
+              <table id="items-table">
                 <caption class="sr-only">Ausschreibungspositionen mit Bedarfsangaben</caption>
                 <thead>
                   <tr>
                     <th scope="col"><input type="checkbox" id="sel-all" aria-label="Alle Positionen auswählen" /></th>
                     <th scope="col">Pos</th>
                     <th scope="col">Bezeichnung</th>
-                    <th scope="col">Ermittlung</th>
-                    <th scope="col" class="bed">Bedarfseingabe</th>
-                    <th
-                      scope="col"
-                      title="Anzahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Bestimmt im artikelbasierten Modus die Blockverteilung und in allen Modi die Mindestzahl artikelreiner Blockkanäle."
-                    >
-                      Artikel
-                    </th>
+                    <th scope="col" title="Hauptwert der gewählten Bedarfsermittlung; Ermittlungsart und weitere Angaben in den Details">Bedarf</th>
+                    <th scope="col" title="Anzahl unterschiedlicher Artikel je Position (englisch SKU, Stock Keeping Unit). Bestimmt im artikelbasierten Modus die Blockverteilung und in allen Modi die Mindestzahl artikelreiner Blockkanäle.">Artikel</th>
+                    <th scope="col" title="Ladehilfsmittel mit Maßen, Gewicht und Stapelfaktor 1 + x; ändern in den Details">Ladehilfsmittel</th>
                     <th scope="col" title="Herkunft der Mengenangabe dieser Position: Kundenangabe oder Planerannahme.">Basis</th>
-                    <th scope="col">LHM-Typ</th>
-                    <th scope="col">Länge mm</th>
-                    <th scope="col">Breite mm</th>
-                    <th scope="col">Höhe mm</th>
-                    <th scope="col">Gewicht kg</th>
-                    <th
-                      scope="col"
-                      title="Stapelfaktor Blocklager in der Notation 1+x: x gibt die zusätzlich auf der untersten Palette gestapelten Paletten an (1+0 = nicht gestapelt, 1+1 = eine Palette obendrauf). Hart begrenzt durch max. Stapelhöhe (Standard 1+5) und Oberkante Lagergut; die Kippgrenze 6:1 wird je Position aufgerundet als Hinweis ausgewiesen. Im Regal steht je Fach und Ebene eine Palette."
-                    >
-                      Stapel 1+x
-                    </th>
                     <th scope="col">Pal./Tag</th>
                     <th scope="col">Netto Pal.</th>
-                    <th
-                      scope="col"
-                      class="col-block"
-                      title="Modus Manuell: Eingabe des Blockanteils. Allen anderen Modi: berechneter effektiver Blockanteil laut Verteilungslogik (Blockpaletten am Netto-Bestand der Position)."
-                    >
-                      Block %
-                    </th>
-                    <th scope="col"></th>
+                    <th scope="col" class="col-block" title="Modus Manuell: Eingabe des Blockanteils. Alle anderen Modi: berechneter effektiver Blockanteil laut Verteilungslogik (Blockpaletten am Netto-Bestand der Position).">Block %</th>
+                    <th scope="col"><span class="sr-only">Details</span></th>
+                    <th scope="col"><span class="sr-only">Löschen</span></th>
                   </tr>
                 </thead>
                 <tbody id="itemsBody"></tbody>
               </table>
             </div>
           </div>
+          <aside class="drawer" id="item-drawer" hidden aria-labelledby="drawer-title">
+            <div class="drawer-head">
+              <h3 id="drawer-title">Position</h3>
+              <button class="btn btn-quiet" type="button" id="btn-drawer-prev" aria-label="Vorherige Position">‹</button>
+              <button class="btn btn-quiet" type="button" id="btn-drawer-next" aria-label="Nächste Position">›</button>
+              <button class="btn btn-quiet" type="button" id="btn-drawer-close" aria-label="Details schließen">×</button>
+            </div>
+            <div class="drawer-body" id="drawer-body"></div>
+          </aside>
         </div>
 
         <div class="panel" id="panel-3" role="tabpanel" aria-labelledby="tab-3">
@@ -1416,9 +1440,23 @@ details.obs[open] summary{margin-bottom:4px}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.22 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.23 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
+<div class="modal" id="modal-paste"><div class="box">
+  <h3>Positionen aus Excel einfügen</h3>
+  <p class="hint" style="margin: 0">Zellen in Excel markieren (am besten mit Überschriftenzeile), kopieren und hier einfügen. Die Spalten werden anhand der Überschriften zugeordnet; die Zuordnung lässt sich je Spalte ändern. Zahlen dürfen deutsch (1.234,5) oder englisch geschrieben sein.</p>
+  <textarea id="paste-area" aria-label="Eingefügte Zellen" placeholder="Hier einfügen (Strg+V)" style="height: 110px"></textarea>
+  <label class="ck"><input type="checkbox" id="paste-header" checked /> Erste Zeile enthält Spaltenüberschriften</label>
+  <div id="paste-map" class="paste-map"></div>
+  <div id="paste-preview" class="paste-preview"></div>
+  <p class="hint" id="paste-msg" role="status" aria-live="polite" style="margin: 0"></p>
+  <div class="rowbtns">
+    <button class="btn acc" type="button" id="btn-paste-append" disabled>Anhängen</button>
+    <button class="btn danger" type="button" id="btn-paste-replace" disabled>Bestehende ersetzen</button>
+    <button class="btn" type="button" id="btn-paste-close">Abbrechen</button>
+  </div>
+</div></div>
 <div class="modal" id="modal-json"><div class="box">
   <h3>Planungsdatei (JSON)</h3>
   <p class="hint" id="json-hint">Die Datei wurde zum Download angeboten. Alternativ können Sie den JSON-Text unten kopieren oder eine bestehende Planungsdatei hier einfügen und laden.</p>
@@ -1445,7 +1483,7 @@ details.obs[open] summary{margin-bottom:4px}
       <ol style="margin:6px 0 0;padding-left:20px;line-height:1.7">
         <li>Start: Die Startseite zeigt die vier Phasen mit ihren Registern; jeder Eintrag springt ins Register.</li>
         <li>Eingabe · Vorgaben: Planungsvorgaben pflegen (Gebäude und Flächen, Volumen und Puffer, Stammdaten, Lagertechnik, Blocklager, Sicherheit und Abstände, Kosten und Optionen).</li>
-        <li>Eingabe · Mengengerüst: Positionen erfassen oder per CSV importieren; die Eingabedatei lädt das Menü Datei.</li>
+        <li>Eingabe · Mengengerüst: Positionen erfassen, aus Excel einfügen (Zellen kopieren, Strg+V; Spalten werden anhand der Überschriften zugeordnet) oder per CSV importieren; die Eingabedatei lädt das Menü Datei. Die Tabelle zeigt je Position eine Zeile; ✎ öffnet alle Felder im Detailfeld neben den Kennzahlen. Enter springt zur nächsten Zeile.</li>
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
         <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
@@ -1723,7 +1761,7 @@ function migrateFFZ(rawFfz){
   if(f.rackBase!=="envelope")f.rackBase="lead";
   if(!S.lhmOverrides||typeof S.lhmOverrides!=="object")S.lhmOverrides={};
 }
-const APP_VERSION="V2.22";
+const APP_VERSION="V2.23";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2225,8 +2263,8 @@ function renderPalletMD(){
 }
 
 /* ============================ Spaltenbreiten Artikeltabelle ============================ */
-const COLW_KEY="trbp-colw";
-const COLW_DEF=[34,42,300,150,240,68,112,190,78,78,78,88,76,82,88,80,36];
+const COLW_KEY="trbp-colw2";
+const COLW_DEF=[32,40,200,170,66,190,112,66,76,64,44,34];
 function ensureItemsColgroup(){
   const table=$("items-table");if(!table)return null;
   let cg=table.querySelector("colgroup");
@@ -2249,12 +2287,12 @@ function resetColWidths(){try{localStorage.removeItem(COLW_KEY);}catch(e){}apply
 function autoColWidths(){
   const table=$("items-table");if(!table)return;
   const rows=Array.from(table.rows).slice(0,Math.min(table.rows.length,40));
-  const min=[34,42,220,130,200,60,100,160,72,72,72,82,72,76,82,74,34],max=[42,56,520,220,340,90,150,300,100,100,100,115,100,110,120,110,44];
+  const min=[32,40,160,150,56,160,100,60,70,56,44,32],max=[40,52,420,260,90,320,150,100,110,90,48,40];
   const w=COLW_DEF.map((base,i)=>{
     let chars=0;rows.forEach(r=>{const c=r.cells[i];if(c){const el=c.querySelector("input,select");const txt=el?(el.options&&el.selectedIndex>=0?el.options[el.selectedIndex].text:el.value):c.textContent;chars=Math.max(chars,String(txt||"").trim().length);}});
     return Math.max(min[i],Math.min(max[i],Math.round(chars*7.1+24)));
   });
-  w[2]=Math.max(300,w[2]);w[4]=Math.max(240,w[4]);w[7]=Math.max(190,w[7]);
+  w[2]=Math.max(180,w[2]);w[3]=Math.max(170,w[3]);w[5]=Math.max(190,w[5]);
   saveColWidths(w);applyColWidths(w);
 }
 function initColResize(){
@@ -2281,6 +2319,12 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
+  {v:"V2.23",date:"28.10.2026",items:[
+    "Mengengerüst kompakt: eine Zeile je Position mit Bezeichnung, Bedarfs-Hauptwert (passend zur Ermittlungsart), Artikeln, Ladehilfsmittel-Kurzangabe, Basis und Ergebnissen. Alle Felder einer Position im Detailfeld (✎), gegliedert nach Allgemein, Bedarf, Ladehilfsmittel, Blocklager und Ergebnis; Blättern mit ‹ ›, Schließen mit Esc. Das Detailfeld liegt neben den Kennzahlen, die sich beim Bearbeiten live ändern. Neue Positionen öffnen direkt im Detailfeld.",
+    "Aus Excel einfügen: Zellen kopieren und im Mengengerüst mit Strg+V einfügen (oder Knopf „Aus Excel einfügen“). Spalten werden anhand der Überschriften erkannt und lassen sich je Spalte zuordnen; Vorschau, Anhängen oder Ersetzen, rückgängig machbar. Deutsche Zahlen (2,5; 1.200) werden erkannt; leere Zellen übernehmen Standardwerte (auch beim CSV-Import).",
+    "Tastatur: Enter springt in der Tabelle zur gleichen Spalte der nächsten Zeile, Umschalt+Enter zurück.",
+    "Sammeländerungen erscheinen erst, wenn Positionen markiert sind; neuer Knopf „Auswahl aufheben“."
+  ]},
   {v:"V2.22",date:"28.10.2026",items:[
     "Einheitliche Schreibweise: Meldungen, Hinweise, Berichte und Fehlertexte verwenden Umlaute statt ae/oe/ue (über 200 Stellen). Dateinamen und CSV-Spaltennamen bleiben unverändert.",
     "Knöpfe in drei Stufen: primär (blau gefüllt), sekundär (weiß, umrandet), Werkzeug (dezent, z. B. Zoom und Spaltenbreiten); Löschen und Leeren rot beschriftet. In der Kopfzeile bleiben die Knöpfe dunkel.",
@@ -4114,20 +4158,54 @@ function computeLayoutPass(rack,block,needRack,warn,emptyCount,transitA,effectiv
 function selectedIdx(){
   return Array.from(document.querySelectorAll(".sel-cb:checked")).map(e=>+e.dataset.sel);
 }
+// Sammelleiste nur bei Auswahl
 function updateSelCount(){
   const n=document.querySelectorAll(".sel-cb:checked").length;
   const c=$("sel-count");
   if(c)c.textContent=n+(n===1?" Position":" Positionen")+" ausgewählt";
   ["btn-sel-del","btn-sel-truck","btn-sel-lhm","btn-sel-block","btn-sel-basis"].forEach(id=>{const b=$(id);if(b)b.disabled=(n===0);});
+  const bar=$("selbar");if(bar)bar.hidden=n===0;
+  const hint=$("sel-hint");if(hint)hint.hidden=n>0;
 }
 function updateAllCalc(){
-  const tb=$("itemsBody");if(!tb)return;
-  for(const el of tb.querySelectorAll(".calc-pd,.calc-net,.calc-blk")){
+  const host=$("panel-2");if(!host)return;
+  for(const el of host.querySelectorAll(".calc-pd,.calc-net,.calc-blk")){
     const it=S.items[+el.dataset.i];if(!it)continue;
     if(el.classList.contains("calc-pd"))el.textContent=fmt(it.palletsDay,1);
     else if(el.classList.contains("calc-net"))el.textContent=fmt(it.net);
     else el.textContent=(it.net>0?Math.round((it.blockNet||0)/it.net*100):0)+" %";
   }
+}
+// Bedarfsermittlung: Bezeichnung und Hauptwert (Feld, Einheit, Schrittweite)
+const DEMAND_LABEL={truck:"LKW/Tag × LKW-Typ",pallets:"Paletten/Tag",pieces:"Stück → KLT → Palette",stock:"Ziel-Bestand (Paletten)"};
+const DEMAND_MAIN={truck:["trucks","LKW/Tag","0.5"],pallets:["palletsDay","Pal./Tag","1"],pieces:["pcsDay","Stk./Tag","1"],stock:["targetStock","Pal. Bestand","1"]};
+let DRAWER_INDEX=-1;
+function itemNumHtml(it,idx,key,step,min,noZero,id){
+  const raw=(key==="ppt"&&!it.pptManual)?fillTruck(it.truck||"standard",it):(key==="stackX"?Math.max(1,it.stack||1)-1:it[key]);
+  const v=(noZero&&(!raw||raw===0))?"":raw;
+  return '<input type="number"'+(id?' id="'+id+'"':'')+' step="'+step+'"'+(min===undefined?'':' min="'+min+'"')+(key==="stackX"?' max="8"':'')+' data-i="'+idx+'" data-k="'+key+'" value="'+escH(v===undefined?"":v)+'">';
+}
+function itemSelectHtml(idx,key,options,value,id,title){
+  return '<select'+(id?' id="'+id+'"':'')+' data-i="'+idx+'" data-k="'+key+'"'+(title?' title="'+escH(title)+'"':'')+'>'+options.map(([k,t])=>'<option value="'+escH(k)+'"'+(value===k?" selected":"")+'>'+escH(t)+'</option>').join("")+'</select>';
+}
+const truckOptions=()=>Object.keys(allTrucks()).map(k=>[k,allTrucks()[k].label]);
+const lhmOptions=()=>Object.keys(allLhm()).map(k=>[k,allLhm()[k].label]);
+// Kurzangaben für die kompakte Tabelle
+function itemDemandSub(it){
+  const dem=it.demand||"truck",truck=(allTrucks()[it.truck]||{}).label||it.truck;
+  if(dem==="truck")return escH(truck)+" · "+fmt(it.pptManual?it.ppt:fillTruck(it.truck||"standard",it))+" Pal./LKW"+(it.pptManual?" (eigen)":"");
+  if(dem==="pieces")return fmt(it.pcsPerKlt||0)+" Stk./KLT · "+fmt(it.kltPerPallet||0,1)+" KLT/Pal.";
+  return escH(DEMAND_LABEL[dem]);
+}
+function itemLhmSummary(it){
+  const lhm=(allLhm()[it.lhm]||{}).label||it.lhm;
+  return escH(lhm)+'<small>'+fmt(it.l)+" × "+fmt(it.b)+" × "+fmt(it.h)+" mm · "+fmt(it.g)+" kg · 1+"+(Math.max(1,it.stack||1)-1)+'</small>';
+}
+function refreshItemSummary(i){
+  const it=S.items[i];if(!it)return;
+  const tr=document.querySelector('#itemsBody tr[data-row="'+i+'"]');if(!tr)return;
+  const sub=tr.querySelector(".dem-sub");if(sub)sub.innerHTML=itemDemandSub(it);
+  const lhm=tr.querySelector(".lhm-sum");if(lhm)lhm.innerHTML=itemLhmSummary(it);
 }
 function renderItems(){
   const tb=$("itemsBody");tb.innerHTML="";
@@ -4137,141 +4215,181 @@ function renderItems(){
   if(!S.items.length){
     const tr=document.createElement("tr");
     const td=document.createElement("td");
-    td.colSpan=17;td.className="hint";
-    td.textContent="Keine Positionen vorhanden. Position hinzufügen, Mengengerüst aus CSV importieren oder über das Menü Datei eine Eingabedatei laden.";
+    td.colSpan=12;td.className="hint";
+    td.textContent="Keine Positionen vorhanden. Position hinzufügen, aus Excel einfügen (Strg+V), Mengengerüst aus CSV importieren oder über das Menü Datei eine Eingabedatei laden.";
     tr.appendChild(td);tb.appendChild(tr);
+    closeItemDrawer();
     return;
   }
+  const heads=[...document.querySelectorAll("#items-table thead th")].map(th=>th.textContent.trim());
   S.items.forEach((it,idx)=>{
     const tr=document.createElement("tr");
-    const mk=(html,cls)=>{
-      const d=document.createElement("td");
-      if(cls)d.className=cls;
-      d.innerHTML=html;
-      return d;
-    };
-    const num=(key,step,min,ph,w,noZero)=>{
-      const mn=(min===undefined)?"":(' min="'+min+'"');
-      const p=(ph===undefined)?"":(' placeholder="'+ph+'"');
-      const ws=(w===undefined)?"":(' style="width:'+w+'px"');
-      const raw=(key==="ppt"&&!it.pptManual)?fillTruck(it.truck||"standard",it):it[key];
-      const v=(noZero&&(!raw||raw===0))?"":raw;
-      return '<input type="number" step="'+step+'"'+mn+p+ws+' data-i="'+idx+'" data-k="'+key+'" value="'+escH(v===undefined?"":v)+'">';
-    };
-    const heads=[...document.querySelectorAll("#items-table thead th")].map(th=>th.textContent.trim());
-    const frow=(label,inputHtml,title)=>'<div class="bedrow"'+(title?' title="'+title+'"':"")+'><span>'+label+'</span>'+inputHtml+'</div>';
-    const lhmAll=allLhm();
-    const selLhm='<select data-i="'+idx+'" data-k="lhm">'+Object.keys(lhmAll).map(k=>'<option value="'+escH(k)+'"'+(it.lhm===k?" selected":"")+'>'+escH(lhmAll[k].label)+'</option>').join("")+'</select>';
-    const selTruck='<select data-i="'+idx+'" data-k="truck" title="Füllmenge laut Kreuztabelle für diese Positionsmaße: '+fillTruck(it.truck||"standard",it)+' Paletten je Fahrzeug (Register Vorgaben, Stammdaten).">'+Object.keys(allTrucks()).map(k=>'<option value="'+escH(k)+'"'+(it.truck===k?" selected":"")+'>'+escH(allTrucks()[k].label)+'</option>').join("")+'</select>';
-    const dem=it.demand||"truck";
-    const selDemand='<select data-i="'+idx+'" data-k="demand">'+
-      '<option value="truck"'+(dem==="truck"?" selected":"")+'>LKW/Tag × LKW-Typ</option>'+
-      '<option value="pallets"'+(dem==="pallets"?" selected":"")+'>Paletten/Tag</option>'+
-      '<option value="pieces"'+(dem==="pieces"?" selected":"")+'>Stück → KLT → Palette</option>'+
-      '<option value="stock"'+(dem==="stock"?" selected":"")+'>Ziel-Bestand (Paletten)</option></select>';
-    let bed="";
-    if(dem==="pallets")bed=frow("Paletten/Tag",num("palletsDay","1",0,"Pal./Tag",76,true),"Durchsatz in Paletten je Tag")+frow("LKW-Typ",selTruck,"Dient der Herleitung von LKW/Tag aus Paletten/Tag und Füllmenge");
-    else if(dem==="pieces")bed=
-      frow("Stück/Tag",num("pcsDay","1",0,"Stk.",76,true),"Abgangsmenge in Stück je Tag")+
-      frow("Stück je KLT",num("pcsPerKlt","1",0,"Stk.",76,true),"Stück je Kleinteileträger")+
-      frow("KLT je Palette",num("kltPerPallet","0.5",0,"KLT",76,true),"Kleinteileträger je Palette")+
-      frow("LKW-Typ",selTruck,"Dient der Herleitung von LKW/Tag aus Paletten/Tag und Füllmenge");
-    else if(dem==="stock")bed=frow("Ziel-Bestand",num("targetStock","1",0,"Paletten",76,true),"Vorgegebener Bestand in Paletten")+frow("LKW-Typ",selTruck,"Dient der Herleitung von LKW/Tag aus Paletten/Tag und Füllmenge");
-    else bed=frow("LKW/Tag",num("trucks","0.5",0,"LKW",56,true),"Ankünfte je Tag, 0,5er Schritte zulässig")+
-      frow("LKW-Typ",selTruck)+
-      frow("Paletten je LKW",num("ppt","1",0,"Pal./LKW",56,true),"Automatisch aus der Kreuztabelle (Register Vorgaben, Stammdaten) nach Maßen, Gewicht und Stapelfaktor. Ein eigener Wert überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.");
-    const nameIn='<input type="text" data-i="'+idx+'" data-k="name" value="'+escH(it.name)+'">';
+    tr.dataset.row=idx;
+    if(idx===DRAWER_INDEX)tr.classList.add("is-open");
+    const mk=(html,cls)=>{const d=document.createElement("td");if(cls)d.className=cls;d.innerHTML=html;return d;};
+    const dem=it.demand||"truck",main=DEMAND_MAIN[dem];
     tr.appendChild(mk('<input type="checkbox" class="sel-cb" data-sel="'+idx+'" aria-label="Position '+(idx+1)+' auswählen">'));
     tr.appendChild(mk(String(idx+1)));
-    tr.appendChild(mk(nameIn));
-    tr.appendChild(mk(selDemand));
-    tr.appendChild(mk(bed,"bed"));
-    tr.appendChild(mk(num("skus","1",0),"num"));
-    tr.appendChild(mk('<select data-i="'+idx+'" data-k="dataBasis"><option value="customer"'+(it.dataBasis==="customer"?" selected":"")+'>Kundenangabe</option><option value="assumption"'+(it.dataBasis!=="customer"?" selected":"")+'>Planerannahme</option></select>'));
-    tr.appendChild(mk(selLhm));
-    tr.appendChild(mk(num("l","50"),"num"));
-    tr.appendChild(mk(num("b","50"),"num"));
-    tr.appendChild(mk(num("h","50"),"num"));
-    tr.appendChild(mk(num("g","10",0),"num"));
-    tr.appendChild(mk('<input type="number" step="1" min="0" max="8" data-i="'+idx+'" data-k="stackX" value="'+(Math.max(1,it.stack||1)-1)+'">',"num"));
+    tr.appendChild(mk('<input type="text" data-i="'+idx+'" data-k="name" value="'+escH(it.name)+'">'));
+    tr.appendChild(mk('<div class="dem-main" title="'+escH(DEMAND_LABEL[dem])+'">'+itemNumHtml(it,idx,main[0],main[2],0,true)+'<span class="unit">'+main[1]+'</span></div><div class="dem-sub">'+itemDemandSub(it)+'</div>'));
+    tr.appendChild(mk(itemNumHtml(it,idx,"skus","1",0),"num"));
+    tr.appendChild(mk('<div class="lhm-sum" data-open="'+idx+'" title="Ladehilfsmittel in den Details ändern">'+itemLhmSummary(it)+'</div>'));
+    tr.appendChild(mk(itemSelectHtml(idx,"dataBasis",[["customer","Kundenangabe"],["assumption","Planerannahme"]],it.dataBasis==="customer"?"customer":"assumption")));
     tr.appendChild(mk('<span class="calc-pd" data-i="'+idx+'">'+fmt(it.palletsDay,1)+'</span>',"calc"));
     tr.appendChild(mk('<span class="calc-net" data-i="'+idx+'">'+fmt(it.net)+'</span>',"calc"));
     const blkShown=it.net>0?Math.round((it.blockNet||0)/it.net*100):0;
-    const btd=mk(showBlock?num("blockShare","5",0):'<span class="calc-blk" data-i="'+idx+'">'+blkShown+' %</span>',showBlock?"num col-block":"calc col-block");
-    tr.appendChild(btd);
+    tr.appendChild(mk(showBlock?itemNumHtml(it,idx,"blockShare","5",0):'<span class="calc-blk" data-i="'+idx+'">'+blkShown+' %</span>',showBlock?"num col-block":"calc col-block"));
+    tr.appendChild(mk('<button type="button" class="btn btn-quiet" data-edit="'+idx+'" aria-label="Position '+(idx+1)+' bearbeiten" title="Alle Felder der Position bearbeiten">✎</button>'));
     tr.appendChild(mk('<span class="del" data-del="'+idx+'" role="button" tabindex="0" aria-label="Position '+(idx+1)+' löschen">×</span>'));
     tb.appendChild(tr);
-    // Beschriftung je Feld: Zeilenbeschriftung der Bedarfseingabe oder Spaltenkopf
     tr.querySelectorAll("input,select").forEach(el=>{
       if(el.getAttribute("aria-label"))return;
-      const row=el.closest(".bedrow");
-      const head=row?row.querySelector("span").textContent:(heads[el.closest("td").cellIndex]||"Feld");
-      el.setAttribute("aria-label",head+" · Position "+(idx+1));
+      el.setAttribute("aria-label",(heads[el.closest("td").cellIndex]||"Feld")+(el.dataset.k===main[0]?" ("+main[1]+")":"")+" · Position "+(idx+1));
     });
   });
+  if(DRAWER_INDEX>=S.items.length)DRAWER_INDEX=S.items.length-1;
+  renderItemDrawer();
+}
+// Detailfeld: alle Angaben einer Position, gegliedert
+function renderItemDrawer(){
+  const dr=$("item-drawer"),body=$("drawer-body");if(!dr||!body)return;
+  const idx=DRAWER_INDEX,it=S.items[idx];
+  if(!it){dr.hidden=true;$("panel-2").classList.remove("drawer-open");return;}
+  dr.hidden=false;$("panel-2").classList.add("drawer-open");
+  // Detailfeld unter der Kopfzeile, damit Berechnen, Rückgängig und Datei erreichbar bleiben
+  const hd=document.querySelector("header");dr.style.top=(hd?Math.max(0,hd.getBoundingClientRect().bottom):0)+"px";
+  $("drawer-title").textContent="Position "+(idx+1)+" von "+S.items.length;
+  $("btn-drawer-prev").disabled=idx<=0;$("btn-drawer-next").disabled=idx>=S.items.length-1;
+  const fld=(id,label,control,unit,title)=>'<div class="fld"'+(title?' title="'+escH(title)+'"':'')+'><label for="'+id+'">'+label+'</label>'+control+(unit?'<span class="val">'+unit+'</span>':'')+'</div>';
+  const num=(key,label,unit,step,min,noZero,title)=>fld("dr-"+key,label,itemNumHtml(it,idx,key,step,min,noZero,"dr-"+key),unit,title);
+  const dem=it.demand||"truck";
+  let bed=fld("dr-demand","Ermittlung",itemSelectHtml(idx,"demand",Object.entries(DEMAND_LABEL),dem,"dr-demand"));
+  const truckSel=fld("dr-truck","LKW-Typ",itemSelectHtml(idx,"truck",truckOptions(),it.truck,"dr-truck","Füllmenge laut Kreuztabelle für diese Positionsmaße: "+fillTruck(it.truck||"standard",it)+" Paletten je Fahrzeug."));
+  if(dem==="pallets")bed+=num("palletsDay","Paletten/Tag","Pal.","1",0,true)+truckSel;
+  else if(dem==="pieces")bed+=num("pcsDay","Stück/Tag","Stk.","1",0,true)+num("pcsPerKlt","Stück je KLT","Stk.","1",0,true)+num("kltPerPallet","KLT je Palette","KLT","0.5",0,true)+truckSel;
+  else if(dem==="stock")bed+=num("targetStock","Ziel-Bestand","Pal.","1",0,true)+truckSel;
+  else bed+=num("trucks","LKW/Tag","LKW","0.5",0,true,"Ankünfte je Tag, 0,5er Schritte zulässig")+truckSel+
+    num("ppt","Paletten je LKW","Pal.","1",0,true,"Automatisch aus der Kreuztabelle (Stammdaten) nach Maßen, Gewicht und Stapelfaktor. Ein eigener Wert überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.");
+  const showBlock=S.block.mode==="manual";
+  const blk=it.net>0?Math.round((it.blockNet||0)/it.net*100):0;
+  body.innerHTML=
+    '<h4>Allgemein</h4>'+
+    fld("dr-name","Bezeichnung",'<input type="text" id="dr-name" data-i="'+idx+'" data-k="name" value="'+escH(it.name)+'" style="grid-column:2/4">')+
+    fld("dr-dataBasis","Datenbasis",itemSelectHtml(idx,"dataBasis",[["customer","Kundenangabe"],["assumption","Planerannahme"]],it.dataBasis==="customer"?"customer":"assumption","dr-dataBasis"))+
+    num("skus","Artikel","SKU","1",0,false,"Anzahl unterschiedlicher Artikel je Position")+
+    '<h4>Bedarf</h4>'+bed+
+    '<h4>Ladehilfsmittel</h4>'+
+    fld("dr-lhm","LHM-Typ",itemSelectHtml(idx,"lhm",lhmOptions(),it.lhm,"dr-lhm","Übernimmt Maße, Gewicht und Stapelfaktor des Palettentyps"))+
+    num("l","Länge","mm","50")+num("b","Breite","mm","50")+num("h","Höhe","mm","50")+num("g","Gewicht","kg","10",0)+
+    fld("dr-stackX","Stapelfaktor",'<span class="plusx-in"><span aria-hidden="true">1 +</span>'+itemNumHtml(it,idx,"stackX","1",0,false,"dr-stackX")+'</span>',"","Zusätzlich gestapelte Paletten (1 + x); hart begrenzt durch die max. Stapelhöhe und die Oberkante Lagergut Block")+
+    '<h4>Blocklager</h4>'+
+    (showBlock?num("blockShare","Blockanteil","%","5",0):'<p class="hint" style="margin:0">Blockanteil laut Verteilungsmethode: <b class="calc-blk" data-i="'+idx+'">'+blk+' %</b>. Manuelle Eingabe mit der Verteilungsmethode „Manuell“ (Vorgaben, Blocklager).</p>')+
+    '<h4>Ergebnis</h4><div class="res">'+
+    '<span>Paletten je Tag</span><b class="calc-pd" data-i="'+idx+'">'+fmt(it.palletsDay,1)+'</b>'+
+    '<span>Netto-Bestand</span><b class="calc-net" data-i="'+idx+'">'+fmt(it.net)+'</b></div>';
+  for(const tr of document.querySelectorAll("#itemsBody tr[data-row]"))tr.classList.toggle("is-open",+tr.dataset.row===idx);
+}
+function openItemDrawer(idx,focusKey){
+  if(!S.items[idx])return;
+  DRAWER_INDEX=idx;renderItemDrawer();
+  const el=$("drawer-body").querySelector('[data-k="'+(focusKey||"name")+'"]');if(el)el.focus();
+}
+function closeItemDrawer(){
+  const was=DRAWER_INDEX;DRAWER_INDEX=-1;
+  const dr=$("item-drawer");if(dr)dr.hidden=true;
+  $("panel-2").classList.remove("drawer-open");
+  for(const tr of document.querySelectorAll("#itemsBody tr.is-open"))tr.classList.remove("is-open");
+  const back=document.querySelector('#itemsBody [data-edit="'+was+'"]');if(back&&dr&&dr.contains(document.activeElement))back.focus();
+}
+// Gleiche Angabe an anderer Stelle (Tabelle und Detailfeld) nachführen
+function syncItemControls(i,k,src){
+  const it=S.items[i];if(!it)return;
+  for(const el of document.querySelectorAll('#panel-2 [data-i="'+i+'"][data-k="'+k+'"]')){
+    if(el===src)continue;
+    if(k==="stackX")el.value=Math.max(1,it.stack||1)-1;
+    else if(k==="ppt")el.value=it.pptManual?it.ppt:(fillTruck(it.truck||"standard",it)||"");
+    else el.value=it[k]==null?"":it[k];
+  }
 }
 function initItems(){
-  const tb=$("itemsBody");
-  tb.addEventListener("input",ev=>{
+  const host=$("panel-2"),tb=$("itemsBody");
+  host.addEventListener("input",ev=>{
     const t=ev.target;
     if(!t.dataset||t.dataset.k===undefined||t.dataset.i===undefined)return;
-    const i=+t.dataset.i;
+    const i=+t.dataset.i,k=t.dataset.k;
     if(!S.items[i])return;
-    if(t.dataset.k==="demand"){
-      S.items[i].demand=t.value;
-      renderItems();recalc();return;
-    }
-    if(t.dataset.k==="stackX"){
+    const rerender=()=>{
+      const inDrawer=!!t.closest("#item-drawer");
+      renderItems();recalc();
+      if(inDrawer){const el=$("drawer-body").querySelector('[data-k="'+k+'"]');if(el)el.focus();}
+    };
+    if(k==="demand"){S.items[i].demand=t.value;rerender();return;}
+    if(k==="stackX"){
       const vx=parseFloat(String(t.value).replace(",","."))||0;
       S.items[i].stack=clamp(Math.round(vx)+1,1,9);
-      recalc();
+      recalc();syncItemControls(i,k,t);refreshItemSummary(i);
       return;
     }
-    if(t.dataset.k==="lhm"){
+    if(k==="lhm"){
       S.items[i].lhm=t.value;
       const p=getLhm(t.value);
       if(p){S.items[i].l=p.l;S.items[i].b=p.b;S.items[i].h=p.h;S.items[i].g=p.g;S.items[i].stack=p.stack;}
       S.items[i].pptManual=false;S.items[i].ppt=fillTruck(S.items[i].truck,S.items[i]);
-      renderItems();recalc();return;
+      rerender();return;
     }
-    if(t.dataset.k==="truck"){
+    if(k==="truck"){
       S.items[i].truck=t.value;
       S.items[i].pptManual=false;S.items[i].ppt=fillTruck(t.value,S.items[i]);
-      renderItems();recalc();return;
+      rerender();return;
     }
     let v=(t.type==="number")?(parseFloat(String(t.value).replace(",","."))||0):t.value;
-    const lim=ITEM_INPUT_LIMITS[t.dataset.k];
+    const lim=ITEM_INPUT_LIMITS[k];
     if(lim&&t.type==="number"){
       if(lim.int)v=Math.round(v);
       const ok=v>=lim.min&&v<=lim.max;
       t.classList.toggle("is-invalid",!ok);
       if(ok)t.removeAttribute("aria-invalid");else{t.setAttribute("aria-invalid","true");t.title="Zulässig: "+fmt(lim.min)+" bis "+fmt(lim.max)+". Beim Verlassen des Felds gilt wieder der letzte gültige Wert.";return;}
     }
-    S.items[i][t.dataset.k]=v;
+    S.items[i][k]=v;
     // Eigener Wert > 0 überschreibt die Kreuztabelle; leeres Feld kehrt zum automatischen Wert zurück.
-    if(t.dataset.k==="ppt")S.items[i].pptManual=v>0;
+    if(k==="ppt")S.items[i].pptManual=v>0;
     recalc();
-    const pptIn=tb.querySelector('input[data-i="'+i+'"][data-k="ppt"]');
-    if(pptIn&&pptIn!==t&&!S.items[i].pptManual)pptIn.value=S.items[i].ppt>0?S.items[i].ppt:"";
+    syncItemControls(i,k,t);
+    if(k!=="ppt")syncItemControls(i,"ppt",t);
+    refreshItemSummary(i);
   });
-  tb.addEventListener("click",ev=>{
+  host.addEventListener("click",ev=>{
     const d=ev.target.dataset&&ev.target.dataset.del;
     if(d!==undefined){
       if(!S.items[+d])return;
       if(!confirm('Position "'+S.items[+d].name+'" wirklich löschen?'))return;
-      pushUndo("Position gelöscht");S.items.splice(+d,1);renderItems();recalc();
+      pushUndo("Position gelöscht");S.items.splice(+d,1);
+      if(DRAWER_INDEX===+d)closeItemDrawer();else if(DRAWER_INDEX>+d)DRAWER_INDEX--;
+      renderItems();recalc();
+      return;
     }
+    const e=ev.target.closest&&ev.target.closest("[data-edit],[data-open]");
+    if(e)openItemDrawer(+(e.dataset.edit!==undefined?e.dataset.edit:e.dataset.open));
   });
   tb.addEventListener("change",ev=>{
     if(ev.target.classList&&ev.target.classList.contains("sel-cb"))updateSelCount();
   });
   tb.addEventListener("keydown",ev=>{
-    if((ev.key==="Enter"||ev.key===" ")&&ev.target.dataset&&ev.target.dataset.del!==undefined){ev.preventDefault();ev.target.click();}
+    const t=ev.target;
+    if((ev.key==="Enter"||ev.key===" ")&&t.dataset&&t.dataset.del!==undefined){ev.preventDefault();t.click();return;}
+    // Enter: gleiche Spalte in der nächsten Zeile, Umschalt+Enter: vorherige Zeile
+    if(ev.key==="Enter"&&t.matches&&t.matches('input[type="text"],input[type="number"]')){
+      const td=t.closest("td"),tr=td&&td.parentElement;
+      const next=tr&&(ev.shiftKey?tr.previousElementSibling:tr.nextElementSibling);
+      ev.preventDefault();
+      const target=next&&next.cells[td.cellIndex]&&next.cells[td.cellIndex].querySelector("input,select");
+      if(target){target.focus();if(target.select)target.select();}
+    }
   });
   // Ungültige Zahl beim Verlassen verwerfen: letzter gültiger Wert wird wieder angezeigt
-  tb.addEventListener("change",ev=>{
+  host.addEventListener("change",ev=>{
     const t=ev.target;
-    if(!t.classList||!t.classList.contains("is-invalid"))return;
+    if(!t.classList||!t.classList.contains("is-invalid")||t.dataset.i===undefined)return;
     const it=S.items[+t.dataset.i];if(!it)return;
     t.value=it[t.dataset.k]==null?"":it[t.dataset.k];
     t.classList.remove("is-invalid");t.removeAttribute("aria-invalid");t.removeAttribute("title");
@@ -4280,6 +4398,114 @@ function initItems(){
   if(sa)sa.addEventListener("change",ev=>{
     document.querySelectorAll(".sel-cb").forEach(cb=>cb.checked=ev.target.checked);
     updateSelCount();
+  });
+  $("btn-sel-clear").addEventListener("click",()=>{
+    document.querySelectorAll(".sel-cb").forEach(cb=>cb.checked=false);
+    if(sa)sa.checked=false;updateSelCount();
+  });
+  $("btn-drawer-close").addEventListener("click",closeItemDrawer);
+  $("btn-drawer-prev").addEventListener("click",()=>openItemDrawer(DRAWER_INDEX-1));
+  $("btn-drawer-next").addEventListener("click",()=>openItemDrawer(DRAWER_INDEX+1));
+  document.addEventListener("keydown",ev=>{
+    if(ev.key==="Escape"&&DRAWER_INDEX>=0&&!document.querySelector(".modal.on")){ev.preventDefault();closeItemDrawer();}
+  });
+  initPaste();
+}
+
+/* ---- Einfügen aus Excel: Zellen (Tabulator getrennt) mit Spaltenzuordnung ---- */
+const PASTE_FIELDS=[["","– nicht übernehmen –"],["name","Bezeichnung"],["skus","Artikel"],["demand","Ermittlung"],["trucks","LKW/Tag"],["truck","LKW-Typ"],["ppt","Paletten je LKW"],
+  ["palletsDay","Paletten/Tag"],["pcsDay","Stück/Tag"],["pcsPerKlt","Stück je KLT"],["kltPerPallet","KLT je Palette"],["targetStock","Ziel-Bestand"],["lhm","LHM-Typ"],
+  ["l","Länge mm"],["b","Breite mm"],["h","Höhe mm"],["g","Gewicht kg"],["stack","Stapelfaktor"],["blockShare","Blockanteil %"],["dataBasis","Datenbasis"]];
+let PASTE={rows:[],map:[]};
+function guessPasteField(header,used){
+  const h=String(header||"").trim().toLowerCase();if(!h)return "";
+  for(const [k,names] of Object.entries(CSV_ALIASES))if(!used.has(k)&&names.includes(h))return k;
+  for(const [k,names] of Object.entries(CSV_ALIASES))if(!used.has(k)&&names.some(n=>h.includes(n)))return k;
+  return "";
+}
+function analyzePaste(){
+  const text=$("paste-area").value,msg=$("paste-msg");
+  PASTE={rows:[],map:[]};
+  try{
+    const delim=text.includes("\t")?"\t":detectCsvDelimiter(text);
+    const rows=parseCsvRows(text,delim);
+    const width=rows.reduce((m,r)=>Math.max(m,r.length),0);
+    PASTE.rows=rows.map(r=>{const c=r.slice();while(c.length<width)c.push("");return c;});
+    const header=$("paste-header").checked,used=new Set();
+    PASTE.map=Array.from({length:width},(_,i)=>{
+      const k=header?guessPasteField(PASTE.rows[0]&&PASTE.rows[0][i],used):(i===0?"name":"");
+      if(k)used.add(k);return k;
+    });
+  }catch(error){PASTE.rows=[];msg.textContent=error.message;}
+  renderPasteMap();
+}
+function pasteItems(){
+  const cols=PASTE.map.map((k,i)=>[k,i]).filter(([k])=>k);
+  if(!cols.length)throw new Error("Bitte mindestens eine Spalte zuordnen.");
+  const keys=cols.map(([k])=>k);
+  const dup=keys.find((k,i)=>keys.indexOf(k)!==i);
+  if(dup)throw new Error("Die Zielspalte „"+PASTE_FIELDS.find(f=>f[0]===dup)[1]+"“ ist mehrfach zugeordnet.");
+  const data=$("paste-header").checked?PASTE.rows.slice(1):PASTE.rows;
+  if(!data.length)throw new Error("Keine Datenzeilen erkannt.");
+  // Ermittlungsart aus der ersten zugeordneten Bedarfsspalte, falls keine eigene Spalte
+  const implied=keys.includes("demand")?null:keys.includes("trucks")?"LKW":keys.includes("palletsDay")?"Paletten":keys.includes("pcsDay")?"Stück":keys.includes("targetStock")?"Bestand":null;
+  const q=v=>'"'+String(v==null?"":v).trim().replace(/"/g,'""')+'"';
+  // Ganzzahlige Felder: „1.200“ aus deutschem Excel ist Tausendertrennung, nicht 1,2
+  const whole=new Set(["skus","l","b","h","g","palletsDay","pcsDay","pcsPerKlt","targetStock"]);
+  const cell=(k,v)=>whole.has(k)&&/^\s*-?\d{1,3}(\.\d{3})+\s*$/.test(String(v||""))?String(v).replace(/\./g,""):v;
+  const head=cols.map(([k])=>CSV_STD_HEAD[k]||CSV_ALIASES[k][0]).concat(implied?["ermittlung"]:[]);
+  const lines=[head.map(q).join(";")].concat(data.map(r=>cols.map(([k,i])=>cell(k,r[i])).concat(implied?[implied]:[]).map(q).join(";")));
+  return parseCsv(lines.join("\n"));
+}
+function renderPasteMap(){
+  const map=$("paste-map"),prev=$("paste-preview"),msg=$("paste-msg");
+  const ok=PASTE.rows.length>0;
+  const header=$("paste-header").checked;
+  map.innerHTML=ok?PASTE.map.map((k,i)=>{
+    const head=header?PASTE.rows[0][i]:"Spalte "+(i+1),sample=(header?PASTE.rows[1]:PASTE.rows[0])||[];
+    return '<div class="pcol"><b title="'+escH(head)+'">'+escH(head||"Spalte "+(i+1))+'</b><span>'+escH(sample[i]||"–")+'</span>'+
+      '<select data-pcol="'+i+'" aria-label="Zielspalte für '+escH(head||"Spalte "+(i+1))+'">'+PASTE_FIELDS.map(([v,t])=>'<option value="'+v+'"'+(v===k?" selected":"")+'>'+escH(t)+'</option>').join("")+'</select></div>';
+  }).join(""):"";
+  let items=[],error="";
+  if(ok){try{items=pasteItems();}catch(e){error=e.message;}}
+  prev.innerHTML=items.length?'<table><thead><tr><th>Bezeichnung</th><th>Bedarf</th><th>Artikel</th><th>Ladehilfsmittel</th></tr></thead><tbody>'+
+    items.slice(0,6).map(it=>'<tr><td>'+escH(it.name)+'</td><td>'+fmt(it[DEMAND_MAIN[it.demand||"truck"][0]]||0,1)+" "+DEMAND_MAIN[it.demand||"truck"][1]+'</td><td>'+fmt(it.skus||0)+'</td><td>'+itemLhmSummary(it).replace(/<\/?small>/g," ")+'</td></tr>').join("")+
+    '</tbody></table>':"";
+  msg.textContent=!ok?(($("paste-area").value.trim()&&!msg.textContent)?"Keine Zeilen erkannt.":msg.textContent):error?error:items.length+(items.length===1?" Position":" Positionen")+" erkannt"+(items.length>6?", Vorschau der ersten 6":"")+".";
+  $("btn-paste-append").disabled=!items.length;
+  $("btn-paste-replace").disabled=!items.length||!S.items.length;
+}
+function openPasteDialog(text,trigger){
+  $("paste-area").value=text||"";$("paste-msg").textContent="";
+  window.openAccessibleModal("modal-paste",trigger||null);
+  analyzePaste();
+  if(!text)$("paste-area").focus();
+}
+function applyPaste(replace){
+  let items;
+  try{items=pasteItems();}catch(e){$("paste-msg").textContent=e.message;return;}
+  if(replace&&S.items.length&&!confirm("Bestehende "+S.items.length+" Positionen durch "+items.length+" eingefügte ersetzen?"))return;
+  pushUndo("Aus Excel eingefügt ("+items.length+" Positionen)");
+  S.items=replace?items:S.items.concat(items);
+  window.closeAccessibleModal("modal-paste");
+  renderItems();recalc();
+  showNotice(items.length+(items.length===1?" Position":" Positionen")+(replace?" eingefügt; bisherige Positionen ersetzt.":" angehängt."),6000);
+}
+function initPaste(){
+  $("btn-paste").addEventListener("click",ev=>openPasteDialog("",ev.currentTarget));
+  $("paste-area").addEventListener("input",analyzePaste);
+  $("paste-header").addEventListener("change",analyzePaste);
+  $("paste-map").addEventListener("change",ev=>{const i=ev.target.dataset&&ev.target.dataset.pcol;if(i===undefined)return;PASTE.map[+i]=ev.target.value;renderPasteMap();});
+  $("btn-paste-append").addEventListener("click",()=>applyPaste(false));
+  $("btn-paste-replace").addEventListener("click",()=>applyPaste(true));
+  $("btn-paste-close").addEventListener("click",()=>window.closeAccessibleModal("modal-paste"));
+  // Strg+V im Mengengerüst: mehrzellige Inhalte öffnen den Einfügedialog, einzelne Werte gehen ins Feld
+  document.addEventListener("paste",ev=>{
+    if(!$("panel-2").classList.contains("on")||document.querySelector(".modal.on"))return;
+    const text=(ev.clipboardData&&ev.clipboardData.getData("text/plain"))||"";
+    const multi=/\t/.test(text)||/\S\r?\n\S/.test(text.trim());
+    if(!multi)return;
+    ev.preventDefault();openPasteDialog(text,null);
   });
 }
 
@@ -6046,6 +6272,30 @@ function parseLocaleNumber(value,fallback){
   const n=Number(s);
   return Number.isFinite(n)?n:fallback;
 }
+// Spaltennamen je Positionsfeld; die Reihenfolge bestimmt die Zuordnung beim Import
+const CSV_ALIASES={
+  skus:["sku","artikel"],
+  name:["bezeichnung","name","position"],
+  demand:["ermittlung","herleitung","methode"],
+  truck:["lkw-typ","lkw_typ","fahrzeug"],
+  trucks:["lkw/tag","lkw pro tag","lkw je tag","fahrzeuge/","lkw/"],
+  palletsDay:["paletten/tag","palette pro tag","paletten pro tag","pal./tag"],
+  ppt:["paletten je lkw","paletten/lkw","paletten pro lkw","pal./lkw","ppt"],
+  pcsDay:["stück/tag","stueck/tag","stücke/tag","stuecke/tag","stück pro tag","stueck pro tag"],
+  pcsPerKlt:["stück/klt","stueck/klt","stück je klt","stueck je klt"],
+  kltPerPallet:["klt/pal","klt/palette","klt je palette","klt pro palette"],
+  targetStock:["ziel-bestand","zielbestand"],
+  lhm:["lhm","ladungstr"],
+  l:["länge","laenge","length"],
+  b:["breite","width"],
+  h:["höhe","hoehe","height"],
+  g:["gewicht","weight"],
+  stack:["stapel"],
+  blockShare:["block"],
+  dataBasis:["datenbasis","datenquelle","quelle"]
+};
+// Eindeutiger Spaltenname je Feld für den Einfügedialog (wird über CSV_ALIASES exakt erkannt)
+const CSV_STD_HEAD={skus:"artikel",pcsPerKlt:"stück je klt",kltPerPallet:"klt je palette"};
 function parseCsv(text){
   let rows;
   const delim=detectCsvDelimiter(text);
@@ -6059,27 +6309,8 @@ function parseCsv(text){
     for(const n of names){const matches=head.map((x,i)=>x.includes(n)?i:-1).filter(i=>i>=0);if(matches.length>1)throw new Error("CSV-Kopfzeile: mehrdeutige Zuordnung für "+n);if(matches.length===1)return matches[0];}
     return -1;
   };
-  const map={
-    skus:find(["sku","artikel"]),
-    name:find(["bezeichnung","name","position"]),
-    demand:find(["ermittlung","herleitung","methode"]),
-    truck:find(["lkw-typ","lkw_typ","fahrzeug"]),
-    trucks:find(["lkw/tag","lkw pro tag","lkw je tag","fahrzeuge/","lkw/"]),
-    palletsDay:find(["paletten/tag","palette pro tag","paletten pro tag","pal./tag"]),
-    ppt:find(["paletten je lkw","paletten/lkw","paletten pro lkw","pal./lkw","ppt"]),
-    pcsDay:find(["stück/tag","stueck/tag","stücke/tag","stuecke/tag","stück pro tag","stueck pro tag"]),
-    pcsPerKlt:find(["stück/klt","stueck/klt","stück je klt","stueck je klt"]),
-    kltPerPallet:find(["klt/pal","klt/palette","klt je palette","klt pro palette"]),
-    targetStock:find(["ziel-bestand","zielbestand"]),
-    lhm:find(["lhm","ladungstr"]),
-    l:find(["länge","laenge","length"]),
-    b:find(["breite","width"]),
-    h:find(["höhe","hoehe","height"]),
-    g:find(["gewicht","weight"]),
-    stack:find(["stapel"]),
-    blockShare:find(["block"]),
-    dataBasis:find(["datenbasis","datenquelle","quelle"])
-  };
+  const map={};
+  for(const [key,names] of Object.entries(CSV_ALIASES))map[key]=find(names);
   if(!Object.values(map).some(col=>col>=0))throw new Error("CSV enthält keine bekannten Spalten.");
   const numeric=(raw,row,key)=>{
     const text=String(raw==null?"":raw).trim();
@@ -6104,7 +6335,8 @@ function parseCsv(text){
     return Number(normalized);
   };
   let sourceRow=0;
-  const fnum=(row,col,fb)=>col<0?fb:numeric(row[col],sourceRow,head[col]);
+  // Leere Zelle: Standardwert der Position
+  const fnum=(row,col,fb)=>col<0||String(row[col]==null?"":row[col]).trim()===""?fb:numeric(row[col],sourceRow,head[col]);
   const out=[];const csvWarnings=[];
   for(let i=1;i<rows.length;i++){
     sourceRow=rows[i].sourceLine||i+1;
@@ -6125,8 +6357,8 @@ function parseCsv(text){
     it.b=fnum(c,map.b,ph.b);
     it.h=fnum(c,map.h,ph.h);
     it.g=fnum(c,map.g,ph.g);
-    if(map.stack<0)it.stack=ph.stack;
-    if(map.stack>=0){const sv=String(c[map.stack]||"").trim();const match=/^1\s*\+\s*(\d+)$/.exec(sv);it.stack=match?1+Number(match[1]):numeric(sv,sourceRow,head[map.stack]);}
+    if(map.stack<0||!String(c[map.stack]||"").trim())it.stack=ph.stack;
+    else{const sv=String(c[map.stack]||"").trim();const match=/^1\s*\+\s*(\d+)$/.exec(sv);it.stack=match?1+Number(match[1]):numeric(sv,sourceRow,head[map.stack]);}
     if(map.truck>=0){const raw=String(c[map.truck]||"").trim().toLowerCase();const all=allTrucks();const key=Object.keys(all).find(k=>String(k).toLowerCase()===raw||String(all[k].label||"").trim().toLowerCase()===raw);if(key)it.truck=key;else if(raw)csvWarnings.push("CSV, Zeile "+sourceRow+", Feld LKW-Typ, Originalwert "+c[map.truck]);}
     it.trucks=fnum(c,map.trucks,it.trucks);
     if(map.ppt>=0){it.ppt=fnum(c,map.ppt,it.ppt);it.pptManual=it.ppt>0;}
@@ -6317,7 +6549,7 @@ function initPTabs(){
 function initButtons(){
   const cancelOpt=$("btn-opt-cancel");if(cancelOpt)cancelOpt.addEventListener("click",cancelOptimizationRun);
   const sourceTable=$("reg-params");if(sourceTable)sourceTable.addEventListener("click",handleParameterSourceClick);
-  $("btn-add-item").addEventListener("click",()=>{pushUndo("Position hinzugefügt");S.items.push(newItem());renderItems();recalc();});
+  $("btn-add-item").addEventListener("click",()=>{pushUndo("Position hinzugefügt");S.items.push(newItem());renderItems();recalc();openItemDrawer(S.items.length-1);});
   $("btn-calc").addEventListener("click",()=>{
     const t0=performance.now();
     renderItems();recalc();setStatus("Manuell berechnet");

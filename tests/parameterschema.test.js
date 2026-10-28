@@ -110,10 +110,10 @@ test("Browserspeicher mit Werten außerhalb: repariert statt verworfen, mit Hinw
   assert.match(notice, /Füllgrad Regal: 30 % → 40 %/);
 });
 
-for (const [what, tab, sel, val] of [["Einheitspreis", 5, "#bomBody input[data-price=frame]", "-5"], ["Artikellänge", 2, '#itemsBody input[data-k="l"]', "0"]]) {
+for (const [what, tab, sel, val] of [["Einheitspreis", 5, "#bomBody input[data-price=frame]", "-5"], ["Artikellänge", 2, '#drawer-body input[data-k="l"]', "0"]]) {
   test(`Datenverlust behoben: ungültige(s) ${what} wird nicht übernommen`, async (page) => {
     await withData(page);
-    await page.evaluate((t) => { S.items[0].skus = 0; renderItems(); recalc(); showTab(t); }, tab);
+    await page.evaluate((t) => { S.items[0].skus = 0; renderItems(); recalc(); showTab(t); if (t === 2) openItemDrawer(0); }, tab);
     const before = await page.inputValue(sel);
     await page.fill(sel, val);
     assert.equal(await page.getAttribute(sel, "aria-invalid"), "true");

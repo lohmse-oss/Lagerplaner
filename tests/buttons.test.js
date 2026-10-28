@@ -31,6 +31,7 @@ const PARTS = new Set(String(ARGS.teil || "1,2,3,4,5,6").split(",").map(Number))
 
 /* ============================ Testdateien ============================ */
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "lagerplaner-buttons-"));
+const PASTE_TEXT = "Bezeichnung\tLKW pro Tag\tArtikel\nExcel-1\t2,5\t1.200\nExcel-2\t1\t40\n";
 const FIXTURES = {
   csv: path.join(TMP, "mengengeruest.csv"),
   project: path.join(TMP, "planung.json"),
@@ -79,6 +80,7 @@ function installHelpers() {
     UNDO.length = 0; updateUndoBtn();
     VIEW.zoom = 1; VIEW.px = 0; VIEW.py = 0;
     if ($("app").classList.contains("kpis-collapsed")) setKpisCollapsed(false, true);
+    closeItemDrawer();
     syncAll(); refreshModeUI(); renderItems(); recalc(); renderSensitivity(); showTab(0);
   };
   window.__snap = () => ({
@@ -101,7 +103,9 @@ function installHelpers() {
     optStatus: $("opt-run-status").textContent,
     optRows: LAST_OPT_ROWS.length,
     toasts: document.querySelectorAll(".toast").length,
-    colw: localStorage.getItem("trbp-colw"),
+    colw: localStorage.getItem("trbp-colw2"),
+    drawer: DRAWER_INDEX,
+    selected: document.querySelectorAll(".sel-cb:checked").length,
     trucks: S.items.map((i) => i.truck), lhm: S.items.map((i) => i.lhm),
     basis: S.items.map((i) => i.dataBasis), blockShare: S.items.map((i) => i.blockShare),
     status: $("calc-status").textContent, json: $("jsonArea").value.slice(0, 40), chip: $("src-chip").textContent,
@@ -131,7 +135,7 @@ function installHelpers() {
         : d.phase ? "phase:" + d.phase
         : d.goto ? (el.closest("#kpis") ? "kpi-goto" : "goto")
         : d.scenSave ? "scen-save" : d.scenLoad ? "scen-load" : d.scenClear ? "scen-clear"
-        : d.del !== undefined ? "item-del" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del"
+        : d.del !== undefined ? "item-del" : d.edit !== undefined ? "item-edit" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del"
         : d.sourceSave !== undefined ? "source-save" : d.optIdx !== undefined ? "opt-row"
         : "?" + el.outerHTML.slice(0, 80);
       keys.add(key);
@@ -390,6 +394,59 @@ const ACTIONS = [
       await p.click("#btn-cols-reset");
     },
     expect: (a, b) => assert.equal(b.colw, null),
+  },
+
+  {
+    key: "Aus Excel einfügen: anhängen", covers: ["#btn-paste", "#btn-paste-append"],
+    run: async (p) => {
+      await go(p, 2); await p.click("#btn-paste");
+      await p.fill("#paste-area", PASTE_TEXT);
+      await p.click("#btn-paste-append");
+    },
+    expect: (a, b) => { assert.deepEqual(b.names.slice(-2), ["Excel-1", "Excel-2"]); assert.equal(b.items, a.items + 2); assert.deepEqual(b.modals, []); },
+  },
+  {
+    key: "Aus Excel einfügen: ersetzen", covers: ["#btn-paste-replace"], confirm: true,
+    run: async (p) => {
+      if (!(await snap(p)).items) return "übersprungen";
+      await go(p, 2); await p.click("#btn-paste");
+      await p.fill("#paste-area", PASTE_TEXT);
+      await p.click("#btn-paste-replace");
+      if ((await snap(p)).modals.length) await p.click("#btn-paste-close");
+    },
+    expect: (a, b, p, ctx) => assert.deepEqual(b.names, ctx.confirm ? ["Excel-1", "Excel-2"] : a.names),
+  },
+  {
+    key: "Einfügedialog abbrechen", covers: ["#btn-paste-close"],
+    run: async (p) => { await go(p, 2); await p.click("#btn-paste"); await p.fill("#paste-area", PASTE_TEXT); await p.click("#btn-paste-close"); },
+    expect: (a, b) => { assert.deepEqual(b.names, a.names); assert.deepEqual(b.modals, []); },
+  },
+  {
+    key: "Strg+V im Mengengerüst", covers: [],
+    run: async (p) => {
+      await go(p, 2);
+      await p.evaluate((text) => { const dt = new DataTransfer(); dt.setData("text/plain", text); document.body.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true })); }, PASTE_TEXT);
+      assert.deepEqual((await snap(p)).modals, ["modal-paste"], "Dialog öffnet sich");
+      await p.click("#btn-paste-append");
+    },
+    expect: (a, b) => assert.equal(b.items, a.items + 2),
+  },
+  {
+    key: "Positionsdetails: öffnen, blättern, ändern, schließen", covers: ["item-edit", "#btn-drawer-prev", "#btn-drawer-next", "#btn-drawer-close"],
+    run: async (p) => {
+      if ((await snap(p)).items < 2) return "übersprungen";
+      await go(p, 2); await p.click('#itemsBody [data-edit="0"]');
+      await p.click("#btn-drawer-next"); assert.equal((await snap(p)).drawer, 1);
+      await p.click("#btn-drawer-prev"); assert.equal((await snap(p)).drawer, 0);
+      await p.fill("#dr-name", "Detail geändert");
+      await p.click("#btn-drawer-close");
+    },
+    expect: (a, b) => { assert.equal(b.names[0], "Detail geändert"); assert.equal(b.drawer, -1); },
+  },
+  {
+    key: "Auswahl aufheben", covers: ["#btn-sel-clear"],
+    run: async (p) => { if (!(await selectRows(p, 2))) return "übersprungen"; await p.click("#btn-sel-clear"); },
+    expect: async (a, b, p) => { assert.equal(b.selected, 0); assert.equal(await p.isVisible("#selbar"), false); },
   },
 
   /* ---------- Stammdaten ---------- */
