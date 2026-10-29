@@ -5,56 +5,56 @@
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 165
     },
     "building.W": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 110
     },
     "building.ukb": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 3",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 10.5
     },
     "volume.range": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 12
     },
     "volume.peak": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Erfahrungswert Saisonspitze",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 1.15
     },
     "volume.transit": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4.2 (Wert seither geändert)",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 8
     },
     "ffz.rackBase": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Gemischte Ladungsträger",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": "envelope"
     }
   },
   "meta": {
     "name": "Testprojekt Kombinationen",
     "kunde": "Testkunde",
-    "toolVersion": "V2.28"
+    "toolVersion": "V2.29"
   },
   "lhmDefault": "euro",
   "customLhm": {
@@ -729,7 +729,7 @@
   "scenarios": [
     {
       "name": "Bestand Basis",
-      "stand": "28.10.2026, 23:29:12",
+      "stand": "29.10.2026, 16:11:46",
       "projekt": "Testprojekt Kombinationen",
       "metrics": {
         "netto": 9637,
@@ -754,56 +754,56 @@
             "source": "customer",
             "confirmed": true,
             "reference": "Gebäudesteckbrief S. 2",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 165
           },
           "building.W": {
             "source": "customer",
             "confirmed": true,
             "reference": "Gebäudesteckbrief S. 2",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 110
           },
           "building.ukb": {
             "source": "customer",
             "confirmed": true,
             "reference": "Gebäudesteckbrief S. 3",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 10.5
           },
           "volume.range": {
             "source": "customer",
             "confirmed": false,
             "reference": "LV Abschnitt 4",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 12
           },
           "volume.peak": {
             "source": "assumption",
             "confirmed": false,
             "reference": "Erfahrungswert Saisonspitze",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 1.15
           },
           "volume.transit": {
             "source": "customer",
             "confirmed": false,
             "reference": "LV Abschnitt 4.2 (Wert seither geändert)",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 8
           },
           "ffz.rackBase": {
             "source": "assumption",
             "confirmed": false,
             "reference": "Gemischte Ladungsträger",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": "envelope"
           }
         },
         "meta": {
           "name": "Testprojekt Kombinationen",
           "kunde": "Testkunde",
-          "toolVersion": "V2.28"
+          "toolVersion": "V2.29"
         },
         "lhmDefault": "euro",
         "customLhm": {
@@ -1506,7 +1506,7 @@
     },
     {
       "name": "Greenfield · Block manuell · Zugang West",
-      "stand": "28.10.2026, 23:29:12",
+      "stand": "29.10.2026, 16:11:46",
       "projekt": "Testprojekt Kombinationen",
       "metrics": {
         "netto": 9637,
@@ -1530,7 +1530,7 @@
         "meta": {
           "name": "Testprojekt Kombinationen",
           "kunde": "Testkunde",
-          "toolVersion": "V2.28"
+          "toolVersion": "V2.29"
         },
         "lhmDefault": "euro",
         "customLhm": {
@@ -2233,7 +2233,7 @@
     },
     {
       "name": "Bestand VNA · Feldweite fest · In-Rack",
-      "stand": "28.10.2026, 23:29:12",
+      "stand": "29.10.2026, 16:11:46",
       "projekt": "Testprojekt Kombinationen",
       "metrics": {
         "netto": 9637,
@@ -2258,56 +2258,56 @@
             "source": "customer",
             "confirmed": true,
             "reference": "Gebäudesteckbrief S. 2",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 165
           },
           "building.W": {
             "source": "customer",
             "confirmed": true,
             "reference": "Gebäudesteckbrief S. 2",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 110
           },
           "building.ukb": {
             "source": "customer",
             "confirmed": true,
             "reference": "Gebäudesteckbrief S. 3",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 10.5
           },
           "volume.range": {
             "source": "customer",
             "confirmed": false,
             "reference": "LV Abschnitt 4",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 12
           },
           "volume.peak": {
             "source": "assumption",
             "confirmed": false,
             "reference": "Erfahrungswert Saisonspitze",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 1.15
           },
           "volume.transit": {
             "source": "customer",
             "confirmed": false,
             "reference": "LV Abschnitt 4.2 (Wert seither geändert)",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": 8
           },
           "ffz.rackBase": {
             "source": "assumption",
             "confirmed": false,
             "reference": "Gemischte Ladungsträger",
-            "changedAt": "2026-10-28T23:29:11.665Z",
+            "changedAt": "2026-10-29T16:11:46.292Z",
             "value": "envelope"
           }
         },
         "meta": {
           "name": "Testprojekt Kombinationen",
           "kunde": "Testkunde",
-          "toolVersion": "V2.28"
+          "toolVersion": "V2.29"
         },
         "lhmDefault": "euro",
         "customLhm": {
