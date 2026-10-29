@@ -2,56 +2,56 @@ window.TENDER_INPUT = {
   "meta": {
     "projekt": "Testprojekt Kombinationen",
     "kunde": "Testkunde",
-    "stand": "2026-10-28"
+    "stand": "2026-10-29"
   },
   "parameterSources": {
     "building.L": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 165
     },
     "building.W": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 110
     },
     "building.ukb": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 3",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 10.5
     },
     "volume.range": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 12
     },
     "volume.peak": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Erfahrungswert Saisonspitze",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 1.15
     },
     "volume.transit": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4.2 (Wert seither geändert)",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": 8
     },
     "ffz.rackBase": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Gemischte Ladungsträger",
-      "changedAt": "2026-10-28T23:29:11.665Z",
+      "changedAt": "2026-10-29T16:11:46.292Z",
       "value": "envelope"
     }
   },
