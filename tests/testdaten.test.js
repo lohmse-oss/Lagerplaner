@@ -51,6 +51,27 @@ test("Planungsdatei: drei Szenarien laden und bleiben machbar", async (page) => 
   }
 });
 
+test("Volumenquote: Hinweis nennt nicht stapelbare Ware als Ursache", async (page) => {
+  await choose(page, "#btn-dd-file", "#btn-load", DATA("testprojekt-kombinationen.json"));
+  const flat = () => page.evaluate(() => { recalc(); const w = R.warn.find((x) => /^Nicht stapelbare Ware im Blocklager/.test(x.t)); return w ? [w.sev, w.t] : null; });
+  assert.equal(await flat(), null, "Schätzmodell: keine Meldung");
+  // Hohe Quote: Block verdrängt das Regal, Hinweis ist kritisch und nennt die Abhilfe
+  await page.evaluate(() => { S.block.mode = "quota"; S.block.quota = 35; });
+  const high = await flat();
+  assert.equal(high[0], true);
+  assert.match(high[1], /: 10 Positionen .* stehen mit [\d.]+ Paletten im Block, je Platz eine Palette\. Die Volumenquote \(35 %\) gilt .* Die Blockfläche verdrängt das Regal\. Abhilfe: Quote senken/);
+  // Niedrige Quote: Hinweis bleibt, aber nicht kritisch
+  await page.evaluate(() => { S.block.quota = 5; });
+  const low = await flat();
+  assert.equal(low[0], false);
+  assert.doesNotMatch(low[1], /verdrängt/);
+  // Manuell: nur Positionen mit Blockanteil zählen; im Testprojekt sind sie alle stapelbar
+  await page.evaluate(() => { S.block.mode = "manual"; });
+  assert.equal(await flat(), null);
+  await page.evaluate(() => { S.items[0].blockShare = 40; });
+  assert.match((await flat())[1], /^Nicht stapelbare Ware im Blocklager: 1 Position .* steht mit .* Blockanteil dieser Positionen auf 0 setzen/);
+});
+
 test("Eingabedatei: Positionen und Vorgaben wie in der Planungsdatei", async (page) => {
   await choose(page, "#btn-dd-file", "#btn-reload-input", DATA("tender-input-kombinationen.js"));
   const r = await summary(page);

@@ -9,49 +9,49 @@ window.TENDER_INPUT = {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": 165
     },
     "building.W": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 2",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": 110
     },
     "building.ukb": {
       "source": "customer",
       "confirmed": true,
       "reference": "Gebäudesteckbrief S. 3",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": 10.5
     },
     "volume.range": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": 12
     },
     "volume.peak": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Erfahrungswert Saisonspitze",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": 1.15
     },
     "volume.transit": {
       "source": "customer",
       "confirmed": false,
       "reference": "LV Abschnitt 4.2 (Wert seither geändert)",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": 8
     },
     "ffz.rackBase": {
       "source": "assumption",
       "confirmed": false,
       "reference": "Gemischte Ladungsträger",
-      "changedAt": "2026-10-28T13:34:38.411Z",
+      "changedAt": "2026-10-28T23:29:11.665Z",
       "value": "envelope"
     }
   },
@@ -124,15 +124,15 @@ window.TENDER_INPUT = {
     "ffz": {
       "type": "schubmast",
       "rackFFZ": [
-        "schubmast",
-        "hochhub"
+        "schubmast"
       ],
       "blockFFZ": [
-        "front"
+        "front",
+        "hochhub"
       ],
       "zoneFFZ": [
         "ameise",
-        "hochhub"
+        "front"
       ],
       "aisle": 2.8,
       "aisleBlock": 3.5,
@@ -144,7 +144,16 @@ window.TENDER_INPUT = {
       "liftHeight": 8.5,
       "liftReserve": 200,
       "floorOnBeam": false,
-      "singleRows": true
+      "singleRows": true,
+      "shifts": 2,
+      "shiftHours": 7.5,
+      "daysWeek": 6,
+      "energy": "li",
+      "environment": "normal",
+      "procurement": "leasing",
+      "termMonths": 60,
+      "vnaGuide": "rail",
+      "vnaCab": "up"
     },
     "fire": {
       "sprinkler": 500,
@@ -259,6 +268,59 @@ window.TENDER_INPUT = {
     "standard": {
       "fl": 13.6
     }
+  },
+  "ffzFleet": {
+    "schubmast": {
+      "count": 4,
+      "batteries": 2,
+      "fullService": true,
+      "bluespot": true,
+      "safetyVision": true
+    },
+    "front": {
+      "count": 3,
+      "note": "Zwei Fahrzeuge mit Kabine für den Außeneinsatz am Leergutplatz",
+      "site": "both",
+      "cabin": true,
+      "fullService": true,
+      "bluespot": true,
+      "greenlight": true
+    },
+    "ameise": {
+      "count": 6,
+      "fullService": true
+    }
+  },
+  "request": {
+    "texts": {
+      "location": {
+        "de": "Großraum Leipzig/Halle, max. 30 km zur Autobahn",
+        "en": "Greater Leipzig/Halle area, max. 30 km to the motorway"
+      },
+      "office": {
+        "de": "für ca. 6 Personen"
+      },
+      "documents": {
+        "de": "behördliche Nutzungsgenehmigung, Brandschutzkonzept",
+        "en": "building permit for logistics use, fire protection concept"
+      }
+    },
+    "skip": [
+      "siteLogistics"
+    ],
+    "customerSite": "Werk Musterstadt",
+    "serviceSite": "Leipzig",
+    "serviceLine": "Warehouse",
+    "contact": "Projektleitung Logistik",
+    "description": "Kontraktlogistik für Konsumgüter mit Regal- und Blocklager",
+    "descriptionEn": "Contract logistics for consumer goods with racking and block storage",
+    "sop": "2027-04-01",
+    "eop": "2032-03-31",
+    "rentEarliest": "2027-01-01",
+    "rentLatest": "2027-03-01",
+    "minTerm": "60 Monate",
+    "extension": "2 × 24 Monate",
+    "status": "RFQ"
   },
   "bom": {
     "pushThrough": true,
