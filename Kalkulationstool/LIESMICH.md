@@ -8,6 +8,8 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 | `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Öffnen) |
 | `testdaten/kalkulation-kombinationen.json` | Testkalkulation mit möglichst vielen Kombinationen (Datei › Öffnen) |
 | `tests/kalkulationstool.test.js` | automatische Tests |
+| `vergleich/Vergleich_Excel_HTML.xlsx` | Vergleichsrechnung Excel-Vorlage gegen HTML-Tool: Beispiel und Testwerte, Überleitung der Deltas |
+| `vergleich/Excel-Vorlage_mit_Testwerten.xlsx` | Excel-Vorlage mit den Testwerten befüllt (Bezug H21# durch H21:Q21 ersetzt, damit auch LibreOffice rechnet) |
 
 ## Register
 
