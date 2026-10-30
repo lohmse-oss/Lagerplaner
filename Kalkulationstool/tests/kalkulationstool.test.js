@@ -266,10 +266,39 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
     return { lists: Object.keys(CALC_LISTS).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, warn: c.warn, fx: c.oto.fx, cur: c.oto.currency,
       to: c.oto.offer.to, umv: c.sum.pa.umv, rampup: c.cost.rampup.nominal, sl: S.calc.lists.serviceLines.at(-1), name: S.meta.name };
   });
-  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9, 0, 0, 0]);
-  assert.deepEqual([r.months, r.warn, r.fx, r.cur, r.sl, r.name], [60, [], 0.94, "CHF", "Warehouse", "Testkalkulation Kombinationen"]);
+  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9, 3, 3, 3]);
+  near(r.months, 60, "Teilmonate am Anfang und Ende ergänzen sich");
+  assert.deepEqual([r.warn, r.fx, r.cur, r.sl, r.name], [[], 0.94, "CHF", "Warehouse", "Testkalkulation Kombinationen"]);
   near(r.to, r.umv * 0.94, "Angebots-TO in CHF");
   assert.equal(r.rampup, 100000, "Gutschrift mindert den Ramp-up");
+  // Funktionen ab V2.1: Personalbedarf, Tarifgruppen, Zuschlag, FTE je Jahr, Durchreichposten, Tarif je Jahr, Auswertung, Dokumentation
+  const k = await page.evaluate(() => {
+    const c = computeCalc(S), w = c.wage.rows, sl = c.sal.rows;
+    return { lag: w[0].fteIn, stap: w[1].fteIn, linked: w.map((x) => x.linked), grade: [sl[0].gradeRate, w[0].gradeRate], extra: S.calc.wages[1].extra,
+      dispo: sl[2].yr.map((x) => x.fte), pass: c.sum.pa.Kp > 0, raise: c.rates.raiseIdx.map((x) => +x.toFixed(6)), vol: c.rates.vol.map((x) => +x.toFixed(4)),
+      pg: c.eval.priceIndex, checks: calcChecks(S, c).filter((x) => x.sev === "warn").length, variants: S.variants.map((v) => v.name),
+      audit: S.audit.map((e) => e.action), doc: S.calc.doc.status, hist: S.calc.history.filter((h) => h.umv).length };
+  });
+  near(k.lag, (4200 / (60 * 8) * 1.12) + (180 / (12 * 8) * 1.1), "Lagerist aus zwei Mengenzeilen");
+  near(k.stap, 3 * 2 * 1.05, "Staplerfahrer aus dem Schichtmodell");
+  assert.deepEqual(k.linked, [true, true, false]);
+  assert.deepEqual(k.grade, [98000, 17.9]);
+  assert.equal(k.extra, 12.5);
+  assert.deepEqual([k.dispo[0], k.dispo[4]], [1, 2], "FTE je Jahr überschrieben");
+  assert.equal(k.pass, true, "Durchreichposten");
+  assert.equal(k.vol[0], 0.8, "Hochlauf 80 %");
+  near(k.vol[1], 1.03, "Wachstum 3 %");
+  assert.ok(k.raise[1] > 1 && k.raise[1] < 1.035, "2028: Erhöhung 3,5 % ab Juli");
+  near(k.pg, 0.015, "Preisgleitung");
+  assert.equal(k.checks, 0, "keine Warnungen");
+  assert.deepEqual(k.variants, ["3 Fahrer je Schicht", "Stapler kaufen statt leasen"]);
+  assert.deepEqual(k.audit.slice(0, 4), ["Eingabe", "Zeile gelöscht (Investitionen)", "Eingabe", "Variante gespeichert"]);
+  assert.equal(k.audit.at(-1), "Kalkulation geöffnet", "Öffnen wird protokolliert");
+  assert.deepEqual([k.doc, k.hist], ["Freigegeben", 2]);
+  await page.click("#tab-auswertung");
+  const head = await page.$$eval("#calc-card-variants thead th", (th) => th.map((x) => x.textContent));
+  assert.equal(head.length, 4, "aktueller Stand und zwei Varianten");
+  await page.click("#tab-projekt");
   assert.equal(await page.textContent("#hdr-proj"), "Testkalkulation Kombinationen · Testkunde");
   // Rückgängig stellt den gespeicherten Stand wieder her
   await page.click("#btn-undo");

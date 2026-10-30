@@ -6,7 +6,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 |---|---|
 | `Kalkulationstool.html` | das Werkzeug: per Doppelklick im Browser öffnen |
 | `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Kalkulation öffnen) |
-| `testdaten/kalkulation-kombinationen.json` | Testkalkulation (Datei › Kalkulation öffnen) |
+| `testdaten/kalkulation-kombinationen.json` | Testkalkulation mit möglichst vielen Kombinationen (Datei › Kalkulation öffnen) |
 | `tests/kalkulationstool.test.js` | automatische Tests |
 
 ## Register
@@ -48,6 +48,31 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - **Als Excel-Datei exportieren:** .xlsx mit dreizehn Blättern, darunter Versionen und Änderungen (Werte ohne Formeln).
   - **Gesamtbericht drucken / als PDF:** alle Register mit Diagrammen.
   - **Projektdaten aus Lagerplaner-Planungsdatei:** übernimmt Projektname, Kunde, Standort, Serviceline, SOP/EOP und weitere Kopfdaten.
+
+## Testdatei
+
+`testdaten/kalkulation-kombinationen.json` enthält:
+
+- **Projektdaten:** Teilmonate zu Beginn und Ende der Laufzeit.
+- **Basisdaten:**
+  - geänderte Zuschläge und Arbeitszeiten, SV-Liste mit eigener Zeile und Beitragsbemessungsgrenzen;
+  - Tariferhöhung zum Juli mit eigenen Sätzen für zwei Jahre;
+  - Hochlauf 80 % und Volumenwachstum 3 %;
+  - Sachkostensteigerung, Kalkulationszins, Aufschlag für Durchreichposten.
+- **Personal:**
+  - Personalbedarf aus zwei Mengenzeilen und einem Schichtmodell;
+  - Tarifgruppen für Lohn und Gehalt;
+  - Zuschlag je Zeile, FTE je Kalenderjahr überschrieben;
+  - eine Qualifikation ohne FTE.
+- **Sachkosten:** Durchreichposten bei Betriebskosten und Nachunternehmer, Ramp-up mit Gutschrift, Quellenangaben.
+- **Auswertung:** Preisgleitung, Diskontierungszins, Mindestmarge, Variation und VK-Spanne abweichend vom Standard.
+- **OtO:** Korrekturangebot in CHF mit Wechselkurs und Link zum Ablageordner.
+- **Dokumentation:**
+  - freigegebener Stand mit Prüfer und Datum;
+  - Versionshistorie mit und ohne Kennzahlen;
+  - Änderungsprotokoll mit Kommentaren;
+  - erweiterte Liste der Freigabestatus.
+- **Varianten:** 3 Fahrer je Schicht; Stapler kaufen statt leasen.
 
 ## Rechenmodus
 
