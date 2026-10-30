@@ -332,12 +332,23 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 }
 @media (prefers-reduced-motion: reduce) { .sidebar, .main { transition: none; } }
 @media print {
-  .sidebar, .top, .ovl, .filters { display: none !important; }
+  .sidebar, .top, .ovl, .filters, .toast, .ed-banner, .inline-ed, .stift, .ed-btn, .rollen { display: none !important; }
   .main { margin-left: 0 !important; }
   body { background: #fff; }
   #view { padding: 0; max-width: none; }
   .card, .band, .blk { break-inside: avoid; }
+  /* Steckbrief: nur das Detailfenster drucken */
+  body.druck-detail .main { display: none !important; }
+  body.druck-detail .ovl { display: block !important; position: static; background: none; }
+  body.druck-detail .drawer { width: 100%; height: auto; box-shadow: none; }
+  body.druck-detail .d-head .btn { display: none !important; }
+  body.druck-detail #d-body { overflow: visible; padding: 0 0 10px; }
+  body.druck-detail .druck-kopf { display: block !important; }
+  .rel-item, .anh, table.kv tr { break-inside: avoid; }
+  .tag, .vs-neu, .band-head, .blk, .regel-card, .feld-col h4, .persp, .balken i, .tile .spur i, mark, .diff del, .diff ins { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .netz-leg .hint { display: none; }
 }
+.druck-kopf { display: none; font-size: 11px; color: var(--muted); padding: 0 18px; }
 </style>
 </head>
 <body>
@@ -386,12 +397,14 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="ovl" id="ovl">
   <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title">
+    <div class="druck-kopf" id="druck-kopf"></div>
     <div class="d-head">
       <button class="btn" id="d-back" type="button">Zurück</button>
       <div><div id="d-kicker"></div><h2 id="d-title" tabindex="-1"></h2></div>
       <button class="btn" id="d-merk" type="button" aria-pressed="false" title="Element auf die Merkliste setzen" aria-label="Merken">☆</button>
       <button class="btn" id="d-edit" type="button" aria-pressed="false" title="Bearbeiten-Modus ein- oder ausschalten">✎ Bearbeiten</button>
       <button class="btn" id="d-link" type="button" title="Adresse dieses Detailfensters kopieren">Link</button>
+      <button class="btn" id="d-druck" type="button" title="Als Steckbrief drucken oder als PDF speichern">Drucken</button>
       <button class="btn" id="d-close" type="button">Schließen</button>
     </div>
     <div id="d-body"></div>
@@ -414,7 +427,9 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <script>
 (function () {
   'use strict';
-  const NAVIGATOR = { fassung: '1.7', stand: '28.10.2026' };
+  // Ausgangsstand der Seite für die Einzeldatei, erfasst vor dem ersten Aufbau der Ansicht.
+  const SEITE = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const NAVIGATOR = { fassung: '1.7', stand: '30.10.2026' };
   const $ = id => document.getElementById(id);
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
@@ -565,7 +580,10 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       const r = indexedDB.open('bm-navigator', 1);
       r.onupgradeneeded = () => r.result.createObjectStore('kv');
       r.onerror = () => fehler(r.error);
-      r.onsuccess = () => { const tx = r.result.transaction('kv', modus); const q = fn(tx.objectStore('kv')); tx.oncomplete = () => ok(q && q.result); tx.onerror = () => fehler(tx.error); };
+      r.onsuccess = () => {
+        try { const tx = r.result.transaction('kv', modus); const q = fn(tx.objectStore('kv')); tx.oncomplete = () => ok(q && q.result); tx.onerror = () => fehler(tx.error); }
+        catch (e) { fehler(e); }
+      };
     });
   }
   async function ordnerLaden() {
@@ -1304,6 +1322,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
         ${opt('stufe', B.stufen.map(s => [s.nr, s.nr + ' ' + s.n]), 'Kaskadenstufe')}
         ${opt('pflege', Object.entries(PFLEGE), 'Pflege')}
         <button type="button" class="btn" id="f-reset">Filter zurücksetzen</button>
+        <button type="button" class="btn" id="f-csv" title="Die gefilterte Liste als Tabelle für Excel herunterladen">Als Tabelle (CSV)</button>
         </div>
       </div>
       <div class="f-aktiv" id="f-aktiv">${aktivChips()}</div>
@@ -1323,6 +1342,13 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     document.querySelectorAll('[data-f]').forEach(el => { el[el.tagName === 'INPUT' ? 'oninput' : 'onchange'] = () => { state[el.dataset.f] = el.value; upd(); }; });
     document.querySelectorAll('[data-artchip]').forEach(b => b.onclick = () => { const s = new Set((state.art || '').split(',').filter(Boolean)); s.has(b.dataset.artchip) ? s.delete(b.dataset.artchip) : s.add(b.dataset.artchip); state.art = [...s].join(','); b.classList.toggle('on'); b.setAttribute('aria-pressed', String(s.has(b.dataset.artchip))); upd(); });
     $('f-reset').onclick = () => { F_KEYS.forEach(k => delete state[k]); renderView(); writeHash(state, false); };
+    $('f-csv').onclick = () => {
+      const q = x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+      const kopf = ['Kennung', 'Objektart', 'Bezeichnung', 'Zweck', 'Ebene', 'Regel', 'Baustein', 'Befähigungskomponente', 'Kaskadenstufe', 'Status', 'Fundstelle', 'Datei', 'Anhänge', 'Geändert'];
+      const zeilen = filtern().map(o => [o.kennung, ART_N[o.art], o.n, o.zweck, ebeneName(o.ebene), o.regel !== undefined ? (o.regel || 'regelübergreifend') : (o.regeln || []).join(', '), o.baustein ? o.baustein + ' ' + bsName(o.baustein) : '', (o.komponenten || []).join(', '), o.stufe || (o.stufen || []).join(', '), o.status || '', o.fundstelle, linkPfad(o.kennung), anhaenge(zielVon(o)).map(a => a.datei).join(' | '), A.aenderungen.some(v => v.ziel === zielVon(o)) ? 'ja' : '']);
+      herunterladen(`Objekte_${heute().split('.').reverse().join('-')}.csv`, '\ufeff' + [kopf].concat(zeilen).map(z => z.map(q).join(';')).join('\r\n'), 'text/csv');
+      toast(`${zeilen.length} Objekte als Tabelle heruntergeladen.`, false);
+    };
   }
 
   // Matrix Regel und Baustein aus Methoden und Dokumenten
@@ -1535,8 +1561,20 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       ${(m.pruefung) ? `<h3 class="sec">Prüfbericht der Datendatei</h3><div class="card"><p><b>Abdeckung:</b> ${esc(m.pruefung.abdeckung)} Textteilen der Quellen übernommen.${m.pruefung.nichtUebernommen.length ? ' Nicht übernommen: ' + m.pruefung.nichtUebernommen.map(esc).join('; ') : ''}</p>
         ${m.pruefung.kohaerenz.length ? `<p style="margin-top:10px"><b>Kohärenz:</b> Hinweise für die Modellverantwortung. Sie sind keine Fehler der Datendatei, sondern Prüfpunkte in den Quellen.</p><ul style="margin:6px 0 0 18px">${m.pruefung.kohaerenz.map(x => `<li>${rich(x)}</li>`).join('')}</ul>` : ''}
         ${m.pruefung.hinweise.length ? `<p style="margin-top:10px"><b>Zuordnung beim Erzeugen:</b></p><ul style="margin:6px 0 0 18px">${m.pruefung.hinweise.map(x => `<li>${rich(x)}</li>`).join('')}</ul>` : ''}</div>` : ''}
-      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Die Taste / springt in die Suche; Pfeiltasten wählen einen Treffer, Enter öffnet ihn. Escape schließt das Detailfenster. „Bearbeiten“ in der Kopfzeile oder im Detailfenster schaltet den Bearbeiten-Modus ein: Textfelder lassen sich dann ändern und jedem Element Dateien anhängen. Die Änderungen gelten sofort im ganzen Navigator und stehen gesammelt unter Änderungen. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
+      <h3 class="sec">Weitergeben</h3><div class="card"><p>Die Einzeldatei enthält Navigator, Datendatei, Linkregister und Änderungen in einer HTML-Datei. Sie lässt sich per Mail verschicken und ohne weitere Dateien öffnen. Verknüpfte Dokumente und Anhänge öffnen sich beim Empfänger nur, wenn er auf denselben Dokumentordner zugreifen kann, etwa über einen Basisordner auf einem Netzlaufwerk.</p><p style="margin-top:8px"><button type="button" class="btn primary" id="einzeldatei">Einzeldatei erzeugen</button></p></div>
+      <h3 class="sec">Bedienung</h3><div class="card"><p>Ein Klick auf eine Kennung öffnet das Kurzprofil. Die Taste / springt in die Suche; Pfeiltasten wählen einen Treffer, Enter öffnet ihn. Escape schließt das Detailfenster, Strg+Z macht die letzte Pflegeaktion rückgängig. ☆ im Detailfenster setzt ein Element auf die Merkliste, „Drucken“ gibt es als Steckbrief aus. „Bearbeiten“ in der Kopfzeile oder im Detailfenster schaltet den Bearbeiten-Modus ein: Textfelder lassen sich dann ändern und jedem Element Dateien anhängen. Die Änderungen gelten sofort im ganzen Navigator und stehen gesammelt unter Änderungen. Die Adresse der Seite hält Ansicht, Filter und Detail fest und lässt sich als Link teilen. Die Druckfunktion des Browsers druckt die aktuelle Ansicht.</p></div>`;
   };
+
+  // Einzeldatei: die externen Dateien werden als eingebettete Skripte in den Ausgangsstand der Seite gesetzt.
+  function einzeldatei() {
+    const zu = '</' + 'script>', tag = n => '<script src="' + n + '">' + zu;
+    const daten = (name, wert) => '<script>window.' + name + ' = ' + JSON.stringify(wert).replace(/</g, '\\u003c') + ';' + zu;
+    let html = SEITE;
+    [['bm-daten.js', 'BM', B0], ['bm-links.js', 'BM_LINKS', L], ['bm-aenderungen.js', 'BM_AENDERUNGEN', A]].forEach(([f, n, w]) => { html = html.replace(tag(f), daten(n, w)); });
+    herunterladen(`E09_${B0.meta.fassung}_Modellnavigator_Einzeldatei.html`, html, 'text/html');
+    toast('Einzeldatei heruntergeladen.', false);
+  }
+  document.addEventListener('click', e => { if (e.target.closest('#einzeldatei')) { e.preventDefault(); einzeldatei(); } });
 
   // ---------- Detailfenster ----------
   let stack = [], lastFocus = null;
@@ -1569,6 +1607,15 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (!silent) { delete state.o; writeHash(state, false); if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
   }
   $('d-close').onclick = () => closeDrawer();
+  $('d-druck').onclick = () => {
+    $('druck-kopf').textContent = `${B.meta.titel} · Modellnavigator · Kanon ${B.meta.fassung}${A.aenderungen.length && !kanonSicht ? ' mit Änderungen aus dem Bearbeiten-Modus' : ''} · gedruckt am ${heute()} · Begleitdarstellung, nicht normativ`;
+    $('d-body').querySelectorAll('details').forEach(d => { d.open = true; });
+    document.body.classList.add('druck-detail');
+    const fertig = () => { document.body.classList.remove('druck-detail'); window.removeEventListener('afterprint', fertig); };
+    window.addEventListener('afterprint', fertig);
+    window.print();
+    setTimeout(fertig, 1000);
+  };
   $('d-link').onclick = () => {
     const b = $('d-link'), ok = t => { b.textContent = t; setTimeout(() => { b.textContent = 'Link'; }, 1600); };
     try { navigator.clipboard.writeText(location.href).then(() => ok('Kopiert'), () => ok('Nicht möglich')); } catch (err) { ok('Nicht möglich'); }
