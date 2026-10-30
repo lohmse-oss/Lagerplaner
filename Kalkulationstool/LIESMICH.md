@@ -5,6 +5,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 | Datei | Inhalt |
 |---|---|
 | `Kalkulationstool.html` | das Werkzeug: per Doppelklick im Browser öffnen |
+| `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Kalkulation öffnen) |
 | `testdaten/kalkulation-kombinationen.json` | Testkalkulation (Datei › Kalkulation öffnen) |
 | `tests/kalkulationstool.test.js` | automatische Tests |
 
