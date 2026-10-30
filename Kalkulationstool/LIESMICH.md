@@ -70,7 +70,7 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
 
 ## Währungen
 
-- **Kalkulationswährung** (Projekt & Basisdaten › Projektdaten, Kürzel nach ISO 4217, z. B. PLN, CZK, CHF): Alle Beträge der Kalkulation werden in dieser Währung erfasst und angezeigt, also Löhne, Gehälter, Tarifgruppen, Sachkosten, BBG, VK-Spanne, Summary und Auswertung. Statt „€“ steht das Kürzel, auch im Excel-Export und im Bericht.
+- **Kalkulationswährung** (Projekt & Basisdaten › Projektdaten, Standard EUR, zur Auswahl HUF und GBP, andere Kürzel nach ISO 4217 per Eingabe): Alle Beträge der Kalkulation werden in dieser Währung erfasst und angezeigt, also Löhne, Gehälter, Tarifgruppen, Sachkosten, BBG, VK-Spanne, Summary und Auswertung. Statt „€“ steht das Kürzel, auch im Excel-Export und im Bericht.
 - **Wechselkurs** „1 EUR = x“ mit Kursdatum: Damit werden die OtO-Werte in EUR umgerechnet (Umsatz, EBITA, Gross Profit, Investment, Leasing, Walkaway). Prozentwerte bleiben gleich. In der KPI-Leiste stehen die OtO-Kennzahlen in EUR, die übrigen in der Kalkulationswährung.
 - Die Währung ist Teil der Vorlage, sodass eine Landesvorlage Währung, Zuschläge und Tarifgruppen gemeinsam setzt.
 - Mindestlohnprüfung und vorbelegte Beitragsbemessungsgrenzen beziehen sich auf Deutschland. Bei anderer Währung entfällt die Mindestlohnprüfung (Hinweis), die BBG sind anzupassen.
@@ -93,7 +93,7 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
   - eine Qualifikation ohne FTE.
 - **Sachkosten:** Durchreichposten bei Betriebskosten und Nachunternehmer, Ramp-up mit Gutschrift, Quellenangaben, Kategorien.
 - **Auswertung:** Preisgleitung, Diskontierungszins, Mindestmarge, Variation und VK-Spanne abweichend vom Standard.
-- **Währung und OtO:** Kalkulation in CHF (1 EUR = 0,94 CHF), OtO-Werte in EUR, Korrekturangebot mit Link zum Ablageordner.
+- **OtO:** Korrekturangebot mit Link zum Ablageordner. Die Testdatei rechnet in EUR; Fremdwährung (HUF, GBP) prüfen die automatischen Tests.
 - **Dokumentation:**
   - freigegebener Stand mit Prüfer und Datum;
   - Versionshistorie mit und ohne Kennzahlen;

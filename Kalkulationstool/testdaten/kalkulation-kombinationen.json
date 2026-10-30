@@ -250,7 +250,7 @@
       "date": "2026-11-02",
       "status": "Korrekturangebot",
       "offerNo": "ANG-2026-0815",
-      "currency": "CHF",
+      "currency": "EUR",
       "billing": "Monatspauschale",
       "link": "https://example.sharepoint.com/sites/Tendermanagement/OtO"
     },
@@ -374,9 +374,9 @@
       }
     ],
     "currency": {
-      "code": "CHF",
-      "rate": 0.94,
-      "date": "2027-03-31"
+      "code": "EUR",
+      "rate": 1,
+      "date": ""
     }
   },
   "audit": [
@@ -669,7 +669,7 @@
             "date": "2026-11-02",
             "status": "Korrekturangebot",
             "offerNo": "ANG-2026-0815",
-            "currency": "CHF",
+            "currency": "EUR",
             "rate": 0.94,
             "billing": "Monatspauschale",
             "link": "https://example.sharepoint.com/sites/Tendermanagement/OtO"
@@ -1005,7 +1005,7 @@
             "date": "2026-11-02",
             "status": "Korrekturangebot",
             "offerNo": "ANG-2026-0815",
-            "currency": "CHF",
+            "currency": "EUR",
             "rate": 0.94,
             "billing": "Monatspauschale",
             "link": "https://example.sharepoint.com/sites/Tendermanagement/OtO"

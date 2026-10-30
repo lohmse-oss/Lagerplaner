@@ -276,9 +276,8 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
   });
   assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9, 3, 3, 3]);
   near(r.months, 60, "Teilmonate am Anfang und Ende ergänzen sich");
-  assert.deepEqual([r.warn, r.cur, r.sl, r.name], [[], "CHF", "Warehouse", "Testkalkulation Kombinationen"]);
-  near(r.fx, 1 / 0.94, "Kurs CHF → EUR");
-  near(r.to, r.umv / 0.94, "Angebots-TO in EUR aus CHF");
+  assert.deepEqual([r.warn, r.cur, r.fx, r.sl, r.name], [[], "EUR", 1, "Warehouse", "Testkalkulation Kombinationen"]);
+  near(r.to, r.umv, "Angebots-TO in EUR");
   assert.equal(r.rampup, 100000, "Gutschrift mindert den Ramp-up");
   // Funktionen ab V2.1: Personalbedarf, Tarifgruppen, Zuschlag, FTE je Jahr, Durchreichposten, Tarif je Jahr, Auswertung, Dokumentation
   const k = await page.evaluate(() => {
@@ -1131,7 +1130,7 @@ test("Sprache Englisch: Oberfläche, Zahlenformat, Meldungen, Bericht und Excel;
   assert.equal(await page.inputValue('[data-cf="calc.capex.1.price"]'), "1,450.5");
   await setField(page, "calc.capex.1.price", "2,000.75");
   assert.equal(await page.evaluate(() => S.calc.capex[1].price), 2000.75);
-  assert.match(await page.textContent(".kpi-card .kpi-value"), /^\d{1,3}(,\d{3})+ (EUR|CHF)$/);
+  assert.match(await page.textContent(".kpi-card .kpi-value"), /^\d{1,3}(,\d{3})+ €$/);
   // Meldungen
   const msgs = [];
   page.on("dialog", (d) => msgs.push(d.message()));
@@ -1176,43 +1175,53 @@ test("Sprache Englisch: Oberfläche, Zahlenformat, Meldungen, Bericht und Excel;
 
 test("Kalkulationswährung: Beträge in Landeswährung, OtO gesamt in EUR, Export, Vorlage, Altdateien", async (page) => {
   await openTestData(page);
-  // Testdatei in CHF, Kurs 0,94
+  // Standard EUR: Beträge in €, Auswahl EUR, HUF, GBP
   await page.click("#tab-summary");
-  assert.match(await page.textContent("#calc-panel-summary"), /CHF \(1 EUR = 0,9400 CHF, 31\.03\.2027\)/);
-  assert.doesNotMatch(await page.textContent("#calc-panel-summary .calc-sum"), /€/, "Beträge mit Kürzel statt €");
+  assert.match(await page.textContent("#calc-panel-summary .calc-sum"), /€/);
+  assert.equal(await page.evaluate(() => S.calc.currency.code), "EUR");
+  assert.equal(await page.evaluate(() => defaults().calc.currency.code), "EUR", "neue Kalkulationen in EUR");
+  assert.deepEqual(await page.$$eval("#calc-dl-currencies option", (o) => o.map((x) => x.value)), ["EUR", "HUF", "GBP"]);
+  // Forint
   await page.click("#tab-projekt");
-  await setField(page, "calc.currency.code", "pln");
-  assert.equal(await page.inputValue('[data-cf="calc.currency.code"]'), "PLN");
-  await setField(page, "calc.currency.rate", "4,25");
+  await setField(page, "calc.currency.code", "huf");
+  assert.equal(await page.inputValue('[data-cf="calc.currency.code"]'), "HUF");
+  await setField(page, "calc.currency.rate", "395,5");
   const r = await page.evaluate(() => { const c = computeCalc(S); return { umv: c.sum.pa.umv, to: c.oto.offer.to, gp: c.oto.offer.gp, inv: c.oto.invest, nominal: c.cost.capex.nominal, checks: calcChecks(S, c).map((x) => x.text).join(" | ") }; });
-  near(r.to, r.umv / 4.25, "OtO-TO in EUR");
-  near(r.inv, r.nominal / 4.25, "Investment in EUR");
+  near(r.to, r.umv / 395.5, "OtO-TO in EUR");
+  near(r.inv, r.nominal / 395.5, "Investment in EUR");
   assert.match(r.checks, /Mindestlohnprüfung nur bei Kalkulationswährung EUR/);
-  // Anzeige: Kalkulation in PLN, OtO und OtO-Kennzahlen in EUR
+  // Anzeige: Kalkulation in HUF, OtO und OtO-Kennzahlen in EUR
   await page.click("#tab-sachkosten");
-  assert.match(await page.textContent("#calc-card-capex"), /Kosten\/Einheit \[PLN\]/);
-  assert.match(await page.textContent("#calc-card-capex"), /PLN/);
-  assert.match(await page.textContent('.kpi-card[data-origin-source="toPa"]'), /PLN$/);
+  assert.match(await page.textContent("#calc-card-capex"), /Kosten\/Einheit \[HUF\]/);
+  assert.match(await page.textContent("#calc-card-capex"), /HUF/);
+  assert.match(await page.textContent('.kpi-card[data-origin-source="toPa"]'), /HUF$/);
   assert.match(await page.textContent('.kpi-card[data-origin-source="grossProfit"]'), /EUR$/);
   await page.click("#tab-oto");
   const oto = await page.textContent("#calc-panel-oto");
-  assert.match(oto, /1 EUR = 4,2500 PLN/);
-  assert.equal((oto.match(/PLN/g) || []).length, 1, "PLN nur im Wechselkurs, Werte in EUR");
+  assert.match(oto, /1 EUR = 395,5000 HUF/);
+  assert.equal((oto.match(/HUF/g) || []).length, 1, "HUF nur im Wechselkurs, Werte in EUR");
   assert.equal(await page.locator('[data-cf="calc.oto.rate"]').count(), 0);
   const text = await page.evaluate(() => calcOtoText(computeCalc(S)));
   assert.match(text, /Angebots TO \| Offer TO\t[\d.]+,\d\d EUR/);
-  // Excel: Zahlenformat in PLN, OtO-Blatt in EUR
+  // Excel: Zahlenformat in HUF, OtO-Blatt in EUR
   const sheets = await page.evaluate(() => calcExportTranslate(calcExportSheets()));
   const projekt = sheets.find((x) => x.name === "Projekt").rows.map((row) => row.map((c) => (c && typeof c === "object" ? c.v : c)).join("|")).join("\n");
-  assert.match(projekt, /Kalkulationswährung\|PLN/);
-  assert.match(projekt, /Wechselkurs \(1 EUR = x\)\|4\.25/);
+  assert.match(projekt, /Kalkulationswährung\|HUF/);
+  assert.match(projekt, /Wechselkurs \(1 EUR = x\)\|395\.5/);
   const xlsx = await page.evaluate(() => { const b = calcXlsx(calcExportTranslate(calcExportSheets())); return b.text ? b.text() : ""; });
-  assert.match(xlsx, /&quot;PLN&quot;/);
+  assert.match(xlsx, /&quot;HUF&quot;/);
   // Vorlage überträgt die Währung
   const tpl = await page.evaluate(() => JSON.stringify(calcTemplateFrom(S.calc)));
   await page.evaluate(() => { S.calc.currency = { code: "EUR", rate: 1, date: "" }; });
   await page.evaluate((t) => calcTemplateLoadText(t), tpl);
-  assert.deepEqual(await page.evaluate(() => [S.calc.currency.code, S.calc.currency.rate]), ["PLN", 4.25]);
+  assert.deepEqual(await page.evaluate(() => [S.calc.currency.code, S.calc.currency.rate]), ["HUF", 395.5]);
+  // Pfund
+  await page.click("#tab-projekt");
+  await setField(page, "calc.currency.code", "GBP");
+  await setField(page, "calc.currency.rate", "0,85");
+  const g = await page.evaluate(() => { const c = computeCalc(S); return { umv: c.sum.pa.umv, to: c.oto.offer.to }; });
+  near(g.to, g.umv / 0.85, "OtO-TO in EUR aus GBP");
+  assert.match(await page.textContent('.kpi-card[data-origin-source="toPa"]'), /GBP$/);
   // Zurück auf EUR: Kurs 1, Anzeige in €
   await page.click("#tab-projekt");
   await setField(page, "calc.currency.code", "EUR");
@@ -1220,10 +1229,10 @@ test("Kalkulationswährung: Beträge in Landeswährung, OtO gesamt in EUR, Expor
   assert.match(await page.textContent(".calc-currency"), /Kalkulation in EUR, keine Umrechnung/);
   // Altdatei mit Wechselkurs im OtO: Hinweis, Feld entfällt
   const old = JSON.parse(require("fs").readFileSync(DATA, "utf8"));
-  delete old.calc.currency; old.calc.oto.rate = 0.94; old.toolVersion = "V2.11";
+  delete old.calc.currency; old.calc.oto.currency = "HUF"; old.calc.oto.rate = 395; old.toolVersion = "V2.11";
   await page.evaluate((t) => loadText(t), JSON.stringify(old));
   const toast = await page.evaluate(() => [...document.querySelectorAll(".toast")].map((t) => t.textContent).join(" "));
-  assert.match(toast, /OtO-Wechselkurs der Angebotswährung CHF/);
+  assert.match(toast, /OtO-Wechselkurs der Angebotswährung HUF/);
   assert.deepEqual(await page.evaluate(() => ["rate" in S.calc.oto, S.calc.currency.code]), [false, "EUR"]);
 });
 
