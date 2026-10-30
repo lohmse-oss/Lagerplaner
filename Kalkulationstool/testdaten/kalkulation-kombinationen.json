@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "tool": "Kalkulationstool",
-  "toolVersion": "V2.11",
+  "toolVersion": "V2.12",
   "meta": {
     "name": "Testkalkulation Kombinationen",
     "kunde": "Testkunde"
@@ -190,6 +190,30 @@
         "startYear": 0,
         "usefulLife": 0,
         "residual": 0
+      },
+      {
+        "name": "Regalerweiterung Halle 2",
+        "qty": 1,
+        "price": 240000,
+        "pass": false,
+        "note": "Kauf im zweiten Vertragsjahr, 8 Jahre Nutzungsdauer, Verwertung zum Restwert",
+        "category": "Lagertechnik",
+        "procurement": "Kauf",
+        "startYear": 2,
+        "usefulLife": 8,
+        "residual": 20000
+      },
+      {
+        "name": "Flurförderzeuge Mietpool",
+        "qty": 2,
+        "price": 36000,
+        "pass": false,
+        "note": "Miete über 7 Jahre, läuft über das Vertragsende hinaus",
+        "category": "Flurförderzeuge",
+        "procurement": "Miete",
+        "startYear": 1,
+        "usefulLife": 7,
+        "residual": 0
       }
     ],
     "opex": [
@@ -377,7 +401,8 @@
       "code": "EUR",
       "rate": 1,
       "date": ""
-    }
+    },
+    "country": "DE"
   },
   "audit": [
     {

@@ -279,7 +279,7 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
     return { lists: Object.keys(CALC_LISTS).filter((k) => !CALC_LISTS[k].md).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, warn: c.warn, fx: c.oto.fx, cur: c.oto.calcCurrency,
       to: c.oto.offer.to, umv: c.sum.pa.umv, rampup: c.cost.rampup.nominal, sl: S.calc.lists.serviceLines.at(-1), name: S.meta.name };
   });
-  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9, 3, 3, 3]);
+  assert.deepEqual(r.lists, [3, 3, 4, 3, 1, 2, 9, 3, 3, 3]);
   near(r.months, 60, "Teilmonate am Anfang und Ende ergänzen sich");
   assert.deepEqual([r.warn, r.cur, r.fx, r.sl, r.name], [[], "EUR", 1, "Warehouse", "Testkalkulation Kombinationen"]);
   near(r.to, r.umv, "Angebots-TO in EUR");
@@ -289,7 +289,7 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
     const c = computeCalc(S), w = c.wage.rows, sl = c.sal.rows;
     return { lag: w[0].fteIn, stap: w[1].fteIn, linked: w.map((x) => x.linked), grade: [sl[0].gradeRate, w[0].gradeRate], extra: S.calc.wages[1].extra,
       dispo: sl[2].yr.map((x) => x.fte), pass: c.sum.pa.Kp > 0, raise: c.rates.raiseIdx.map((x) => +x.toFixed(6)), vol: c.rates.vol.map((x) => +x.toFixed(4)),
-      pg: c.eval.priceIndex, checks: calcChecks(S, c).filter((x) => x.sev === "warn").length, variants: S.variants.map((v) => v.name),
+      pg: c.eval.priceIndex, checks: calcChecks(S, c).filter((x) => x.sev === "warn").map((x) => x.text), variants: S.variants.map((v) => v.name),
       audit: S.audit.map((e) => e.action), doc: S.calc.doc.status, hist: S.calc.history.filter((h) => h.umv).length };
   });
   near(k.lag, (4200 / (60 * 8) * 1.12) + (180 / (12 * 8) * 1.1), "Lagerist aus zwei Mengenzeilen");
@@ -303,7 +303,9 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
   near(k.vol[1], 1.03, "Wachstum 3 %");
   assert.ok(k.raise[1] > 1 && k.raise[1] < 1.035, "2028: Erhöhung 3,5 % ab Juli");
   near(k.pg, 0.015, "Preisgleitung");
-  assert.equal(k.checks, 0, "keine Warnungen");
+  // Gewollte Warnungen der Volltest-Datei: Miete über das Vertragsende, Festpreis-Risiko im letzten Jahr (Restbuchwert)
+  assert.equal(k.checks.length, 2, k.checks.join(" | "));
+  assert.ok(k.checks.some((t) => /Miete läuft über das Vertragsende/.test(t)) && k.checks.some((t) => /negatives EBITA in 2032/.test(t)), k.checks.join(" | "));
   assert.deepEqual(k.variants, ["3 Fahrer je Schicht", "Stapler kaufen statt leasen"]);
   assert.deepEqual(k.audit.slice(0, 4), ["Eingabe", "Zeile gelöscht (Investitionen)", "Eingabe", "Variante gespeichert"]);
   assert.equal(k.audit.at(-1), "Kalkulation geöffnet", "Öffnen wird protokolliert");
@@ -880,6 +882,18 @@ const setField = async (page, cf, value) => {
 
 test("Investitionen: Abschreibung über Vertragsmonate, Restbuchwert, Leasing, Startjahr; Excel-kompatibel ohne Wirkung", async (page) => {
   await openTestData(page);
+  // Volltest-Datei: Kauf im zweiten Vertragsjahr mit Restwert, Miete über das Vertragsende hinaus
+  const full = await capex(page);
+  near(full.rows[2].dep, 220000 * 48 / 96, "Abschreibung ab Jahr 2 über 48 von 96 Monaten");
+  near(full.rows[2].bookEnd, 130000, "Restbuchwert");
+  near(full.rows[2].recovery, 20000, "Verwertung zum Restwert");
+  near(full.investLater, 240000, "Auszahlung im zweiten Vertragsjahr");
+  assert.deepEqual([full.rows[3].proc, full.rows[3].nominal], ["Miete", 0]);
+  near(full.rows[3].lz, 72000, "Miete vollständig in der Laufzeit");
+  near(full.otoInvest, 850000 + 12 * 1450.5 + 240000, "OtO-Investment ohne Miete");
+  assert.match(full.checks, /Miete läuft über das Vertragsende hinaus/);
+  // Für die Einzelfälle unten nur die beiden ersten Investitionen
+  await page.evaluate(() => { S.calc.capex = S.calc.capex.slice(0, 2); refreshAll(); });
   await page.click("#view-detail");
   await page.click("#tab-sachkosten");
   const base = await capex(page);
@@ -950,14 +964,14 @@ test("Migration V2.10: Vorgaben Nutzungsdauer 1 und Startjahr 1 werden zurückge
   obj.calc.opex[0].usefulLife = 1; // Altfeld aus V2.10 in den Betriebskosten
   await page.evaluate((t) => loadText(t), JSON.stringify(obj));
   await page.waitForTimeout(100);
-  const r = await page.evaluate(() => ({ c: S.calc.capex.map((x) => [x.usefulLife, x.startYear]), opex: "usefulLife" in S.calc.opex[0], toast: [...document.querySelectorAll(".toast")].map((t) => t.textContent).join(" ") }));
+  const r = await page.evaluate(() => ({ c: S.calc.capex.slice(0, 2).map((x) => [x.usefulLife, x.startYear]), opex: "usefulLife" in S.calc.opex[0], toast: [...document.querySelectorAll(".toast")].map((t) => t.textContent).join(" ") }));
   assert.deepEqual(r.c, [[0, 0], [5, 1]]);
   assert.equal(r.opex, false, "Altfelder der Betriebskosten entfernt");
   assert.match(r.toast, /Vorgabe aus V2\.10/);
   // Ab V2.11 gespeicherte Werte bleiben unverändert
   obj.toolVersion = "V2.11";
   await page.evaluate((t) => loadText(t), JSON.stringify(obj));
-  assert.deepEqual(await page.evaluate(() => S.calc.capex.map((x) => [x.usefulLife, x.startYear])), [[1, 1], [5, 1]]);
+  assert.deepEqual(await page.evaluate(() => S.calc.capex.slice(0, 2).map((x) => [x.usefulLife, x.startYear])), [[1, 1], [5, 1]]);
 });
 
 test("Kategorien und Ansicht: Spalte in der Detailansicht, Auswertung in Summary und Excel", async (page) => {

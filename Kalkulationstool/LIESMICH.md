@@ -107,6 +107,9 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
   - Zuschlag je Zeile, FTE je Kalenderjahr überschrieben;
   - eine Qualifikation ohne FTE.
 - **Sachkosten:** Durchreichposten bei Betriebskosten und Nachunternehmer, Ramp-up mit Gutschrift, Quellenangaben, Kategorien.
+- **Investitionen mit Abschreibung:** zwei Käufe über die Laufzeit (Annuität), ein Kauf im zweiten Vertragsjahr mit 8 Jahren Nutzungsdauer und Restwert (Restbuchwert zum Vertragsende, Verwertung), eine Miete über 7 Jahre über das Vertragsende hinaus.
+- **Land:** DE (für Stammdaten-Vorschläge und Länderprofil).
+- **Gewollte Warnungen:** Miete über das Vertragsende und Festpreis-Risiko im letzten Jahr durch den abgeschriebenen Restbuchwert.
 - **Auswertung:** Preisgleitung, Diskontierungszins, Mindestmarge, Variation und VK-Spanne abweichend vom Standard.
 - **OtO:** Korrekturangebot mit Link zum Ablageordner. Die Testdatei rechnet in EUR; Fremdwährung (HUF, GBP, CZK, PLN) prüfen die automatischen Tests.
 - **Dokumentation:**
