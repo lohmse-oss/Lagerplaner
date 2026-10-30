@@ -111,6 +111,10 @@ h3.sec { font-size: 15.5px; font-weight: 800; margin: 24px 0 10px; }
 .anh-akt { margin-left: auto; display: flex; gap: 4px; }
 .anh-akt .btn { font-size: 11.5px; padding: 1px 7px; }
 .st-offen { color: #8a4b00; font-weight: 700; } .st-uebernommen { color: #15803d; font-weight: 700; } .st-veraltet { color: #b91c1c; font-weight: 700; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 200; display: flex; gap: 12px; align-items: center; background: var(--ink); color: #fff; border-radius: 8px; padding: 9px 12px 9px 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); font-size: 13.5px; max-width: calc(100vw - 32px); }
+.toast[hidden] { display: none; }
+.toast .btn { background: #fff; color: var(--ink); }
+.konflikt td { vertical-align: top; }
 .banner { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #fef3c7; border: 1px solid #d97706; color: #8a4b00; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 13.5px; }
 .okmsg { background: #dcfce7; border: 1px solid #16a34a; color: #14532d; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: 13.5px; }
 @media (max-width: 760px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -336,6 +340,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   <main id="view" tabindex="-1"></main>
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <div class="ovl" id="ovl">
   <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title">
     <div class="d-head">
@@ -365,7 +370,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
 <script>
 (function () {
   'use strict';
-  const NAVIGATOR = { fassung: '1.6', stand: '28.10.2026' };
+  const NAVIGATOR = { fassung: '1.7', stand: '28.10.2026' };
   const $ = id => document.getElementById(id);
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ESC[c]);
@@ -462,12 +467,13 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (pickZiel === '__neu') { neuDatei = pf; const el = $('e-datei'); if (el) el.textContent = pf; return; }
     if (pickZiel.startsWith('__anh:')) {
       const k = pickZiel.slice(6);
-      if (anhangDazu(k, pf)) linksMerken();
+      aktion(`${pf} an ${elementName(k)} angehängt.`, () => { if (!anhangDazu(k, pf)) return false; linksMerken(); });
       nachAenderung();
       return;
     }
-    setLink(pickZiel, pf);
-    ablageMsg = `${pickZiel} ist mit ${pf} verknüpft.`;
+    const ziel = pickZiel;
+    aktion(`${ziel} ist mit ${pf} verknüpft.`, () => setLink(ziel, pf));
+    ablageMsg = `${ziel} ist mit ${pf} verknüpft.`;
     nachAenderung();
   };
   $('pickdir').onchange = () => {
@@ -475,6 +481,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     scan = fs.map(f => ({ pfad: f.webkitRelativePath || f.name, name: f.name, size: f.size }));
     $('pickdir').value = '';
     let neu = 0, belegt = 0, ohne = 0, anh = 0;
+    aktion('Dokumentordner eingelesen.', () => {
     // Register-Dokumente und Ergänzungen erhalten ihre Datei; Dateien mit der Kennung einer Methode,
     // eines Werkzeugs, einer Routine oder Kennzahl werden diesem Element als Anhang angehängt.
     const re = /(?:^|[^A-Z0-9])((?:D|X)-[A-Z]{2}-\d{2}|M-\d{2}-\d{2}|W-[RMIPQS]-\d{2}|RT-\d-\d{2}|K[34]-[SCORE]-\d{2})(?![0-9])/;
@@ -487,6 +494,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       setLink(o.kennung, f.pfad); neu++;
     }
     linksMerken();
+    });
     const z = (n, e, m) => `${n} ${n === 1 ? e : m}`;
     ablageMsg = `${z(scan.length, 'Datei', 'Dateien')} eingelesen: ${z(neu, 'Dokument', 'Dokumente')} neu zugeordnet, ${z(anh, 'Anhang', 'Anhänge')} an Methoden, Werkzeugen, Routinen oder Kennzahlen, ${belegt} mit bereits verknüpfter Kennung nicht überschrieben, ${ohne} ohne passende Kennung im Dateinamen.`;
     nachAenderung();
@@ -503,23 +511,143 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
   const heute = () => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  // Direkt speichern: Chrome und Edge können einen Ordner verbinden und dorthin schreiben. Die Verbindung
+  // bleibt in IndexedDB erhalten; die Schreibberechtigung bestätigt der Browser beim ersten Speichern einer Sitzung.
+  // Andere Browser erhalten die Datei als Download.
+  const ordnerMoeglich = 'showDirectoryPicker' in window;
+  let ORDNER = null;
+  function idb(modus, fn) {
+    return new Promise((ok, fehler) => {
+      const r = indexedDB.open('bm-navigator', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onerror = () => fehler(r.error);
+      r.onsuccess = () => { const tx = r.result.transaction('kv', modus); const q = fn(tx.objectStore('kv')); tx.oncomplete = () => ok(q && q.result); tx.onerror = () => fehler(tx.error); };
+    });
+  }
+  async function ordnerLaden() {
+    if (!ordnerMoeglich) return;
+    try { ORDNER = (await idb('readonly', st => st.get('ordner'))) || null; } catch (e) { ORDNER = null; }
+    if (ORDNER && ['ablage', 'aenderungen'].includes(state.ansicht)) renderView();
+  }
+  async function ordnerVerbinden() {
+    let h;
+    try { h = await window.showDirectoryPicker({ id: 'bm-navigator', mode: 'readwrite' }); } catch (e) { return; }
+    let passt = true;
+    try { await h.getFileHandle('bm-daten.js'); } catch (e) { passt = false; }
+    if (!passt && !confirm(`Im Ordner ${h.name} liegt keine bm-daten.js. Ist das wirklich der Ordner des Navigators?`)) return;
+    ORDNER = h;
+    try { await idb('readwrite', st => st.put(h, 'ordner')); } catch (e) { /* Verbindung gilt dann nur in dieser Sitzung */ }
+    toast(`Ordner ${h.name} verbunden. Speichern schreibt jetzt direkt dorthin.`, false);
+    renderView();
+  }
+  async function ordnerTrennen() {
+    ORDNER = null;
+    try { await idb('readwrite', st => st.delete('ordner')); } catch (e) { /* nichts gespeichert */ }
+    toast('Ordner getrennt. Speichern erzeugt wieder einen Download.', false);
+    renderView();
+  }
+  async function speichere(name, text, typ) {
+    if (ORDNER) {
+      try {
+        let recht = await ORDNER.queryPermission({ mode: 'readwrite' });
+        if (recht !== 'granted') recht = await ORDNER.requestPermission({ mode: 'readwrite' });
+        if (recht === 'granted') {
+          const w = await (await ORDNER.getFileHandle(name, { create: true })).createWritable();
+          await w.write(text); await w.close();
+          return 'ordner';
+        }
+      } catch (e) { /* weiter mit Download */ }
+    }
+    herunterladen(name, text, typ);
+    return 'download';
+  }
+  const gespeichertText = (wo, name) => wo === 'ordner' ? `${name} ist im Ordner ${ORDNER.name} gespeichert.` : `${name} ist als Download gespeichert. Lege die Datei in den Ordner des Navigators und ersetze dort die bisherige Fassung.`;
+  const speicherortHtml = () => ordnerMoeglich
+    ? (ORDNER ? `Ordner <b>${esc(ORDNER.name)}</b> verbunden, „Speichern“ schreibt direkt dorthin. <button type="button" class="btn" data-o="trennen" style="font-size:12px;padding:2px 8px">Trennen</button>`
+      : `Download. <button type="button" class="btn" data-o="verbinden" style="font-size:12px;padding:2px 8px">Ordner des Navigators verbinden</button> <span class="hint">Danach speichert der Navigator direkt in den Ordner.</span>`)
+    : 'Download. Dieser Browser kann nicht direkt in einen Ordner speichern, Chrome und Edge können das.';
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-o]'); if (!b) return;
+    e.preventDefault();
+    if (b.dataset.o === 'verbinden') ordnerVerbinden(); else ordnerTrennen();
+  }, true);
+
+  // ---------- Rückgängig ----------
+  // Jede Pflegeaktion merkt sich den Stand davor; der Hinweis unten bietet „Rückgängig“ an, ebenso Strg+Z.
+  let undoSnap = null, toastTimer = null;
+  function aktion(text, fn) {
+    const snap = { L: kopie(L), A: kopie(A) };
+    if (fn() === false) return;
+    undoSnap = snap;
+    toast(text, true);
+  }
+  function toast(text, mitUndo) {
+    const t = $('toast');
+    t.innerHTML = `<span>${esc(text)}</span>${mitUndo ? '<button type="button" class="btn" data-undo>Rückgängig</button>' : ''}`;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; undoSnap = null; }, mitUndo ? 9000 : 5000);
+  }
+  function rueckgaengig() {
+    if (!undoSnap) return;
+    L = undoSnap.L; A = undoSnap.A; undoSnap = null;
+    linksMerken(); aenMerken(); renderView();
+    if ($('ovl').classList.contains('open') && state.o) open(state.o, true);
+    toast('Rückgängig gemacht.', false);
+  }
+  $('toast').addEventListener('click', e => { if (e.target.closest('[data-undo]')) rueckgaengig(); });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey && !e.target.matches('input, textarea, select') && undoSnap) { e.preventDefault(); rueckgaengig(); } });
+
+  // ---------- Zusammenführen ----------
+  // Arbeiten mehrere Personen am selben Ordner, führt „Zusammenführen“ eine zweite Datei mit dem eigenen
+  // Stand zusammen. Abweichende Änderungen am selben Feld werden als Konflikt einzeln entschieden.
+  let ladeModus = 'ersetzen', konflikte = [];
+  function linksZusammenfuehren(f) {
+    let links = 0, erg = 0, anh = 0; const kollision = [];
+    for (const [k, pf] of Object.entries(f.links)) { if (!L.links[k]) { L.links[k] = pf; links++; } else if (L.links[k] !== pf) kollision.push(k); }
+    for (const e of f.ergaenzungen) {
+      const da = L.ergaenzungen.find(x => x.kennung === e.kennung);
+      if (da && da.n === e.n) continue;
+      const neu = kopie(e);
+      if (da) { let nr = 1; while (L.ergaenzungen.some(x => x.kennung === `X-${e.baustein}-${String(nr).padStart(2, '0')}`)) nr++; neu.kennung = `X-${e.baustein}-${String(nr).padStart(2, '0')}`; }
+      L.ergaenzungen.push(neu); erg++;
+    }
+    for (const [k, l] of Object.entries(f.anhaenge)) for (const a of l) if (anhangDazu(k, a.datei)) { const x = anhaenge(k); x[x.length - 1].titel = a.titel; anh++; }
+    if (!L.basis && f.basis) L.basis = f.basis;
+    linksMerken();
+    return `Zusammengeführt: ${links} Verknüpfungen, ${erg} ergänzende Dokumente, ${anh} Anhänge übernommen.${kollision.length ? ` Bei ${kollision.join(', ')} verweist die andere Datei auf eine andere Datei; es gilt weiter die eigene.` : ''}`;
+  }
+  function aenZusammenfuehren(f) {
+    let neu = 0, gleich = 0, konf = 0;
+    for (const v of f.aenderungen) {
+      const eigen = aenderung(v.ziel, v.feld);
+      if (!eigen) { A.aenderungen.push(v); neu++; }
+      else if (eigen.neu === v.neu) gleich++;
+      else if (!konflikte.some(k => k.ziel === v.ziel && k.feld === v.feld)) { konflikte.push(v); konf++; }
+    }
+    aenMerken();
+    return `Zusammengeführt: ${neu} Änderungen übernommen, ${gleich} bereits gleich, ${konf} Konflikte zu entscheiden.`;
+  }
+
   function linksSpeichern() {
     L.stand = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const sortiert = { stand: L.stand, basis: L.basis, links: Object.fromEntries(Object.entries(L.links).sort((a, b) => a[0].localeCompare(b[0], 'de', { numeric: true }))), ergaenzungen: L.ergaenzungen, anhaenge: Object.fromEntries(Object.entries(L.anhaenge).sort((a, b) => a[0].localeCompare(b[0], 'de', { numeric: true }))) };
     const js = '// Linkregister des Modellnavigators E09. Gepflegt im Navigator unter Dokumentablage.\n'
       + '// Pfade sind relativ zum Basisordner, bei leerem Basisordner relativ zum Ordner des Navigators.\n'
       + 'window.BM_LINKS = ' + JSON.stringify(sortiert, null, 1) + ';\n';
-    herunterladen('bm-links.js', js, 'text/javascript');
     L = normL(sortiert); LDATEI = kopie(L); linksMerken();
-    ablageMsg = 'bm-links.js ist als Download gespeichert. Lege die Datei in den Ordner des Navigators und ersetze dort die bisherige Fassung.';
-    renderView();
+    speichere('bm-links.js', js, 'text/javascript').then(wo => { ablageMsg = gespeichertText(wo, 'bm-links.js'); renderView(); });
   }
   $('pickreg').onchange = () => {
     const f = $('pickreg').files[0]; $('pickreg').value = ''; if (!f) return;
     const r = new FileReader();
     r.onload = () => {
-      try { const t = String(r.result); L = normL(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1))); LDATEI = kopie(L); linksMerken(); ablageMsg = `Linkregister ${f.name} geladen.`; }
-      catch (err) { ablageMsg = 'Die Datei ist kein gültiges Linkregister.'; }
+      const modus = ladeModus; ladeModus = 'ersetzen';
+      try {
+        const t = String(r.result), x = normL(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)));
+        if (modus === 'mergen') aktion('Linkregister zusammengeführt.', () => { ablageMsg = linksZusammenfuehren(x); });
+        else { L = x; LDATEI = kopie(L); linksMerken(); ablageMsg = `Linkregister ${f.name} geladen.`; }
+      } catch (err) { ablageMsg = 'Die Datei ist kein gültiges Linkregister.'; }
       renderView();
     };
     r.readAsText(f, 'utf-8');
@@ -633,12 +761,32 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   }
   function aenSpeichern() {
     A.stand = heute();
-    herunterladen('bm-aenderungen.js', '// Änderungen am Modellnavigator E09, vorgenommen im Bearbeiten-Modus.\n'
+    const js = '// Änderungen am Modellnavigator E09, vorgenommen im Bearbeiten-Modus.\n'
       + '// Sie gelten im Navigator; die Datendatei bleibt die Kanonfassung. In den Kanon gehen sie über einen Änderungsantrag nach C07.\n'
-      + 'window.BM_AENDERUNGEN = ' + JSON.stringify(A, null, 1) + ';\n', 'text/javascript');
+      + 'window.BM_AENDERUNGEN = ' + JSON.stringify(A, null, 1) + ';\n';
     ADATEI = kopie(A); aenMerken();
-    aenMsg = 'bm-aenderungen.js ist als Download gespeichert. Lege die Datei in den Ordner des Navigators und ersetze dort die bisherige Fassung.';
-    renderView();
+    speichere('bm-aenderungen.js', js, 'text/javascript').then(wo => { aenMsg = gespeichertText(wo, 'bm-aenderungen.js'); renderView(); });
+  }
+  // Übernimmt eine Feldänderung. Liefert einen Fehlertext oder nichts.
+  function aendere(ziel, feld, text, begruendung, zielName) {
+    const neu = String(text || '').replace(/\s+/g, ' ').trim(), o = IX.obj.get(ziel);
+    if (o && o.ergaenzung) {
+      const eintrag = L.ergaenzungen.find(x => x.kennung === ziel);
+      if (!eintrag || !neu) return feld === 'Bezeichnung' ? 'Die Bezeichnung darf nicht leer sein.' : '';
+      aktion(`${feld} von ${ziel} geändert.`, () => { eintrag[ERG_FELD[feld]] = neu; linksMerken(); });
+      return '';
+    }
+    const kanon = wertIn(B0, ziel, feld);
+    if (kanon === undefined) return 'Dieses Feld lässt sich nicht bearbeiten.';
+    if (!neu && feld === 'Bezeichnung') return 'Die Bezeichnung darf nicht leer sein.';
+    const alt = aenderung(ziel, feld);
+    if ((alt ? alt.neu : kanon) === neu && (!alt || alt.begruendung === begruendung)) return '';
+    aktion(neu === kanon ? `${feld} von ${elementName(ziel)} entspricht wieder dem Kanon.` : `${feld} von ${elementName(ziel)} geändert.`, () => {
+      A.aenderungen = A.aenderungen.filter(v => !(v.ziel === ziel && v.feld === feld));
+      if (neu !== kanon) A.aenderungen.push({ ziel, zielName: zielName || elementName(ziel), feld, alt: kanon, neu, begruendung: begruendung || '', datum: heute() });
+      aenMerken();
+    });
+    return '';
   }
   function aenCsv() {
     const q = x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
@@ -652,8 +800,12 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     const f = $('pickaen').files[0]; $('pickaen').value = ''; if (!f) return;
     const r = new FileReader();
     r.onload = () => {
-      try { const t = String(r.result); A = normA(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1))); ADATEI = kopie(A); aenMerken(); aenMsg = `Änderungen aus ${f.name} geladen.`; }
-      catch (err) { aenMsg = 'Die Datei enthält keine gültigen Änderungen.'; }
+      const modus = ladeModus; ladeModus = 'ersetzen';
+      try {
+        const t = String(r.result), x = normA(JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)));
+        if (modus === 'mergen') aktion('Änderungen zusammengeführt.', () => { aenMsg = aenZusammenfuehren(x); });
+        else { A = x; konflikte = []; ADATEI = kopie(A); aenMerken(); aenMsg = `Änderungen aus ${f.name} geladen.`; }
+      } catch (err) { aenMsg = 'Die Datei enthält keine gültigen Änderungen.'; }
       renderView();
     };
     r.readAsText(f, 'utf-8');
@@ -958,9 +1110,10 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       + `<div class="card"><table class="kv">
           <tr><td>Linkregister</td><td>${LDATEI ? `bm-links.js${LDATEI.stand ? ' vom ' + esc(LDATEI.stand) : ''}` : 'keine Datei bm-links.js im Ordner des Navigators'}</td></tr>
           <tr><td>Verknüpft</td><td>${nLink} von ${ds.length} Register-Dokumenten · ${nErg()}</td></tr>
+          <tr><td>Speichern</td><td>${speicherortHtml()}</td></tr>
           <tr><td>Basisordner</td><td><input type="text" id="l-basis" value="${esc(L.basis)}" placeholder="leer: Dokumentordner liegt neben dem Navigator" style="width:100%;border:1px solid var(--line2);border-radius:6px;padding:5px 8px" aria-label="Basisordner" /><div class="hint" style="margin-top:4px">Leer lassen, wenn der Dokumentordner im Ordner des Navigators liegt. Sonst etwa <span class="kenn">../Ablage</span>, <span class="kenn">\\\\server\\ims</span> oder eine https-Adresse.</div></td></tr>
         </table>
-        <p style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-l="ordner">Dokumentordner einlesen</button><button type="button" class="btn" data-l="speichern">Linkregister speichern</button><button type="button" class="btn" data-l="laden">Linkregister laden</button></p>
+        <p style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-l="ordner">Dokumentordner einlesen</button><button type="button" class="btn" data-l="speichern">Linkregister speichern</button><button type="button" class="btn" data-l="laden">Linkregister laden</button><button type="button" class="btn" data-l="mergen" title="Verknüpfungen, Ergänzungen und Anhänge aus einer zweiten Datei hinzunehmen">Zusammenführen</button></p>
         <p class="hint" style="margin-top:6px">Beim Einlesen ordnet der Navigator jede Datei zu, deren Name eine Kennung enthält, etwa <span class="kenn">D-QV-01 KPI-Steckbrief.xlsx</span>. Bestehende Zuordnungen bleiben unverändert. Dateien ohne Kennung im Namen ordnest du unten mit „Datei wählen“ zu.${scan.length ? ` Eingelesen: ${scan.length} Dateien.` : ''}</p></div>`
       + `<h3 class="sec" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">Register-Dokumente nach D03-DOK <label class="hint" style="font-weight:400"><input type="checkbox" id="l-ohne" ${nurOhne ? 'checked' : ''} /> nur nicht verknüpfte</label></h3>${register || '<p class="hint">Alle Register-Dokumente sind verknüpft.</p>'}`
       + `<h3 class="sec">Ergänzende Dokumente</h3><p class="hint" style="margin-bottom:8px;max-width:820px">Dokumente, die sich im Betrieb als nützlich und standardsetzend erwiesen haben und noch nicht im Register D03-DOK stehen. Sie erhalten eine Kennung X-Baustein-Nummer, erscheinen in Objektliste, Suche, Baustein und Regel und sind dort als Ergänzung gekennzeichnet. Sie sind Kandidaten für die Aufnahme in D03-DOK und nicht Teil des Kanons.</p>`
@@ -982,33 +1135,34 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       })();
   };
   function bindAblage() {
-    $('l-basis').onchange = () => { L.basis = $('l-basis').value.trim(); linksMerken(); ablageMsg = 'Basisordner geändert.'; renderView(); };
+    $('l-basis').onchange = () => { aktion('Basisordner geändert.', () => { L.basis = $('l-basis').value.trim(); linksMerken(); }); ablageMsg = 'Basisordner geändert.'; renderView(); };
     $('l-ohne').onchange = () => { state.ohne = $('l-ohne').checked ? '1' : ''; writeHash(state, false); renderView(); };
   }
   document.addEventListener('click', e => {
     const pk = e.target.closest('[data-pick]');
     if (pk) { e.preventDefault(); e.stopPropagation(); waehle(pk.dataset.pick === '__anh' ? '__anh:' + state.o : pk.dataset.pick); return; }
     const aw = e.target.closest('[data-anh-weg2]');
-    if (aw) { e.preventDefault(); const [k, i] = aw.dataset.anhWeg2.split('|'); anhangWeg(k, +i); ablageMsg = `Anhang von ${k} entfernt.`; renderView(); return; }
+    if (aw) { e.preventDefault(); const [k, i] = aw.dataset.anhWeg2.split('|'); aktion(`Anhang von ${elementName(k)} entfernt.`, () => anhangWeg(k, +i)); renderView(); return; }
     const ul = e.target.closest('[data-unlink]');
-    if (ul) { e.preventDefault(); setLink(ul.dataset.unlink, ''); ablageMsg = `Verknüpfung von ${ul.dataset.unlink} gelöst.`; nachAenderung(); return; }
+    if (ul) { e.preventDefault(); aktion(`Verknüpfung von ${ul.dataset.unlink} gelöst.`, () => setLink(ul.dataset.unlink, '')); nachAenderung(); return; }
     const ew = e.target.closest('[data-erg-weg]');
-    if (ew) { e.preventDefault(); if (!confirm(`Ergänzendes Dokument ${ew.dataset.ergWeg} aus dem Linkregister entfernen?`)) return; L.ergaenzungen = L.ergaenzungen.filter(x => x.kennung !== ew.dataset.ergWeg); linksMerken(); ablageMsg = `${ew.dataset.ergWeg} entfernt.`; renderView(); return; }
+    if (ew) { e.preventDefault(); aktion(`${ew.dataset.ergWeg} entfernt.`, () => { L.ergaenzungen = L.ergaenzungen.filter(x => x.kennung !== ew.dataset.ergWeg); linksMerken(); }); renderView(); return; }
     const la = e.target.closest('[data-l]');
     if (!la) return;
     e.preventDefault();
     const a = la.dataset.l;
     if (a === 'ordner') { $('pickdir').value = ''; $('pickdir').click(); }
     else if (a === 'speichern') linksSpeichern();
-    else if (a === 'laden') { $('pickreg').value = ''; $('pickreg').click(); }
-    else if (a === 'verwerfen') { if (!confirm('Alle ungespeicherten Änderungen am Linkregister verwerfen?')) return; L = LDATEI ? kopie(LDATEI) : leer(); linksMerken(); ablageMsg = 'Änderungen verworfen.'; renderView(); }
+    else if (a === 'laden' || a === 'mergen') { ladeModus = a === 'mergen' ? 'mergen' : 'ersetzen'; $('pickreg').value = ''; $('pickreg').click(); }
+    else if (a === 'verwerfen') { if (!confirm('Alle ungespeicherten Änderungen am Linkregister verwerfen?')) return; aktion('Änderungen am Linkregister verworfen.', () => { L = LDATEI ? kopie(LDATEI) : leer(); linksMerken(); }); renderView(); }
     else if (a === 'erg-neu') {
       const n = $('e-n').value.trim(), bs = $('e-bs').value;
       if (!n || !bs) { ablageMsg = 'Für ein ergänzendes Dokument sind Bezeichnung und Baustein nötig.'; renderView(); return; }
       let nr = 1; while (L.ergaenzungen.some(x => x.kennung === `X-${bs}-${String(nr).padStart(2, '0')}`)) nr++;
       const k = `X-${bs}-${String(nr).padStart(2, '0')}`;
-      L.ergaenzungen.push({ kennung: k, n, baustein: bs, typ: $('e-typ').value.trim(), regeln: [...new Set(($('e-r').value.match(/\d+/g) || []).map(Number).filter(x => x >= 1 && x <= 10))].sort((x, y) => x - y), notiz: $('e-notiz').value.trim(), datei: neuDatei, aufgenommen: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) });
-      neuDatei = ''; linksMerken(); ablageMsg = `${k} ${n} aufgenommen.`; renderView();
+      const eintrag = { kennung: k, n, baustein: bs, typ: $('e-typ').value.trim(), regeln: [...new Set(($('e-r').value.match(/\d+/g) || []).map(Number).filter(x => x >= 1 && x <= 10))].sort((x, y) => x - y), notiz: $('e-notiz').value.trim(), datei: neuDatei, aufgenommen: heute() };
+      aktion(`${k} ${n} aufgenommen.`, () => { L.ergaenzungen.push(eintrag); linksMerken(); });
+      neuDatei = ''; ablageMsg = `${k} ${n} aufgenommen.`; renderView();
     }
   }, true);
 
@@ -1022,15 +1176,27 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       + `<div class="card"><table class="kv">
           <tr><td>Datei</td><td>${ADATEI ? `bm-aenderungen.js${ADATEI.stand ? ' vom ' + esc(ADATEI.stand) : ''}` : 'keine Datei bm-aenderungen.js im Ordner des Navigators'}</td></tr>
           <tr><td>Änderungen</td><td>${vs.length} gesamt · <span class="st-offen">${zahl('offen')} aktiv</span> · <span class="st-uebernommen">${zahl('uebernommen')} im Kanon enthalten</span> · <span class="st-veraltet">${zahl('veraltet')} zu prüfen</span></td></tr>
+          <tr><td>Speichern</td><td>${speicherortHtml()}</td></tr>
           <tr><td>Anzeige</td><td>${kanonSicht ? '<b>Kanonfassung</b>, die Änderungen sind ausgeblendet.' : '<b>Geänderte Fassung</b>, die Änderungen gelten.'}</td></tr>
           <tr><td>Status</td><td><span class="st-offen">aktiv</span>: Die Änderung gilt, der Kanon ist unverändert. <span class="st-uebernommen">im Kanon enthalten</span>: Der Kanon hat die Änderung aufgenommen, sie kann entfernt werden. <span class="st-veraltet">Kanon geändert</span>: Der Kanon hat sich an dieser Stelle anders geändert. Die Änderung gilt weiter und ist zu prüfen.</td></tr>
         </table>
-        <p style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ${bearbeiten ? 'on' : 'primary'}" data-a="modus">${bearbeiten ? 'Bearbeiten-Modus beenden' : 'Bearbeiten-Modus starten'}</button><button type="button" class="btn" data-a="kanon">${kanonSicht ? 'Änderungen anzeigen' : 'Kanonfassung zeigen'}</button><button type="button" class="btn" data-a="speichern">Änderungen speichern</button><button type="button" class="btn" data-a="laden">Änderungen laden</button><button type="button" class="btn" data-a="csv" ${vs.length ? '' : 'disabled'}>Als Tabelle exportieren (CSV)</button>${zahl('uebernommen') ? '<button type="button" class="btn" data-a="aufraeumen">Im Kanon enthaltene entfernen</button>' : ''}</p></div>`
+        <p style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ${bearbeiten ? 'on' : 'primary'}" data-a="modus">${bearbeiten ? 'Bearbeiten-Modus beenden' : 'Bearbeiten-Modus starten'}</button><button type="button" class="btn" data-a="kanon">${kanonSicht ? 'Änderungen anzeigen' : 'Kanonfassung zeigen'}</button><button type="button" class="btn" data-a="speichern">Änderungen speichern</button><button type="button" class="btn" data-a="laden">Änderungen laden</button><button type="button" class="btn" data-a="mergen" title="Änderungen einer zweiten Datei hinzunehmen, Konflikte einzeln entscheiden">Zusammenführen</button><button type="button" class="btn" data-a="csv" ${vs.length ? '' : 'disabled'}>Als Tabelle exportieren (CSV)</button>${zahl('uebernommen') ? '<button type="button" class="btn" data-a="aufraeumen">Im Kanon enthaltene entfernen</button>' : ''}</p></div>`
+      + (konflikte.length ? `<h3 class="sec">Konflikte beim Zusammenführen (${konflikte.length})</h3><p class="hint" style="margin-bottom:8px">Beide Dateien ändern dasselbe Feld unterschiedlich. Entscheide je Feld, welche Fassung gilt.</p><div class="scroll"><table class="list konflikt"><tr><th>Ziel</th><th>Feld</th><th>Eigene Fassung</th><th>Andere Fassung</th><th></th></tr>${konflikte.map((v, i) => { const eigen = aenderung(v.ziel, v.feld) || {}; return `<tr><td>${refBtn(v.ziel, v.ziel.replace(/^(bs|komp|ebene|kanon):/, ''))}<br><span class="hint">${esc(v.zielName || '')}</span></td><td><b>${esc(v.feld)}</b></td><td>${rich(eigen.neu || '')}<br><span class="hint">${esc(eigen.datum || '')}</span></td><td>${rich(v.neu)}<br><span class="hint">${esc(v.datum || '')}${v.begruendung ? ' · ' + esc(v.begruendung) : ''}</span></td><td class="akt" style="white-space:nowrap"><button type="button" class="btn" data-konflikt="${i}|eigen">Eigene behalten</button> <button type="button" class="btn primary" data-konflikt="${i}|fremd">Andere übernehmen</button></td></tr>`; }).join('')}</table></div>` : '')
       + (vs.length ? `<h3 class="sec">Änderungen</h3><div class="scroll"><table class="list"><tr><th>Ziel</th><th>Feld</th><th>Kanonfassung</th><th>Geänderte Fassung</th><th>Begründung</th><th>Status</th><th></th></tr>${zeilen}</table></div>` : '<p class="hint" style="margin-top:14px">Noch keine Änderung. Starte den Bearbeiten-Modus und öffne ein Element.</p>');
   };
   document.addEventListener('click', e => {
     const w = e.target.closest('[data-aen-weg]');
-    if (w) { e.preventDefault(); const v = A.aenderungen[+w.dataset.aenWeg]; if (!v || !confirm(`Änderung an ${v.ziel} · ${v.feld} löschen und die Kanonfassung wieder anzeigen?`)) return; A.aenderungen.splice(+w.dataset.aenWeg, 1); aenMerken(); aenMsg = 'Änderung zurückgesetzt.'; renderView(); return; }
+    if (w) { e.preventDefault(); const v = A.aenderungen[+w.dataset.aenWeg]; if (!v) return; aktion(`Änderung an ${v.ziel} · ${v.feld} zurückgesetzt.`, () => { A.aenderungen.splice(+w.dataset.aenWeg, 1); aenMerken(); }); renderView(); return; }
+    const kf = e.target.closest('[data-konflikt]');
+    if (kf) {
+      e.preventDefault();
+      const [i, wahl] = kf.dataset.konflikt.split('|'), v = konflikte[+i]; if (!v) return;
+      aktion(wahl === 'fremd' ? `Andere Fassung für ${v.ziel} · ${v.feld} übernommen.` : `Eigene Fassung für ${v.ziel} · ${v.feld} behalten.`, () => {
+        if (wahl === 'fremd') { A.aenderungen = A.aenderungen.filter(x => !(x.ziel === v.ziel && x.feld === v.feld)); A.aenderungen.push(v); }
+        konflikte.splice(+i, 1); aenMerken();
+      });
+      renderView(); return;
+    }
     const b = e.target.closest('[data-a]');
     if (!b) return;
     e.preventDefault();
@@ -1038,10 +1204,10 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (a === 'modus') $('ed-toggle').click();
     else if (a === 'kanon') kanonUmschalten();
     else if (a === 'speichern') aenSpeichern();
-    else if (a === 'laden') { $('pickaen').value = ''; $('pickaen').click(); }
+    else if (a === 'laden' || a === 'mergen') { ladeModus = a === 'mergen' ? 'mergen' : 'ersetzen'; $('pickaen').value = ''; $('pickaen').click(); }
     else if (a === 'csv') aenCsv();
-    else if (a === 'aufraeumen') { A.aenderungen = A.aenderungen.filter(v => aeStatus(v)[1] !== 'uebernommen'); aenMerken(); aenMsg = 'Im Kanon enthaltene Änderungen entfernt.'; renderView(); }
-    else if (a === 'verwerfen') { if (!confirm('Alle ungespeicherten Änderungen verwerfen?')) return; A = ADATEI ? kopie(ADATEI) : normA(); aenMerken(); aenMsg = 'Ungespeicherte Änderungen verworfen.'; renderView(); }
+    else if (a === 'aufraeumen') { aktion('Im Kanon enthaltene Änderungen entfernt.', () => { A.aenderungen = A.aenderungen.filter(v => aeStatus(v)[1] !== 'uebernommen'); aenMerken(); }); renderView(); }
+    else if (a === 'verwerfen') { if (!confirm('Alle ungespeicherten Änderungen verwerfen?')) return; aktion('Ungespeicherte Änderungen verworfen.', () => { A = ADATEI ? kopie(ADATEI) : normA(); konflikte = []; aenMerken(); }); renderView(); }
   }, true);
 
   VIEWS.info = () => {
@@ -1134,8 +1300,8 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     if (at) {
       e.preventDefault(); e.stopPropagation();
       const k = state.o;
-      if (at.dataset.anhWeg !== undefined) { if (!confirm('Anhang entfernen? Die Datei selbst bleibt erhalten.')) return; anhangWeg(k, +at.dataset.anhWeg); }
-      else { const a = anhaenge(k)[+at.dataset.anhTitel]; const t = a && prompt('Titel des Anhangs', a.titel); if (t && t.trim()) { a.titel = t.trim(); linksMerken(); } }
+      if (at.dataset.anhWeg !== undefined) aktion(`Anhang von ${elementName(k)} entfernt.`, () => anhangWeg(k, +at.dataset.anhWeg));
+      else { const i = +at.dataset.anhTitel, a = anhaenge(k)[i]; const t = a && prompt('Titel des Anhangs', a.titel); if (t && t.trim()) aktion('Anhang umbenannt.', () => { anhaenge(k)[i].titel = t.trim(); linksMerken(); }); }
       open(k, true);
       return;
     }
@@ -1154,19 +1320,10 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     e.preventDefault(); e.stopPropagation();
     const form = a.closest('.ed-form'), feld = form.dataset.zielFeld, ziel = state.o, o = IX.obj.get(ziel);
     if (a.dataset.ed === 'ok') {
-      const neu = form.querySelector('textarea').value.replace(/\s+/g, ' ').trim();
-      if (o && o.ergaenzung) {
-        const eintrag = L.ergaenzungen.find(x => x.kennung === ziel);
-        if (eintrag && neu) { eintrag[ERG_FELD[feld]] = neu; linksMerken(); }
-      } else {
-        const kanon = wertIn(B0, ziel, feld) || '';
-        if (!neu && feld === 'Bezeichnung') { alert('Die Bezeichnung darf nicht leer sein.'); return; }
-        A.aenderungen = A.aenderungen.filter(v => !(v.ziel === ziel && v.feld === feld));
-        if (neu !== kanon) A.aenderungen.push({ ziel, zielName: drawerWerte.Bezeichnung, feld, alt: kanon, neu, begruendung: (form.querySelector('input') || {}).value || '', datum: heute() });
-        aenMerken();
-      }
+      const fehler = aendere(ziel, feld, form.querySelector('textarea').value, (form.querySelector('input') || {}).value || '', drawerWerte.Bezeichnung);
+      if (fehler) { alert(fehler); return; }
     } else if (a.dataset.ed === 'weg') {
-      A.aenderungen = A.aenderungen.filter(v => !(v.ziel === ziel && v.feld === feld)); aenMerken();
+      aktion(`${feld} von ${elementName(ziel)} auf die Kanonfassung zurückgesetzt.`, () => { A.aenderungen = A.aenderungen.filter(v => !(v.ziel === ziel && v.feld === feld)); aenMerken(); });
     }
     renderView();
     open(ziel, true);
