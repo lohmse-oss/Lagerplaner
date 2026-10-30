@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulationstool V2.2</title>
+<title>Kalkulationstool V2.4</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
   --bg:#f1f5f9; --card:#ffffff; --ink:#0f172a; --mut:#64748b; --line:#e2e8f0;
-  --side:#0f172a; --acc:#2563eb; --amber:#f59e0b; --red:#dc2626; --teal:#0f766e;
+  --side:#0f172a; --acc:#2563eb; --amber:#f59e0b; --red:#dc2626; --teal:#0f766e; --header-h:52px;
   font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box}
@@ -38,7 +38,7 @@ tr:hover td{background:#f8fafc}
 /* Ausgeblendete Tooltips dürfen die Seitenbreite nicht vergrößern */
 .tt:hover::after,.tt:focus-visible::after{display:block}
 /* Kopfzeile */
-header{background:var(--side);color:#fff;padding:10px 16px;display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 12px rgba(15,23,42,.18)}
+header{position:sticky;top:0;z-index:110;background:var(--side);color:#fff;padding:10px 16px;display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 12px rgba(15,23,42,.18)}
 header h1{font-size:16px;margin:0;font-weight:600;letter-spacing:.02em;white-space:nowrap}
 header h1 .v{color:var(--amber);font-weight:600;margin-left:4px}
 header .proj{color:#cbd5e1;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 160px}
@@ -53,7 +53,7 @@ header .btn:disabled{background:#1e293b;border-color:#334155}
 .dd-list button:hover{background:#f1f5f9}
 .dd-sep{height:1px;background:var(--line);margin:5px 2px}
 /* Register */
-#tabs{display:flex;gap:6px;padding:12px 14px 0;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--bg)}
+#tabs{position:sticky;top:var(--header-h);z-index:100;display:flex;gap:6px;padding:12px 14px 0;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--bg)}
 #tabs button{border:1px solid #99f6e4;border-bottom:none;background:#f0fdfa;color:#115e59;border-radius:9px 9px 0 0;padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
 #tabs button[aria-selected="true"]{background:var(--card);color:var(--teal);border-color:#0d9488;box-shadow:inset 0 -3px 0 currentColor}
 main{flex:1;padding:12px 14px 24px;min-width:0}
@@ -138,13 +138,52 @@ select.ci{width:100%;min-width:80px;height:24px;background:#fefce8;border:1px so
 .calc-checks li.info{color:#64748b}
 .calc-var{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 10px;font-size:12px}
 input.ci.calc-var-name{width:240px;flex:0 1 240px}
+
+/* Landingpage und Eingabeführung */
+.home-hero{background:linear-gradient(120deg,#0f172a,#164e63);color:#fff;border-radius:14px;padding:24px;margin-bottom:12px;display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:center}
+.home-hero h2{font-size:24px;margin:0 0 8px}.home-hero p{color:#cbd5e1;margin:0;line-height:1.55}
+.home-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.home-actions .btn{padding:9px 14px}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.home-tile{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;text-align:left;cursor:pointer;color:var(--ink)}
+.home-tile:hover{border-color:#0d9488;box-shadow:0 4px 14px rgba(15,23,42,.08)}.home-tile b{display:block;margin-bottom:5px}.home-tile span{font-size:11.5px;color:var(--mut);line-height:1.4}
+.home-status{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}.home-status .calc-kpi{margin:0}
+.basis-jump{position:sticky;top:calc(var(--header-h) + 49px);z-index:70;display:flex;gap:6px;overflow-x:auto;padding:7px 8px;margin:0 0 10px;background:rgba(241,245,249,.96);border:1px solid var(--line);border-radius:8px;backdrop-filter:blur(4px)}
+.basis-jump a{white-space:nowrap;text-decoration:none;color:#334155;background:#fff;border:1px solid #cbd5e1;border-radius:999px;padding:5px 9px;font-size:11.5px}.basis-jump a:hover{border-color:#0d9488;color:#0f766e}
+.calc-form .mf>span:first-child{font-weight:600;color:#475569}.calc-form .mf:has(input[required])>span:first-child::after{content:" *";color:var(--red)}
+.calc-form input,.calc-form select,.calc-form textarea{transition:border-color .15s,box-shadow .15s}.calc-form input:focus,.calc-form select:focus,.calc-form textarea:focus{box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+@media(max-width:760px){.home-hero{grid-template-columns:1fr;padding:18px}.home-actions{justify-content:flex-start}.basis-jump{top:calc(var(--header-h) + 43px)}}
+
+/* Standard- und Detailansicht */
+.view-switch{display:inline-flex;align-items:center;gap:3px;padding:3px;background:#e2e8f0;border-radius:8px}
+.view-switch button{border:0;background:transparent;color:#334155;padding:6px 9px;border-radius:6px;font:inherit;font-size:12px;cursor:pointer}
+.view-switch button[aria-pressed="true"]{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.18)}
+.scope-note{margin:10px 0 0;padding:8px 10px;border-left:3px solid #f59e0b;background:#fffbeb;color:#78350f;border-radius:4px;font-size:12px}
+body.view-standard .detail-only{display:none!important}
+.header-language{display:flex;align-items:center;gap:6px}.header-language label{font-size:11px;color:#cbd5e1}.header-language select{min-width:118px;background:#fff;color:#0f172a;border:1px solid #cbd5e1;border-radius:7px;padding:6px 26px 6px 8px;font:inherit;font-size:12px}@media(max-width:700px){.header-language label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}.header-language select{min-width:105px}}
+/* KPI- und Statusseitenleiste V2.10 */
+.app-shell{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px;align-items:start;max-width:1720px;margin:0 auto;padding:0 14px}
+.app-shell main{min-width:0;padding-left:0;padding-right:0}
+.kpi-sidebar{position:sticky;top:calc(var(--header-h) + 12px);max-height:calc(100vh - var(--header-h) - 24px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;box-shadow:0 4px 18px rgba(15,23,42,.08)}
+.kpi-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.kpi-head h2{font-size:15px;margin:0}.kpi-config-btn{border:1px solid #cbd5e1;background:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;font:inherit;font-size:11px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.kpi-card{border:1px solid #e2e8f0;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;border-radius:9px;padding:9px;background:#f8fafc;min-height:66px}.kpi-card:hover,.kpi-card:focus{border-color:#2563eb;box-shadow:0 3px 10px rgba(37,99,235,.15);transform:translateY(-1px);outline:0}.kpi-card.fixed{border-left:3px solid #0d9488}.kpi-card.variable{border-left:3px solid #64748b}.kpi-label{font-size:10.5px;color:#64748b;line-height:1.2}.kpi-value{font-size:15px;font-weight:700;color:#0f172a;margin-top:6px;overflow-wrap:anywhere}
+.kpi-status{margin-top:10px;padding:9px;border-radius:8px;font-size:12px}.kpi-status.ok{background:#ecfdf5;color:#065f46}.kpi-status.warn{background:#fff7ed;color:#9a3412}.kpi-picker{display:none;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:9px}.kpi-picker.open{display:block}.kpi-picker label{display:flex;gap:7px;align-items:flex-start;font-size:11px;margin:6px 0}.kpi-picker-note{font-size:10px;color:#64748b;margin:0 0 7px}
+.kpi-source-flash{animation:kpiSourceFlash 2.2s ease-out}@keyframes kpiSourceFlash{0%,35%{outline:3px solid #f59e0b;background:#fffbeb}100%{outline-color:transparent}}
+@media(max-width:1100px){.app-shell{grid-template-columns:1fr}.kpi-sidebar{position:relative;top:auto;max-height:none;grid-row:1}.kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.app-shell{padding:0 8px}.kpi-grid{grid-template-columns:1fr 1fr}}
 </style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:_dlc_DocId msdt:dt="string">4VKVJHMM4HCV-130666488-75839</mso:_dlc_DocId>
+<mso:_dlc_DocIdItemGuid msdt:dt="string">0715f811-57e2-4b6d-b30d-a4c2e8ecb168</mso:_dlc_DocIdItemGuid>
+<mso:_dlc_DocIdUrl msdt:dt="string">https://leadecservices.sharepoint.com/sites/VIHAPMEPublic/_layouts/15/DocIdRedir.aspx?ID=4VKVJHMM4HCV-130666488-75839, 4VKVJHMM4HCV-130666488-75839</mso:_dlc_DocIdUrl>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
 </head>
 <body>
 <header>
-  <h1>Kalkulationstool<span class="v" id="app-ver">V2.2</span></h1>
+  <h1>Kalkulationstool<span class="v" id="app-ver">V2.10</span></h1>
   <span class="proj" id="hdr-proj">Neue Kalkulation</span>
-  <div class="hdr-actions">
+  <div class="hdr-actions"><div class="header-language"><label for="app-language">Sprache</label><select id="app-language" aria-label="Sprache"><option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pl">Polski</option><option value="cs">Čeština</option><option value="hu">Magyar</option></select></div><div class="view-switch" role="group" aria-label="Ansicht"><button type="button" id="view-standard" aria-pressed="true" title="Bewährte Eingabelogik für kleine und mittlere Projekte">Standard</button><button type="button" id="view-detail" aria-pressed="false" title="Zusätzliche Parameter für differenzierte Kalkulationen">Detail</button></div><button type="button" class="btn" id="btn-home" title="Zur Startseite">Home</button>
     <button type="button" class="btn" id="btn-undo" disabled title="Rückgängig">Rückgängig</button>
     <div class="dd" id="dd-file">
       <button type="button" class="btn" id="btn-dd-file" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-file">Datei ▾</button>
@@ -165,6 +204,7 @@ input.ci.calc-var-name{width:240px;flex:0 1 240px}
   </div>
 </header>
 <nav id="tabs" role="tablist" aria-label="Register">
+  <button type="button" role="tab" id="tab-home" data-tab="home" aria-controls="panel-home">Start</button>
   <button type="button" role="tab" id="tab-projekt" data-tab="projekt" aria-controls="panel-projekt">Projekt &amp; Basisdaten</button>
   <button type="button" role="tab" id="tab-personal" data-tab="personal" aria-controls="panel-personal">Personalkosten</button>
   <button type="button" role="tab" id="tab-sachkosten" data-tab="sachkosten" aria-controls="panel-sachkosten">Sachkosten</button>
@@ -173,7 +213,8 @@ input.ci.calc-var-name{width:240px;flex:0 1 240px}
   <button type="button" role="tab" id="tab-oto" data-tab="oto" aria-controls="panel-oto">OtO-Werte</button>
   <button type="button" role="tab" id="tab-dokumentation" data-tab="dokumentation" aria-controls="panel-dokumentation">Dokumentation</button>
 </nav>
-<main id="panels">
+<div class="app-shell"><main id="panels">
+  <div class="panel" id="panel-home" role="tabpanel" aria-labelledby="tab-home"><div id="calc-panel-home"></div></div>
   <div class="panel" id="panel-projekt" role="tabpanel" aria-labelledby="tab-projekt"><div id="calc-panel-projekt"></div></div>
   <div class="panel" id="panel-personal" role="tabpanel" aria-labelledby="tab-personal"><div id="calc-panel-personal"></div></div>
   <div class="panel" id="panel-sachkosten" role="tabpanel" aria-labelledby="tab-sachkosten"><div id="calc-panel-sachkosten"></div></div>
@@ -183,13 +224,21 @@ input.ci.calc-var-name{width:240px;flex:0 1 240px}
   <div class="panel" id="panel-dokumentation" role="tabpanel" aria-labelledby="tab-dokumentation"><div id="calc-panel-dokumentation"></div></div>
   <div id="calc-datalists" hidden></div>
 </main>
-<footer id="app-footer">Kalkulationstool V2.2 · Nachbau des Kalkulationstools Light V1.0 · läuft lokal im Browser, keine Serververbindung · Ergebnisse vom Anwender auf Plausibilität zu prüfen</footer>
+<aside id="kpi-sidebar" class="kpi-sidebar" aria-label="KPI- und Statusübersicht"></aside></div>
+<footer id="app-footer">Kalkulationstool V2.4 · Nachbau des Kalkulationstools Light V1.0 · läuft lokal im Browser, keine Serververbindung · Ergebnisse vom Anwender auf Plausibilität zu prüfen</footer>
 <script>
 "use strict";
 /* ============================ Hilfsfunktionen ============================ */
-const APP_VERSION="V2.2";
+const APP_VERSION="V2.10";
 const LS_KEY="kalkulationstool-state";
 const $=id=>document.getElementById(id);
+function syncStickyOffsets(){
+  const h=document.querySelector("header");
+  if(h)document.documentElement.style.setProperty("--header-h",h.getBoundingClientRect().height+"px");
+}
+window.addEventListener("load",syncStickyOffsets);
+window.addEventListener("resize",syncStickyOffsets);
+if("ResizeObserver" in window)window.addEventListener("DOMContentLoaded",()=>{const h=document.querySelector("header");if(h)new ResizeObserver(syncStickyOffsets).observe(h);});
 const fmt=(n,d)=>{d=(d===undefined)?0:d;return (isFinite(n)?n:0).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});};
 const getP=(o,p)=>p.split(".").reduce((a,k)=>(a==null?undefined:a[k]),o);
 const setP=(o,p,v)=>{const ks=p.split("."),last=ks.pop();const t=ks.reduce((a,k)=>a[k],o);t[last]=v;};
@@ -268,7 +317,7 @@ function openPrintWindow(title,inner){
    excelMode rechnet wie die Excel-Vorlage (Monatsanteile gerundet, höchstens 10 Kalenderjahre, Gross Profit auf den
    Angebotsumsatz, Wechselkurs ohne Wirkung) und lässt die Methodenerweiterungen außen vor; sonst gelten die Korrekturen.
    Eingabehilfen (Personalbedarf, Tarifgruppen, Zuschlag je Zeile) wirken in beiden Modi. */
-const CALC_TABS=["projekt","personal","sachkosten","summary","auswertung","oto","dokumentation"];
+const CALC_TABS=["home","projekt","personal","sachkosten","summary","auswertung","oto","dokumentation"];
 const CALC_MAX_ROWS=500;
 const CALC_LIST_MAX=50;
 const CALC_MAX_VARIANTS=10;
@@ -280,7 +329,8 @@ const CALC_EVAL_FIELDS={priceIndex:[-20,50],discount:[0,50],minMargin:[-50,90],s
 const CALC_DOC_TEXT=["version","status","reviewer","reviewDate","note"];
 // Felder je Liste: [Name, Typ, Minimum, Maximum] bzw. [Name, "sel", Optionen]; Typen text, num, pct, sel, check, date, years
 const CALC_PERSON_FIELDS=[["name","text"],["fte","num",0,100000],["rate","num",0,100000000],["gross","pct",0,500],["grade","text"],["extra","pct",0,300],["note","text"],["fteYears","years"]];
-const CALC_COST_FIELDS=[["name","text"],["qty","num",0,10000000],["price","num",-10000000000,10000000000],["pass","check"],["note","text"]];
+const CALC_COST_FIELDS=[["name","text"],["qty","num",0,10000000],["price","num",-10000000000,10000000000],["pass","check"],["note","text"],
+  ["category","text"],["procurement","sel",["Kauf","Leasing","Miete"]],["startYear","num",1,100],["usefulLife","num",1,100],["residual","num",0,10000000000]];
 const CALC_LISTS={
   salaries:{path:"calc.salaries",label:"Gehälter",fields:CALC_PERSON_FIELDS},
   wages:{path:"calc.wages",label:"Löhne",fields:CALC_PERSON_FIELDS},
@@ -604,7 +654,13 @@ function computeCalc(state,opts){
   const costRows=(key,list)=>(Array.isArray(list)?list:[]).map(x=>{
     const q=calcNum(x.qty,0,1e7),p=calcNum(x.price,-1e10,1e10),pass=!excel&&x.pass===true,f=fac[key];
     if(key==="capex"||key==="rampup"){
-      const nominal=q*p*f,pa=annuity?nominal*annuity:(mT>0?nominal/mT*12:0);
+      const nominal=q*p*f;
+      if(key==="capex"&&calcNum(x.usefulLife,0,100)>0){
+        const life=calcNum(x.usefulLife,1,100),start=Math.max(1,Math.round(calcNum(x.startYear,1,100))),residual=Math.min(Math.max(0,calcNum(x.residual,0,1e10)),Math.max(0,nominal));
+        const annual=(nominal-residual)/life,yr=P.months.map((m,i)=>(i+1>=start&&i+1<start+life)?annual*m/12:0),lz=yr.reduce((a,v)=>a+v,0),pa=durT>0?lz/durT:0;
+        return {q,p,pass,nominal,pa,lz,yr,life,start,residual};
+      }
+      const pa=annuity?nominal*annuity:(mT>0?nominal/mT*12:0);
       return {q,p,pass,nominal,pa,lz:annuity?pa*durT:nominal,yr:P.months.map(m=>pa*m/12)};
     }
     const base=q*p*(key==="opex"?12:1)*f,yr=P.months.map((m,i)=>base*escY[i]*m/12);
@@ -879,10 +935,25 @@ function calcTornadoSvg(rows){
   return '<svg class="calc-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tornado-Diagramm der Sensitivitätsanalyse" '+CALC_SVG_FONT+'>'+out+'</svg>';
 }
 
+function calcHomeHtml(r){
+  const m=S.meta||{},q=S.request||{},c=S.calc||{},hasProject=!!(m.name||m.kunde),ready=!!(m.name&&m.kunde&&q.sop&&q.eop);
+  const status=ready?"Basisdaten vollständig":"Basisdaten ergänzen";
+  return '<section class="home-hero"><div><h2>'+escH(m.name||"Neue Kalkulation")+'</h2><p>'+(m.kunde?escH(m.kunde)+(q.serviceSite?' · '+escH(q.serviceSite):''):"Projekt anlegen, Kalkulationsdaten erfassen und Ergebnis prüfen.")+'</p></div><div class="home-actions"><button class="btn acc" data-go-tab="projekt">'+(hasProject?'Basisdaten bearbeiten':'Kalkulation starten')+'</button><button class="btn" data-go-tab="summary">Summary öffnen</button></div></section>'+
+    '<div class="home-status">'+calcKpi("Bearbeitungsstand",status,ready?"good":"bad")+calcKpi("Laufzeit",r.period.ok?fmt(r.period.monthsTotal,2)+" Monate":"noch offen","")+calcKpi("Umsatz p. a.",r.period.ok?calcEur(r.sum.pa.umv):"–","")+calcKpi("Warnungen",String(r.warn.length),r.warn.length?"bad":"good")+'</div>'+
+    '<div class="home-grid">'+
+    '<button class="home-tile" data-go-tab="projekt"><b>1. Projekt &amp; Basisdaten</b><span>Projektkopf, Laufzeit, Kalkulationsparameter, Arbeitszeit und Sozialversicherung.</span></button>'+
+    '<button class="home-tile" data-go-tab="personal"><b>2. Personalkosten</b><span>Personalbedarf, Gehälter, Löhne und Tarifgruppen erfassen.</span></button>'+
+    '<button class="home-tile" data-go-tab="sachkosten"><b>3. Sachkosten</b><span>Investitionen, Betriebskosten, Fremdleistungen und Ramp-up pflegen.</span></button>'+
+    '<button class="home-tile" data-go-tab="summary"><b>4. Summary</b><span>Kosten, Zuschläge, Angebotspreis und Laufzeitwerte prüfen.</span></button>'+
+    '<button class="home-tile" data-go-tab="auswertung"><b>5. Auswertung</b><span>Jahreswerte, Cashflow, Sensitivität und Preisuntergrenze analysieren.</span></button>'+
+    '<button class="home-tile" data-go-tab="dokumentation"><b>6. Dokumentation</b><span>Version, Freigabe, Historie und Änderungen dokumentieren.</span></button></div>';
+}
+
 /* Register Projekt & Basisdaten */
 function calcProjectHtml(r){
   const P=r.period,b="calc.base.",pin=(k,label)=>calcInput(b+k,"pct",{min:CALC_BASE_FIELDS[k][0],max:CALC_BASE_FIELDS[k][1],label});
   const nin=(k,label)=>calcInput(b+k,"num",{min:CALC_BASE_FIELDS[k][0],max:CALC_BASE_FIELDS[k][1],label});
+  const jump='<nav class="basis-jump" aria-label="Bereiche der Basisdaten"><a href="#calc-card-project">Projekt</a><a href="#calc-card-pricing">Zuschläge</a><a href="#calc-card-worktime">Arbeitszeit</a><a href="#calc-card-escalation">Steigerungen</a><a href="#calc-card-social">Sozialversicherung</a></nav>';
   const proj=calcCard("Projektdaten","Allgemeine Projektdaten. Start und Ende der Leistung bestimmen die Laufzeit und die Monatsanteile je Kalenderjahr. Projektdaten lassen sich über Datei › Projektdaten aus Lagerplaner-Planungsdatei übernehmen.",
     '<div class="calc-form">'+
     calcField("Projektname",calcInput("meta.name","text",{label:"Projektname"}))+calcField("Kundenname",calcInput("meta.kunde","text",{label:"Kundenname"}))+
@@ -948,7 +1019,7 @@ function calcProjectHtml(r){
     '<li><b>Dokumentation:</b> Version und Freigabe, Versionshistorie mit Kennzahlen und das automatische Änderungsprotokoll der Kalkulationsinhalte.</li></ol>'+
     '<p class="calc-legend"><span class="sw sw-in"></span> Eingabefeld <span class="sw sw-out"></span> Ausgabefeld <span class="sw sw-hl"></span> Zwischensumme <span class="sw sw-link"></span> aus Personalbedarf oder Tarifgruppe</p>'+
     '<p class="hint">Hinweis: Das Werkzeug unterstützt die Projektkalkulation; alle Eingaben und Ergebnisse sind vom Anwender eigenverantwortlich auf Richtigkeit und Plausibilität zu prüfen.</p>');
-  return '<div class="calc-grid">'+proj+mode+'</div><div class="calc-grid">'+sur+hours+'</div><div class="calc-grid">'+dev+pnk+'</div><div class="calc-grid">'+svCard+costPar+'</div>'+
+  return jump+'<div class="calc-grid">'+proj+mode+'</div><div class="calc-grid">'+sur+hours+'</div><div class="calc-grid">'+dev+pnk+'</div><div class="calc-grid">'+svCard+costPar+'</div>'+
     '<div class="calc-grid">'+tpl+lists+'</div>'+guide;
 }
 
@@ -1013,11 +1084,13 @@ function calcPersonnelHtml(r){
 
 /* Register Sachkosten */
 function calcCostCard(key,title,tip,priceLabel){
-  const res=CALC.cost[key];
-  return calcCard(title,tip,calcListHtml(key,[{h:"Name",f:"name"},{h:"Menge",f:"qty",num:true},{h:priceLabel,f:"price",num:true},
+  const res=CALC.cost[key],capexDetail=key==="capex"?[
+    {h:"Kategorie",f:"category",cls:"detail-only"},{h:"Beschaffung",f:"procurement",cls:"detail-only"},{h:"Startjahr",f:"startYear",num:true,cls:"detail-only"},{h:"Nutzungsdauer [J]",f:"usefulLife",num:true,cls:"detail-only"},{h:"Restwert [€]",f:"residual",num:true,cls:"detail-only"}]:[];
+  const cols=[{h:"Name",f:"name"},{h:"Menge",f:"qty",num:true},{h:priceLabel,f:"price",num:true},...capexDetail,
     {h:"Durchreichposten",f:"pass",tip:"Ohne Umlagen, Gewinn und Risiko; stattdessen nur der Aufschlag für Durchreichposten aus den Basisdaten (nicht im Excel-kompatiblen Modus)."},
-    {h:"Gesamtkosten Jahr",out:i=>calcEur(res.rows[i].pa,2),num:true},{h:"Gesamtkosten Laufzeit",out:i=>calcEur(res.rows[i].lz,2),num:true},{h:"Quelle/Annahme",f:"note"}],
-    [null,null,null,null,calcEur(res.pa,2),calcEur(res.lz,2),null]),"calc-card-"+key);
+    {h:"Gesamtkosten Jahr",out:i=>calcEur(res.rows[i].pa,2),num:true},{h:"Gesamtkosten Laufzeit",out:i=>calcEur(res.rows[i].lz,2),num:true},{h:"Quelle/Annahme",f:"note"}];
+  const totals=cols.map(c=>c.h==="Gesamtkosten Jahr"?calcEur(res.pa,2):c.h==="Gesamtkosten Laufzeit"?calcEur(res.lz,2):null);
+  return calcCard(title,tip+(key==="capex"?' <span class="detail-only">In der Detailansicht verteilen Startjahr, Nutzungsdauer und Restwert die Investition linear auf die Vertragsjahre.</span>':''),calcListHtml(key,cols,totals),"calc-card-"+key);
 }
 function calcCostsHtml(r){
   const rt=r.rates,par=r.excel?"Excel-kompatibel: Sachkosten ohne Steigerung, Einmalkosten linear verteilt, keine Durchreichposten.":
@@ -1173,7 +1246,7 @@ function calcOtoText(r){
 }
 
 /* ---- Rendern, Eingaben und Aktionen ---- */
-const CALC_RENDER={projekt:calcProjectHtml,personal:calcPersonnelHtml,sachkosten:calcCostsHtml,summary:calcSummaryHtml,auswertung:calcEvalHtml,oto:calcOtoHtml,dokumentation:calcDocHtml};
+const CALC_RENDER={home:calcHomeHtml,projekt:calcProjectHtml,personal:calcPersonnelHtml,sachkosten:calcCostsHtml,summary:calcSummaryHtml,auswertung:calcEvalHtml,oto:calcOtoHtml,dokumentation:calcDocHtml};
 function calcDatalists(){
   const box=$("calc-datalists");if(!box)return;
   const c=S.calc||{},opts=arr=>arr.map(v=>'<option value="'+escH(v)+'"></option>').join("");
@@ -1190,7 +1263,14 @@ function renderCalcPanel(n){
   const a=document.activeElement,keep=a&&box.contains(a)&&(a.dataset&&a.dataset.cf||a.id)?{cf:a.dataset.cf,id:a.id,value:a.value,s:a.selectionStart,e:a.selectionEnd}:null;
   const snap=UNDO_FOCUS_SNAP,label=UNDO_FOCUS_LABEL;
   box.innerHTML=CALC_RENDER[n](CALC);
+  if(n==="projekt"){
+    const ids={"Projektdaten":"calc-card-project","Preiskalkulation (Zuschläge)":"calc-card-pricing","Ermittlung der Ø produktiven Jahresstunden":"calc-card-worktime","Tariferhöhung und Personalentwicklung":"calc-card-escalation","Personalnebenkosten":"calc-card-social"};
+    for(const card of box.querySelectorAll(".card")){const h=card.querySelector("h3");if(h&&ids[h.childNodes[0].textContent.trim()])card.id=ids[h.childNodes[0].textContent.trim()];}
+    for(const path of ["meta.name","meta.kunde","request.sop","request.eop"]){const el=box.querySelector('[data-cf="'+path+'"]');if(el)el.required=true;}
+  }
   calcDatalists();
+  markKpiSources(n,box);
+  applyLanguage(box);
   if(keep){
     const el=keep.cf?box.querySelector('[data-cf="'+CSS.escape(keep.cf)+'"]'):$(keep.id);
     if(el){
@@ -1946,6 +2026,51 @@ function bindFieldUndoTracking(){
 
 /* ============================ Register ============================ */
 const STALE_PANELS=new Set();
+
+const KPI_FIXED=["offerTo","grossProfit","grossMargin","toPa"];
+const KPI_DEFAULT_VARIABLE=["ebita","ebitaMargin","investment","fteNet"];
+const KPI_OPTIONS=[
+ ["ebita","EBITA",r=>r.oto.offer.ebita,"money","oto","ebita"],["ebitaMargin","EBITA-Marge",r=>r.oto.offer.ebitaPct,"pct","oto","ebitaMargin"],
+ ["investment","Investment gesamt",r=>r.oto.invest,"money","sachkosten","investment"],["fteNet","FTE netto",r=>r.fteNet,"num","personal","fteNet"],
+ ["walkaway","Walkaway-Preis",r=>r.oto.walk.to,"money","oto","walkaway"],["priceFloor","Preisuntergrenze",r=>r.price.floor,"money","auswertung","priceFloor"],
+ ["npv","Kapitalwert",r=>r.cash.npv,"money","auswertung","npv"],["payback","Amortisation",r=>r.cash.payback,"months","auswertung","payback"]];
+function kpiSelected(){try{const a=JSON.parse(localStorage.getItem("kalkulation-kpi-selection")||"null");if(Array.isArray(a))return a.filter(x=>KPI_OPTIONS.some(o=>o[0]===x)).slice(0,4);}catch(e){}return KPI_DEFAULT_VARIABLE.slice();}
+function kpiSave(ids){try{localStorage.setItem("kalkulation-kpi-selection",JSON.stringify(ids));}catch(e){}}
+function kpiFmt(v,t){if(t==="money")return money(v);if(t==="pct")return calcPct(v);if(t==="months")return v==null?"–":fmt(v,1)+" Monate";return fmt(v,2);}
+function markKpiSources(tab,box){
+ const rules={
+  summary:{revenueTotal:["Umsatz mit Verhandlung","Angebotspreis Laufzeit","Gesamtlaufzeit"],toPa:["Umsatz mit Verhandlung","Angebotspreis p. a.","pro Jahr"]},
+  oto:{grossProfit:["Gross Profit (EBITA + HV + BU)","Gross Profit"],grossMargin:["Gross Profit (EBITA + HV + BU)","Gross Profit"],ebita:["EBITA"],ebitaMargin:["EBITA-Marge","EBITA"],walkaway:["Walkaway"]},
+  auswertung:{priceFloor:["Preisuntergrenze"],npv:["Kapitalwert"],payback:["Amortisation"]},
+  personal:{fteNet:["Summe FTE netto","FTE netto"]},sachkosten:{investment:["Investitionen/Einmalkosten","Investitionen"]}
+ };
+ const map=rules[tab]||{};
+ for(const [id,terms] of Object.entries(map)){
+  let target=null;
+  for(const el of box.querySelectorAll("tr,.card,details,.calc-kpi")){const text=el.textContent.trim();if(terms.some(t=>text.includes(t))){target=el.matches("tr,.calc-kpi")?el:(el.querySelector("tr,.calc-kpi")||el);break;}}
+  if(target)target.dataset.kpiSource=(target.dataset.kpiSource?target.dataset.kpiSource+" ":"")+id;
+ }
+}
+function jumpToKpiSource(tab,source){
+ showTab(tab);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const panel=$("panel-"+tab),target=panel&&panel.querySelector(`[data-kpi-source~="${source}"]`);
+  const dest=target||panel;if(!dest)return;
+  dest.scrollIntoView({behavior:"smooth",block:"center"});
+  dest.classList.remove("kpi-source-flash");void dest.offsetWidth;dest.classList.add("kpi-source-flash");
+  setTimeout(()=>dest.classList.remove("kpi-source-flash"),2300);
+ }));
+}
+function renderKpiSidebar(){
+ const el=$("kpi-sidebar");if(!el||!S||!S.calc)return;const r=computeCalc(S),sel=kpiSelected(),fixed=[
+  ["Gross Profit",r.oto.offer.gp,"money","oto","grossProfit"],["Umsatz gesamt",r.sum.total.umv,"money","summary","revenueTotal"],["TO p.a.",r.sum.pa.umv,"money","summary","toPa"],["Gross Margin",r.oto.offer.gpPct,"pct","oto","grossMargin"]];
+ const cards=fixed.map(x=>`<div class="kpi-card fixed" role="button" tabindex="0" data-origin-tab="${x[3]}" data-origin-source="${x[4]}" title="Zur Herkunft springen"><div class="kpi-label">${x[0]}</div><div class="kpi-value">${kpiFmt(x[1],x[2])}</div></div>`).join("")+sel.map(id=>{const o=KPI_OPTIONS.find(x=>x[0]===id);return o?`<div class="kpi-card variable" role="button" tabindex="0" data-origin-tab="${o[4]}" data-origin-source="${o[5]}" title="Zur Herkunft springen"><div class="kpi-label">${o[1]}</div><div class="kpi-value">${kpiFmt(o[2](r),o[3])}</div></div>`:""}).join("");
+ const checks=KPI_OPTIONS.map(o=>`<label><input type="checkbox" data-kpi-id="${o[0]}" ${sel.includes(o[0])?"checked":""}> <span>${o[1]}</span></label>`).join("");
+ el.innerHTML=`<div class="kpi-head"><h2>KPI & Status</h2><button type="button" class="kpi-config-btn" id="kpi-config">Anpassen</button></div><div class="kpi-grid">${cards}</div><div class="kpi-status ${r.warn.length?"warn":"ok"}">${r.warn.length?r.warn.length+" Prüfhinweis(e)":"Berechnung plausibel"}</div><div class="kpi-picker" id="kpi-picker"><p class="kpi-picker-note">Vier feste KPI und bis zu vier auswählbare Kennzahlen. Die Auswahl wird lokal gespeichert.</p>${checks}</div>`;
+ $("kpi-config").onclick=()=>$("kpi-picker").classList.toggle("open");
+ el.querySelectorAll("[data-origin-tab]").forEach(card=>{card.onclick=()=>jumpToKpiSource(card.dataset.originTab,card.dataset.originSource);card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();card.click();}}});
+ el.querySelectorAll("[data-kpi-id]").forEach(cb=>cb.onchange=()=>{let ids=[...el.querySelectorAll("[data-kpi-id]:checked")].map(x=>x.dataset.kpiId);if(ids.length>4){cb.checked=false;return;}kpiSave(ids);renderKpiSidebar();$("kpi-picker").classList.add("open");});
+}
 function renderVisiblePanels(){
   for(const n of [...STALE_PANELS]){
     const panel=$("panel-"+n);
@@ -1953,6 +2078,7 @@ function renderVisiblePanels(){
     STALE_PANELS.delete(n);
     renderCalcPanel(n);
   }
+  renderKpiSidebar();
 }
 function refreshAll(){
   for(const n of CALC_TABS)STALE_PANELS.add(n);
@@ -1975,6 +2101,8 @@ function showTab(n){
 function initTabs(){
   const nav=$("tabs");
   nav.addEventListener("click",ev=>{const b=ev.target.closest("[data-tab]");if(b)showTab(b.dataset.tab);});
+  document.addEventListener("click",ev=>{const b=ev.target.closest("[data-go-tab]");if(b)showTab(b.dataset.goTab);});
+  $("btn-home").addEventListener("click",()=>showTab("home"));
   nav.addEventListener("keydown",ev=>{
     if(!["ArrowLeft","ArrowRight","Home","End"].includes(ev.key))return;
     const tabs=[...nav.querySelectorAll("[data-tab]")],i=tabs.indexOf(document.activeElement);if(i<0)return;
@@ -1982,6 +2110,64 @@ function initTabs(){
     const j=ev.key==="Home"?0:ev.key==="End"?tabs.length-1:(i+(ev.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;
     showTab(tabs[j].dataset.tab);tabs[j].focus();
   });
+}
+
+
+const I18N={
+ en:{language:"Language",languageHint:"The selection applies to the user interface and is saved on this device.",Start:"Home","Projekt & Basisdaten":"Project & base data",Personalkosten:"Personnel costs",Sachkosten:"Operating costs",Summary:"Summary",Auswertung:"Analysis",OtO:"OtO",Dokumentation:"Documentation",Standard:"Standard",Detail:"Detailed",Home:"Home",Datei:"File",Ansicht:"View",Hilfe:"Help","Neue Kalkulation":"New calculation","Basisdaten vollständig":"Base data complete","Basisdaten ergänzen":"Complete base data",Bearbeitungsstand:"Completion status",Laufzeit:"Term","Umsatz p. a.":"Revenue p.a.",Warnungen:"Warnings","noch offen":"not available","Basisdaten bearbeiten":"Edit base data","Kalkulation starten":"Start calculation","Summary öffnen":"Open summary","1. Projekt & Basisdaten":"1. Project & base data","2. Personalkosten":"2. Personnel costs","3. Sachkosten":"3. Operating costs","4. Summary":"4. Summary","5. Auswertung":"5. Analysis","6. Dokumentation":"6. Documentation",Projektdaten:"Project data",Rechenmodus:"Calculation mode","Preiskalkulation (Zuschläge)":"Pricing (mark-ups)",Arbeitszeit:"Working time",Sozialversicherung:"Social insurance",Investitionen:"Investments",Betriebskosten:"Operating costs",Fremdleistungen:"Subcontracted services",Name:"Name",Menge:"Quantity",Kategorie:"Category",Beschaffung:"Procurement",Kauf:"Purchase",Leasing:"Leasing",Miete:"Rental",Startjahr:"Start year","Nutzungsdauer [J]":"Useful life [years]","Restwert [€]":"Residual value [€]","Durchreichposten":"Pass-through item","Gesamtkosten Jahr":"Annual total cost","Gesamtkosten Laufzeit":"Total cost over term","Quelle/Annahme":"Source/assumption"},
+ es:{language:"Idioma",languageHint:"La selección se aplica a la interfaz y se guarda en este dispositivo.",Start:"Inicio","Projekt & Basisdaten":"Proyecto y datos básicos",Personalkosten:"Costes de personal",Sachkosten:"Costes operativos",Summary:"Resumen",Auswertung:"Análisis",OtO:"OtO",Dokumentation:"Documentación",Standard:"Estándar",Detail:"Detallada",Home:"Inicio",Datei:"Archivo",Ansicht:"Vista",Hilfe:"Ayuda","Neue Kalkulation":"Nuevo cálculo","Basisdaten vollständig":"Datos básicos completos","Basisdaten ergänzen":"Completar datos básicos",Bearbeitungsstand:"Estado",Laufzeit:"Duración","Umsatz p. a.":"Ingresos anuales",Warnungen:"Avisos","noch offen":"pendiente","Basisdaten bearbeiten":"Editar datos básicos","Kalkulation starten":"Iniciar cálculo","Summary öffnen":"Abrir resumen","1. Projekt & Basisdaten":"1. Proyecto y datos básicos","2. Personalkosten":"2. Costes de personal","3. Sachkosten":"3. Costes operativos","4. Summary":"4. Resumen","5. Auswertung":"5. Análisis","6. Dokumentation":"6. Documentación",Projektdaten:"Datos del proyecto",Rechenmodus:"Modo de cálculo","Preiskalkulation (Zuschläge)":"Cálculo del precio",Arbeitszeit:"Tiempo de trabajo",Sozialversicherung:"Seguridad social",Investitionen:"Inversiones",Betriebskosten:"Costes operativos",Fremdleistungen:"Servicios externos",Name:"Nombre",Menge:"Cantidad",Kategorie:"Categoría",Beschaffung:"Adquisición",Kauf:"Compra",Miete:"Alquiler",Startjahr:"Año inicial","Nutzungsdauer [J]":"Vida útil [años]","Restwert [€]":"Valor residual [€]"},
+ fr:{language:"Langue",languageHint:"La sélection s’applique à l’interface et reste enregistrée sur cet appareil.",Start:"Accueil","Projekt & Basisdaten":"Projet et données de base",Personalkosten:"Coûts de personnel",Sachkosten:"Coûts d’exploitation",Summary:"Synthèse",Auswertung:"Analyse",OtO:"OtO",Dokumentation:"Documentation",Standard:"Standard",Detail:"Détaillée",Home:"Accueil",Datei:"Fichier",Ansicht:"Vue",Hilfe:"Aide","Neue Kalkulation":"Nouveau calcul","Basisdaten vollständig":"Données de base complètes","Basisdaten ergänzen":"Compléter les données",Bearbeitungsstand:"État d’avancement",Laufzeit:"Durée","Umsatz p. a.":"Chiffre d’affaires annuel",Warnungen:"Avertissements","noch offen":"à compléter","Basisdaten bearbeiten":"Modifier les données","Kalkulation starten":"Démarrer le calcul","Summary öffnen":"Ouvrir la synthèse",Projektdaten:"Données du projet",Rechenmodus:"Mode de calcul",Investitionen:"Investissements",Betriebskosten:"Coûts d’exploitation",Fremdleistungen:"Prestations externes",Name:"Nom",Menge:"Quantité",Kategorie:"Catégorie",Beschaffung:"Acquisition",Kauf:"Achat",Miete:"Location",Startjahr:"Année de début","Nutzungsdauer [J]":"Durée d’utilisation [ans]","Restwert [€]":"Valeur résiduelle [€]"},
+ pl:{language:"Język",languageHint:"Wybór dotyczy interfejsu i jest zapisywany na tym urządzeniu.",Start:"Start","Projekt & Basisdaten":"Projekt i dane podstawowe",Personalkosten:"Koszty osobowe",Sachkosten:"Koszty operacyjne",Summary:"Podsumowanie",Auswertung:"Analiza",OtO:"OtO",Dokumentation:"Dokumentacja",Standard:"Standardowy",Detail:"Szczegółowy",Home:"Start",Datei:"Plik",Ansicht:"Widok",Hilfe:"Pomoc","Neue Kalkulation":"Nowa kalkulacja","Basisdaten vollständig":"Dane podstawowe kompletne","Basisdaten ergänzen":"Uzupełnij dane podstawowe",Bearbeitungsstand:"Stan realizacji",Laufzeit:"Okres","Umsatz p. a.":"Przychód roczny",Warnungen:"Ostrzeżenia","noch offen":"brak danych","Basisdaten bearbeiten":"Edytuj dane podstawowe","Kalkulation starten":"Rozpocznij kalkulację","Summary öffnen":"Otwórz podsumowanie",Projektdaten:"Dane projektu",Rechenmodus:"Tryb kalkulacji",Investitionen:"Inwestycje",Betriebskosten:"Koszty operacyjne",Fremdleistungen:"Usługi zewnętrzne",Name:"Nazwa",Menge:"Ilość",Kategorie:"Kategoria",Beschaffung:"Pozyskanie",Kauf:"Zakup",Miete:"Najem",Startjahr:"Rok rozpoczęcia","Nutzungsdauer [J]":"Okres użytkowania [lata]","Restwert [€]":"Wartość rezydualna [€]"},
+ cs:{language:"Jazyk",languageHint:"Volba platí pro uživatelské rozhraní a uloží se v tomto zařízení.",Start:"Úvod","Projekt & Basisdaten":"Projekt a základní údaje",Personalkosten:"Personální náklady",Sachkosten:"Provozní náklady",Summary:"Souhrn",Auswertung:"Analýza",OtO:"OtO",Dokumentation:"Dokumentace",Standard:"Standardní",Detail:"Podrobná",Home:"Úvod",Datei:"Soubor",Ansicht:"Zobrazení",Hilfe:"Nápověda","Neue Kalkulation":"Nová kalkulace","Basisdaten vollständig":"Základní údaje jsou kompletní","Basisdaten ergänzen":"Doplňte základní údaje",Bearbeitungsstand:"Stav zpracování",Laufzeit:"Doba trvání","Umsatz p. a.":"Roční obrat",Warnungen:"Varování","noch offen":"dosud nezadáno","Basisdaten bearbeiten":"Upravit základní údaje","Kalkulation starten":"Spustit kalkulaci","Summary öffnen":"Otevřít souhrn",Projektdaten:"Údaje projektu",Rechenmodus:"Režim kalkulace",Investitionen:"Investice",Betriebskosten:"Provozní náklady",Fremdleistungen:"Externí služby",Name:"Název",Menge:"Množství",Kategorie:"Kategorie",Beschaffung:"Pořízení",Kauf:"Nákup",Miete:"Pronájem",Startjahr:"Počáteční rok","Nutzungsdauer [J]":"Doba použitelnosti [roky]","Restwert [€]":"Zůstatková hodnota [€]"},
+ hu:{language:"Nyelv",languageHint:"A kiválasztás a kezelőfelületre vonatkozik, és ezen az eszközön mentésre kerül.",Start:"Kezdőlap","Projekt & Basisdaten":"Projekt és alapadatok",Personalkosten:"Személyi költségek",Sachkosten:"Működési költségek",Summary:"Összegzés",Auswertung:"Elemzés",OtO:"OtO",Dokumentation:"Dokumentáció",Standard:"Standard",Detail:"Részletes",Home:"Kezdőlap",Datei:"Fájl",Ansicht:"Nézet",Hilfe:"Súgó","Neue Kalkulation":"Új kalkuláció","Basisdaten vollständig":"Az alapadatok teljesek","Basisdaten ergänzen":"Alapadatok kiegészítése",Bearbeitungsstand:"Feldolgozási állapot",Laufzeit:"Időtartam","Umsatz p. a.":"Éves árbevétel",Warnungen:"Figyelmeztetések","noch offen":"még nincs megadva","Basisdaten bearbeiten":"Alapadatok szerkesztése","Kalkulation starten":"Kalkuláció indítása","Summary öffnen":"Összegzés megnyitása",Projektdaten:"Projektadatok",Rechenmodus:"Számítási mód",Investitionen:"Beruházások",Betriebskosten:"Működési költségek",Fremdleistungen:"Külső szolgáltatások",Name:"Név",Menge:"Mennyiség",Kategorie:"Kategória",Beschaffung:"Beszerzés",Kauf:"Vásárlás",Miete:"Bérlet",Startjahr:"Kezdő év","Nutzungsdauer [J]":"Hasznos élettartam [év]","Restwert [€]":"Maradványérték [€]"}
+};
+const I18N_FULL={"en":{"Projektname":"Project name","Kunde":"Customer","Standort":"Site","Ansprechpartner":"Contact person","Geschäftsbereich":"Business unit","Service Line":"Service line","Kalkulator":"Calculator","Kalkulationsdatum":"Calculation date","Vertragsbeginn (SOP)":"Contract start (SOP)","Vertragsende (EOP)":"Contract end (EOP)","Gewinn":"Profit","Risiko":"Risk","Verhandlungsmarge":"Negotiation margin","Verwaltungskosten":"Administrative overhead","Business-Unit-Umlage":"Business unit allocation","Niederlassungsumlage":"Branch allocation","Aufschlag Durchreichposten":"Pass-through mark-up","Kalendertage im Jahr":"Calendar days per year","Wochenendtage":"Weekend days","Feiertage":"Public holidays","Urlaubstage":"Vacation days","Krankheitstage":"Sick days","Sonstige Abwesenheit":"Other absence","Stunden pro Arbeitstag":"Hours per working day","Produktive Stunden":"Productive hours","Tariferhöhung":"Collective wage increase","Preisgleitung":"Price escalation","Volumenwachstum":"Volume growth","Erstes Jahr":"First year","Beitragsbemessungsgrenze":"Contribution ceiling","Sozialversicherung":"Social insurance","Qualifikation":"Qualification","Tarifgruppe":"Pay grade","Gehälter":"Salaries","Löhne":"Wages","Personalbedarf":"Staffing requirement","Netto-FTE":"Net FTE","Brutto-FTE":"Gross FTE","Jahresgehalt":"Annual salary","Stundenlohn":"Hourly wage","Zuschlag":"Premium","Investitionen/Einmalkosten":"Investments/one-time costs","Monatliche Betriebskosten/Verbräuche":"Monthly operating costs/consumables","Nachunternehmerleistung":"Subcontracted service","Ramp-up-Kosten":"Ramp-up costs","Einzelpreis":"Unit price","Gesamtkosten Jahr":"Annual total cost","Gesamtkosten Laufzeit":"Total cost over term","Durchreichposten":"Pass-through item","Quelle/Annahme":"Source/assumption","Angebotspreis":"Offer price","Selbstkosten":"Full cost","Umsatz vor Verhandlung":"Revenue before negotiation","Umsatz nach Verhandlung":"Revenue after negotiation","EBITA-Marge":"EBITA margin","Preisuntergrenze":"Price floor","Kapitalwert":"Net present value","Interne Verzinsung":"Internal rate of return","Amortisationsdauer":"Payback period","Sensitivitätsanalyse":"Sensitivity analysis","Jahresauswertung":"Annual analysis","Cashflow":"Cash flow","Währung":"Currency","Wechselkurs":"Exchange rate","Angebotsnummer":"Offer number","Angebotsdatum":"Offer date","Freigabestatus":"Approval status","Geprüft/freigegeben von":"Reviewed/approved by","Datum der Freigabe":"Approval date","Änderungsprotokoll":"Change log","Hinzufügen":"Add","Löschen":"Delete","Speichern":"Save","Öffnen":"Open","Drucken / als PDF speichern":"Print / save as PDF","Keine Daten vorhanden.":"No data available.","Pflichtfeld":"Required field","Wert ist ungültig.":"Invalid value.","Die Laufzeit ist kürzer als ein Monat.":"The term is shorter than one month.","Keine Anwesenheitstage: Abwesenheiten prüfen.":"No attendance days: check absences.","Die Verhandlungsmarge ist zu hoch.":"The negotiation margin is too high."},"es":{"Projektname":"Nombre del proyecto","Kunde":"Cliente","Standort":"Ubicación","Ansprechpartner":"Persona de contacto","Geschäftsbereich":"Unidad de negocio","Service Line":"Línea de servicio","Kalkulator":"Calculador","Kalkulationsdatum":"Fecha de cálculo","Vertragsbeginn (SOP)":"Inicio del contrato (SOP)","Vertragsende (EOP)":"Fin del contrato (EOP)","Gewinn":"Beneficio","Risiko":"Riesgo","Verhandlungsmarge":"Margen de negociación","Verwaltungskosten":"Gastos generales administrativos","Business-Unit-Umlage":"Recargo de unidad de negocio","Niederlassungsumlage":"Recargo de sucursal","Aufschlag Durchreichposten":"Recargo de partidas repercutidas","Kalendertage im Jahr":"Días naturales por año","Wochenendtage":"Días de fin de semana","Feiertage":"Festivos","Urlaubstage":"Días de vacaciones","Krankheitstage":"Días de enfermedad","Sonstige Abwesenheit":"Otras ausencias","Stunden pro Arbeitstag":"Horas por día laborable","Produktive Stunden":"Horas productivas","Tariferhöhung":"Incremento salarial","Preisgleitung":"Indexación de precios","Volumenwachstum":"Crecimiento del volumen","Erstes Jahr":"Primer año","Beitragsbemessungsgrenze":"Tope de cotización","Sozialversicherung":"Seguridad social","Qualifikation":"Cualificación","Tarifgruppe":"Grupo salarial","Gehälter":"Salarios","Löhne":"Sueldos","Personalbedarf":"Necesidad de personal","Netto-FTE":"FTE netos","Brutto-FTE":"FTE brutos","Jahresgehalt":"Salario anual","Stundenlohn":"Salario por hora","Zuschlag":"Suplemento","Investitionen/Einmalkosten":"Inversiones/costes únicos","Monatliche Betriebskosten/Verbräuche":"Costes operativos mensuales/consumos","Nachunternehmerleistung":"Servicio subcontratado","Ramp-up-Kosten":"Costes de puesta en marcha","Einzelpreis":"Precio unitario","Gesamtkosten Jahr":"Coste total anual","Gesamtkosten Laufzeit":"Coste total del período","Durchreichposten":"Partida repercutida","Quelle/Annahme":"Fuente/supuesto","Angebotspreis":"Precio de oferta","Selbstkosten":"Coste completo","Umsatz vor Verhandlung":"Ingresos antes de negociación","Umsatz nach Verhandlung":"Ingresos tras negociación","EBITA-Marge":"Margen EBITA","Preisuntergrenze":"Precio mínimo","Kapitalwert":"Valor actual neto","Interne Verzinsung":"Tasa interna de retorno","Amortisationsdauer":"Período de retorno","Sensitivitätsanalyse":"Análisis de sensibilidad","Jahresauswertung":"Análisis anual","Cashflow":"Flujo de caja","Währung":"Moneda","Wechselkurs":"Tipo de cambio","Angebotsnummer":"Número de oferta","Angebotsdatum":"Fecha de oferta","Freigabestatus":"Estado de aprobación","Geprüft/freigegeben von":"Revisado/aprobado por","Datum der Freigabe":"Fecha de aprobación","Änderungsprotokoll":"Registro de cambios","Hinzufügen":"Añadir","Löschen":"Eliminar","Speichern":"Guardar","Öffnen":"Abrir","Drucken / als PDF speichern":"Imprimir / guardar como PDF","Keine Daten vorhanden.":"No hay datos.","Pflichtfeld":"Campo obligatorio","Wert ist ungültig.":"Valor no válido.","Die Laufzeit ist kürzer als ein Monat.":"La duración es inferior a un mes.","Keine Anwesenheitstage: Abwesenheiten prüfen.":"No hay días de presencia: compruebe las ausencias.","Die Verhandlungsmarge ist zu hoch.":"El margen de negociación es demasiado alto."},"fr":{"Projektname":"Nom du projet","Kunde":"Client","Standort":"Site","Ansprechpartner":"Contact","Geschäftsbereich":"Unité commerciale","Service Line":"Ligne de service","Kalkulator":"Calculateur","Kalkulationsdatum":"Date du calcul","Vertragsbeginn (SOP)":"Début du contrat (SOP)","Vertragsende (EOP)":"Fin du contrat (EOP)","Gewinn":"Bénéfice","Risiko":"Risque","Verhandlungsmarge":"Marge de négociation","Verwaltungskosten":"Frais administratifs","Business-Unit-Umlage":"Imputation de l’unité commerciale","Niederlassungsumlage":"Imputation de l’agence","Aufschlag Durchreichposten":"Majoration des coûts refacturés","Kalendertage im Jahr":"Jours calendaires par an","Wochenendtage":"Jours de week-end","Feiertage":"Jours fériés","Urlaubstage":"Jours de congé","Krankheitstage":"Jours de maladie","Sonstige Abwesenheit":"Autres absences","Stunden pro Arbeitstag":"Heures par jour travaillé","Produktive Stunden":"Heures productives","Tariferhöhung":"Augmentation conventionnelle","Preisgleitung":"Indexation des prix","Volumenwachstum":"Croissance du volume","Erstes Jahr":"Première année","Beitragsbemessungsgrenze":"Plafond de cotisation","Sozialversicherung":"Assurance sociale","Qualifikation":"Qualification","Tarifgruppe":"Groupe de rémunération","Gehälter":"Salaires","Löhne":"Rémunérations horaires","Personalbedarf":"Besoin en personnel","Netto-FTE":"ETP nets","Brutto-FTE":"ETP bruts","Jahresgehalt":"Salaire annuel","Stundenlohn":"Salaire horaire","Zuschlag":"Majoration","Investitionen/Einmalkosten":"Investissements/coûts ponctuels","Monatliche Betriebskosten/Verbräuche":"Coûts d’exploitation mensuels/consommables","Nachunternehmerleistung":"Prestation sous-traitée","Ramp-up-Kosten":"Coûts de démarrage","Einzelpreis":"Prix unitaire","Gesamtkosten Jahr":"Coût total annuel","Gesamtkosten Laufzeit":"Coût total sur la durée","Durchreichposten":"Coût refacturé","Quelle/Annahme":"Source/hypothèse","Angebotspreis":"Prix de l’offre","Selbstkosten":"Coût complet","Umsatz vor Verhandlung":"Chiffre d’affaires avant négociation","Umsatz nach Verhandlung":"Chiffre d’affaires après négociation","EBITA-Marge":"Marge EBITA","Preisuntergrenze":"Prix plancher","Kapitalwert":"Valeur actuelle nette","Interne Verzinsung":"Taux de rendement interne","Amortisationsdauer":"Délai de récupération","Sensitivitätsanalyse":"Analyse de sensibilité","Jahresauswertung":"Analyse annuelle","Cashflow":"Flux de trésorerie","Währung":"Devise","Wechselkurs":"Taux de change","Angebotsnummer":"Numéro d’offre","Angebotsdatum":"Date de l’offre","Freigabestatus":"Statut d’approbation","Geprüft/freigegeben von":"Vérifié/approuvé par","Datum der Freigabe":"Date d’approbation","Änderungsprotokoll":"Journal des modifications","Hinzufügen":"Ajouter","Löschen":"Supprimer","Speichern":"Enregistrer","Öffnen":"Ouvrir","Drucken / als PDF speichern":"Imprimer / enregistrer en PDF","Keine Daten vorhanden.":"Aucune donnée disponible.","Pflichtfeld":"Champ obligatoire","Wert ist ungültig.":"Valeur non valide.","Die Laufzeit ist kürzer als ein Monat.":"La durée est inférieure à un mois.","Keine Anwesenheitstage: Abwesenheiten prüfen.":"Aucun jour de présence : vérifiez les absences.","Die Verhandlungsmarge ist zu hoch.":"La marge de négociation est trop élevée."},"pl":{"Projektname":"Nazwa projektu","Kunde":"Klient","Standort":"Lokalizacja","Ansprechpartner":"Osoba kontaktowa","Geschäftsbereich":"Jednostka biznesowa","Service Line":"Linia usługowa","Kalkulator":"Kalkulator","Kalkulationsdatum":"Data kalkulacji","Vertragsbeginn (SOP)":"Początek umowy (SOP)","Vertragsende (EOP)":"Koniec umowy (EOP)","Gewinn":"Zysk","Risiko":"Ryzyko","Verhandlungsmarge":"Margines negocjacyjny","Verwaltungskosten":"Koszty administracyjne","Business-Unit-Umlage":"Narzut jednostki biznesowej","Niederlassungsumlage":"Narzut oddziału","Aufschlag Durchreichposten":"Narzut na koszty refakturowane","Kalendertage im Jahr":"Dni kalendarzowe w roku","Wochenendtage":"Dni weekendowe","Feiertage":"Dni świąteczne","Urlaubstage":"Dni urlopu","Krankheitstage":"Dni chorobowe","Sonstige Abwesenheit":"Inne nieobecności","Stunden pro Arbeitstag":"Godziny na dzień roboczy","Produktive Stunden":"Godziny produktywne","Tariferhöhung":"Podwyżka taryfowa","Preisgleitung":"Indeksacja ceny","Volumenwachstum":"Wzrost wolumenu","Erstes Jahr":"Pierwszy rok","Beitragsbemessungsgrenze":"Roczna podstawa składek","Sozialversicherung":"Ubezpieczenia społeczne","Qualifikation":"Kwalifikacja","Tarifgruppe":"Grupa zaszeregowania","Gehälter":"Wynagrodzenia","Löhne":"Płace godzinowe","Personalbedarf":"Zapotrzebowanie na personel","Netto-FTE":"FTE netto","Brutto-FTE":"FTE brutto","Jahresgehalt":"Wynagrodzenie roczne","Stundenlohn":"Stawka godzinowa","Zuschlag":"Dodatek","Investitionen/Einmalkosten":"Inwestycje/koszty jednorazowe","Monatliche Betriebskosten/Verbräuche":"Miesięczne koszty operacyjne/zużycie","Nachunternehmerleistung":"Usługa podwykonawcza","Ramp-up-Kosten":"Koszty rozruchu","Einzelpreis":"Cena jednostkowa","Gesamtkosten Jahr":"Łączny koszt roczny","Gesamtkosten Laufzeit":"Łączny koszt okresu","Durchreichposten":"Pozycja refakturowana","Quelle/Annahme":"Źródło/założenie","Angebotspreis":"Cena ofertowa","Selbstkosten":"Koszt własny","Umsatz vor Verhandlung":"Przychód przed negocjacją","Umsatz nach Verhandlung":"Przychód po negocjacji","EBITA-Marge":"Marża EBITA","Preisuntergrenze":"Cena minimalna","Kapitalwert":"Wartość bieżąca netto","Interne Verzinsung":"Wewnętrzna stopa zwrotu","Amortisationsdauer":"Okres zwrotu","Sensitivitätsanalyse":"Analiza wrażliwości","Jahresauswertung":"Analiza roczna","Cashflow":"Przepływy pieniężne","Währung":"Waluta","Wechselkurs":"Kurs walutowy","Angebotsnummer":"Numer oferty","Angebotsdatum":"Data oferty","Freigabestatus":"Status zatwierdzenia","Geprüft/freigegeben von":"Sprawdzone/zatwierdzone przez","Datum der Freigabe":"Data zatwierdzenia","Änderungsprotokoll":"Rejestr zmian","Hinzufügen":"Dodaj","Löschen":"Usuń","Speichern":"Zapisz","Öffnen":"Otwórz","Drucken / als PDF speichern":"Drukuj / zapisz jako PDF","Keine Daten vorhanden.":"Brak danych.","Pflichtfeld":"Pole wymagane","Wert ist ungültig.":"Nieprawidłowa wartość.","Die Laufzeit ist kürzer als ein Monat.":"Okres jest krótszy niż miesiąc.","Keine Anwesenheitstage: Abwesenheiten prüfen.":"Brak dni obecności: sprawdź nieobecności.","Die Verhandlungsmarge ist zu hoch.":"Margines negocjacyjny jest zbyt wysoki."},"cs":{"Projektname":"Název projektu","Kunde":"Zákazník","Standort":"Lokalita","Ansprechpartner":"Kontaktní osoba","Geschäftsbereich":"Obchodní jednotka","Service Line":"Oblast služeb","Kalkulator":"Kalkulátor","Kalkulationsdatum":"Datum kalkulace","Vertragsbeginn (SOP)":"Začátek smlouvy (SOP)","Vertragsende (EOP)":"Konec smlouvy (EOP)","Gewinn":"Zisk","Risiko":"Riziko","Verhandlungsmarge":"Vyjednávací marže","Verwaltungskosten":"Správní režie","Business-Unit-Umlage":"Přirážka obchodní jednotky","Niederlassungsumlage":"Přirážka pobočky","Aufschlag Durchreichposten":"Přirážka k přeúčtovaným položkám","Kalendertage im Jahr":"Kalendářní dny za rok","Wochenendtage":"Víkendové dny","Feiertage":"Státní svátky","Urlaubstage":"Dny dovolené","Krankheitstage":"Dny nemoci","Sonstige Abwesenheit":"Jiná absence","Stunden pro Arbeitstag":"Hodiny na pracovní den","Produktive Stunden":"Produktivní hodiny","Tariferhöhung":"Tarifní zvýšení","Preisgleitung":"Indexace ceny","Volumenwachstum":"Růst objemu","Erstes Jahr":"První rok","Beitragsbemessungsgrenze":"Vyměřovací strop","Sozialversicherung":"Sociální pojištění","Qualifikation":"Kvalifikace","Tarifgruppe":"Tarifní třída","Gehälter":"Platy","Löhne":"Mzdy","Personalbedarf":"Potřeba personálu","Netto-FTE":"Čisté FTE","Brutto-FTE":"Hrubé FTE","Jahresgehalt":"Roční plat","Stundenlohn":"Hodinová mzda","Zuschlag":"Příplatek","Investitionen/Einmalkosten":"Investice/jednorázové náklady","Monatliche Betriebskosten/Verbräuche":"Měsíční provozní náklady/spotřeba","Nachunternehmerleistung":"Subdodavatelská služba","Ramp-up-Kosten":"Náklady na náběh","Einzelpreis":"Jednotková cena","Gesamtkosten Jahr":"Celkové roční náklady","Gesamtkosten Laufzeit":"Celkové náklady za dobu","Durchreichposten":"Přeúčtovaná položka","Quelle/Annahme":"Zdroj/předpoklad","Angebotspreis":"Nabídková cena","Selbstkosten":"Vlastní náklady","Umsatz vor Verhandlung":"Tržby před vyjednáváním","Umsatz nach Verhandlung":"Tržby po vyjednávání","EBITA-Marge":"Marže EBITA","Preisuntergrenze":"Minimální cena","Kapitalwert":"Čistá současná hodnota","Interne Verzinsung":"Vnitřní výnosové procento","Amortisationsdauer":"Doba návratnosti","Sensitivitätsanalyse":"Citlivostní analýza","Jahresauswertung":"Roční analýza","Cashflow":"Peněžní tok","Währung":"Měna","Wechselkurs":"Směnný kurz","Angebotsnummer":"Číslo nabídky","Angebotsdatum":"Datum nabídky","Freigabestatus":"Stav schválení","Geprüft/freigegeben von":"Zkontroloval/schválil","Datum der Freigabe":"Datum schválení","Änderungsprotokoll":"Protokol změn","Hinzufügen":"Přidat","Löschen":"Odstranit","Speichern":"Uložit","Öffnen":"Otevřít","Drucken / als PDF speichern":"Tisk / uložit jako PDF","Keine Daten vorhanden.":"Nejsou k dispozici žádná data.","Pflichtfeld":"Povinné pole","Wert ist ungültig.":"Neplatná hodnota.","Die Laufzeit ist kürzer als ein Monat.":"Doba je kratší než jeden měsíc.","Keine Anwesenheitstage: Abwesenheiten prüfen.":"Žádné dny přítomnosti: zkontrolujte absence.","Die Verhandlungsmarge ist zu hoch.":"Vyjednávací marže je příliš vysoká."},"hu":{"Projektname":"Projekt neve","Kunde":"Ügyfél","Standort":"Telephely","Ansprechpartner":"Kapcsolattartó","Geschäftsbereich":"Üzletág","Service Line":"Szolgáltatási terület","Kalkulator":"Kalkulátor","Kalkulationsdatum":"Kalkuláció dátuma","Vertragsbeginn (SOP)":"Szerződés kezdete (SOP)","Vertragsende (EOP)":"Szerződés vége (EOP)","Gewinn":"Nyereség","Risiko":"Kockázat","Verhandlungsmarge":"Tárgyalási tartalék","Verwaltungskosten":"Igazgatási költség","Business-Unit-Umlage":"Üzletági felár","Niederlassungsumlage":"Telephelyi felár","Aufschlag Durchreichposten":"Továbbszámlázási felár","Kalendertage im Jahr":"Naptári napok évente","Wochenendtage":"Hétvégi napok","Feiertage":"Munkaszüneti napok","Urlaubstage":"Szabadságnapok","Krankheitstage":"Betegnapok","Sonstige Abwesenheit":"Egyéb távollét","Stunden pro Arbeitstag":"Óra munkanaponként","Produktive Stunden":"Produktív órák","Tariferhöhung":"Béremelés","Preisgleitung":"Árindexálás","Volumenwachstum":"Volumennövekedés","Erstes Jahr":"Első év","Beitragsbemessungsgrenze":"Járulékplafon","Sozialversicherung":"Társadalombiztosítás","Qualifikation":"Képesítés","Tarifgruppe":"Bérkategória","Gehälter":"Fizetések","Löhne":"Órabérek","Personalbedarf":"Létszámigény","Netto-FTE":"Nettó FTE","Brutto-FTE":"Bruttó FTE","Jahresgehalt":"Éves fizetés","Stundenlohn":"Órabér","Zuschlag":"Pótlék","Investitionen/Einmalkosten":"Beruházások/egyszeri költségek","Monatliche Betriebskosten/Verbräuche":"Havi működési költségek/fogyóanyagok","Nachunternehmerleistung":"Alvállalkozói szolgáltatás","Ramp-up-Kosten":"Felfutási költségek","Einzelpreis":"Egységár","Gesamtkosten Jahr":"Teljes éves költség","Gesamtkosten Laufzeit":"Teljes futamidős költség","Durchreichposten":"Továbbszámlázott tétel","Quelle/Annahme":"Forrás/feltételezés","Angebotspreis":"Ajánlati ár","Selbstkosten":"Önköltség","Umsatz vor Verhandlung":"Árbevétel tárgyalás előtt","Umsatz nach Verhandlung":"Árbevétel tárgyalás után","EBITA-Marge":"EBITA-marzs","Preisuntergrenze":"Minimumár","Kapitalwert":"Nettó jelenérték","Interne Verzinsung":"Belső megtérülési ráta","Amortisationsdauer":"Megtérülési idő","Sensitivitätsanalyse":"Érzékenységelemzés","Jahresauswertung":"Éves elemzés","Cashflow":"Cash flow","Währung":"Pénznem","Wechselkurs":"Árfolyam","Angebotsnummer":"Ajánlatszám","Angebotsdatum":"Ajánlat dátuma","Freigabestatus":"Jóváhagyási állapot","Geprüft/freigegeben von":"Ellenőrizte/jóváhagyta","Datum der Freigabe":"Jóváhagyás dátuma","Änderungsprotokoll":"Változásnapló","Hinzufügen":"Hozzáadás","Löschen":"Törlés","Speichern":"Mentés","Öffnen":"Megnyitás","Drucken / als PDF speichern":"Nyomtatás / mentés PDF-ként","Keine Daten vorhanden.":"Nincs adat.","Pflichtfeld":"Kötelező mező","Wert ist ungültig.":"Érvénytelen érték.","Die Laufzeit ist kürzer als ein Monat.":"A futamidő egy hónapnál rövidebb.","Keine Anwesenheitstage: Abwesenheiten prüfen.":"Nincs jelenléti nap: ellenőrizze a távolléteket.","Die Verhandlungsmarge ist zu hoch.":"A tárgyalási tartalék túl magas."}};
+for(const lang of Object.keys(I18N_FULL))Object.assign(I18N[lang],I18N_FULL[lang]);
+let APP_LANG="de";
+function i18nText(v){return APP_LANG==="de"?v:((I18N[APP_LANG]||{})[v]||v);}
+function applyLanguage(root=document){
+ document.documentElement.lang=APP_LANG;
+ const dict=I18N[APP_LANG]||{};
+ const translate=v=>{if(APP_LANG==="de")return v;let out=v;for(const k of Object.keys(dict).sort((a,b)=>b.length-a.length))if(out.includes(k))out=out.split(k).join(dict[k]);return out;};
+ root.querySelectorAll('[data-i18n]').forEach(e=>{if(!e.dataset.i18nDe)e.dataset.i18nDe=e.textContent;const k=e.dataset.i18n;e.textContent=dict[k]||e.dataset.i18nDe;});
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
+ while(n=walker.nextNode()){
+  if(n.parentElement&&/^(SCRIPT|STYLE|INPUT|TEXTAREA)$/.test(n.parentElement.tagName))continue;
+  if(n._deText===undefined)n._deText=n.nodeValue;
+  n.nodeValue=APP_LANG==="de"?n._deText:translate(n._deText);
+ }
+ root.querySelectorAll('[title],[aria-label],[placeholder]').forEach(e=>{for(const a of ['title','aria-label','placeholder'])if(e.hasAttribute(a)){const dk='i18n'+a.replace('-','');if(!e.dataset[dk])e.dataset[dk]=e.getAttribute(a);e.setAttribute(a,APP_LANG==="de"?e.dataset[dk]:translate(e.dataset[dk]));}});
+ const sel=$("app-language");if(sel)sel.value=APP_LANG;
+}
+function setLanguage(lang){
+ APP_LANG=["de","en","es","fr","pl","cs","hu"].includes(lang)?lang:"de";
+ try{localStorage.setItem("kalkulation-language",APP_LANG)}catch(e){}
+ const active=document.querySelector("#tabs [data-tab][aria-selected='true']");
+ if(active){STALE_PANELS.add(active.dataset.tab);renderVisiblePanels();}
+ applyLanguage(document);
+ syncStickyOffsets();
+}
+function bindLanguage(){
+ try{APP_LANG=localStorage.getItem("kalkulation-language")||"de"}catch(e){APP_LANG="de"}
+ const sel=$("app-language");
+ if(sel){sel.value=APP_LANG;sel.addEventListener("change",e=>setLanguage(e.target.value));}
+ applyLanguage(document);
+}
+
+function setViewMode(mode){
+  const detail=mode==="detail";
+  document.body.classList.toggle("view-standard",!detail);
+  document.body.classList.toggle("view-detail",detail);
+  const a=$("view-standard"),b=$("view-detail");
+  if(a)a.setAttribute("aria-pressed",String(!detail));
+  if(b)b.setAttribute("aria-pressed",String(detail));
+  try{localStorage.setItem("kalkulation-view-mode",detail?"detail":"standard");}catch(e){}
+}
+function bindViewMode(){
+  $("view-standard").addEventListener("click",()=>setViewMode("standard"));
+  $("view-detail").addEventListener("click",()=>setViewMode("detail"));
+  let mode="standard";try{mode=localStorage.getItem("kalkulation-view-mode")||"standard"}catch(e){}
+  setViewMode(mode);
 }
 
 /* ============================ Datei ============================ */
@@ -2069,6 +2255,8 @@ function initFileMenu(){
 /* ============================ Start ============================ */
 (function init(){
   $("app-ver").textContent=APP_VERSION;
+  bindViewMode();
+  bindLanguage();
   let saved=null;
   S.calc=calcNewCalc();
   try{saved=localStorage.getItem(LS_KEY);}catch(e){}
@@ -2084,7 +2272,7 @@ function initFileMenu(){
   }
   initTabs();initFileMenu();initCalc();bindFieldUndoTracking();
   updateHeader();updateUndoBtn();
-  showTab("projekt");
+  showTab("home");
 })();
 </script>
 </body>
