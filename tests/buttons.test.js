@@ -671,6 +671,11 @@ const ACTIONS = [
     run: async (p) => { await go(p, 14); if (await p.isDisabled("#calc-capex-bom")) return "übersprungen"; await p.click("#calc-capex-bom"); },
     expect: (a, b) => assert.ok(b.calc.capex.includes("Lagertechnik lt. Stückliste (Lagerplaner)")),
   },
+  ...["salaries", "wages"].map((list) => ({
+    key: "Kalkulation: Brutto-Zuschlag " + list, covers: ["#calc-gross-" + list],
+    run: async (p) => { await go(p, 13); if (await p.isDisabled("#calc-gross-" + list)) return "übersprungen"; await p.click("#calc-gross-" + list); },
+    expect: async (a, b, p) => assert.ok(await p.evaluate((l) => S.calc[l].every((x) => x.gross === Math.round(computeCalc(S).days.grossSuggest * 10000) / 100), list)),
+  })),
   {
     key: "Kalkulation: OtO-Werte kopieren", covers: ["#calc-oto-copy"],
     run: async (p) => { await go(p, 16); await p.click("#calc-oto-copy"); await p.waitForSelector(".toast"); },

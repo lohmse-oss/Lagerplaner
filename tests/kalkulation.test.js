@@ -60,6 +60,8 @@ test("Excel-kompatibel: Beispiel ergibt die Werte der Excel-Vorlage", async (pag
 
 test("Korrigiert: Gross Profit mit HV und BU auf den Umsatz ohne Verhandlung, Wechselkurs wirkt", async (page) => {
   await loadExample(page);
+  // Ohne Beitragsbemessungsgrenzen entsprechen die Kosten der Excel
+  await page.evaluate(() => { for (const x of S.calc.base.sv) x.bbg = 0; });
   let r = await result(page);
   near(r.umv, EXCEL.umv, "Umsatz unverändert");
   near(r.gp, GP_CORRECTED, "Gross Profit korrigiert");
@@ -102,7 +104,8 @@ test("Eingabe: deutsche Zahlen, Ausgaben laufen mit, Rückgängig je Feld", asyn
   await page.fill(cell, "80.000");
   assert.equal(await page.evaluate(() => S.calc.salaries[0].rate), 80000);
   const live = await page.textContent("#calc-card-salaries tbody tr:first-child td:nth-child(11)");
-  assert.match(live, /104\.602 €/, "Kosten p.a. sofort aktualisiert");
+  assert.equal(live, await page.evaluate(() => calcEur(computeCalc(S).sal.rows[0].AG)), "Kosten p.a. sofort aktualisiert");
+  assert.notEqual(live, await page.evaluate((b) => calcEur(b), before));
   await page.press(cell, "Tab");
   assert.equal(await page.inputValue(cell), "80.000");
   await page.fill('[data-cf="calc.wages.0.fte"]', "2,5");
@@ -225,9 +228,10 @@ test("Speichern und Laden: Browserspeicher, Planungsdatei, Szenario", async (pag
   await page.reload();
   assert.equal(await page.evaluate(() => S.calc.oto.offerNo), "A-4711");
   assert.equal(await page.evaluate(() => S.calc.salaries.length), 7);
+  const umv = await page.evaluate(() => computeCalc(S).sum.pa.umv);
   await page.evaluate(() => { S = defaults(); recalc(); });
   await page.evaluate((t) => applyJson(t), json);
-  near(await page.evaluate(() => computeCalc(S).sum.pa.umv), EXCEL.umv, "nach Laden");
+  near(await page.evaluate(() => computeCalc(S).sum.pa.umv), umv, "nach Laden");
   // Ältere Planungsdatei ohne Kalkulation: Standardwerte
   await page.evaluate(() => { const st = JSON.parse(JSON.stringify(S)); delete st.calc; applyJson(JSON.stringify(st)); });
   assert.equal(await page.evaluate(() => S.calc.salaries.length), 0);
@@ -269,6 +273,7 @@ test("CAPEX aus Stückliste, Link zum Ablageordner, Kopieren und Drucken", async
   await page.click("#start-example");
   await loadExample(page);
   await page.click("#tab-14");
+  const umv0 = await page.evaluate(() => computeCalc(S).sum.pa.umv);
   const capex = await page.evaluate(() => Math.round(R.capex.total));
   assert.ok(capex > 0);
   await page.click("#calc-capex-bom");
@@ -286,7 +291,7 @@ test("CAPEX aus Stückliste, Link zum Ablageordner, Kopieren und Drucken", async
   assert.equal(await page.locator(".calc-link").count(), 0, "nur http- und https-Adressen als Link");
   // Der übernommene CAPEX erhöht den Umsatz um seinen Jahresanteil im Hundert
   const r = await page.evaluate(() => { const r = computeCalc(S); return { to: r.oto.offer.to, text: calcOtoText(r) }; });
-  near(r.to, EXCEL.umv + (capex / 60 * 12) / 0.82 / 0.92, "Angebots-TO mit Stücklisten-CAPEX");
+  near(r.to, umv0 + (capex / 60 * 12) / 0.82 / 0.92, "Angebots-TO mit Stücklisten-CAPEX");
   const toText = r.to.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   assert.ok(r.text.includes("Angebots TO | Offer TO\t" + toText + " EUR"), r.text.slice(0, 600));
   assert.match(r.text, /Investment \(total netto\) \| Invest \(total net\)\t/);
@@ -301,6 +306,81 @@ test("CAPEX aus Stückliste, Link zum Ablageordner, Kopieren und Drucken", async
     assert.ok(body.includes(whole + " €") || body.includes(toText + " EUR"), "Angebots-TO im Druck");
     await popup.close();
   }
+});
+
+test("Beitragsbemessungsgrenzen: SV nur bis zur Grenze, Excel-kompatibel ohne Grenze", async (page) => {
+  await loadExample(page);
+  const r = await page.evaluate(() => {
+    const c = computeCalc(S), x = c.sal.rows[0], w = c.wage.rows[0];
+    S.calc.excelMode = true; const e = computeCalc(S).sal.rows[0]; S.calc.excelMode = false;
+    return { T: x.T, U: x.U, h: c.sal.hours, wT: w.T, wU: w.U, eU: e.U, eT: e.T };
+  });
+  const ann = r.T * r.h; // Ø Jahresgehalt Test 1 über die Laufzeit
+  assert.ok(ann > 69750 && ann < 101400, "zwischen den Grenzen: " + ann);
+  near(r.U, r.T * (0.093 + 0.013 + 0.0056 + 0.0015 + 0.01 + 0.01) + (0.0875 + 0.018) * 69750 / r.h, "KV/PV gedeckelt");
+  near(r.wU, r.wT * 0.2386, "Lohn unter den Grenzen: voller Satz");
+  near(r.eU, r.eT * 0.2386, "Excel: ohne Grenze");
+  near(await page.evaluate(() => computeCalc(S).sum.pa.umv), 5798336.976193844, "Umsatz mit Grenzen");
+});
+
+test("Sachkosten: Steigerung je Kalenderjahr und Kalkulationszins als Annuität", async (page) => {
+  await loadExample(page);
+  await page.fill('[data-cf="calc.base.costRaise"]', "2");
+  await page.fill('[data-cf="calc.base.interest"]', "5");
+  await page.press('[data-cf="calc.base.interest"]', "Tab");
+  const r = await page.evaluate(() => { const c = computeCalc(S); return { opex: c.cost.opex.pa, nu: c.cost.nu.pa, capex: c.cost.capex.pa, capexLz: c.cost.capex.lz, invest: c.oto.invest }; });
+  const w = [10, 12, 12, 12, 12, 2].map((m) => m / 12), esc = w.reduce((a, x, i) => a + x * 1.02 ** i, 0) / w.reduce((a, x) => a + x, 0);
+  near(r.opex, 1386787 * esc, "Betriebskosten mit Ø-Faktor");
+  near(r.nu, (671146.6666666664 + 23693.250804854837) * esc, "Nachunternehmer mit Ø-Faktor");
+  const ann = 0.05 / (1 - 1.05 ** -5);
+  near(r.capex, 209877 * ann, "Annuität");
+  near(r.capexLz, 209877 * ann * 5, "Laufzeit inklusive Zins");
+  near(r.invest, 209877, "OtO-Investment bleibt nominal");
+  assert.match(await page.textContent("#calc-panel-12"), /23,10 %/, "Annuität angezeigt");
+  await page.click("#tab-14");
+  assert.match(await page.textContent("#calc-panel-14"), /Annuität mit 5,0 % Zins/);
+  await page.evaluate(() => { S.calc.excelMode = true; });
+  near(await page.evaluate(() => computeCalc(S).cost.opex.pa), 1386787, "Excel: ohne Steigerung");
+});
+
+test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag Brutto-Zuschlag, Begrenzung", async (page) => {
+  await loadExample(page);
+  // Laufzeit in Monaten setzt das Leistungsende
+  await page.fill("[data-calc-duration]", "36");
+  await page.press("[data-calc-duration]", "Tab");
+  await page.waitForTimeout(50);
+  assert.equal(await page.evaluate(() => S.request.eop), "2030-02-28");
+  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => S.request.eop), "2032-02-29");
+  await page.evaluate(() => { S.request.sop = "2027-01-31"; });
+  await page.evaluate(() => showTab(12));
+  await page.fill("[data-calc-duration]", "1");
+  await page.press("[data-calc-duration]", "Tab");
+  assert.equal(await page.evaluate(() => S.request.eop), "2027-02-28", "Monatsende");
+  // Enter: nächste Zeile, in der letzten Zeile neue Zeile; Pfeil auf zurück
+  await page.click("#tab-14");
+  await page.click('[data-cf="calc.nu.0.price"]');
+  assert.equal(await page.evaluate(() => { const e = document.activeElement; return e.value.slice(e.selectionStart, e.selectionEnd); }), "671.146,6666666664", "Klick markiert den Inhalt");
+  await page.keyboard.press("Enter");
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
+  await page.keyboard.type("5000");
+  await page.keyboard.press("Enter");
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.2.price", "neue Zeile");
+  assert.deepEqual(await page.evaluate(() => S.calc.nu.slice(1)), [{ name: "Sammel", qty: 1, price: 5000 }, { name: "", qty: 1, price: 0 }]);
+  await page.keyboard.press("ArrowUp");
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
+  // Begrenzung mit Hinweis
+  await page.click("#tab-12");
+  await page.fill('[data-cf="calc.base.profit"]', "120");
+  await page.press('[data-cf="calc.base.profit"]', "Tab");
+  assert.equal(await page.evaluate(() => S.calc.base.profit), 90);
+  assert.match(await page.textContent(".toast:last-of-type"), /zulässigen Bereich begrenzt: 90 %/);
+  // Vorschlag FTE-Brutto-Zuschlag
+  await page.click("#tab-13");
+  await page.click("#calc-gross-wages");
+  assert.deepEqual(await page.evaluate(() => S.calc.wages.map((x) => x.gross)), [17.76, 17.76, 17.76]);
+  await page.click("#btn-undo");
+  assert.deepEqual(await page.evaluate(() => S.calc.wages.map((x) => x.gross)), [15.99, 15.99, 15.99]);
 });
 
 test("Leere Kalkulation: alle Register ohne Fehler und ohne waagerechten Überlauf", async (page) => {
