@@ -1116,6 +1116,22 @@ test("Sprache Englisch: Oberfläche, Zahlenformat, Meldungen, Bericht und Excel;
   page.on("dialog", (d) => msgs.push(d.message()));
   await page.evaluate(() => newCalc());
   assert.match(msgs.join(" | "), /Start a new calculation\?/);
+  // Prüfmeldungen beim Öffnen, Hinweise und Reparaturen
+  const tx = await page.evaluate(() => [
+    tr("Datei wurde nicht übernommen: Kalkulation.capex, Zeile 1: name ist ungültig."),
+    tr("Datei wurde nicht übernommen: Unbekanntes Feld foo. Ist das eine Kalkulationsdatei?"),
+    tr("Kalkulation geöffnet: 1 Wert lag außerhalb des zulässigen Bereichs und wurde angepasst.\n· Investitionen Zeile 1 Nutzungsdauer (Vorgabe aus V2.10): 1 → 0 = über die Laufzeit"),
+    tr("2 Zeilen in Investitionen eingefügt; 1 Werte passten nicht zur Spalte und wurden übersprungen."),
+    tr("Löhne Zeile 2 („Kauf“): Tarifgruppe „X“ nicht gefunden (Art Lohn)."),
+  ]);
+  assert.deepEqual(tx, [
+    "File was not imported: Calculation.capex, row 1: name is invalid.",
+    "File was not imported: Unknown field foo. Is this a calculation file?",
+    "Calculation opened: 1 value was outside the allowed range and was adjusted.\n· Investments row 1 useful life (default from V2.10): 1 → 0 = over the term",
+    "2 rows pasted into Investments; 1 values did not fit the column and were skipped.",
+    "Wages row 2 (“Kauf”): pay group “X” not found (type wage).",
+  ]);
+  assert.match(await page.getAttribute("#btn-undo", "title"), /^Undo: /);
   await page.click("#btn-undo");
   // Bericht
   await page.click("#btn-dd-file");
