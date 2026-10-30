@@ -110,9 +110,9 @@ test("Eingabe: deutsche Zahlen, Ausgaben laufen mit, Rückgängig je Feld", asyn
   const before = await page.evaluate(() => computeCalc(S).sal.AG);
   await page.fill(cell, "80.000");
   assert.equal(await page.evaluate(() => S.calc.salaries[0].rate), 80000);
-  const live = await page.textContent("#calc-card-salaries tbody tr:first-child td:nth-child(11)");
-  assert.equal(live, await page.evaluate(() => calcEur(computeCalc(S).sal.rows[0].AG)), "Kosten p.a. sofort aktualisiert");
-  assert.notEqual(live, await page.evaluate((b) => calcEur(b), before));
+  const live = await page.textContent('#calc-card-salaries table[data-cl="salaries"] > tbody > tr:first-child');
+  assert.ok(live.includes(await page.evaluate(() => calcEur(computeCalc(S).sal.rows[0].AG))), "Kosten p.a. sofort aktualisiert");
+  assert.ok(!live.includes(await page.evaluate((b) => calcEur(b), before)));
   await page.press(cell, "Tab");
   assert.equal(await page.inputValue(cell), "80.000");
   await page.fill('[data-cf="calc.wages.0.fte"]', "2,5");
@@ -142,7 +142,7 @@ test("Listen: anlegen, duplizieren, verschieben, löschen, je Schritt rückgäng
   await page.keyboard.press("Tab"); await page.keyboard.type("2");
   await page.keyboard.press("Tab"); await page.keyboard.type("12.000,50");
   await page.keyboard.press("Tab");
-  assert.deepEqual(await page.evaluate(() => S.calc.nu[2]), { name: "Wachdienst", qty: 2, price: 12000.5 });
+  assert.deepEqual(await page.evaluate(() => S.calc.nu[2]), { name: "Wachdienst", qty: 2, price: 12000.5, pass: false, note: "" });
   await page.click('#calc-card-nu [data-calc-act="up"][data-ci="2"]');
   assert.equal((await names())[1], "Wachdienst:12000.5");
   await page.click('#calc-card-nu [data-calc-act="dup"][data-ci="1"]');
@@ -171,7 +171,7 @@ test("Einfügen aus Excel: Zellbereich füllt Zeilen und legt fehlende an", asyn
     const dt = new DataTransfer(); dt.setData("text/plain", t);
     document.activeElement.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true }));
   }, text);
-  const w = await page.evaluate(() => S.calc.wages.slice(2));
+  const w = await page.evaluate(() => S.calc.wages.slice(2).map(({ name, fte, rate, gross }) => ({ name, fte, rate, gross })));
   assert.deepEqual(w, [
     { name: "Lagerist", fte: 3, rate: 18.5, gross: 15 },
     { name: "Staplerfahrer", fte: 1.5, rate: 19.75, gross: 16 },
@@ -266,7 +266,7 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
     return { lists: Object.keys(CALC_LISTS).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, warn: c.warn, fx: c.oto.fx, cur: c.oto.currency,
       to: c.oto.offer.to, umv: c.sum.pa.umv, rampup: c.cost.rampup.nominal, sl: S.calc.lists.serviceLines.at(-1), name: S.meta.name };
   });
-  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9]);
+  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9, 0, 0, 0]);
   assert.deepEqual([r.months, r.warn, r.fx, r.cur, r.sl, r.name], [60, [], 0.94, "CHF", "Warehouse", "Testkalkulation Kombinationen"]);
   near(r.to, r.umv * 0.94, "Angebots-TO in CHF");
   assert.equal(r.rampup, 100000, "Gutschrift mindert den Ramp-up");
@@ -277,7 +277,7 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
   // Werte außerhalb der Grenzen werden beim Öffnen begrenzt
   const st = await page.evaluate(() => { const st = JSON.parse(JSON.stringify(S)); st.calc.wages = [{ name: "X", fte: -3 }]; return st; });
   await page.evaluate((t) => loadText(t), JSON.stringify(st));
-  assert.deepEqual(await page.evaluate(() => S.calc.wages), [{ name: "X", fte: 0, rate: 0, gross: 0 }]);
+  assert.deepEqual(await page.evaluate(() => S.calc.wages), [{ name: "X", fte: 0, rate: 0, gross: 0, grade: "", extra: 0, note: "", fteYears: {} }]);
   assert.ok(await page.isVisible(".toast"));
   // Ältere Datei ohne Kalkulationsteil: Standardwerte
   await page.evaluate(() => loadText(JSON.stringify({ meta: { name: "Alt" } })));
@@ -343,7 +343,7 @@ test("Link zum Ablageordner, Kopieren und Drucken", async (page) => {
 test("Alle Knöpfe und Felder: ohne Seitenfehler, bei 390 px ohne Seitenüberlauf", async (page) => {
   await loadExample(page);
   page.on("popup", (p) => p.close().catch(() => {}));
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "oto"]) {
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) {
     await page.click("#tab-" + tab);
     const n = await page.locator(`#panel-${tab} button:not([disabled])`).count();
     for (let i = 0; i < n; i++) {
@@ -353,11 +353,11 @@ test("Alle Knöpfe und Felder: ohne Seitenfehler, bei 390 px ohne Seitenüberlau
     await page.click("#tab-" + tab);
   }
   // Beschriftung für jedes Eingabefeld
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "oto"]) await page.evaluate((t) => showTab(t), tab);
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) await page.evaluate((t) => showTab(t), tab);
   const unlabeled = await page.$$eval("#panels input:not([type=hidden]),#panels textarea", (els) => els.filter((e) => !(e.labels && e.labels.length) && !e.getAttribute("aria-label")).map((e) => e.outerHTML.slice(0, 80)));
   assert.deepEqual(unlabeled, []);
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "oto"]) {
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) {
     await page.evaluate((t) => showTab(t), tab);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Überlauf in " + tab);
   }
@@ -375,7 +375,8 @@ test("Beitragsbemessungsgrenzen: SV nur bis zur Grenze, Excel-kompatibel ohne Gr
   near(r.U, r.T * (0.093 + 0.013 + 0.0056 + 0.0015 + 0.01 + 0.01) + (0.0875 + 0.018) * 69750 / r.h, "KV/PV gedeckelt");
   near(r.wU, r.wT * 0.2386, "Lohn unter den Grenzen: voller Satz");
   near(r.eU, r.eT * 0.2386, "Excel: ohne Grenze");
-  near(await page.evaluate(() => computeCalc(S).sum.pa.umv), 5798336.976193844, "Umsatz mit Grenzen");
+  // Grenze je Kalenderjahr mit dem gestiegenen Gehalt geprüft
+  near(await page.evaluate(() => computeCalc(S).sum.pa.umv), 5798310.093861093, "Umsatz mit Grenzen");
 });
 
 test("Sachkosten: Steigerung je Kalenderjahr und Kalkulationszins als Annuität", async (page) => {
@@ -421,7 +422,7 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
   await page.keyboard.type("5000");
   await page.keyboard.press("Enter");
   assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.2.price", "neue Zeile");
-  assert.deepEqual(await page.evaluate(() => S.calc.nu.slice(1)), [{ name: "Sammel", qty: 1, price: 5000 }, { name: "", qty: 1, price: 0 }]);
+  assert.deepEqual(await page.evaluate(() => S.calc.nu.slice(1).map(({ name, qty, price }) => ({ name, qty, price }))), [{ name: "Sammel", qty: 1, price: 5000 }, { name: "", qty: 1, price: 0 }]);
   await page.keyboard.press("ArrowUp");
   assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
   // Begrenzung mit Hinweis
@@ -438,8 +439,268 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
   assert.deepEqual(await page.evaluate(() => S.calc.wages.map((x) => x.gross)), [15.99, 15.99, 15.99]);
 });
 
+
+const calcOf = (page) => page.evaluate(() => computeCalc(S));
+
+test("Personalbedarf aus Mengen und Schichten: FTE der Qualifikation abgeleitet, Hinweis bei fehlender Zuordnung", async (page) => {
+  await loadExample(page);
+  await page.click("#tab-personal");
+  await page.click('#calc-card-need [data-calc-act="add"]');
+  await page.keyboard.type("Kommissionierung");
+  await page.fill('[data-cf="calc.need.0.qual"]', "Lohn 2");
+  await page.fill('[data-cf="calc.need.0.a"]', "1.200");
+  await page.fill('[data-cf="calc.need.0.b"]', "50");
+  await page.fill('[data-cf="calc.need.0.allow"]', "10");
+  await page.press('[data-cf="calc.need.0.allow"]', "Tab");
+  near(await page.evaluate(() => computeCalc(S).wage.rows[1].fteIn), 1200 / (50 * 8) * 1.1, "Menge ÷ (Leistung × Stunden) × Verteilzeit");
+  await page.click('#calc-card-need [data-calc-act="add"]');
+  await page.fill('[data-cf="calc.need.1.qual"]', "Lohn 2");
+  await page.selectOption('[data-cf="calc.need.1.mode"]', "Schicht");
+  await page.fill('[data-cf="calc.need.1.a"]', "2");
+  await page.fill('[data-cf="calc.need.1.b"]', "3");
+  await page.press('[data-cf="calc.need.1.b"]', "Tab");
+  await page.waitForTimeout(50);
+  const r = await page.evaluate(() => { const r = computeCalc(S); return { fte: r.wage.rows[1].fteIn, linked: r.wage.rows[1].linked, other: r.wage.rows[0].fteIn }; });
+  near(r.fte, 3.3 + 6, "Summe aus Menge und Schicht");
+  assert.equal(r.linked, true);
+  near(r.other, 2, "andere Zeilen unverändert");
+  // Zelle als Ausgabe (grün) statt Eingabe
+  assert.equal(await page.locator('[data-cf="calc.wages.1.fte"]').count(), 0);
+  assert.match(await page.textContent('#calc-card-wages table[data-cl="wages"] > tbody > tr:nth-child(2) td.linked'), /9,30/);
+  // Unbekannte Qualifikation: Warnung in der Plausibilität
+  await page.fill('[data-cf="calc.need.1.qual"]', "Unbekannt");
+  await page.press('[data-cf="calc.need.1.qual"]', "Tab");
+  const checks = await page.evaluate(() => calcChecks(S, computeCalc(S)).map((x) => x.text).join("\n"));
+  assert.match(checks, /Qualifikation „Unbekannt“ nicht in Gehältern oder Löhnen gefunden/);
+});
+
+test("Tarifgruppen und Zuschlag je Zeile", async (page) => {
+  await loadExample(page);
+  await page.click("#tab-personal");
+  await page.click('#calc-card-grades [data-calc-act="add"]');
+  await page.keyboard.type("E5");
+  await page.fill('[data-cf="calc.grades.0.rate"]', "18");
+  await page.press('[data-cf="calc.grades.0.rate"]', "Tab");
+  await page.fill('[data-cf="calc.wages.0.grade"]', "E5");
+  await page.press('[data-cf="calc.wages.0.grade"]', "Tab");
+  await page.waitForTimeout(50);
+  let r = await calcOf(page);
+  assert.equal(r.wage.rows[0].rate, 18);
+  assert.equal(r.wage.rows[0].gradeRate, 18);
+  assert.equal(await page.locator('[data-cf="calc.wages.0.rate"]').count(), 0, "Satz aus der Tarifgruppe");
+  // Gehaltsgruppe passt nicht zu einem Lohn: Warnung
+  await page.evaluate(() => { S.calc.grades.push({ name: "G1", kind: "Gehalt", rate: 60000, note: "" }); S.calc.wages[1].grade = "G1"; });
+  assert.match(await page.evaluate(() => calcChecks(S, computeCalc(S)).map((x) => x.text).join("\n")), /Tarifgruppe „G1“ nicht gefunden \(Art Lohn\)/);
+  // Zuschlag je Zeile erhöht nur diese Qualifikation
+  await page.evaluate(() => { S.calc.wages[1].grade = ""; });
+  const before = await page.evaluate(() => computeCalc(S).wage.rows.map((x) => x.T / x.R));
+  await page.evaluate(() => { S.calc.wages[0].extra = 25; });
+  r = await calcOf(page);
+  near(r.wage.rows[0].T / r.wage.rows[0].R, before[0] + 0.25, "Zuschlag 25 %");
+  near(r.wage.rows[1].T / r.wage.rows[1].R, before[1], "andere Zeile unverändert");
+});
+
+test("Tariferhöhung zum Stichtag und je Jahr, Hochlauf, Wachstum, FTE je Jahr; Excel-kompatibel ohne Wirkung", async (page) => {
+  await loadExample(page);
+  await page.fill('[data-cf="calc.base.raiseMonth"]', "7");
+  await page.press('[data-cf="calc.base.raiseMonth"]', "Tab");
+  await page.fill('[data-cf="calc.base.raises.2029"]', "5");
+  await page.press('[data-cf="calc.base.raises.2029"]', "Tab");
+  let r = await calcOf(page);
+  near(r.rates.raiseIdx[1], (6 + 6 * 1.025) / 12, "2028: halbes Jahr erhöht");
+  near(r.rates.raiseIdx[2], (6 * 1.025 + 6 * 1.025 * 1.05) / 12, "2029: eigener Satz 5 %");
+  // Leeres Feld: Eintrag entfällt
+  await page.fill('[data-cf="calc.base.raises.2029"]', "");
+  await page.press('[data-cf="calc.base.raises.2029"]', "Tab");
+  assert.deepEqual(await page.evaluate(() => S.calc.base.raises), {});
+  await page.evaluate(() => { S.calc.base.raiseMonth = 1; S.calc.base.firstYearPct = 50; S.calc.base.volumeGrowth = 10; S.calc.wages[0].fteYears = { 2030: 4 }; });
+  r = await calcOf(page);
+  const f = r.wage.rows[0].yr.map((x) => x.fte);
+  [2 * 0.5, 2 * 1.1, 2 * 1.21, 4, 2 * 1.1 ** 4, 2 * 1.1 ** 5].forEach((v, i) => near(f[i], v, "FTE " + (2027 + i)));
+  // Kosten je Jahr summieren sich zur Laufzeit
+  near(r.wage.rows[0].AH, r.wage.rows[0].yr.reduce((a, x) => a + x.cost, 0), "Summe der Jahre");
+  await page.click("#tab-personal");
+  assert.equal(await page.getAttribute('[data-cf="calc.wages.0.fteYears.2028"]', "placeholder"), "2,20");
+  // Excel-kompatibel: alles ohne Wirkung
+  await page.evaluate(() => { S.calc.excelMode = true; S.calc.base.raiseMonth = 7; S.calc.base.raises = { 2029: 9 }; S.calc.nu[0].pass = true; S.calc.base.costRaise = 3; S.calc.base.interest = 5; });
+  r = await result(page);
+  for (const k of ["salAG", "wageAG", "umv", "lzUmv", "gp"]) near(r[k], EXCEL[k], k);
+});
+
+test("Durchreichposten: fester Aufschlag statt Zuschläge im Hundert", async (page) => {
+  await loadExample(page);
+  await page.click("#tab-sachkosten");
+  const r0 = await calcOf(page);
+  await page.check('[data-cf="calc.nu.0.pass"]');
+  await page.waitForTimeout(50);
+  const r = await calcOf(page), s = r.sum.pa, Kp = 671146.6666666664;
+  near(s.Kp, Kp, "Durchreichposten");
+  near(s.uov, (s.K - Kp) / 0.82 + Kp * 1.03, "Umsatz ohne Verhandlung");
+  near(s.umv, s.uov / 0.92, "mit Verhandlung");
+  assert.ok(s.umv < r0.sum.pa.umv, "günstiger als mit vollen Zuschlägen");
+  near(r.oto.offer.ebita, s.ge + s.pm + s.ve, "EBITA inklusive Aufschlag");
+  await page.click("#tab-summary");
+  assert.match(await page.textContent("#calc-panel-summary"), /Aufschlag Durchreichposten/);
+});
+
+test("Auswertung: Jahre bei Festpreis, Preisgleitung, Cashflow, Kapitalwert, Preisuntergrenze", async (page) => {
+  await loadExample(page);
+  let r = await calcOf(page);
+  const sum = (k) => r.years.reduce((a, x) => a + x[k], 0), lz = r.sum.lz;
+  near(sum("rev"), lz.umv, "Umsatz über die Jahre");
+  near(sum("pers") + sum("mat"), lz.K, "Kosten über die Jahre");
+  near(sum("ebita"), lz.umv - lz.sk - lz.ri, "EBITA über die Jahre");
+  assert.ok(r.years[0].ebita / r.years[0].rev > r.years.at(-2).ebita / r.years.at(-2).rev, "Festpreis: Marge sinkt mit steigenden Löhnen");
+  // Preisgleitung verschiebt den Umsatz, die Summe bleibt
+  await page.click("#tab-auswertung");
+  await page.fill('[data-cf="calc.eval.priceIndex"]', "2,5");
+  await page.press('[data-cf="calc.eval.priceIndex"]', "Tab");
+  r = await calcOf(page);
+  near(r.years.reduce((a, x) => a + x.rev, 0), lz.umv, "Summe mit Preisgleitung");
+  assert.ok(r.years[1].rev < r.sum.pa.umv && r.years[4].rev > r.sum.pa.umv);
+  // Cashflow, Amortisation, Kapitalwert, interne Verzinsung
+  const c = r.cash, inv = 209877 + 413349;
+  near(c.invest, inv, "Kapitalbindung");
+  let t = 0, npv = -inv;
+  for (const x of r.years) { t += x.months / 12; npv += x.cash / 1.08 ** t; }
+  near(c.npv, npv, "Kapitalwert bei 8 %");
+  assert.ok(c.payback > 0 && c.payback < 60, "Amortisation in Monaten: " + c.payback);
+  let t2 = 0, atIrr = -inv;
+  for (const x of r.years) { t2 += x.months / 12; atIrr += x.cash / (1 + c.irr) ** t2; }
+  assert.ok(Math.abs(atIrr) < 1, "Kapitalwert bei interner Verzinsung ≈ 0: " + atIrr);
+  near(r.price.floor, (r.sum.pa.sk + r.sum.pa.ri) / 0.95, "Preisuntergrenze bei 5 % Mindestmarge");
+  near(r.price.headroom, r.sum.pa.umv - r.price.floor, "Verhandlungsspielraum");
+  const text = await page.textContent("#calc-panel-auswertung");
+  assert.match(text, /Verhandlungsspielraum p\.a\./);
+  assert.equal(await page.locator("#calc-card-years svg").count(), 1);
+  assert.equal(await page.locator("#calc-card-sensi svg").count(), 1);
+});
+
+test("Sensitivitätsanalyse: Treiber, Richtung, Sortierung, Variation einstellbar", async (page) => {
+  await loadExample(page);
+  const rows = await page.evaluate(() => calcSensitivity(S, computeCalc(S)));
+  assert.equal(rows.length, 10);
+  const by = Object.fromEntries(rows.map((x) => [x.key, x]));
+  assert.ok(by.wage.eHigh < 0 && by.wage.eLow > 0, "höhere Löhne senken das EBITA bei festem Preis");
+  assert.ok(by.wage.pHigh > 0, "und erhöhen den kostendeckenden Preis");
+  near(by.wage.eHigh, -by.wage.eLow, "symmetrisch");
+  // Längere Laufzeit: Einmalkosten verteilen sich (günstiger), ein weiteres Jahr Tariferhöhung hebt den Ø-Lohn (teurer)
+  assert.ok(Number.isFinite(by.term.eHigh) && Number.isFinite(by.term.eLow));
+  const noRaise = await page.evaluate(() => { const st = JSON.parse(JSON.stringify(S)); st.calc.base.raise = 0; return calcSensitivity(st, computeCalc(st)).find((x) => x.key === "term").eHigh; });
+  assert.ok(noRaise > 0, "ohne Tariferhöhung senkt eine längere Laufzeit die Kosten p.a.");
+  const mags = rows.map((x) => Math.max(Math.abs(x.eLow), Math.abs(x.eHigh)));
+  assert.deepEqual(mags, [...mags].sort((a, b) => b - a), "nach Wirkung sortiert");
+  await page.click("#tab-auswertung");
+  await page.fill('[data-cf="calc.eval.sensi"]', "20");
+  await page.press('[data-cf="calc.eval.sensi"]', "Tab");
+  assert.match(await page.textContent("#calc-card-sensi"), /−20 % \/ \+20 %/);
+  const w20 = await page.evaluate(() => calcSensitivity(S, computeCalc(S)).find((x) => x.key === "wage").eHigh);
+  near(w20, 2 * by.wage.eHigh, "doppelte Variation, doppelte Wirkung");
+});
+
+test("Varianten: speichern, vergleichen, laden, löschen, rückgängig, in der Datei", async (page) => {
+  await loadExample(page);
+  await page.click("#tab-auswertung");
+  await page.fill("#calc-variant-name", "Basis");
+  await page.click("#calc-variant-save");
+  await page.evaluate(() => { S.calc.wages[0].rate = 25; persistState(); });
+  await page.click("#tab-projekt"); await page.click("#tab-auswertung");
+  await page.fill("#calc-variant-name", "Teurer Lohn");
+  await page.click("#calc-variant-save");
+  assert.deepEqual(await page.evaluate(() => S.variants.map((v) => v.name)), ["Basis", "Teurer Lohn"]);
+  const head = await page.$$eval("#calc-card-variants thead th", (th) => th.map((x) => x.textContent));
+  assert.equal(head.length, 4);
+  assert.match(head[2], /^Basis/);
+  await page.click('[data-variant-load="0"]');
+  near(await page.evaluate(() => S.calc.wages[0].rate), 21.99909548268, "Variante geladen");
+  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => S.calc.wages[0].rate), 25);
+  await page.click('[data-variant-del="1"]');
+  assert.deepEqual(await page.evaluate(() => S.variants.map((v) => v.name)), ["Basis"]);
+  // Datei enthält die Varianten und ist ladbar
+  const ok = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(S)); validateFile(o); return o.variants.length; });
+  assert.equal(ok, 1);
+  await page.reload();
+  assert.equal(await page.evaluate(() => S.variants.length), 1);
+  const bad = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(S)); o.variants[0].data.calc.salaries = "x"; try { validateFile(o); return ""; } catch (e) { return e.message; } });
+  assert.match(bad, /Variante 1/);
+});
+
+test("Plausibilität: Mindestlohn, Festpreis-Risiko, Anzeige in Summary und Auswertung", async (page) => {
+  await loadExample(page);
+  await page.evaluate(() => { S.calc.wages[0].rate = 13.5; });
+  const checks = await page.evaluate(() => calcChecks(S, computeCalc(S)));
+  const text = checks.map((x) => x.text).join("\n");
+  assert.match(text, /Mindestlohn: „Lohn 1“ liegt 2027 mit 13,50 €\/h unter 14,60 €\/h/);
+  assert.match(text, /Mindestlohn ab 2028 noch nicht festgelegt/);
+  assert.ok(checks.some((x) => x.sev === "warn"));
+  await page.click("#tab-summary");
+  assert.match(await page.textContent("#calc-panel-summary"), /\d+ Warnung/);
+  await page.click("#tab-auswertung");
+  assert.match(await page.textContent("#calc-card-checks"), /Mindestlohn/);
+  // Ohne Auffälligkeit bei üblichen Löhnen
+  await page.evaluate(() => { S.calc.wages[0].rate = 21.99909548268; });
+  assert.doesNotMatch(await page.evaluate(() => calcChecks(S, computeCalc(S)).map((x) => x.text).join("\n")), /Mindestlohn: /);
+});
+
+test("Excel-Export (.xlsx) und Gesamtbericht", async (page) => {
+  await loadExample(page);
+  await page.click("#btn-dd-file");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#btn-export-xlsx")]);
+  assert.equal(download.suggestedFilename(), "ZV-Packmittel_kalkulation.xlsx");
+  const buf = require("fs").readFileSync(await download.path());
+  assert.equal(buf.slice(0, 2).toString(), "PK");
+  const txt = buf.toString("utf8");
+  for (const n of ["[Content_Types].xml", "xl/workbook.xml", "xl/styles.xml", "xl/worksheets/sheet11.xml"]) assert.ok(txt.includes(n), n);
+  for (const n of ["Projekt", "Basisdaten", "Personal", "Personalbedarf", "Sachkosten", "Summary", "Jahre", "Cashflow", "Sensitivität", "Plausibilität", "OtO"]) assert.ok(txt.includes('name="' + n + '"'), "Blatt " + n);
+  const umv = await page.evaluate(() => computeCalc(S).sum.pa.umv);
+  assert.ok(txt.includes("<v>" + umv + "</v>"), "Umsatz als Zahl");
+  page.on("popup", () => {});
+  await page.click("#btn-dd-file");
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.click("#btn-report")]);
+  await popup.waitForLoadState();
+  assert.match(await popup.title(), /^Kalkulation – ZV-Packmittel/);
+  const body = await popup.textContent("body");
+  for (const h of ["Summary", "Personalkosten", "Sachkosten", "Ergebnis je Kalenderjahr", "Cashflow", "Sensitivitätsanalyse", "Plausibilität", "OtO-Werte", "Dokumentation und Freigabe"]) assert.ok(body.includes(h), h);
+  assert.ok((await popup.locator("svg").count()) >= 3, "Diagramme im Bericht");
+});
+
+test("Vorlagen: speichern, laden, Standard für neue Kalkulationen; Dokumentation und Versionshistorie", async (page) => {
+  await loadExample(page);
+  await page.fill('[data-cf="calc.base.profit"]', "7");
+  await page.press('[data-cf="calc.base.profit"]', "Tab");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#calc-tpl-save")]);
+  const tplPath = await download.path(), tpl = JSON.parse(require("fs").readFileSync(tplPath, "utf8"));
+  assert.equal(tpl.tool, "Kalkulationstool-Vorlage");
+  assert.equal(tpl.base.profit, 7);
+  assert.equal(tpl.salaries, undefined, "keine Projektinhalte in der Vorlage");
+  // Als Standard: neue Kalkulation übernimmt die Vorlage
+  await page.click("#calc-tpl-default");
+  await page.click("#btn-dd-file"); await page.click("#btn-new");
+  assert.deepEqual(await page.evaluate(() => [S.calc.base.profit, S.calc.salaries.length]), [7, 0]);
+  await page.click("#calc-tpl-clear");
+  await page.click("#btn-dd-file"); await page.click("#btn-new");
+  assert.equal(await page.evaluate(() => S.calc.base.profit), 6);
+  // Vorlage laden: Basisdaten ändern sich, Projektinhalte bleiben
+  await loadExample(page);
+  const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.click("#calc-tpl-load")]);
+  await chooser.setFiles(tplPath);
+  await page.waitForTimeout(300);
+  assert.deepEqual(await page.evaluate(() => [S.calc.base.profit, S.calc.salaries.length]), [7, 7]);
+  // Dokumentation
+  await page.fill('[data-cf="calc.doc.version"]', "1.1");
+  await page.fill('[data-cf="calc.doc.status"]', "Freigegeben");
+  await page.click('[data-calc-act="add"][data-cl="history"]');
+  await page.keyboard.type("1.1");
+  await page.fill('[data-cf="calc.history.0.note"]', "Löhne aktualisiert");
+  await page.press('[data-cf="calc.history.0.note"]', "Tab");
+  assert.deepEqual(await page.evaluate(() => [S.calc.doc.version, S.calc.doc.status, S.calc.history[0].version, S.calc.history[0].note]), ["1.1", "Freigegeben", "1.1", "Löhne aktualisiert"]);
+  await page.click("#tab-summary");
+  assert.match(await page.textContent("#calc-panel-summary"), /1\.1 \(Freigegeben\)/);
+});
+
 test("Leere Kalkulation: alle Register ohne Fehler und ohne waagerechten Überlauf", async (page) => {
-  for (const n of ["projekt", "personal", "sachkosten", "summary", "oto"]) {
+  for (const n of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) {
     await page.click("#tab-" + n);
     assert.equal(await page.isVisible("#panel-" + n), true);
     const text = await page.textContent("#calc-panel-" + n);

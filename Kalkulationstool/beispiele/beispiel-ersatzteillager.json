@@ -83,147 +83,220 @@
           "pct": 1,
           "bbg": 0
         }
-      ]
+      ],
+      "raiseMonth": 4,
+      "firstYearPct": 85,
+      "volumeGrowth": 2,
+      "passMarkup": 3,
+      "raises": {
+        "2028": 3.0
+      }
     },
     "salaries": [
       {
         "name": "Standortleitung",
         "fte": 1,
-        "rate": 95000,
-        "gross": 0
+        "rate": 0,
+        "gross": 0,
+        "grade": "AT Leitung",
+        "extra": 0,
+        "note": "keine Vertretung kalkuliert",
+        "fteYears": {}
       },
       {
         "name": "Teamleitung Schicht",
         "fte": 2,
-        "rate": 62000,
-        "gross": 10
+        "rate": 0,
+        "gross": 10,
+        "grade": "T2 Teamleitung",
+        "extra": 0,
+        "note": "2-Schicht-Betrieb",
+        "fteYears": {}
       },
       {
         "name": "Disposition und Bestandsführung",
         "fte": 2,
         "rate": 52000,
-        "gross": 10
+        "gross": 10,
+        "grade": "",
+        "extra": 0,
+        "note": "Marktvergleich Leipzig",
+        "fteYears": {}
       },
       {
         "name": "Qualitätssicherung",
         "fte": 1,
         "rate": 55000,
-        "gross": 10
+        "gross": 10,
+        "grade": "",
+        "extra": 0,
+        "note": "",
+        "fteYears": {}
       }
     ],
     "wages": [
       {
         "name": "Lagerfachkraft Wareneingang/-ausgang",
-        "fte": 8,
-        "rate": 17.5,
-        "gross": 17.5
+        "fte": 0,
+        "rate": 0,
+        "gross": 17.5,
+        "grade": "E5 Lager",
+        "extra": 0,
+        "note": "FTE aus Schichtmodell",
+        "fteYears": {}
       },
       {
         "name": "Staplerfahrer",
-        "fte": 6,
-        "rate": 18.4,
-        "gross": 17.5
+        "fte": 0,
+        "rate": 0,
+        "gross": 17.5,
+        "grade": "E6 Stapler",
+        "extra": 5,
+        "note": "FTE aus Mengengerüst; Schichtzulage 5 %",
+        "fteYears": {}
       },
       {
         "name": "Kommissionierer",
-        "fte": 12,
-        "rate": 16.2,
-        "gross": 17.5
+        "fte": 0,
+        "rate": 0,
+        "gross": 17.5,
+        "grade": "E4 Lager",
+        "extra": 0,
+        "note": "FTE aus Mengengerüst",
+        "fteYears": {}
       },
       {
         "name": "Packer/Versand",
         "fte": 4,
-        "rate": 15.8,
-        "gross": 17.5
+        "rate": 0,
+        "gross": 17.5,
+        "grade": "E3 Lager",
+        "extra": 0,
+        "note": "",
+        "fteYears": {}
       },
       {
         "name": "Springer/Inventur",
         "fte": 1,
         "rate": 16.5,
-        "gross": 0
+        "gross": 17.5,
+        "grade": "",
+        "extra": 0,
+        "note": "",
+        "fteYears": {}
       }
     ],
     "capex": [
       {
         "name": "Regalanlage (Fachboden und Palettenregal)",
         "qty": 1,
-        "price": 420000
+        "price": 420000,
+        "note": "Angebot Regalhersteller",
+        "pass": false
       },
       {
         "name": "Mobile Datenerfassung (Scanner, Drucker)",
         "qty": 25,
-        "price": 1400
+        "price": 1400,
+        "note": "25 × 1.400 €",
+        "pass": false
       },
       {
         "name": "Büro- und Sozialraumausstattung",
         "qty": 1,
-        "price": 45000
+        "price": 45000,
+        "note": "Pauschale",
+        "pass": false
       },
       {
         "name": "Ladungssicherung und Kleingeräte",
         "qty": 1,
-        "price": 18000
+        "price": 18000,
+        "note": "Pauschale",
+        "pass": false
       }
     ],
     "opex": [
       {
         "name": "Hallenmiete [m²]",
         "qty": 12000,
-        "price": 6.2
+        "price": 6.2,
+        "note": "Mietangebot, 1:1 weiterberechnet",
+        "pass": true
       },
       {
         "name": "Nebenkosten [m²]",
         "qty": 12000,
-        "price": 1.5
+        "price": 1.5,
+        "note": "Vorauszahlung lt. Mietangebot",
+        "pass": true
       },
       {
         "name": "Staplerleasing (Full Service)",
         "qty": 10,
-        "price": 950
+        "price": 950,
+        "note": "Leasingangebot FFZ",
+        "pass": false
       },
       {
         "name": "Energie",
         "qty": 1,
-        "price": 9500
+        "price": 9500,
+        "note": "Erfahrungswert",
+        "pass": false
       },
       {
         "name": "WMS-Lizenzen und IT-Betrieb",
         "qty": 1,
-        "price": 4200
+        "price": 4200,
+        "note": "Lizenzmodell WMS",
+        "pass": false
       },
       {
         "name": "Verbrauchsmaterial",
         "qty": 1,
-        "price": 3000
+        "price": 3000,
+        "note": "Erfahrungswert",
+        "pass": false
       }
     ],
     "nu": [
       {
         "name": "Reinigung",
         "qty": 1,
-        "price": 48000
+        "price": 48000,
+        "note": "Angebot Reinigung",
+        "pass": false
       },
       {
         "name": "Wachdienst",
         "qty": 1,
-        "price": 85000
+        "price": 85000,
+        "note": "Angebot Wachdienst",
+        "pass": false
       },
       {
         "name": "Entsorgung",
         "qty": 1,
-        "price": 24000
+        "price": 24000,
+        "note": "Angebot Entsorger",
+        "pass": false
       }
     ],
     "rampup": [
       {
         "name": "Einarbeitung und Doppelbesetzung",
         "qty": 1,
-        "price": 150000
+        "price": 150000,
+        "note": "6 Wochen Doppelbesetzung",
+        "pass": false
       },
       {
         "name": "Umzug und Ersteinlagerung",
         "qty": 1,
-        "price": 60000
+        "price": 60000,
+        "note": "Angebot Umzugsdienst",
+        "pass": false
       }
     ],
     "oto": {
@@ -254,7 +327,108 @@
         "Zahlungsplan",
         "Monatspauschale",
         "Stückpreis"
+      ],
+      "docStatus": [
+        "Entwurf",
+        "In Prüfung",
+        "Freigegeben"
       ]
+    },
+    "grades": [
+      {
+        "name": "E3 Lager",
+        "kind": "Lohn",
+        "rate": 15.8,
+        "note": "Haustarif 2027"
+      },
+      {
+        "name": "E4 Lager",
+        "kind": "Lohn",
+        "rate": 16.2,
+        "note": "Haustarif 2027"
+      },
+      {
+        "name": "E5 Lager",
+        "kind": "Lohn",
+        "rate": 17.5,
+        "note": "Haustarif 2027"
+      },
+      {
+        "name": "E6 Stapler",
+        "kind": "Lohn",
+        "rate": 18.4,
+        "note": "Haustarif 2027"
+      },
+      {
+        "name": "AT Leitung",
+        "kind": "Gehalt",
+        "rate": 95000,
+        "note": "Gehaltsband Standortleitung"
+      },
+      {
+        "name": "T2 Teamleitung",
+        "kind": "Gehalt",
+        "rate": 62000,
+        "note": "Gehaltsband Teamleitung"
+      }
+    ],
+    "need": [
+      {
+        "name": "Wareneingang/Warenausgang",
+        "qual": "Lagerfachkraft Wareneingang/-ausgang",
+        "mode": "Schicht",
+        "a": 2,
+        "b": 4,
+        "allow": 0,
+        "note": "2 Schichten à 4 Personen"
+      },
+      {
+        "name": "Ein- und Auslagerung",
+        "qual": "Staplerfahrer",
+        "mode": "Menge",
+        "a": 420,
+        "b": 9,
+        "allow": 15,
+        "note": "Paletten/Tag lt. Ausschreibung; 9 Pal./h"
+      },
+      {
+        "name": "Kommissionierung",
+        "qual": "Kommissionierer",
+        "mode": "Menge",
+        "a": 5800,
+        "b": 65,
+        "allow": 10,
+        "note": "Picks/Tag lt. Ausschreibung; 65 Picks/h"
+      }
+    ],
+    "doc": {
+      "version": "1.1",
+      "status": "In Prüfung",
+      "reviewer": "",
+      "reviewDate": "",
+      "note": "Mengengerüst aus Ausschreibung vom 01.10.2026"
+    },
+    "history": [
+      {
+        "version": "1.0",
+        "date": "2026-10-20",
+        "author": "Erika Beispiel",
+        "note": "Erstkalkulation"
+      },
+      {
+        "version": "1.1",
+        "date": "2026-10-30",
+        "author": "Erika Beispiel",
+        "note": "Personalbedarf aus Mengengerüst, Miete als Durchreichposten"
+      }
+    ],
+    "eval": {
+      "priceIndex": 0,
+      "discount": 8,
+      "minMargin": 5,
+      "sensi": 10,
+      "vkMin": 25,
+      "vkMax": 75
     }
   }
 }

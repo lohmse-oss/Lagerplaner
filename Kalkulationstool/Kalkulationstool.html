@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulationstool V2.0</title>
+<title>Kalkulationstool V2.1</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -121,11 +121,25 @@ input.ci::placeholder{color:#a8a29e}
 .calc-legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line)}
 .calc-legend .sw-in{background:#fefce8;border-color:#fde68a}.calc-legend .sw-out{background:#f3f3f3}.calc-legend .sw-hl{background:#e0e7ff}
 .calc-link{font-weight:600;color:var(--acc)}
+.calc-tab td.linked{background:#dcfce7}
+.calc-tab td.cc{text-align:center}
+.calc-tab td.cc input{width:16px;height:16px;accent-color:var(--acc)}
+select.ci{width:100%;min-width:80px;height:24px;background:#fefce8;border:1px solid #fde68a;border-radius:4px;font-size:12px;color:var(--ink)}
+.calc-legend .sw-link{background:#dcfce7}
+.calc-kpi.bad{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+.calc-kpi.good{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
+.calc-sub{margin:12px 0 6px;font-size:12.5px}
+.calc-svg{display:block;width:100%;max-width:760px;height:auto;margin:8px 0}
+.calc-checks{margin:0;padding-left:18px;font-size:12px;line-height:1.6}
+.calc-checks li.warn{color:#b45309}
+.calc-checks li.info{color:#64748b}
+.calc-var{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 10px;font-size:12px}
+input.ci.calc-var-name{width:240px;flex:0 1 240px}
 </style>
 </head>
 <body>
 <header>
-  <h1>Kalkulationstool<span class="v" id="app-ver">V2.0</span></h1>
+  <h1>Kalkulationstool<span class="v" id="app-ver">V2.1</span></h1>
   <span class="proj" id="hdr-proj">Neue Kalkulation</span>
   <div class="hdr-actions">
     <button type="button" class="btn" id="btn-undo" disabled title="Rückgängig">Rückgängig</button>
@@ -136,11 +150,15 @@ input.ci::placeholder{color:#a8a29e}
         <button type="button" role="menuitem" id="btn-open">Kalkulation öffnen …</button>
         <button type="button" role="menuitem" id="btn-save">Kalkulation speichern</button>
         <div class="dd-sep" role="separator"></div>
+        <button type="button" role="menuitem" id="btn-export-xlsx">Als Excel-Datei exportieren</button>
+        <button type="button" role="menuitem" id="btn-report">Gesamtbericht drucken / als PDF</button>
+        <div class="dd-sep" role="separator"></div>
         <button type="button" role="menuitem" id="btn-open-lp">Projektdaten aus Lagerplaner-Planungsdatei …</button>
       </div>
     </div>
     <input type="file" id="file-in" accept=".json,application/json" aria-label="Kalkulationsdatei auswählen" hidden>
     <input type="file" id="file-lp" accept=".json,application/json" aria-label="Lagerplaner-Planungsdatei auswählen" hidden>
+    <input type="file" id="file-tpl" accept=".json,application/json" aria-label="Vorlage auswählen" hidden>
   </div>
 </header>
 <nav id="tabs" role="tablist" aria-label="Register">
@@ -148,6 +166,7 @@ input.ci::placeholder{color:#a8a29e}
   <button type="button" role="tab" id="tab-personal" data-tab="personal" aria-controls="panel-personal">Personalkosten</button>
   <button type="button" role="tab" id="tab-sachkosten" data-tab="sachkosten" aria-controls="panel-sachkosten">Sachkosten</button>
   <button type="button" role="tab" id="tab-summary" data-tab="summary" aria-controls="panel-summary">Summary</button>
+  <button type="button" role="tab" id="tab-auswertung" data-tab="auswertung" aria-controls="panel-auswertung">Auswertung</button>
   <button type="button" role="tab" id="tab-oto" data-tab="oto" aria-controls="panel-oto">OtO-Werte</button>
 </nav>
 <main id="panels">
@@ -155,14 +174,15 @@ input.ci::placeholder{color:#a8a29e}
   <div class="panel" id="panel-personal" role="tabpanel" aria-labelledby="tab-personal"><div id="calc-panel-personal"></div></div>
   <div class="panel" id="panel-sachkosten" role="tabpanel" aria-labelledby="tab-sachkosten"><div id="calc-panel-sachkosten"></div></div>
   <div class="panel" id="panel-summary" role="tabpanel" aria-labelledby="tab-summary"><div id="calc-panel-summary"></div></div>
+  <div class="panel" id="panel-auswertung" role="tabpanel" aria-labelledby="tab-auswertung"><div id="calc-panel-auswertung"></div></div>
   <div class="panel" id="panel-oto" role="tabpanel" aria-labelledby="tab-oto"><div id="calc-panel-oto"></div></div>
   <div id="calc-datalists" hidden></div>
 </main>
-<footer id="app-footer">Kalkulationstool V2.0 · Nachbau des Kalkulationstools Light V1.0 · läuft lokal im Browser, keine Serververbindung · Ergebnisse vom Anwender auf Plausibilität zu prüfen</footer>
+<footer id="app-footer">Kalkulationstool V2.1 · Nachbau des Kalkulationstools Light V1.0 · läuft lokal im Browser, keine Serververbindung · Ergebnisse vom Anwender auf Plausibilität zu prüfen</footer>
 <script>
 "use strict";
 /* ============================ Hilfsfunktionen ============================ */
-const APP_VERSION="V2.0";
+const APP_VERSION="V2.1";
 const LS_KEY="kalkulationstool-state";
 const $=id=>document.getElementById(id);
 const fmt=(n,d)=>{d=(d===undefined)?0:d;return (isFinite(n)?n:0).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});};
@@ -237,18 +257,25 @@ function openPrintWindow(title,inner){
 }
 
 /* ============================ Kalkulation ============================ */
-/* Nachbau des Kalkulationstools Light V1.0 (Excel): Personal- und Sachkosten, Zuschläge im Hundert, Summary und OtO-Werte.
+/* Nachbau des Kalkulationstools Light V1.0 (Excel): Personal- und Sachkosten, Zuschläge im Hundert, Summary und OtO-Werte,
+   erweitert um Auswertungen (Jahre, Cashflow, Sensitivität, Preisuntergrenze, Varianten, Plausibilität).
    Projektkopf in S.meta (Name, Kunde) und S.request (Standort, Kontakt, SOP/EOP …); Prozentwerte in Prozent gespeichert.
    excelMode rechnet wie die Excel-Vorlage (Monatsanteile gerundet, höchstens 10 Kalenderjahre, Gross Profit auf den
-   Angebotsumsatz, Wechselkurs ohne Wirkung); sonst gelten die Korrekturen. */
-const CALC_TABS=["projekt","personal","sachkosten","summary","oto"];
+   Angebotsumsatz, Wechselkurs ohne Wirkung) und lässt die Methodenerweiterungen außen vor; sonst gelten die Korrekturen.
+   Eingabehilfen (Personalbedarf, Tarifgruppen, Zuschlag je Zeile) wirken in beiden Modi. */
+const CALC_TABS=["projekt","personal","sachkosten","summary","auswertung","oto"];
 const CALC_MAX_ROWS=500;
 const CALC_LIST_MAX=50;
+const CALC_MAX_VARIANTS=10;
 const CALC_BASE_FIELDS={profit:[0,90],risk:[0,90],hv:[0,90],bu:[0,90],nl:[0,90],negotiation:[0,90],raise:[-20,50],
   weekendDays:[0,200],holidays:[0,60],vacation:[0,100],sick:[0,200],otherOff:[0,200],hoursWage:[0.5,24],hoursSalary:[0.5,24],
-  salBonus:[0,300],salOther:[0,300],wageBonus:[0,300],wageOther:[0,300],salSpecial:[0,300],wageSpecial:[0,300],costRaise:[-20,50],interest:[0,30]};
-const CALC_PERSON_FIELDS=[["name","text"],["fte","num",0,100000],["rate","num",0,100000000],["gross","pct",0,500]];
-const CALC_COST_FIELDS=[["name","text"],["qty","num",0,10000000],["price","num",-10000000000,10000000000]];
+  salBonus:[0,300],salOther:[0,300],wageBonus:[0,300],wageOther:[0,300],salSpecial:[0,300],wageSpecial:[0,300],costRaise:[-20,50],interest:[0,30],
+  raiseMonth:[1,12],firstYearPct:[0,100],volumeGrowth:[-50,100],passMarkup:[0,100]};
+const CALC_EVAL_FIELDS={priceIndex:[-20,50],discount:[0,50],minMargin:[-50,90],sensi:[1,50],vkMin:[0,1000],vkMax:[0,1000]};
+const CALC_DOC_TEXT=["version","status","reviewer","reviewDate","note"];
+// Felder je Liste: [Name, Typ, Minimum, Maximum] bzw. [Name, "sel", Optionen]; Typen text, num, pct, sel, check, date, years
+const CALC_PERSON_FIELDS=[["name","text"],["fte","num",0,100000],["rate","num",0,100000000],["gross","pct",0,500],["grade","text"],["extra","pct",0,300],["note","text"],["fteYears","years"]];
+const CALC_COST_FIELDS=[["name","text"],["qty","num",0,10000000],["price","num",-10000000000,10000000000],["pass","check"],["note","text"]];
 const CALC_LISTS={
   salaries:{path:"calc.salaries",label:"Gehälter",fields:CALC_PERSON_FIELDS},
   wages:{path:"calc.wages",label:"Löhne",fields:CALC_PERSON_FIELDS},
@@ -256,26 +283,37 @@ const CALC_LISTS={
   opex:{path:"calc.opex",label:"Betriebskosten",fields:CALC_COST_FIELDS},
   nu:{path:"calc.nu",label:"Nachunternehmerleistung",fields:CALC_COST_FIELDS},
   rampup:{path:"calc.rampup",label:"Ramp-up",fields:CALC_COST_FIELDS},
-  sv:{path:"calc.base.sv",label:"SV-Anteile",fields:[["name","text"],["pct","pct",0,100],["bbg","num",0,10000000]]}
+  sv:{path:"calc.base.sv",label:"SV-Anteile",fields:[["name","text"],["pct","pct",0,100],["bbg","num",0,10000000]]},
+  need:{path:"calc.need",label:"Personalbedarf",fields:[["name","text"],["qual","text"],["mode","sel",["Menge","Schicht"]],["a","num",0,1000000000],["b","num",0,1000000000],["allow","pct",0,300],["note","text"]]},
+  grades:{path:"calc.grades",label:"Lohn- und Gehaltsgruppen",fields:[["name","text"],["kind","sel",["Lohn","Gehalt"]],["rate","num",0,100000000],["note","text"]]},
+  history:{path:"calc.history",label:"Versionshistorie",fields:[["version","text"],["date","date"],["author","text"],["note","text"]]}
 };
-const CALC_CHOICES={serviceLines:"Service-Lines",status:"Angebotsstatus",billing:"Abrechnungsarten"};
+const CALC_COST_KEYS=["capex","opex","nu","rampup"];
+const CALC_CHOICES={serviceLines:"Service-Lines",status:"Angebotsstatus",billing:"Abrechnungsarten",docStatus:"Freigabestatus"};
 const CALC_OTO_TEXT=["date","status","offerNo","currency","billing","link"];
+// Gesetzlicher Mindestlohn je Jahr in €/h; spätere Jahre gegen den letzten festgelegten Wert geprüft
+const CALC_MIN_WAGE={2024:12.41,2025:12.82,2026:13.90,2027:14.60};
 function calcDefaults(){
   return {
     calcDate:"",excelMode:false,
     base:{profit:6,risk:2,hv:5,bu:2.5,nl:2.5,negotiation:8,raise:2.5,weekendDays:89.4,holidays:10.4,vacation:30,sick:10,otherOff:0,hoursWage:8,hoursSalary:7.55,
-      salBonus:0,salOther:0,wageBonus:4,wageOther:0,salSpecial:25,wageSpecial:25,costRaise:0,interest:0,
+      salBonus:0,salOther:0,wageBonus:4,wageOther:0,salSpecial:25,wageSpecial:25,costRaise:0,interest:0,raiseMonth:1,firstYearPct:100,volumeGrowth:0,passMarkup:3,
       // Beitragsbemessungsgrenzen 2026 je Jahr (KV/PV 5.812,50 €, RV/AV 8.450 € im Monat); jährlich prüfen
       sv:[["Krankenversicherung (AG-Anteil)",8.75,69750],["Rentenversicherung (AG-Anteil)",9.3,101400],["Arbeitslosenversicherung (AG-Anteil)",1.3,101400],["Pflegeversicherung (AG-Anteil)",1.8,69750],
-        ["Umlage U2 (Mutterschutz)",0.56,0],["Insolvenzgeldumlage",0.15,0],["Gesetzliche Unfallversicherung (BG)",1,0],["Schwerbehindertenabgabe",1,0]].map(([name,pct,bbg])=>({name,pct,bbg}))},
-    salaries:[],wages:[],capex:[],opex:[],nu:[],rampup:[],
+        ["Umlage U2 (Mutterschutz)",0.56,0],["Insolvenzgeldumlage",0.15,0],["Gesetzliche Unfallversicherung (BG)",1,0],["Schwerbehindertenabgabe",1,0]].map(([name,pct,bbg])=>({name,pct,bbg})),
+      raises:{}},
+    salaries:[],wages:[],capex:[],opex:[],nu:[],rampup:[],need:[],grades:[],history:[],
+    eval:{priceIndex:0,discount:8,minMargin:5,sensi:10,vkMin:25,vkMax:75},
+    doc:{version:"1.0",status:"Entwurf",reviewer:"",reviewDate:"",note:""},
     oto:{date:"",status:"Angebot",offerNo:"",currency:"EUR",rate:1,billing:"",link:""},
-    lists:{serviceLines:["TFM","IFM","LOG","PEM","TC"],status:["Angebot","Auftrag","Korrekturangebot"],billing:["Aufwand","Gem. Preisliste","Zahlungsplan","Monatspauschale","Stückpreis"]}
+    lists:{serviceLines:["TFM","IFM","LOG","PEM","TC"],status:["Angebot","Auftrag","Korrekturangebot"],billing:["Aufwand","Gem. Preisliste","Zahlungsplan","Monatspauschale","Stückpreis"],
+      docStatus:["Entwurf","In Prüfung","Freigegeben"]}
   };
 }
 function calcNewRow(key){
   const row={};
-  for(const [f,type] of CALC_LISTS[key].fields)row[f]=type==="text"?"":0;
+  for(const [f,type,opt] of CALC_LISTS[key].fields)
+    row[f]=type==="text"||type==="date"?"":type==="check"?false:type==="sel"?opt[0]:type==="years"?{}:0;
   // Sachkosten: neue Zeilen mit Menge 1
   if("qty" in row)row.qty=1;
   return row;
@@ -283,37 +321,47 @@ function calcNewRow(key){
 /* Beispiel der Excel-Vorlage (Test-VZ); dient zum Abgleich mit der Excel */
 function calcExample(){
   const c=calcDefaults();
-  const person=(name,fte,rate,gross)=>({name,fte,rate,gross});
+  const person=(name,fte,rate,gross)=>Object.assign(calcNewRow("wages"),{name,fte,rate,gross});
+  const cost=(name,qty,price)=>Object.assign(calcNewRow("capex"),{name,qty,price});
   c.calcDate="2026-03-30";
   c.salaries=[person("Test 1",1,75000,0),person("Test 2",0.2,65000,0),person("Test 3",0.2,62000,0),person("Test 4",0.1,50000,0),person("Test 5",2,62500,16),person("Test 6",1,45000,0),person("Test 7",1,70000,0)];
-  c.wages=[person("Test 1",2,21.99909548268,15.99),person("Test 2",7.632242067926599,19.502158393749994,15.99),person("Test 3",18.570114185574624,15.996340358300001,15.99)];
-  c.capex=[{name:"Sammelposition",qty:1,price:209877}];
-  c.opex=[{name:"Sammel",qty:1,price:1386787/12}];
-  c.nu=[{name:"Sammel",qty:1,price:671146.6666666664},{name:"Sammel",qty:1,price:23693.250804854837}];
-  c.rampup=[{name:"Ramp-up Gesamtkosten",qty:1,price:413349}];
+  c.wages=[person("Lohn 1",2,21.99909548268,15.99),person("Lohn 2",7.632242067926599,19.502158393749994,15.99),person("Lohn 3",18.570114185574624,15.996340358300001,15.99)];
+  c.capex=[cost("Sammelposition",1,209877)];
+  c.opex=[cost("Sammel",1,1386787/12)];
+  c.nu=[cost("Sammel",1,671146.6666666664),cost("Sammel",1,23693.250804854837)];
+  c.rampup=[cost("Ramp-up Gesamtkosten",1,413349)];
   return c;
 }
 const CALC_EXAMPLE_REQUEST={sop:"2027-03-01",eop:"2032-02-29",serviceSite:"UT",contact:"Mustermann",businessUnit:"VIAS",serviceLine:"LOG",calculator:"Kästner"};
 
 /* ---- Prüfung und Reparatur beim Import ---- */
+const calcIsDate=v=>typeof v==="string"&&(v===""||/^\d{4}-\d{2}-\d{2}$/.test(v));
+const calcIsNum=v=>typeof v==="number"&&Number.isFinite(v);
+function calcCheckYearMap(obj,where,min,max){
+  if(obj==null)return;
+  if(!isPlainObject(obj))throw new Error(where+" muss ein Objekt sein.");
+  for(const [k,v] of Object.entries(obj))if(!/^\d{4}$/.test(k)||!calcIsNum(v)||v<min||v>max)throw new Error(where+": Eintrag "+k+" ist ungültig.");
+}
 function validateCalc(c,label){
   if(c==null)return;
   if(!isPlainObject(c))throw new Error(label+" muss ein Objekt sein.");
   const allowed=new Set(Object.keys(calcDefaults()));
   for(const k of Object.keys(c))if(!allowed.has(k))throw new Error(label+": unbekanntes Feld "+k+".");
-  const isDate=v=>typeof v==="string"&&(v===""||/^\d{4}-\d{2}-\d{2}$/.test(v));
-  const isNum=v=>typeof v==="number"&&Number.isFinite(v);
-  if(c.calcDate!=null&&!isDate(c.calcDate))throw new Error(label+".calcDate muss ein Datum (JJJJ-MM-TT) sein.");
+  if(c.calcDate!=null&&!calcIsDate(c.calcDate))throw new Error(label+".calcDate muss ein Datum (JJJJ-MM-TT) sein.");
   if(c.excelMode!=null&&typeof c.excelMode!=="boolean")throw new Error(label+".excelMode muss wahr oder falsch sein.");
   const checkList=(key,list,where)=>{
     if(list==null)return;
     if(!Array.isArray(list)||list.length>CALC_MAX_ROWS)throw new Error(where+" muss eine Liste mit höchstens "+CALC_MAX_ROWS+" Zeilen sein.");
-    const fields=new Map(CALC_LISTS[key].fields.map(f=>[f[0],f[1]]));
+    const fields=new Map(CALC_LISTS[key].fields.map(f=>[f[0],f]));
     list.forEach((row,i)=>{
       if(!isPlainObject(row))throw new Error(where+", Zeile "+(i+1)+" ist ungültig.");
       for(const [f,v] of Object.entries(row)){
-        if(!fields.has(f))throw new Error(where+", Zeile "+(i+1)+": unbekanntes Feld "+f+".");
-        if(fields.get(f)==="text"?(typeof v!=="string"||v.length>200):!isNum(v))throw new Error(where+", Zeile "+(i+1)+": "+f+" ist ungültig.");
+        const fd=fields.get(f);
+        if(!fd)throw new Error(where+", Zeile "+(i+1)+": unbekanntes Feld "+f+".");
+        const t=fd[1],bad=t==="text"?(typeof v!=="string"||v.length>200):t==="date"?!calcIsDate(v):t==="check"?typeof v!=="boolean":
+          t==="sel"?(typeof v!=="string"||v.length>40):t==="years"?false:!calcIsNum(v);
+        if(bad)throw new Error(where+", Zeile "+(i+1)+": "+f+" ist ungültig.");
+        if(t==="years")calcCheckYearMap(v,where+", Zeile "+(i+1)+": "+f,0,100000);
       }
     });
   };
@@ -321,19 +369,27 @@ function validateCalc(c,label){
     if(!isPlainObject(c.base))throw new Error(label+".base muss ein Objekt sein.");
     for(const [k,v] of Object.entries(c.base)){
       if(k==="sv")checkList("sv",v,label+".base.sv");
+      else if(k==="raises")calcCheckYearMap(v,label+".base.raises",-20,50);
       else if(!CALC_BASE_FIELDS[k])throw new Error(label+".base: unbekanntes Feld "+k+".");
-      else if(!isNum(v))throw new Error(label+".base."+k+" muss eine Zahl sein.");
+      else if(!calcIsNum(v))throw new Error(label+".base."+k+" muss eine Zahl sein.");
     }
   }
-  for(const key of ["salaries","wages","capex","opex","nu","rampup"])checkList(key,c[key],label+"."+key);
+  for(const key of Object.keys(CALC_LISTS))if(key!=="sv")checkList(key,c[key],label+"."+key);
+  const checkObj=(obj,where,fields)=>{
+    if(obj==null)return;
+    if(!isPlainObject(obj))throw new Error(where+" muss ein Objekt sein.");
+    for(const [k,v] of Object.entries(obj))if(!fields(k,v))throw new Error(where+"."+k+" ist ungültig.");
+  };
+  checkObj(c.eval,label+".eval",(k,v)=>!!CALC_EVAL_FIELDS[k]&&calcIsNum(v));
+  checkObj(c.doc,label+".doc",(k,v)=>CALC_DOC_TEXT.includes(k)&&typeof v==="string"&&v.length<=(k==="note"?1000:200)&&(k!=="reviewDate"||calcIsDate(v)));
   if(c.oto!=null){
     if(!isPlainObject(c.oto))throw new Error(label+".oto muss ein Objekt sein.");
     for(const [k,v] of Object.entries(c.oto)){
-      if(k==="rate"){if(!isNum(v)||v<=0||v>1000000)throw new Error(label+".oto.rate muss eine positive Zahl sein.");}
+      if(k==="rate"){if(!calcIsNum(v)||v<=0||v>1000000)throw new Error(label+".oto.rate muss eine positive Zahl sein.");}
       else if(!CALC_OTO_TEXT.includes(k))throw new Error(label+".oto: unbekanntes Feld "+k+".");
       else if(typeof v!=="string"||v.length>(k==="link"?1000:200))throw new Error(label+".oto."+k+" ist ungültig.");
     }
-    if(c.oto.date!=null&&!isDate(c.oto.date))throw new Error(label+".oto.date muss ein Datum (JJJJ-MM-TT) sein.");
+    if(c.oto.date!=null&&!calcIsDate(c.oto.date))throw new Error(label+".oto.date muss ein Datum (JJJJ-MM-TT) sein.");
     if(c.oto.link&&!/^https?:\/\//i.test(c.oto.link))throw new Error(label+".oto.link muss mit http:// oder https:// beginnen.");
   }
   if(c.lists!=null){
@@ -344,7 +400,7 @@ function validateCalc(c,label){
     }
   }
 }
-/* Fehlende Zeilenfelder ergänzen, Zahlen in ihre Grenzen holen; liefert die Reparaturen im Format von describeRepairs */
+/* Fehlende Felder ergänzen, Zahlen in ihre Grenzen holen; liefert die Reparaturen im Format von describeRepairs */
 function normalizeCalc(state){
   const fixed=[];
   const c=state.calc=deepMerge(calcDefaults(),state.calc||{});
@@ -354,18 +410,30 @@ function normalizeCalc(state){
     const n=Math.min(max,Math.max(min,v));
     if(n!==v){fixed.push({label,from:fmt(v,2),to:fmt(n,2)});obj[f]=n;}
   };
-  for(const [k,[min,max]] of Object.entries(CALC_BASE_FIELDS))clampField(c.base,k,min,max,"Kalkulation · Basisdaten "+k);
+  const clampYears=(obj,min,max,label)=>{for(const k of Object.keys(obj||{}))clampField(obj,k,min,max,label+" "+k);};
+  for(const [k,[min,max]] of Object.entries(CALC_BASE_FIELDS))clampField(c.base,k,min,max,"Basisdaten "+k);
+  if(!isPlainObject(c.base.raises))c.base.raises={};
+  clampYears(c.base.raises,-20,50,"Tariferhöhung");
+  for(const [k,[min,max]] of Object.entries(CALC_EVAL_FIELDS))clampField(c.eval,k,min,max,"Auswertung "+k);
   for(const key of Object.keys(CALC_LISTS)){
-    const list=getP(state,CALC_LISTS[key].path);
+    const def=CALC_LISTS[key],list=getP(state,def.path);
     const rows=(Array.isArray(list)?list:[]).slice(0,CALC_MAX_ROWS).map(row=>Object.assign(calcNewRow(key),isPlainObject(row)?row:{}));
-    rows.forEach((row,i)=>{for(const [f,type,min,max] of CALC_LISTS[key].fields)if(type!=="text")clampField(row,f,min,max,"Kalkulation · "+CALC_LISTS[key].label+" Zeile "+(i+1));});
-    setP(state,CALC_LISTS[key].path,rows);
+    rows.forEach((row,i)=>{
+      for(const [f,type,a,b] of def.fields){
+        const label=def.label+" Zeile "+(i+1);
+        if(type==="num"||type==="pct")clampField(row,f,a,b,label);
+        else if(type==="sel"&&!a.includes(row[f]))row[f]=a[0];
+        else if(type==="check")row[f]=row[f]===true;
+        else if(type==="years"){if(!isPlainObject(row[f]))row[f]={};clampYears(row[f],0,100000,label+" FTE");}
+      }
+    });
+    setP(state,def.path,rows);
   }
   if(!(Number(c.oto.rate)>0))c.oto.rate=1;
   return fixed;
 }
 
-/* ---- Rechenkern ---- */
+/* ---- Laufzeit ---- */
 const CALC_DAY_MS=86400000;
 function calcParseDate(s){
   const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||""));
@@ -380,12 +448,19 @@ function calcFullMonths(a,b){
   if(b.getUTCDate()<a.getUTCDate())m--;
   return Math.max(0,m);
 }
+// Datum um n Monate verschieben (Monatsende begrenzt)
+function calcAddMonths(iso,n){
+  const d=calcParseDate(iso);if(!d)return iso;
+  const y=d.getUTCFullYear(),m=d.getUTCMonth()+n,last=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  return new Date(Date.UTC(y,m,Math.min(d.getUTCDate(),last))).toISOString().slice(0,10);
+}
 /* Laufzeit und Monatsanteile je Kalenderjahr. Excel: erstes Jahr auf 0,1 Monat abgerundet, letztes aufgerundet,
-   Schaltjahr = durch 4 teilbar, höchstens 10 Jahre, Personaldauer = abgerundete Summe. Korrigiert: tagesgenau je Monat. */
+   Schaltjahr = durch 4 teilbar, höchstens 10 Jahre, Personaldauer = abgerundete Summe. Korrigiert: tagesgenau je Monat
+   (monthFrac: Anteil je Kalendermonat, für den Stichtag der Tariferhöhung). */
 function calcPeriod(c,req){
   const start=calcParseDate(req.sop),end=calcParseDate(req.eop);
   const y0=start?start.getUTCFullYear():0;
-  const P={ok:false,years:[],months:[],monthsTotal:0,monthsPersonnel:0,daysYear:start?calcDayDiff(Date.UTC(y0,0,1),Date.UTC(y0+1,0,1)):365,warn:[]};
+  const P={ok:false,years:[],months:[],monthFrac:[],monthsTotal:0,monthsPersonnel:0,daysYear:start?calcDayDiff(Date.UTC(y0,0,1),Date.UTC(y0+1,0,1)):365,warn:[]};
   if(!start||!end){P.warn.push("Start und Ende der Leistung eingeben (Register Projekt & Basisdaten).");return P;}
   if(end<start){P.warn.push("Das Leistungsende liegt vor dem Start.");return P;}
   const y1=end.getUTCFullYear();
@@ -399,7 +474,7 @@ function calcPeriod(c,req){
       else if(y===y0)m=Math.floor((calcDayDiff(start,Date.UTC(y,11,31))+1)/dy(y)*120+1e-9)/10;
       else if(y!==y1)m=12;
       else m=Math.ceil((calcDayDiff(Date.UTC(y,0,1),end)+1)/dy(y)*120-1e-9)/10;
-      P.years.push(y);P.months.push(m);
+      P.years.push(y);P.months.push(m);P.monthFrac.push(null);
       if(y>=y1)break;
     }
     if(y1-y0+1>10)P.warn.push("Excel-kompatibel: Die Personalkosten berücksichtigen nur die ersten 10 Kalenderjahre.");
@@ -407,12 +482,12 @@ function calcPeriod(c,req){
     P.monthsPersonnel=Math.floor(P.months.reduce((a,b)=>a+b,0)+1e-9);
   }else{
     for(let y=y0;y<=y1;y++){
-      let m=0;
+      const frac=[];
       for(let mo=0;mo<12;mo++){
         const ms=Date.UTC(y,mo,1),me=Date.UTC(y,mo+1,0),a=Math.max(ms,start.getTime()),b=Math.min(me,end.getTime());
-        if(b>=a)m+=(calcDayDiff(a,b)+1)/(calcDayDiff(ms,me)+1);
+        frac.push(b>=a?(calcDayDiff(a,b)+1)/(calcDayDiff(ms,me)+1):0);
       }
-      P.years.push(y);P.months.push(m);
+      P.years.push(y);P.months.push(frac.reduce((a,b)=>a+b,0));P.monthFrac.push(frac);
     }
     P.monthsTotal=P.monthsPersonnel=P.months.reduce((a,b)=>a+b,0);
   }
@@ -420,13 +495,20 @@ function calcPeriod(c,req){
   if(!P.ok)P.warn.push("Die Laufzeit ist kürzer als ein Monat.");
   return P;
 }
+
+/* ---- Rechenkern ---- */
 function calcNum(v,min,max){const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):0;}
-function computeCalc(state){
-  const c=state.calc||calcDefaults(),req=state.request||{},b=c.base||{};
+const calcNameKey=s=>String(s||"").trim().toLowerCase();
+/* opts.factors: Faktoren der Sensitivitätsanalyse (wage, sal, fte, opex, nu, capex, rampup) */
+function computeCalc(state,opts){
+  opts=opts||{};
+  const fac=Object.assign({wage:1,sal:1,fte:1,opex:1,nu:1,capex:1,rampup:1},opts.factors||{});
+  const c=state.calc||calcDefaults(),req=state.request||{},b=c.base||{},ev=c.eval||{};
   const g=k=>calcNum(b[k],CALC_BASE_FIELDS[k][0],CALC_BASE_FIELDS[k][1]),pct=k=>g(k)/100;
+  const evNum=k=>calcNum(ev[k]==null?calcDefaults().eval[k]:ev[k],CALC_EVAL_FIELDS[k][0],CALC_EVAL_FIELDS[k][1]);
   const P=calcPeriod(c,req),warn=P.warn.slice(),excel=!!c.excelMode;
   const gew=pct("profit"),ris=pct("risk"),hv=pct("hv"),bu=pct("bu"),nl=pct("nl"),verh=pct("negotiation"),raise=pct("raise");
-  const umlg=hv+bu+nl,den=1-umlg-gew-ris;
+  const umlg=hv+bu+nl,den=1-umlg-gew-ris,passMarkup=excel?0:pct("passMarkup");
   if(den<=0.0001)warn.push("Umlagen, Gewinn und Risiko ergeben zusammen 100 % oder mehr; die Zuschläge im Hundert sind nicht berechenbar.");
   if(verh>=0.9)warn.push("Die Verhandlungsmarge ist zu hoch.");
   const inH=x=>den>0.0001?x/den:0,withVerh=x=>verh<0.9?x/(1-verh):0;
@@ -440,58 +522,112 @@ function computeCalc(state){
   const sv=svRows.reduce((a,x)=>a+x.p,0);
   // SV-Anteil je Stunde; Sätze mit Beitragsbemessungsgrenze nur bis zur Grenze des Jahresentgelts je FTE
   const svOn=(T,hours)=>{const ann=T*hours;return T*svRows.reduce((a,x)=>a+x.p*(x.cap>0&&ann>x.cap?x.cap/ann:1),0);};
-  const weights=P.months.map(m=>m/12),wSum=weights.reduce((a,x)=>a+x,0);
+  const nY=P.years.length,weights=P.months.map(m=>m/12),wSum=weights.reduce((a,x)=>a+x,0);
   const durP=P.monthsPersonnel/12,durT=P.monthsTotal/12;
-  // Personalkosten: Zuschlagskette 100 … 700 je Qualifikation
+  // Tarifindex je Kalenderjahr: Erhöhung zum Stichtagsmonat, erstmals im Jahr nach dem Start, Satz je Jahr überschreibbar
+  const raiseRate=y=>{const v=(b.raises||{})[String(y)];return calcIsNum(v)?calcNum(v,-20,50)/100:raise;};
+  const raiseIdx=P.years.map((y,i)=>{
+    if(excel)return Math.pow(1+raise,i);
+    const M=Math.round(g("raiseMonth"))-1,frac=P.monthFrac[i]||[];
+    let before=1;for(let k=1;k<i;k++)before*=1+raiseRate(P.years[k]);
+    if(i===0)return 1;
+    const after=before*(1+raiseRate(y));
+    const tot=frac.reduce((a,x)=>a+x,0);
+    if(!(tot>0))return after;
+    return frac.reduce((a,x,mo)=>a+x*(mo>=M?after:before),0)/tot;
+  });
+  // Volumen je Jahr: Hochlauf im ersten Kalenderjahr, Wachstum ab dem zweiten
+  const vol=P.years.map((y,i)=>excel?1:(i===0?pct("firstYearPct"):1)*Math.pow(1+pct("volumeGrowth"),i));
+  const avgW=arr=>wSum>0?arr.reduce((a,x,i)=>a+x*weights[i],0)/wSum:0;
+
+  // Tarifgruppen und Personalbedarf (Eingabehilfen, beide Modi)
+  const grades=new Map();
+  for(const gr of Array.isArray(c.grades)?c.grades:[]){const k=gr.kind+"|"+calcNameKey(gr.name);if(calcNameKey(gr.name)&&!grades.has(k))grades.set(k,calcNum(gr.rate,0,1e8));}
+  const quals=new Map(),dupQuals=new Set();
+  for(const [key,list] of [["salaries",c.salaries],["wages",c.wages]])(Array.isArray(list)?list:[]).forEach((row,i)=>{
+    const k=calcNameKey(row.name);if(!k)return;
+    if(quals.has(k))dupQuals.add(row.name.trim());else quals.set(k,{key,i});
+  });
+  const needFte=new Map(),need=(Array.isArray(c.need)?c.need:[]).map(row=>{
+    const t=quals.get(calcNameKey(row.qual)),hDay=t&&t.key==="salaries"?g("hoursSalary"):g("hoursWage");
+    const a=calcNum(row.a,0,1e9),bb=calcNum(row.b,0,1e9),allow=calcNum(row.allow,0,300)/100;
+    const fte=row.mode==="Schicht"?a*bb*(1+allow):(bb>0&&hDay>0?a/(bb*hDay)*(1+allow):0);
+    if(t){const k=t.key+":"+t.i;needFte.set(k,(needFte.get(k)||0)+fte);}
+    return {name:String(row.name||""),qual:String(row.qual||""),target:t||null,fte,hDay};
+  });
+
+  // Personalkosten: Zuschlagskette 100 … 700 je Qualifikation, Kosten je Kalenderjahr
   function person(list,isWage){
-    const zus=isWage?soz+pct("wageBonus")+pct("wageOther"):pct("salBonus")+pct("salOther");
+    const key=isWage?"wages":"salaries",kind=isWage?"Lohn":"Gehalt";
+    const zusBase=isWage?soz+pct("wageBonus")+pct("wageOther"):pct("salBonus")+pct("salOther");
     const special=isWage?pct("wageSpecial"):pct("salSpecial"),hours=isWage?hWage:hSal;
-    const rows=(Array.isArray(list)?list:[]).map(row=>{
-      const fte=calcNum(row.fte,0,1e5),rate=calcNum(row.rate,0,1e8),gross=calcNum(row.gross,0,500)/100;
-      const yearly=weights.map((w,i)=>rate*Math.pow(1+raise,i));
-      let avg=wSum>0?yearly.reduce((a,s,i)=>a+s*weights[i],0)/wSum:rate;
-      const R=isWage?avg:(hSal>0?avg/hSal:0);
-      const Sz=R*zus,T=R+Sz,U=svOn(T,hours),V=T+U,W=inH(V)*umlg,X=V+W,Y=inH(V)*(gew+ris),Z=X+Y,AB=withVerh(Z),AA=AB-Z,AC=AB*special,AD=AB+AC;
-      const F=fte*(1+gross),AF=hours*F,AG=AF*V,AH=AG*durP;
-      return {name:String(row.name||""),fte,rate,gross,yearly,R,Sz,T,U,V,W,X,Y,Z,AA,AB,AC,AD,F,AF,AG,AH,svEff:T>0?U/T:0};
+    const chain=(R,zus)=>{const Sz=R*zus,T=R+Sz,U=svOn(T,hours),V=T+U,W=inH(V)*umlg,X=V+W,Y=inH(V)*(gew+ris),Z=X+Y,AB=withVerh(Z),AA=AB-Z,AC=AB*special,AD=AB+AC;return {R,Sz,T,U,V,W,X,Y,Z,AA,AB,AC,AD};};
+    const rows=(Array.isArray(list)?list:[]).map((row,ri)=>{
+      const linked=needFte.has(key+":"+ri);
+      const fteIn=(linked?needFte.get(key+":"+ri):calcNum(row.fte,0,1e5))*fac.fte;
+      const gradeRate=row.grade?grades.get(kind+"|"+calcNameKey(row.grade)):undefined;
+      const rate=(gradeRate!==undefined?gradeRate:calcNum(row.rate,0,1e8))*(isWage?fac.wage:fac.sal);
+      const gross=calcNum(row.gross,0,500)/100,zus=zusBase+calcNum(row.extra,0,300)/100;
+      const yearly=raiseIdx.map(ix=>rate*ix),toHour=v=>isWage?v:(hSal>0?v/hSal:0);
+      const ovr=isPlainObject(row.fteYears)?row.fteYears:{};
+      const yr=P.years.map((y,i)=>{
+        const o=ovr[String(y)],fteY=excel?fteIn:(calcIsNum(o)?calcNum(o,0,1e5)*fac.fte:fteIn*vol[i]);
+        const V=chain(toHour(yearly[i]),zus).V,F=fteY*(1+gross),AF=hours*F,ann=AF*V;
+        return {fte:fteY,F,AF,V,ann,cost:ann*P.months[i]/12};
+      });
+      const R=toHour(wSum>0?avgW(yearly):rate),ch=chain(R,zus);
+      let fte,F,AF,AG,AH;
+      if(excel||!(durT>0)){
+        fte=fteIn;F=fte*(1+gross);AF=hours*F;AG=AF*ch.V;AH=AG*durP;
+      }else{
+        AH=yr.reduce((a,x)=>a+x.cost,0);AG=AH/durT;
+        fte=avgW(yr.map(x=>x.fte));F=avgW(yr.map(x=>x.F));AF=avgW(yr.map(x=>x.AF));
+      }
+      return Object.assign({name:String(row.name||""),fteIn,linked,rate,gradeRate,gross,yearly,yr,F,fte,AF,AG,AH,svEff:ch.T>0?ch.U/ch.T:0},ch);
     });
     const sum=k=>rows.reduce((a,x)=>a+x[k],0);
-    // Zuschlagsfaktoren je produktiver Stunde (Kalkulationsschema, Basis 1)
-    const f={R:1,Sz:zus};f.T=1+zus;f.U=f.T*sv;f.V=f.T+f.U;f.W=inH(f.V)*umlg;f.X=f.V+f.W;f.Y=inH(f.V)*(gew+ris);f.Z=f.X+f.Y;f.AB=withVerh(f.Z);f.AA=f.AB-f.Z;f.AC=f.AB*special;f.AD=f.AB+f.AC;
-    return {rows,fte:sum("fte"),F:sum("F"),AF:sum("AF"),AG:sum("AG"),AH:sum("AH"),hours,zus,special,factors:f};
+    const f=chain(1,zusBase);f.R=1;
+    return {rows,fte:sum("fte"),F:sum("F"),AF:sum("AF"),AG:sum("AG"),AH:sum("AH"),hours,zus:zusBase,special,factors:f,
+      yr:P.years.map((y,i)=>rows.reduce((a,x)=>a+x.yr[i].cost,0))};
   }
   const sal=person(c.salaries,false),wage=person(c.wages,true);
-  // Sachkosten
-  // Korrigiert: Betriebskosten und Nachunternehmer mit Steigerung je Kalenderjahr (Ø-Faktor wie bei den Personalkosten),
-  // Einmalkosten mit Kalkulationszins als Annuität über die Laufzeit
+
+  // Sachkosten; korrigiert: Steigerung je Kalenderjahr, Einmalkosten mit Kalkulationszins als Annuität, Durchreichposten
   const mT=P.monthsTotal,costRaise=excel?0:pct("costRaise"),interest=excel?0:pct("interest");
-  const esc=wSum>0?weights.reduce((a,w,i)=>a+w*Math.pow(1+costRaise,i),0)/wSum:1;
+  const escY=P.years.map((y,i)=>Math.pow(1+costRaise,i)),esc=wSum>0?avgW(escY):1;
   const annuity=interest>0&&durT>0?interest/(1-Math.pow(1+interest,-durT)):0;
-  const once=list=>(Array.isArray(list)?list:[]).map(x=>{
-    const q=calcNum(x.qty,0,1e7),p=calcNum(x.price,-1e10,1e10),nominal=q*p;
-    const pa=annuity?nominal*annuity:(mT>0?nominal/mT*12:0);
-    return {q,p,nominal,pa,lz:annuity?pa*durT:nominal};
+  const costRows=(key,list)=>(Array.isArray(list)?list:[]).map(x=>{
+    const q=calcNum(x.qty,0,1e7),p=calcNum(x.price,-1e10,1e10),pass=!excel&&x.pass===true,f=fac[key];
+    if(key==="capex"||key==="rampup"){
+      const nominal=q*p*f,pa=annuity?nominal*annuity:(mT>0?nominal/mT*12:0);
+      return {q,p,pass,nominal,pa,lz:annuity?pa*durT:nominal,yr:P.months.map(m=>pa*m/12)};
+    }
+    const base=q*p*(key==="opex"?12:1)*f,yr=P.months.map((m,i)=>base*escY[i]*m/12);
+    const lz=excel?base*durT:yr.reduce((a,v)=>a+v,0);
+    return {q,p,pass,nominal:0,pa:excel?base:(durT>0?lz/durT:base),lz,yr};
   });
-  const yearly=(list,perYear)=>(Array.isArray(list)?list:[]).map(x=>{const q=calcNum(x.qty,0,1e7),p=calcNum(x.price,-1e10,1e10),pa=q*p*perYear*esc;return {q,p,pa,lz:pa*durT};});
-  const tot=rows=>({pa:rows.reduce((a,x)=>a+x.pa,0),lz:rows.reduce((a,x)=>a+x.lz,0),nominal:rows.reduce((a,x)=>a+(x.nominal||0),0)});
-  const capex=once(c.capex),opex=yearly(c.opex,12),nu=yearly(c.nu,1),ramp=once(c.rampup);
-  const cost={capex:{rows:capex,...tot(capex)},opex:{rows:opex,...tot(opex)},nu:{rows:nu,...tot(nu)},rampup:{rows:ramp,...tot(ramp)}};
-  // Summary: Zuschläge im Hundert auf die Projektkosten
+  const cost={};
+  for(const key of CALC_COST_KEYS){
+    const rows=costRows(key,c[key]),s=(arr,k)=>arr.reduce((a,x)=>a+x[k],0),pr=rows.filter(x=>x.pass);
+    cost[key]={rows,pa:s(rows,"pa"),lz:s(rows,"lz"),nominal:s(rows,"nominal"),passPa:s(pr,"pa"),passLz:s(pr,"lz"),
+      yr:P.years.map((y,i)=>rows.reduce((a,x)=>a+x.yr[i],0)),yrPass:P.years.map((y,i)=>pr.reduce((a,x)=>a+x.yr[i],0))};
+  }
+
+  // Summary: Zuschläge im Hundert auf die Projektkosten ohne Durchreichposten, Durchreichposten mit festem Aufschlag
   const hoursAll=sal.AF+wage.AF;
   const groups=[
-    {key:"sal",label:"I-1. Personalkosten Gehälter",pa:sal.AG,lz:sal.AG*durT,hours:sal.AF},
-    {key:"wage",label:"I-2. Personalkosten Löhne",pa:wage.AG,lz:wage.AG*durT,hours:wage.AF},
-    {key:"capex",label:"II-1. Investitionen/Einmalkosten",pa:cost.capex.pa,lz:cost.capex.lz,hours:hoursAll},
-    {key:"opex",label:"II-2. Monatliche Betriebskosten/Verbräuche",pa:cost.opex.pa,lz:cost.opex.lz,hours:hoursAll},
-    {key:"nu",label:"II-3. Nachunternehmerleistung",pa:cost.nu.pa,lz:cost.nu.lz,hours:hoursAll},
-    {key:"rampup",label:"II-4. Ramp-up-Kosten",pa:cost.rampup.pa,lz:cost.rampup.lz,hours:hoursAll}
+    {key:"sal",label:"I-1. Personalkosten Gehälter",pa:sal.AG,lz:excel?sal.AG*durT:sal.AH,hours:sal.AF,passPa:0,passLz:0,yr:sal.yr},
+    {key:"wage",label:"I-2. Personalkosten Löhne",pa:wage.AG,lz:excel?wage.AG*durT:wage.AH,hours:wage.AF,passPa:0,passLz:0,yr:wage.yr},
+    ...CALC_COST_KEYS.map(k=>({key:k,label:{capex:"II-1. Investitionen/Einmalkosten",opex:"II-2. Monatliche Betriebskosten/Verbräuche",nu:"II-3. Nachunternehmerleistung",rampup:"II-4. Ramp-up-Kosten"}[k],
+      pa:cost[k].pa,lz:cost[k].lz,hours:hoursAll,passPa:cost[k].passPa,passLz:cost[k].passLz,yr:cost[k].yr,yrPass:cost[k].yrPass}))
   ];
-  const level=k=>{
-    const K=groups.reduce((a,x)=>a+x[k],0),base=inH(K);
-    const um=base*umlg,sk=K+um,ge=base*gew,ri=base*ris,uov=sk+ge+ri,ve=verh<0.9?verh*base/(1-verh):0;
-    return {K,um,sk,ge,ri,uov,ve,umv:uov+ve,base};
+  const level=(K,Kp)=>{
+    const base=inH(K-Kp),um=base*umlg,ge=base*gew,ri=base*ris,pm=Kp*passMarkup,uov=base+Kp+pm,ve=verh<0.9?verh*uov/(1-verh):0;
+    return {K,Kp,um,sk:K+um,ge,ri,pm,uov,ve,umv:uov+ve,base};
   };
-  const sum={pa:level("pa"),lz:level("lz")};
+  const tot=k=>groups.reduce((a,x)=>a+x[k],0);
+  const sum={pa:level(tot("pa"),tot("passPa")),lz:level(tot("lz"),tot("passLz"))};
+
   // OtO-Werte; korrigiert: HV+BU als Anteil am Umsatz ohne Verhandlung, Wechselkurs angewendet
   const fx=excel?1:(Number(c.oto&&c.oto.rate)>0?Number(c.oto.rate):1);
   const s=sum.pa,hvbu=hv+bu;
@@ -499,12 +635,117 @@ function computeCalc(state){
     const gp=excel?(to?(ebita/to+hvbu)*to:0):ebita+s.base*hvbu;
     return {to:to*fx,ebita:ebita*fx,gp:gp*fx,ebitaPct:to?ebita/to:0,gpPct:to?gp/to:0};
   };
-  const offer=oto(s.umv,s.ge+s.ve),walk=oto(s.uov,s.ge);
+  const offer=oto(s.umv,s.ge+s.pm+s.ve),walk=oto(s.uov,s.ge+s.pm);
   const fteNet=sal.fte+wage.fte;
-  return {period:P,warn,excel,rates:{gew,ris,hv,bu,nl,umlg,verh,raise,den,hvbu,costRaise,interest,esc,annuity},
+
+  // Ergebnis je Kalenderjahr bei Festpreis (Angebotspreis p.a., optional mit Preisgleitung) und Cashflow
+  const pg=evNum("priceIndex")/100,gI=P.years.map((y,i)=>Math.pow(1+pg,i));
+  const gAvg=wSum>0?avgW(gI):1;
+  const invest=cost.capex.nominal+cost.rampup.nominal;
+  const years=P.years.map((y,i)=>{
+    const m=P.months[i],pers=sal.yr[i]+wage.yr[i],mat=CALC_COST_KEYS.reduce((a,k)=>a+cost[k].yr[i],0);
+    const Kp=CALC_COST_KEYS.reduce((a,k)=>a+cost[k].yrPass[i],0),K=pers+mat,L=level(K,Kp);
+    const rev=s.umv*m/12*(gAvg>0?gI[i]/gAvg:1),ebita=rev-L.sk-L.ri;
+    const amort=cost.capex.yr[i]+cost.rampup.yr[i],cash=rev-(L.sk-amort);
+    return {year:y,months:m,pers,mat,K,sk:L.sk,ri:L.ri,rev,ebita,margin:rev?ebita/rev:0,costPrice:L.umv,amort,cash,cum:0};
+  });
+  // Amortisation, Kapitalwert und interne Verzinsung; Investitionen und Ramp-up zum Start
+  let tEnd=0,payback=null,cum=-invest;
+  const flows=[{t:0,v:-invest}];
+  for(const x of years){
+    const prev=cum;cum+=x.cash;x.cum=cum;
+    if(payback===null&&invest>0&&prev<0&&cum>=0&&x.cash>0)payback=tEnd*12+x.months*(-prev/x.cash);
+    tEnd+=x.months/12;flows.push({t:tEnd,v:x.cash});
+  }
+  if(invest<=0)payback=0;
+  const disc=evNum("discount")/100,npvAt=r=>flows.reduce((a,f)=>a+f.v/Math.pow(1+r,f.t),0);
+  let irr=null;
+  if(invest>0){
+    let lo=-0.99,hi=10,flo=npvAt(lo),fhi=npvAt(hi);
+    if(flo*fhi<0){for(let k=0;k<200;k++){const mid=(lo+hi)/2,fm=npvAt(mid);if(flo*fm<=0){hi=mid;fhi=fm;}else{lo=mid;flo=fm;}}irr=(lo+hi)/2;}
+  }
+  const minMargin=evNum("minMargin")/100;
+  const floor=minMargin<1?(s.sk+s.ri)/(1-minMargin):0;
+  return {period:P,warn,excel,
+    rates:{gew,ris,hv,bu,nl,umlg,verh,raise,den,hvbu,costRaise,interest,esc,annuity,passMarkup,raiseIdx,vol},
     days:{grossDays,presence,hWage,hSal,soz,sv,grossSuggest:presence>0?grossDays/presence-1:0},
-    sal,wage,cost,groups,sum,hoursAll,fteNet,fteGross:sal.F+wage.F,perFte:fteNet>0?s.umv/fteNet:0,
+    sal,wage,cost,need,dupQuals:[...dupQuals],groups,sum,hoursAll,fteNet,fteGross:sal.F+wage.F,perFte:fteNet>0?s.umv/fteNet:0,
+    years,cash:{invest,payback,npv:npvAt(disc),irr,discount:disc,final:cum},
+    price:{floor,headroom:s.umv-floor,headroomPct:s.umv?(s.umv-floor)/s.umv:0,minMargin},
+    eval:{priceIndex:pg,vkMin:evNum("vkMin"),vkMax:evNum("vkMax"),sensi:evNum("sensi")/100},
     oto:{offer,walk,invest:cost.capex.nominal*fx,leasing:cost.opex.pa*fx,fx,currency:(c.oto&&c.oto.currency)||"EUR"}};
+}
+
+/* ---- Sensitivität: Ein-Punkt-Variation; Wirkung auf den kostendeckenden Angebotspreis und auf das EBITA bei festem Preis ---- */
+function calcSensitivity(state,base){
+  const d=base.eval.sensi,fixed=base.sum.pa.umv,ebitaAt=r=>fixed-r.sum.pa.sk-r.sum.pa.ri,e0=ebitaAt(base),pct=v=>(v>0?"+":"−")+fmt(Math.abs(v)*100,0)+" %";
+  const clone=fn=>{const st=JSON.parse(JSON.stringify(state));fn(st);return computeCalc(st);};
+  const byFactor=(k,sg)=>computeCalc(state,{factors:{[k]:1+sg*d}});
+  const drivers=[
+    ["wage","Stundenlöhne",sg=>byFactor("wage",sg),pct(-d),pct(d)],
+    ["sal","Gehälter",sg=>byFactor("sal",sg),pct(-d),pct(d)],
+    ["fte","Personalbedarf (FTE)",sg=>byFactor("fte",sg),pct(-d),pct(d)],
+    // Mehr Krankheitstage: gleiche Anwesenheit erfordert mehr Brutto-FTE (Brutto-Zuschlag im Verhältnis der Anwesenheitstage)
+    ["sick","Krankheitstage",sg=>clone(st=>{
+      const p0=base.days.presence,b=st.calc.base;b.sick=Math.max(0,(+b.sick||0)+sg*3);
+      const p1=computeCalc(st).days.presence;
+      if(p0>0&&p1>0)for(const row of st.calc.salaries.concat(st.calc.wages))row.gross=((1+(+row.gross||0)/100)*p0/p1-1)*100;
+    }),"−3 Tage","+3 Tage"],
+    ["raise","Personalkostensteigerung p.a.",sg=>clone(st=>{st.calc.base.raise=(+st.calc.base.raise||0)+sg;}),"−1 Pp.","+1 Pp."],
+    ["opex","Betriebskosten",sg=>byFactor("opex",sg),pct(-d),pct(d)],
+    ["nu","Nachunternehmer",sg=>byFactor("nu",sg),pct(-d),pct(d)],
+    ["capex","Investitionen",sg=>byFactor("capex",sg),pct(-d),pct(d)],
+    ["rampup","Ramp-up",sg=>byFactor("rampup",sg),pct(-d),pct(d)],
+    ["term","Laufzeit",sg=>clone(st=>{st.request.eop=calcAddMonths(st.request.eop,sg*12);}),"−12 Monate","+12 Monate"]
+  ];
+  return drivers.map(([key,label,run,lowTxt,highTxt])=>{
+    const lo=run(-1),hi=run(1),ok=x=>x.period.ok;
+    return {key,label,lowTxt,highTxt,
+      eLow:ok(lo)?ebitaAt(lo)-e0:0,eHigh:ok(hi)?ebitaAt(hi)-e0:0,
+      pLow:ok(lo)?lo.sum.pa.umv-fixed:0,pHigh:ok(hi)?hi.sum.pa.umv-fixed:0};
+  }).sort((a,b)=>Math.max(Math.abs(b.eLow),Math.abs(b.eHigh))-Math.max(Math.abs(a.eLow),Math.abs(a.eHigh)));
+}
+
+/* ---- Plausibilität ---- */
+function calcChecks(state,r){
+  const c=state.calc,out=[],warn=t=>out.push({sev:"warn",text:t}),info=t=>out.push({sev:"info",text:t});
+  for(const w of r.warn)warn(w);
+  const maxY=Math.max(...Object.keys(CALC_MIN_WAGE).map(Number)),minWage=y=>CALC_MIN_WAGE[Math.min(y,maxY)];
+  let laterYears=false;
+  r.wage.rows.forEach((x,i)=>{
+    r.period.years.forEach((y,k)=>{
+      if(y<2024||!(x.yearly[k]>0))return;
+      if(y>maxY)laterYears=true;
+      if(x.yearly[k]+1e-9<minWage(y))warn("Mindestlohn: „"+(x.name||"Lohn "+(i+1))+"“ liegt "+y+" mit "+fmt(x.yearly[k],2)+" €/h unter "+fmt(minWage(y),2)+" €/h.");
+    });
+  });
+  if(laterYears&&r.wage.rows.length)info("Mindestlohn ab "+(maxY+1)+" noch nicht festgelegt; geprüft gegen "+fmt(CALC_MIN_WAGE[maxY],2)+" €/h.");
+  for(const [key,res] of [["salaries",r.sal],["wages",r.wage]]){
+    res.rows.forEach((x,i)=>{
+      const where=CALC_LISTS[key].label+" Zeile "+(i+1)+(x.name?" („"+x.name+"“)":"");
+      if(!x.name.trim())info(CALC_LISTS[key].label+" Zeile "+(i+1)+": ohne Bezeichnung.");
+      if(!(x.fteIn>0))info(where+": ohne FTE.");
+      if(x.fteIn>0&&x.gross===0&&r.days.grossSuggest>=0.05)(key==="wages"?warn:info)(where+": ohne FTE-Brutto-Zuschlag (Vorschlag "+calcPct(r.days.grossSuggest)+").");
+      const row=c[key][i];
+      if(row&&row.grade&&x.gradeRate===undefined)warn(where+": Tarifgruppe „"+row.grade+"“ nicht gefunden (Art "+(key==="wages"?"Lohn":"Gehalt")+").");
+      if(key==="wages"&&x.fteIn>0&&(x.AB<r.eval.vkMin||x.AB>r.eval.vkMax))info(where+": VK-Satz "+fmt(x.AB,2)+" €/h außerhalb der Spanne "+fmt(r.eval.vkMin,0)+"–"+fmt(r.eval.vkMax,0)+" €/h.");
+    });
+  }
+  for(const n of r.dupQuals)warn("Qualifikation „"+n+"“ mehrfach vorhanden; der Personalbedarf wird der ersten Zeile zugeordnet.");
+  r.need.forEach((x,i)=>{
+    if(!x.qual.trim())warn("Personalbedarf Zeile "+(i+1)+": keine Qualifikation zugeordnet.");
+    else if(!x.target)warn("Personalbedarf Zeile "+(i+1)+": Qualifikation „"+x.qual+"“ nicht in Gehältern oder Löhnen gefunden.");
+    if(!(x.fte>0))info("Personalbedarf Zeile "+(i+1)+(x.name?" („"+x.name+"“)":"")+": ergibt 0 FTE (Menge und Leistung bzw. Schichten und Besetzung prüfen).");
+  });
+  for(const key of CALC_COST_KEYS)(c[key]||[]).forEach((row,i)=>{if(!String(row.name||"").trim()&&row.price)info(CALC_LISTS[key].label+" Zeile "+(i+1)+": ohne Bezeichnung.");});
+  if(r.period.ok&&r.sum.pa.umv>0){
+    if(r.oto.offer.ebitaPct<r.price.minMargin)warn("EBITA-Marge des Angebots ("+calcPct(r.oto.offer.ebitaPct)+") unter der Mindestmarge ("+calcPct(r.price.minMargin)+").");
+    const neg=r.years.filter(x=>x.months>0&&x.ebita<0).map(x=>x.year);
+    if(neg.length)warn("Festpreis: negatives EBITA in "+neg.join(", ")+". Preisgleitung oder Aufschlag prüfen.");
+    if(r.cash.invest>0&&r.cash.payback===null)warn("Investitionen und Ramp-up amortisieren sich nicht innerhalb der Laufzeit.");
+  }
+  if(!r.excel&&r.sal.rows.concat(r.wage.rows).some(x=>x.svEff<r.days.sv-1e-9))info("Beitragsbemessungsgrenzen senken den SV-Anteil bei mindestens einer Qualifikation (Personalkosten › Stundensätze).");
+  return out;
 }
 
 /* ---- Darstellung ---- */
@@ -521,16 +762,19 @@ function calcParse(text){
   const n=Number(s);
   return Number.isFinite(n)?n:NaN;
 }
+// .co: Text, .coh: HTML (Diagramme); beide werden bei Eingaben ohne Neuaufbau nachgeführt
 const co=(text,cls)=>'<span class="co'+(cls?" "+cls:"")+'">'+escH(text)+'</span>';
+const coh=html=>'<div class="coh">'+html+'</div>';
 const tdo=(text,cls)=>'<td class="calc'+(cls?" "+cls:"")+'">'+co(text)+'</td>';
 function calcInput(path,type,o){
   o=o||{};
   const v=getP(S,path);
-  const val=type==="text"||type==="date"?(v==null?"":String(v)):(v===""||v==null?"":calcFmtIn(v));
   const range=o.min!=null&&o.max!=null&&(type==="num"||type==="pct")?' title="Zulässig: '+escH(fmt(o.min,o.min%1?6:0))+' bis '+escH(fmt(o.max,0))+(type==="pct"?" %":"")+'"':'';
   const attrs=' data-cf="'+escH(path)+'" data-ct="'+type+'"'+range+(o.placeholder?' placeholder="'+escH(o.placeholder)+'"':'')+(o.min!=null?' data-min="'+o.min+'"':'')+(o.max!=null?' data-max="'+o.max+'"':'')+
     (o.list?' list="'+o.list+'"':'')+(o.cl?' data-cl="'+o.cl+'" data-ci="'+o.ci+'" data-cc="'+o.cc+'"':'')+' aria-label="'+escH(o.label||"")+'"';
   if(type==="check")return '<input type="checkbox"'+attrs+(v?' checked':'')+'>';
+  if(type==="sel")return '<select class="ci"'+attrs+'>'+(o.options||[]).map(x=>'<option'+(x===v?' selected':'')+'>'+escH(x)+'</option>').join("")+'</select>';
+  const val=type==="text"||type==="date"?(v==null?"":String(v)):(v===""||v==null?"":calcFmtIn(v));
   return '<input class="ci'+(type==="num"||type==="pct"?' num':'')+(o.cls?' '+o.cls:'')+'" type="'+(type==="date"?"date":"text")+'"'+(type==="num"||type==="pct"?' inputmode="decimal"':'')+
     (type==="text"?' maxlength="'+(o.maxlength||200)+'"':'')+attrs+' value="'+escH(val)+'">';
 }
@@ -541,15 +785,19 @@ function calcRowBtns(key,i,n){
   const b=(act,sym,title,dis)=>'<button type="button" class="btn btn-quiet ca" data-calc-act="'+act+'" data-cl="'+key+'" data-ci="'+i+'" title="'+title+'" aria-label="'+title+', Zeile '+(i+1)+'"'+(dis?' disabled':'')+'>'+sym+'</button>';
   return b("up","↑","Nach oben",i===0)+b("down","↓","Nach unten",i===n-1)+b("dup","⧉","Zeile duplizieren")+b("del","✕","Zeile löschen");
 }
-/* Listentabelle: cols {h, f (Eingabefeld) | out(i) (Ausgabe), num, tip}; foot: Zellen der Summenzeile nach der Nr-Spalte */
+/* Listentabelle: cols {h, f (Eingabefeld) | out(i) (Ausgabe), num, tip, calc(i) (Ausgabe statt Eingabe, wenn nicht null), list(i)};
+   foot: Zellen der Summenzeile nach der Nr-Spalte */
 function calcListHtml(key,cols,foot,o){
   o=o||{};
   const def=CALC_LISTS[key],list=calcList(key);
   const head='<tr><th class="cn">Nr</th>'+cols.map(c=>'<th'+(c.num?' class="r"':'')+'>'+escH(c.h)+(c.tip?tipHtml(c.tip):'')+'</th>').join("")+'<th class="cact"><span class="sr-only">Zeilenaktionen</span></th></tr>';
   const body=list.map((row,i)=>'<tr><td class="cn">'+(i+1)+'</td>'+cols.map(c=>{
     if(!c.f)return tdo(c.out(i));
-    const fi=def.fields.findIndex(f=>f[0]===c.f),fd=def.fields[fi];
-    return '<td class="cin">'+calcInput(def.path+"."+i+"."+c.f,fd[1],{min:fd[2],max:fd[3],cl:key,ci:i,cc:fi,label:c.h+", Zeile "+(i+1),cls:fd[1]==="text"?"ci-name":"",placeholder:fd[1]==="text"?c.h:""})+'</td>';
+    const fixed=c.calc?c.calc(i):null;
+    if(fixed!=null)return tdo(fixed,"linked");
+    const fi=def.fields.findIndex(f=>f[0]===c.f),fd=def.fields[fi],t=fd[1];
+    return '<td class="cin'+(t==="check"?' cc':'')+'">'+calcInput(def.path+"."+i+"."+c.f,t,{min:t==="sel"?undefined:fd[2],max:fd[3],options:t==="sel"?fd[2]:undefined,cl:key,ci:i,cc:fi,
+      label:c.h+", Zeile "+(i+1),cls:t==="text"?(c.wide===false?"":"ci-name"):"",placeholder:t==="text"?(c.ph||c.h):"",list:c.list?c.list(i):undefined})+'</td>';
   }).join("")+'<td class="cact">'+calcRowBtns(key,i,list.length)+'</td></tr>').join("")||
     '<tr><td class="cn"></td><td colspan="'+(cols.length+1)+'" class="hint">Keine Einträge. Über „+ Zeile“ anlegen oder einen Bereich aus Excel kopieren und hier mit Strg+V einfügen.</td></tr>';
   const tf=foot?'<tfoot><tr><td class="cn"></td>'+foot.map(x=>x==null?'<td></td>':tdo(x)).join("")+'<td></td></tr></tfoot>':'';
@@ -561,12 +809,76 @@ const calcWarnHtml=r=>'<p class="calc-warn">'+co(r.warn.join("\n"),"warnline")+'
 function calcKvTable(rows){
   return '<div class="calc-scroll"><table class="calc-tab calc-kv"><tbody>'+rows.map(([label,inner,cls])=>'<tr'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+escH(label)+'</th>'+(String(inner).startsWith("<td")?inner:'<td class="cin">'+inner+'</td>')+'</tr>').join("")+'</tbody></table></div>';
 }
+// Statische Tabelle für Ausgaben, Druck und Bericht: head [Text], rows [[Zelle]], num: Spalten rechtsbündig ab Index
+function calcStaticTable(head,rows,o){
+  o=o||{};const numFrom=o.numFrom==null?1:o.numFrom;
+  const cell=(v,j,th)=>{const r=j>=numFrom;const cls=(r?' class="calc"':'');return th?'<th'+(r?' class="r"':'')+'>'+escH(v)+'</th>':(j===0?'<th scope="row">'+escH(v)+'</th>':'<td'+cls+'>'+co(v)+'</td>');};
+  return '<div class="calc-scroll"><table class="calc-tab'+(o.cls?' '+o.cls:'')+'"><thead><tr>'+head.map((h,j)=>cell(h,j,true)).join("")+'</tr></thead><tbody>'+
+    rows.map(r=>'<tr'+(r.cls?' class="'+r.cls+'"':'')+'>'+(r.cells||r).map((v,j)=>cell(v,j,false)).join("")+'</tr>').join("")+'</tbody></table></div>';
+}
+const calcKpi=(label,val,cls)=>'<div class="calc-kpi'+(cls?" "+cls:"")+'"><span>'+escH(label)+'</span>'+co(val,"kv")+'</div>';
+
+/* ---- Diagramme (SVG, hell, auch im Druck) ---- */
+const CALC_SVG_FONT='font-family="Segoe UI,Arial,sans-serif" font-size="11"';
+const calcShort=v=>{const a=Math.abs(v);return (v<0?"−":"")+(a>=1e6?fmt(a/1e6,2)+" Mio.":a>=1e3?fmt(a/1e3,0)+" T":fmt(a,0))+" €";};
+// Wasserfall von den Projektkosten bis zum Umsatz mit Verhandlung (p.a.)
+function calcWaterfallSvg(r){
+  const s=r.sum.pa,pers=r.groups[0].pa+r.groups[1].pa,mat=s.K-pers;
+  const steps=[["Personalkosten",pers,"#2563eb"],["Sachkosten",mat,"#0d9488"],["Umlagen",s.um,"#64748b"],["Gewinn + Risiko",s.ge+s.ri+s.pm,"#16a34a"],["Verhandlung",s.ve,"#d97706"]];
+  const total=s.umv;if(!(total>0))return '<p class="hint">Noch keine Werte für das Diagramm.</p>';
+  const W=640,H=230,L=10,T=16,B=48,bw=(W-L*2)/(steps.length+1)-14,sc=(H-T-B)/total;
+  let acc=0,out='';
+  steps.forEach(([label,v,col],i)=>{
+    const x=L+i*(bw+14),y=H-B-(acc+Math.max(v,0))*sc,h=Math.max(1,Math.abs(v)*sc);
+    out+='<rect x="'+x+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+col+'" rx="2"/>'+
+      '<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" fill="#0f172a">'+escH(calcShort(v))+'</text>'+
+      '<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-B+14)+'" text-anchor="middle" fill="#475569">'+escH(label)+'</text>';
+    acc+=v;
+  });
+  const x=L+steps.length*(bw+14),y=H-B-total*sc;
+  out+='<rect x="'+x+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+(total*sc).toFixed(1)+'" fill="#4338ca" rx="2"/>'+
+    '<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" fill="#0f172a" font-weight="700">'+escH(calcShort(total))+'</text>'+
+    '<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-B+14)+'" text-anchor="middle" fill="#475569">Umsatz</text>';
+  return '<svg class="calc-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Wasserfall von den Projektkosten bis zum Umsatz pro Jahr" '+CALC_SVG_FONT+'><line x1="0" y1="'+(H-B)+'" x2="'+W+'" y2="'+(H-B)+'" stroke="#cbd5e1"/>'+out+'</svg>';
+}
+// EBITA je Kalenderjahr bei Festpreis
+function calcYearBarsSvg(r){
+  const ys=r.years.filter(x=>x.months>0);if(!ys.length)return '';
+  // Skala von min(0, kleinster Wert) bis max(0, größter Wert)
+  const W=640,H=200,T=18,B=36,hi=Math.max(0,...ys.map(x=>x.ebita)),lo=Math.min(0,...ys.map(x=>x.ebita)),span=Math.max(1,hi-lo);
+  const sc=(H-T-B)/span,mid=T+hi*sc,bw=Math.min(70,(W-20)/ys.length-12);
+  let out='<line x1="0" y1="'+mid+'" x2="'+W+'" y2="'+mid+'" stroke="#94a3b8"/>';
+  ys.forEach((x,i)=>{
+    const cx=10+i*(bw+12),h=Math.abs(x.ebita)*sc,y=x.ebita>=0?mid-h:mid;
+    out+='<rect x="'+cx+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1,h).toFixed(1)+'" fill="'+(x.ebita>=0?"#16a34a":"#dc2626")+'" rx="2"/>'+
+      '<text x="'+(cx+bw/2).toFixed(1)+'" y="'+(x.ebita>=0?y-4:y+h+12).toFixed(1)+'" text-anchor="middle" fill="#0f172a">'+escH(calcPct(x.margin,1))+'</text>'+
+      '<text x="'+(cx+bw/2).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" fill="#475569">'+x.year+'</text>';
+  });
+  return '<svg class="calc-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="EBITA-Marge je Kalenderjahr bei Festpreis" '+CALC_SVG_FONT+'>'+out+'</svg>';
+}
+// Tornado: Wirkung auf das EBITA p.a. bei festem Angebotspreis
+function calcTornadoSvg(rows){
+  if(!rows.length)return '';
+  const W=640,rowH=24,L=190,R=70,H=rows.length*rowH+30,max=Math.max(1,...rows.map(x=>Math.max(Math.abs(x.eLow),Math.abs(x.eHigh)))),cx=L+(W-L-R)/2,sc=(W-L-R)/2/max;
+  let out='<line x1="'+cx+'" y1="4" x2="'+cx+'" y2="'+(H-22)+'" stroke="#475569"/>';
+  rows.forEach((x,i)=>{
+    const y=8+i*rowH;
+    for(const [v,lab] of [[x.eLow,x.lowTxt],[x.eHigh,x.highTxt]]){
+      const w=Math.abs(v)*sc,x0=v>=0?cx:cx-w;
+      out+='<rect x="'+x0.toFixed(1)+'" y="'+y+'" width="'+Math.max(1,w).toFixed(1)+'" height="16" fill="'+(v>=0?"#16a34a":"#dc2626")+'" opacity=".85" rx="2"><title>'+escH(x.label+" "+lab+": "+calcShort(v))+'</title></rect>';
+    }
+    out+='<text x="'+(L-8)+'" y="'+(y+12)+'" text-anchor="end" fill="#0f172a">'+escH(x.label)+'</text>'+
+      '<text x="'+(W-R+6)+'" y="'+(y+12)+'" fill="#475569">'+escH(calcShort(Math.max(Math.abs(x.eLow),Math.abs(x.eHigh))))+'</text>';
+  });
+  out+='<text x="'+cx+'" y="'+(H-6)+'" text-anchor="middle" fill="#475569">Δ EBITA p.a. bei festem Angebotspreis</text>';
+  return '<svg class="calc-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Tornado-Diagramm der Sensitivitätsanalyse" '+CALC_SVG_FONT+'>'+out+'</svg>';
+}
 
 /* Register Projekt & Basisdaten */
 function calcProjectHtml(r){
   const P=r.period,b="calc.base.",pin=(k,label)=>calcInput(b+k,"pct",{min:CALC_BASE_FIELDS[k][0],max:CALC_BASE_FIELDS[k][1],label});
   const nin=(k,label)=>calcInput(b+k,"num",{min:CALC_BASE_FIELDS[k][0],max:CALC_BASE_FIELDS[k][1],label});
-  const proj=calcCard("Projektdaten","Allgemeine Projektdaten. Start und Ende der Leistung bestimmen die Laufzeit und die Monatsanteile je Kalenderjahr. Projektdaten lassen sich über Datei › Öffnen auch aus einer Lagerplaner-Planungsdatei übernehmen.",
+  const proj=calcCard("Projektdaten","Allgemeine Projektdaten. Start und Ende der Leistung bestimmen die Laufzeit und die Monatsanteile je Kalenderjahr. Projektdaten lassen sich über Datei › Projektdaten aus Lagerplaner-Planungsdatei übernehmen.",
     '<div class="calc-form">'+
     calcField("Projektname",calcInput("meta.name","text",{label:"Projektname"}))+calcField("Kundenname",calcInput("meta.kunde","text",{label:"Kundenname"}))+
     calcField("Projektstandort",calcInput("request.serviceSite","text",{label:"Projektstandort"}))+calcField("Kundenkontakt",calcInput("request.contact","text",{label:"Kundenkontakt"}))+
@@ -578,21 +890,30 @@ function calcProjectHtml(r){
     '<div class="rowbtns"><button type="button" class="btn" id="calc-example">Beispielkalkulation laden</button><button type="button" class="btn danger" id="calc-reset">Kalkulation zurücksetzen</button></div>');
   const mode=calcCard("Rechenmodus","",
     '<label class="calc-check">'+calcInput("calc.excelMode","check",{label:"Excel-kompatibel rechnen"})+' <b>Excel-kompatibel rechnen</b></label>'+
-    '<p class="hint">Aus: Es gelten die Korrekturen gegenüber der Excel-Vorlage. 1) Monatsanteile je Kalenderjahr tagesgenau, beliebig viele Jahre, eine einheitliche Laufzeit für Personal- und Sachkosten (Excel: gerundete Anteile, höchstens 10 Kalenderjahre). 2) Gross Profit des Angebots-TO mit HV und BU als Anteil am Umsatz ohne Verhandlung (Excel: Sätze auf den Umsatz mit Verhandlung, dadurch zu hoch). 3) Wechselkurs wirkt auf die OtO-Werte (Excel: ohne Wirkung). 4) SV-Anteil Arbeitgeber als Summe der Einzelsätze, je Satz mit Beitragsbemessungsgrenze. 5) Optional Sachkostensteigerung und Kalkulationszins für Einmalkosten (Projekt & Basisdaten › Sachkosten).<br>An: rechnet wie die Excel-Vorlage V1.0, zum Abgleich mit bestehenden Kalkulationen.</p>');
+    '<p class="hint">Aus: Es gelten die Korrekturen und Erweiterungen gegenüber der Excel-Vorlage. 1) Monatsanteile je Kalenderjahr tagesgenau, beliebig viele Jahre, eine einheitliche Laufzeit für Personal- und Sachkosten. 2) Gross Profit des Angebots-TO mit HV und BU als Anteil am Umsatz ohne Verhandlung. 3) Wechselkurs wirkt auf die OtO-Werte. 4) SV-Anteil je Satz mit Beitragsbemessungsgrenze. 5) Tariferhöhung zum Stichtag mit Satz je Jahr, Personalhochlauf und Volumenwachstum, FTE je Kalenderjahr. 6) Sachkostensteigerung, Kalkulationszins für Einmalkosten, Durchreichposten mit eigenem Aufschlag.<br>An: rechnet wie die Excel-Vorlage V1.0, zum Abgleich mit bestehenden Kalkulationen. Personalbedarf, Tarifgruppen und Zuschläge je Zeile wirken in beiden Modi.</p>');
   const sur=calcCard("Preiskalkulation (Zuschläge)","Gewinn, Risiko und Umlagen werden im Hundert auf die Projektkosten aufgeschlagen: Kosten ÷ (1 − Summe der Sätze) × Satz. Die Verhandlungsmarge kommt anschließend auf den Umsatz ohne Verhandlung.",
     calcKvTable([["Gewinn",pin("profit","Gewinn")],["Risiko (Leadec Global C2 = 1,00 %)",pin("risk","Risiko")],["Total Gewinn und Risiko",tdo(calcPct(r.rates.gew+r.rates.ris)),"hl"],
       ["Konzern (HV)",pin("hv","Konzernumlage HV")],["Umlagen für den Geschäftsbereich (BU)",pin("bu","Umlage BU")],["Umlagen für die Niederlassung (NL)",pin("nl","Umlage NL")],["Total Umlagen",tdo(calcPct(r.rates.umlg)),"hl"],
       ["Verhandlungsmarge",pin("negotiation","Verhandlungsmarge")]])+'<p class="hint">Eingaben in Prozent.</p>');
   const d=r.days;
   const hours=calcCard("Ermittlung der Ø produktiven Jahresstunden","Tage pro Jahr aus dem Startjahr. Die produktiven Stunden sind die Bezugsgröße für die Stundensätze und die Personalkosten.",
-    calcKvTable([["Personalkostensteigerung p.a. (Löhne & Gehälter) [%]",pin("raise","Personalkostensteigerung")],["Tage pro Jahr",tdo(fmt(P.daysYear))],
+    calcKvTable([["Tage pro Jahr",tdo(fmt(P.daysYear))],
       ["Samstage/Sonntage",nin("weekendDays","Samstage und Sonntage")],["Feiertage",nin("holidays","Feiertage")],["Bruttoarbeitstage",tdo(fmt(d.grossDays,1)),"hl"],
       ["Urlaubstage",nin("vacation","Urlaubstage")],["Krankheitstage",nin("sick","Krankheitstage")],["Sonstiges/Arbeitsfreistellung",nin("otherOff","Sonstige Abwesenheitstage")],
       ["Ø Anwesenheitstage FTE pro Jahr",tdo(fmt(d.presence,1)),"hl"],
       ["Arbeitsstunden Lohnempfänger pro Tag [h]",nin("hoursWage","Arbeitsstunden Lohnempfänger")],["Ø produktive Jahresstunden Lohn [h]",tdo(fmt(d.hWage,2)),"hl"],
       ["Arbeitsstunden Gehaltsempfänger pro Tag [h]",nin("hoursSalary","Arbeitsstunden Gehaltsempfänger")],["Ø produktive Jahresstunden Gehalt [h]",tdo(fmt(d.hSal,2)),"hl"],
       ["Vorschlag FTE-Brutto-Zuschlag (Bruttoarbeitstage ÷ Anwesenheitstage − 1)",tdo(calcPct(d.grossSuggest))]]));
-  const pnk=calcCard("Personalnebenkosten","Diese Sätze beruhen auf dem deutschen Sozialversicherungssystem. Für andere Länder oder zur Vereinfachung die Einzelsätze auf 0 setzen und einen Gesamtwert über die sonstigen Zuschläge oder eine eigene SV-Zeile abbilden. Der Zuschlag für Sondertätigkeiten wird separat aufgeschlagen, sodass Sätze mit und ohne Zuschlag sichtbar sind.",
+  const raiseYears=P.years.slice(1);
+  const dev=calcCard("Tariferhöhung und Personalentwicklung","Die Löhne und Gehälter steigen jeweils zum Stichtagsmonat, erstmals im Kalenderjahr nach dem Start; je Jahr lässt sich ein eigener Satz eintragen (leer = allgemeiner Satz). Hochlauf: Anteil der FTE im ersten Kalenderjahr. Volumenwachstum: Steigerung der FTE je Jahr ab dem zweiten Jahr. Einzelwerte je Qualifikation unter Personalkosten › FTE je Kalenderjahr. Ohne Wirkung im Excel-kompatiblen Modus außer der allgemeinen Steigerung.",
+    calcKvTable([["Personalkostensteigerung p.a. (Löhne & Gehälter) [%]",pin("raise","Personalkostensteigerung")],
+      ["Stichtagsmonat der Tariferhöhung (1–12)",nin("raiseMonth","Stichtagsmonat der Tariferhöhung")],
+      ["Hochlauf: FTE im ersten Kalenderjahr [%]",pin("firstYearPct","Hochlauf erstes Kalenderjahr")],["Volumenwachstum FTE p.a. [%]",pin("volumeGrowth","Volumenwachstum")]])+
+    (raiseYears.length?'<div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Tariferhöhung je Jahr [%]</th>'+raiseYears.map(y=>'<th class="r">'+y+'</th>').join("")+'</tr></thead><tbody><tr><th scope="row">Satz (leer = '+escH(fmt(r.rates.raise*100,2))+' %)</th>'+
+      raiseYears.map(y=>'<td class="cin">'+calcInput("calc.base.raises."+y,"pct",{min:-20,max:50,label:"Tariferhöhung "+y,placeholder:fmt(r.rates.raise*100,2)})+'</td>').join("")+'</tr>'+
+      '<tr class="hl"><th scope="row">Tarifindex (Ø im Jahr)</th>'+raiseYears.map((y,i)=>tdo(fmt(r.rates.raiseIdx[i+1],4))).join("")+'</tr>'+
+      '<tr><th scope="row">Volumenfaktor FTE</th>'+raiseYears.map((y,i)=>tdo(fmt(r.rates.vol[i+1],3))).join("")+'</tr></tbody></table></div>':'<p class="hint">Tariferhöhungen je Jahr erscheinen, sobald die Laufzeit mehr als ein Kalenderjahr umfasst.</p>'));
+  const pnk=calcCard("Personalnebenkosten","Diese Sätze beruhen auf dem deutschen Sozialversicherungssystem. Für andere Länder oder zur Vereinfachung die Einzelsätze auf 0 setzen und einen Gesamtwert über die sonstigen Zuschläge oder eine eigene SV-Zeile abbilden. Der Zuschlag für Sondertätigkeiten wird separat aufgeschlagen, sodass Sätze mit und ohne Zuschlag sichtbar sind. Zuschläge je Qualifikation (Schicht, Nacht) unter Personalkosten.",
     '<div class="calc-scroll"><table class="calc-tab calc-kv"><thead><tr><th>Position</th><th class="r">Gehaltsempfänger</th><th class="r">Lohnempfänger</th></tr></thead><tbody>'+
     '<tr><th scope="row">101 Soziallöhne (bezahlte Abwesenheit)</th><td class="calc">n. v.</td>'+tdo(calcPct(d.soz))+'</tr>'+
     '<tr><th scope="row">102 Urlaubsgeld/Prämie [%]</th><td class="cin num">'+pin("salBonus","Urlaubsgeld und Prämie Gehalt")+'</td><td class="cin num">'+pin("wageBonus","Urlaubsgeld und Prämie Lohn")+'</td></tr>'+
@@ -600,78 +921,112 @@ function calcProjectHtml(r){
     '<tr class="hl"><th scope="row">201 Sozialabgaben (SV-Anteil Arbeitgeber)</th>'+tdo(calcPct(d.sv,3))+tdo(calcPct(d.sv,3))+'</tr>'+
     '<tr><th scope="row">601 Zuschlag für Sondertätigkeiten [%]</th><td class="cin num">'+pin("salSpecial","Zuschlag Sondertätigkeiten Gehalt")+'</td><td class="cin num">'+pin("wageSpecial","Zuschlag Sondertätigkeiten Lohn")+'</td></tr>'+
     '</tbody></table></div><p class="hint">Soziallöhne = (Feiertage + Urlaub + Krankheit + Sonstiges) ÷ Anwesenheitstage; bei Gehältern im Jahresgehalt enthalten.</p>');
-  const svCard=calcCard("SV-Anteil Arbeitgeber","Der SV-Anteil Arbeitgeber (Position 201) ist die Summe dieser Sätze. Mit Beitragsbemessungsgrenze (BBG) gilt ein Satz nur bis zur Grenze des Jahresentgelts je FTE; 0 = ohne Grenze. Vorbelegt sind die Grenzen 2026 (KV/PV 69.750 €, RV/AV 101.400 € im Jahr); bitte jährlich prüfen. Im Excel-kompatiblen Modus gelten keine Grenzen. Zeilen lassen sich ergänzen, löschen und umsortieren.",
+  const svCard=calcCard("SV-Anteil Arbeitgeber","Der SV-Anteil Arbeitgeber (Position 201) ist die Summe dieser Sätze. Mit Beitragsbemessungsgrenze (BBG) gilt ein Satz nur bis zur Grenze des Jahresentgelts je FTE; 0 = ohne Grenze. Vorbelegt sind die Grenzen 2026 (KV/PV 69.750 €, RV/AV 101.400 € im Jahr); bitte jährlich prüfen. Im Excel-kompatiblen Modus gelten keine Grenzen.",
     calcListHtml("sv",[{h:"Bezeichnung",f:"name"},{h:"Satz [%]",f:"pct",num:true},{h:"BBG [€/Jahr]",f:"bbg",num:true}],[null,calcPct(d.sv,3),null])+
     '<p class="hint">Wirksamer SV-Anteil je Qualifikation in Personalkosten › Stundensätze (Position 201).</p>');
-  const costPar=calcCard("Sachkosten","Steigerung je Kalenderjahr ab dem zweiten Jahr der Laufzeit, gewichtet wie bei den Personalkosten. Der Kalkulationszins verteilt Investitionen und Ramp-up als Annuität (Tilgung und Zins) auf die Laufzeit statt linear. Beide wirken nicht im Excel-kompatiblen Modus.",
+  const costPar=calcCard("Sachkosten","Steigerung je Kalenderjahr ab dem zweiten Jahr der Laufzeit. Der Kalkulationszins verteilt Investitionen und Ramp-up als Annuität (Tilgung und Zins) auf die Laufzeit statt linear. Durchreichposten (Spalte unter Sachkosten) erhalten statt Umlagen, Gewinn und Risiko nur den Aufschlag für Durchreichposten. Ohne Wirkung im Excel-kompatiblen Modus.",
     calcKvTable([["Sachkostensteigerung p.a. (Betriebskosten, Nachunternehmer) [%]",pin("costRaise","Sachkostensteigerung")],["Kalkulationszins für Einmalkosten p.a. [%]",pin("interest","Kalkulationszins")],
+      ["Aufschlag für Durchreichposten [%]",pin("passMarkup","Aufschlag Durchreichposten")],
       ["Ø Steigerungsfaktor über die Laufzeit",tdo(r.excel?"–":fmt(r.rates.esc,4))],["Annuität p.a.",tdo(r.excel||!r.rates.annuity?"– (linear)":calcPct(r.rates.annuity))]]));
-  const lists=calcCard("Auswahllisten","Einträge je Zeile. Sie stehen in den Feldern Service-Line, Status und Abrechnungsart zur Auswahl; freie Eingaben bleiben möglich.",
+  const lists=calcCard("Auswahllisten","Einträge je Zeile. Sie stehen in den Feldern Service-Line, Status, Abrechnungsart und Freigabestatus zur Auswahl; freie Eingaben bleiben möglich.",
     '<div class="calc-form calc-lists">'+Object.entries(CALC_CHOICES).map(([k,label])=>'<label class="mf"><span>'+escH(label)+'</span><textarea rows="5" data-calc-choices="'+k+'" aria-label="'+escH(label)+'">'+escH(((S.calc.lists||{})[k]||[]).join("\n"))+'</textarea></label>').join("")+'</div>');
+  const tpl=calcCard("Vorlagen","Eine Vorlage enthält Basisdaten (Zuschläge, Arbeitszeit, SV-Sätze, Tariferhöhungen, Sachkostenparameter), Tarifgruppen, Auswahllisten und die Einstellungen der Auswertung, etwa je Land oder Gesellschaft. Projektdaten sowie Personal- und Sachkosten bleiben beim Laden erhalten.",
+    '<div class="rowbtns"><button type="button" class="btn" id="calc-tpl-save">Vorlage speichern</button><button type="button" class="btn" id="calc-tpl-load">Vorlage laden …</button>'+
+    '<button type="button" class="btn" id="calc-tpl-default">Als Standard für neue Kalkulationen</button><button type="button" class="btn btn-quiet" id="calc-tpl-clear"'+(calcDefaultTemplate()?'':' disabled')+'>Standard entfernen</button></div>'+
+    '<p class="hint">'+co(calcDefaultTemplate()?"Für neue Kalkulationen ist eine Standardvorlage hinterlegt (in diesem Browser).":"Neue Kalkulationen beginnen mit den Werten der Excel-Vorlage.")+'</p>');
+  const doc=calcCard("Dokumentation und Freigabe","Kalkulationsstand mit Version und Freigabestatus; Änderungen tragen Sie in die Versionshistorie ein. Quelle und Annahme je Position stehen in den Tabellen der Personal- und Sachkosten.",
+    '<div class="calc-form">'+calcField("Version",calcInput("calc.doc.version","text",{label:"Version",maxlength:40}))+calcField("Freigabestatus",calcInput("calc.doc.status","text",{label:"Freigabestatus",list:"calc-dl-docStatus"}))+
+    calcField("Geprüft/freigegeben von",calcInput("calc.doc.reviewer","text",{label:"Geprüft oder freigegeben von"}))+calcField("Datum der Freigabe",calcInput("calc.doc.reviewDate","date",{label:"Datum der Freigabe"}))+
+    calcField("Bemerkung",calcInput("calc.doc.note","text",{label:"Bemerkung zur Freigabe",maxlength:1000}),"",true)+'</div>'+
+    '<h4 class="calc-sub">Versionshistorie</h4>'+calcListHtml("history",[{h:"Version",f:"version",wide:false},{h:"Datum",f:"date"},{h:"Bearbeiter",f:"author",wide:false},{h:"Änderung",f:"note"}]));
   const guide=calcCard("Kurzanleitung","",
-    '<ol class="calc-steps"><li><b>Projekt &amp; Basisdaten:</b> Projektdaten, Laufzeit, Zuschläge, Arbeitszeitmodell und Personalnebenkosten pflegen.</li>'+
-    '<li><b>Personalkosten:</b> je Funktion Netto-FTE pro Tag, Jahresgehalt (Gehälter) oder Stundenlohn (Löhne) im Startjahr und den FTE-Brutto-Zuschlag eingeben. Ergebnis: Ø Stundensätze und Kosten über die Laufzeit.</li>'+
-    '<li><b>Sachkosten:</b> Investitionen über die Laufzeit, Betriebskosten pro Monat, Nachunternehmerleistungen pro Jahr und Ramp-up-Kosten erfassen.</li>'+
-    '<li><b>Summary:</b> Kostenaufbau bis zum Umsatz mit Verhandlung, keine Eingaben.</li><li><b>OtO-Werte:</b> Kopiervorlage für das OtO-Formular. Die Vertragsprüfung erfolgt separat.</li></ol>'+
-    '<p class="calc-legend"><span class="sw sw-in"></span> Eingabefeld <span class="sw sw-out"></span> Ausgabefeld <span class="sw sw-hl"></span> Zwischensumme</p>'+
+    '<ol class="calc-steps"><li><b>Projekt &amp; Basisdaten:</b> Projektdaten, Laufzeit, Zuschläge, Arbeitszeitmodell, Tariferhöhung und Personalnebenkosten pflegen.</li>'+
+    '<li><b>Personalkosten:</b> Personalbedarf aus Mengen oder Schichten ableiten oder je Qualifikation Netto-FTE eingeben, dazu Jahresgehalt (Gehälter) oder Stundenlohn (Löhne) im Startjahr bzw. eine Tarifgruppe und den FTE-Brutto-Zuschlag.</li>'+
+    '<li><b>Sachkosten:</b> Investitionen über die Laufzeit, Betriebskosten pro Monat, Nachunternehmerleistungen pro Jahr und Ramp-up-Kosten erfassen; Durchreichposten markieren.</li>'+
+    '<li><b>Summary:</b> Kostenaufbau bis zum Umsatz mit Verhandlung.</li><li><b>Auswertung:</b> Ergebnis je Jahr bei Festpreis, Cashflow, Sensitivität, Preisuntergrenze, Varianten und Plausibilität.</li>'+
+    '<li><b>OtO-Werte:</b> Kopiervorlage für das OtO-Formular. Die Vertragsprüfung erfolgt separat.</li></ol>'+
+    '<p class="calc-legend"><span class="sw sw-in"></span> Eingabefeld <span class="sw sw-out"></span> Ausgabefeld <span class="sw sw-hl"></span> Zwischensumme <span class="sw sw-link"></span> aus Personalbedarf oder Tarifgruppe</p>'+
     '<p class="hint">Hinweis: Das Werkzeug unterstützt die Projektkalkulation; alle Eingaben und Ergebnisse sind vom Anwender eigenverantwortlich auf Richtigkeit und Plausibilität zu prüfen.</p>');
-  return '<div class="calc-grid">'+proj+mode+'</div><div class="calc-grid">'+sur+hours+'</div><div class="calc-grid">'+pnk+svCard+'</div><div class="calc-grid">'+costPar+lists+'</div>'+guide;
+  return '<div class="calc-grid">'+proj+mode+'</div><div class="calc-grid">'+sur+hours+'</div><div class="calc-grid">'+dev+pnk+'</div><div class="calc-grid">'+svCard+costPar+'</div>'+
+    '<div class="calc-grid">'+doc+tpl+'</div><div class="calc-grid">'+lists+guide+'</div>';
 }
 
 /* Register Personalkosten */
-const CALC_CHAIN=[["100","Ø Stundensatz Laufzeit","R"],["101/102","Zuschläge (Soziallohn, Prämien)","Sz"],["200","Brutto-Arbeitnehmerlohn","T"],["201","SV-Anteil Arbeitgeber","U"],
+const CALC_CHAIN=[["100","Ø Stundensatz Laufzeit","R"],["101/102","Zuschläge (Soziallohn, Prämien, Zeile)","Sz"],["200","Brutto-Arbeitnehmerlohn","T"],["201","SV-Anteil Arbeitgeber","U"],
   ["300","Kalkulatorischer Satz","V"],["301","Verwaltungsgemeinkosten (HV/BU/NL)","W"],["400","Selbstkosten-Stundenverrechnungssatz","X"],["401/402","Gewinn und Risiko","Y"],
   ["500","VK-Stundensatz ohne Verhandlung","Z"],["501","Verhandlung","AA"],["600","Mitarbeiterverkaufsstundensatz","AB"],["601","Zuschlag Sondertätigkeiten","AC"],["700","VK-Stundensatz Sondertätigkeiten","AD"]];
+function calcNeedHtml(r){
+  const rows=r.need;
+  return calcCard("Personalbedarf aus Mengen und Schichten","Leitet die Netto-FTE pro Tag einer Qualifikation ab. Menge: Menge pro Tag ÷ (Leistung je Stunde × Arbeitsstunden pro Tag) × (1 + Verteilzeit). Schicht: Schichten pro Tag × Besetzung je Schicht × (1 + Zuschlag). Die Zuordnung erfolgt über den Namen der Qualifikation; zugeordnete Qualifikationen übernehmen die Summe als FTE (grün hinterlegt).",
+    calcListHtml("need",[{h:"Prozess/Tätigkeit",f:"name"},{h:"Qualifikation",f:"qual",list:()=>"calc-dl-quals",ph:"Name aus Gehältern/Löhnen"},{h:"Art",f:"mode"},
+      {h:"Menge/Tag bzw. Schichten/Tag",f:"a",num:true},{h:"Leistung/h bzw. Besetzung je Schicht",f:"b",num:true},{h:"Verteilzeit/Zuschlag [%]",f:"allow",num:true},
+      {h:"FTE/Tag netto",out:i=>fmt(rows[i].fte,2),num:true},{h:"Quelle/Annahme",f:"note"}],
+      [null,null,null,null,null,null,fmt(rows.reduce((a,x)=>a+x.fte,0),2),null]),"calc-card-need");
+}
+function calcGradesHtml(){
+  return calcCard("Lohn- und Gehaltsgruppen","Stammdaten für Tarif- oder Hausgruppen: Art Lohn mit Stundenlohn, Art Gehalt mit Jahresgehalt im Startjahr. In den Tabellen unten wählen Sie die Gruppe in der Spalte Tarifgruppe; der Satz wird dann übernommen.",
+    calcListHtml("grades",[{h:"Gruppe",f:"name"},{h:"Art",f:"kind"},{h:"Satz im Startjahr [€/h bzw. €/Jahr]",f:"rate",num:true},{h:"Quelle/Annahme",f:"note"}]),"calc-card-grades");
+}
 function calcPersonHtml(r,isWage){
   const key=isWage?"wages":"salaries",res=isWage?r.wage:r.sal,P=r.period;
   const title=isWage?"I-2. Personalkosten Löhne":"I-1. Personalkosten Gehälter";
   const rows=res.rows,e2=n=>calcEur(n,2);
   const table=calcListHtml(key,[
-    {h:"Qualifikation",f:"name"},{h:"Ø-FTE/Tag netto",f:"fte",num:true},
-    {h:isWage?"Tarifl. Grundlohn Jahr 1 [€/h]":"Jahresgehalt Jahr 1 [€]",f:"rate",num:true},
+    {h:"Qualifikation",f:"name"},{h:"Ø-FTE/Tag netto",f:"fte",num:true,calc:i=>rows[i].linked?fmt(rows[i].fteIn,2):null,tip:"Netto-FTE pro Tag. Grün hinterlegt: aus dem Personalbedarf abgeleitet."},
+    {h:isWage?"Tarifl. Grundlohn Jahr 1 [€/h]":"Jahresgehalt Jahr 1 [€]",f:"rate",num:true,calc:i=>rows[i].gradeRate!==undefined?fmt(rows[i].gradeRate,isWage?2:0):null},
     {h:"FTE-Brutto-Zuschlag [%]",f:"gross",num:true,tip:"Mehrbedarf für Abwesenheiten, damit die Netto-FTE täglich anwesend sind. Vorschlag aus den Basisdaten: "+calcPct(r.days.grossSuggest)+"."},
-    {h:"Brutto-FTE",out:i=>fmt(rows[i].F,2),num:true},{h:"Ø Satz [€/h]",out:i=>e2(rows[i].R),num:true,tip:"Position 100: mit der Personalkostensteigerung über die Kalenderjahre gewichtet"+(isWage?".":", je produktiver Stunde.")},
+    {h:"Tarifgruppe",f:"grade",list:()=>"calc-dl-grades-"+(isWage?"Lohn":"Gehalt"),wide:false,ph:"–"},
+    {h:"Zuschlag Zeile [%]",f:"extra",num:true,tip:"Zusätzlicher SV-pflichtiger Zuschlag nur für diese Qualifikation, etwa Schicht- oder Nachtzuschlag."},
+    {h:"Brutto-FTE",out:i=>fmt(rows[i].F,2),num:true,tip:"Ø über die Laufzeit, einschließlich Hochlauf, Volumenwachstum und FTE je Kalenderjahr."},{h:"Ø Satz [€/h]",out:i=>e2(rows[i].R),num:true,tip:"Position 100: mit der Tariferhöhung über die Kalenderjahre gewichtet"+(isWage?".":", je produktiver Stunde.")},
     {h:"Kalk. Satz [€/h]",out:i=>e2(rows[i].V),num:true,tip:"Position 300: inklusive Zuschlägen und SV-Anteil Arbeitgeber; Grundlage der Kosten."},
     {h:"VK-Satz [€/h]",out:i=>e2(rows[i].AB),num:true,tip:"Position 600: Mitarbeiterverkaufsstundensatz inklusive Umlagen, Gewinn, Risiko und Verhandlung."},
-    {h:"Prod. Std./Jahr",out:i=>fmt(rows[i].AF,1),num:true},{h:"Kosten p.a.",out:i=>calcEur(rows[i].AG),num:true},{h:"Kosten Laufzeit",out:i=>calcEur(rows[i].AH),num:true}
-  ],[null,fmt(res.fte,2),null,null,fmt(res.F,2),null,null,null,fmt(res.AF,1),calcEur(res.AG),calcEur(res.AH)],
+    {h:"Kosten p.a.",out:i=>calcEur(rows[i].AG),num:true},{h:"Kosten Laufzeit",out:i=>calcEur(rows[i].AH),num:true},{h:"Quelle/Annahme",f:"note"}
+  ],[null,fmt(res.rows.reduce((a,x)=>a+x.fteIn,0),2),null,null,null,null,fmt(res.F,2),null,null,null,calcEur(res.AG),calcEur(res.AH),null],
     {extra:'<button type="button" class="btn" id="calc-gross-'+key+'"'+(rows.length&&r.days.grossSuggest>0?'':' disabled')+' title="Setzt den FTE-Brutto-Zuschlag aller Zeilen auf Bruttoarbeitstage ÷ Anwesenheitstage − 1 aus den Basisdaten.">FTE-Brutto-Zuschlag aus Basisdaten ('+co(calcPct(r.days.grossSuggest))+')</button>'});
   const chain='<details class="calc-det"><summary>Stundensätze je Qualifikation (Zuschlagskette)</summary><div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Qualifikation</th>'+
-    CALC_CHAIN.map(([nr,label])=>'<th class="r" title="'+escH(label)+'">'+nr+'<br><small>'+escH(label)+'</small></th>').join("")+'<th class="r">SV wirksam</th></tr></thead><tbody>'+
-    (rows.map(x=>'<tr><td>'+escH(x.name||"–")+'</td>'+CALC_CHAIN.map(([,,k])=>tdo(e2(x[k]))).join("")+tdo(calcPct(x.svEff))+'</tr>').join("")||'<tr><td colspan="'+(CALC_CHAIN.length+2)+'" class="hint">Keine Einträge.</td></tr>')+
+    CALC_CHAIN.map(([nr,label])=>'<th class="r" title="'+escH(label)+'">'+nr+'<br><small>'+escH(label)+'</small></th>').join("")+'<th class="r">SV wirksam</th><th class="r">Prod. Std./Jahr</th></tr></thead><tbody>'+
+    (rows.map(x=>'<tr><td>'+escH(x.name||"–")+'</td>'+CALC_CHAIN.map(([,,k])=>tdo(e2(x[k]))).join("")+tdo(calcPct(x.svEff))+tdo(fmt(x.AF,1))+'</tr>').join("")||'<tr><td colspan="'+(CALC_CHAIN.length+3)+'" class="hint">Keine Einträge.</td></tr>')+
     '</tbody></table></div></details>';
   const years='<details class="calc-det"><summary>'+(isWage?"Lohn":"Gehalt")+'entwicklung je Kalenderjahr</summary><div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Qualifikation</th>'+
     P.years.map(y=>'<th class="r">'+y+'</th>').join("")+'</tr><tr class="hl"><td>Monatsanteil</td>'+P.months.map(m=>tdo(fmt(m,m%1?2:0)+" Mon.")).join("")+'</tr></thead><tbody>'+
     (rows.map(x=>'<tr><td>'+escH(x.name||"–")+'</td>'+x.yearly.map(v=>tdo(isWage?e2(v):calcEur(v))).join("")+'</tr>').join("")||'<tr><td colspan="'+(P.years.length+1)+'" class="hint">Keine Einträge.</td></tr>')+
     '</tbody></table></div><p class="hint">Laufzeit Personal: '+co(fmt(P.monthsPersonnel,P.monthsPersonnel%1?2:0))+' Monate · produktive Stunden je FTE: '+co(fmt(res.hours,2))+' h/Jahr</p></details>';
-  return calcCard(title,isWage?"Eingabe des tariflichen Grundlohns je Stunde im Startjahr. Soziallöhne, Prämien und Zuschläge kommen aus den Basisdaten.":"Eingabe des Jahresgehalts im Startjahr. Der Satz je produktiver Stunde ergibt sich aus den produktiven Jahresstunden Gehalt.",
-    table+chain+years,"calc-card-"+key);
+  const list=calcList(key);
+  const fteYears='<details class="calc-det"><summary>FTE je Kalenderjahr</summary>'+(r.excel?'<p class="hint">Im Excel-kompatiblen Modus gelten die FTE unverändert über die Laufzeit.</p>':
+    '<p class="hint">Leer: Netto-FTE × Hochlauf bzw. Volumenwachstum aus den Basisdaten (grau vorgeschlagen). Eingabe überschreibt den Wert des Jahres.</p><div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Qualifikation</th>'+
+    P.years.map(y=>'<th class="r">'+y+'</th>').join("")+'</tr></thead><tbody>'+
+    (rows.map((x,i)=>'<tr><td>'+escH(x.name||"–")+'</td>'+P.years.map((y,k)=>'<td class="cin">'+calcInput(CALC_LISTS[key].path+"."+i+".fteYears."+y,"num",{min:0,max:100000,label:"FTE "+(x.name||"Zeile "+(i+1))+" "+y,placeholder:fmt(x.fteIn*r.rates.vol[k],2)})+'</td>').join("")+'</tr>').join("")||
+      '<tr><td colspan="'+(P.years.length+1)+'" class="hint">Keine Einträge.</td></tr>')+
+    '<tr class="hl"><td>Summe FTE netto</td>'+P.years.map((y,k)=>tdo(fmt(rows.reduce((a,x)=>a+x.yr[k].fte,0),2))).join("")+'</tr></tbody></table></div>')+'</details>';
+  return calcCard(title,isWage?"Eingabe des tariflichen Grundlohns je Stunde im Startjahr oder Auswahl einer Tarifgruppe. Soziallöhne, Prämien und Zuschläge kommen aus den Basisdaten, der Zuschlag je Zeile kommt hinzu.":"Eingabe des Jahresgehalts im Startjahr oder Auswahl einer Gehaltsgruppe. Der Satz je produktiver Stunde ergibt sich aus den produktiven Jahresstunden Gehalt.",
+    table+chain+years+fteYears,"calc-card-"+key);
 }
 function calcPersonnelHtml(r){
   const fs=r.sal.factors,fw=r.wage.factors;
-  const schema=calcCard("Kalkulationsschema","Faktoren je produktiver Stunde bezogen auf Gehalt bzw. Grundlohn = 1,00. Gehalt ohne Soziallöhne, weil bezahlte Abwesenheit im Jahresgehalt enthalten ist.",
+  const schema=calcCard("Kalkulationsschema","Faktoren je produktiver Stunde bezogen auf Gehalt bzw. Grundlohn = 1,00, ohne Zuschlag je Zeile und ohne Beitragsbemessungsgrenze. Gehalt ohne Soziallöhne, weil bezahlte Abwesenheit im Jahresgehalt enthalten ist.",
     '<div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Nr</th><th>Bezeichnung</th><th class="r">Faktor Gehalt</th><th class="r">Faktor Lohn</th></tr></thead><tbody>'+
     CALC_CHAIN.map(([nr,label,k])=>'<tr'+(["T","V","X","Z","AB","AD"].includes(k)?' class="hl"':'')+'><td>'+nr+'</td><td>'+escH(label)+'</td>'+tdo(fmt(fs[k],4))+tdo(fmt(fw[k],4))+'</tr>').join("")+
     '</tbody></table></div>');
-  return calcWarnHtml(r)+calcPersonHtml(r,false)+calcPersonHtml(r,true)+schema;
+  return calcWarnHtml(r)+calcNeedHtml(r)+calcPersonHtml(r,false)+calcPersonHtml(r,true)+'<div class="calc-grid">'+calcGradesHtml()+schema+'</div>';
 }
 
 /* Register Sachkosten */
-function calcCostCard(key,title,tip,priceLabel,extra){
+function calcCostCard(key,title,tip,priceLabel){
   const res=CALC.cost[key];
   return calcCard(title,tip,calcListHtml(key,[{h:"Name",f:"name"},{h:"Menge",f:"qty",num:true},{h:priceLabel,f:"price",num:true},
-    {h:"Gesamtkosten Jahr",out:i=>calcEur(res.rows[i].pa,2),num:true},{h:"Gesamtkosten Laufzeit",out:i=>calcEur(res.rows[i].lz,2),num:true}],
-    [null,null,null,calcEur(res.pa,2),calcEur(res.lz,2)],{extra}),"calc-card-"+key);
+    {h:"Durchreichposten",f:"pass",tip:"Ohne Umlagen, Gewinn und Risiko; stattdessen nur der Aufschlag für Durchreichposten aus den Basisdaten (nicht im Excel-kompatiblen Modus)."},
+    {h:"Gesamtkosten Jahr",out:i=>calcEur(res.rows[i].pa,2),num:true},{h:"Gesamtkosten Laufzeit",out:i=>calcEur(res.rows[i].lz,2),num:true},{h:"Quelle/Annahme",f:"note"}],
+    [null,null,null,null,calcEur(res.pa,2),calcEur(res.lz,2),null]),"calc-card-"+key);
 }
 function calcCostsHtml(r){
-  const rt=r.rates,par=r.excel?"Excel-kompatibel: Sachkosten ohne Steigerung, Einmalkosten linear verteilt.":
-    "Sachkostensteigerung "+calcPct(rt.costRaise,1)+" p.a. (Ø Faktor "+fmt(rt.esc,4)+") · Einmalkosten "+(rt.annuity?"als Annuität mit "+calcPct(rt.interest,1)+" Zins ("+calcPct(rt.annuity)+" p.a.)":"linear verteilt")+". Einstellbar unter Projekt & Basisdaten › Sachkosten.";
-  return calcWarnHtml(r)+'<p class="hint">'+co(par)+'</p><div class="calc-grid calc-grid-wide">'+
-    calcCostCard("capex","II-1. Investitionen/Einmalkosten","Einzelkosten über die gesamte Laufzeit; für das Jahr linear auf die Laufzeit verteilt.","Kosten/Einheit [€]")+
+  const rt=r.rates,par=r.excel?"Excel-kompatibel: Sachkosten ohne Steigerung, Einmalkosten linear verteilt, keine Durchreichposten.":
+    "Sachkostensteigerung "+calcPct(rt.costRaise,1)+" p.a. (Ø Faktor "+fmt(rt.esc,4)+") · Einmalkosten "+(rt.annuity?"als Annuität mit "+calcPct(rt.interest,1)+" Zins ("+calcPct(rt.annuity)+" p.a.)":"linear verteilt")+
+    " · Aufschlag Durchreichposten "+calcPct(rt.passMarkup,1)+". Einstellbar unter Projekt & Basisdaten › Sachkosten.";
+  return calcWarnHtml(r)+'<p class="hint">'+co(par)+'</p>'+
+    calcCostCard("capex","II-1. Investitionen/Einmalkosten","Einzelkosten über die gesamte Laufzeit; für das Jahr auf die Laufzeit verteilt.","Kosten/Einheit [€]")+
     calcCostCard("opex","II-2. Monatliche Betriebskosten/Verbräuche","Einzelkosten pro Monat, etwa Miete, Leasing, Energie und Verbräuche.","Kosten/Monat [€]")+
     calcCostCard("nu","II-3. Nachunternehmerleistung","Einzelkosten pro Jahr für Fremdleistungen.","Kosten/Jahr [€]")+
-    calcCostCard("rampup","II-4. Ramp-up-Kosten","Einmalige Anlaufkosten über die Laufzeit; für das Jahr linear verteilt.","Kosten/Einheit [€]")+
-    '</div>';
+    calcCostCard("rampup","II-4. Ramp-up-Kosten","Einmalige Anlaufkosten; für das Jahr auf die Laufzeit verteilt.","Kosten/Einheit [€]");
 }
 
 /* Register Summary */
@@ -680,13 +1035,14 @@ function calcSummaryTables(r){
   const head='<table class="calc-tab calc-head"><tbody>'+
     '<tr><th>Projektname</th><td>'+co(meta.name||"–")+'</td><th>Start Leistung</th><td>'+co(fmtDate(req.sop)||"–")+'</td><th>Geschäftsbereich / Service-Line</th><td>'+co([req.businessUnit,req.serviceLine].filter(Boolean).join(" / ")||"–")+'</td></tr>'+
     '<tr><th>Kundenname</th><td>'+co(meta.kunde||"–")+'</td><th>Ende Leistung</th><td>'+co(fmtDate(req.eop)||"–")+'</td><th>Kalkulationsdatum</th><td>'+co(fmtDate(c.calcDate)||"–")+'</td></tr>'+
-    '<tr><th>Projektstandort</th><td>'+co(req.serviceSite||"–")+'</td><th>Laufzeit [Monate]</th><td>'+co(P.ok?fmt(P.monthsTotal,P.monthsTotal%1?2:0):"–")+'</td><th>Rechenmodus</th><td>'+co(r.excel?"Excel-kompatibel":"korrigiert")+'</td></tr>'+
+    '<tr><th>Projektstandort</th><td>'+co(req.serviceSite||"–")+'</td><th>Laufzeit [Monate]</th><td>'+co(P.ok?fmt(P.monthsTotal,P.monthsTotal%1?2:0):"–")+'</td><th>Rechenmodus · Version</th><td>'+co((r.excel?"Excel-kompatibel":"korrigiert")+" · "+(c.doc.version||"–")+" ("+(c.doc.status||"–")+")")+'</td></tr>'+
     '</tbody></table>';
   const rates='<table class="calc-tab calc-head"><tbody><tr><th>HV-Umlage</th>'+tdo(calcPct(rt.hv))+'<th>BU-Umlage</th>'+tdo(calcPct(rt.bu))+'<th>NL-Umlage</th>'+tdo(calcPct(rt.nl))+
     '<th>Gewinn</th>'+tdo(calcPct(rt.gew))+'<th>Risiko</th>'+tdo(calcPct(rt.ris))+'<th>Verhandlung</th>'+tdo(calcPct(rt.verh))+'</tr></tbody></table>';
-  const kpi=(label,val)=>'<div class="calc-kpi"><span>'+escH(label)+'</span>'+co(val,"kv")+'</div>';
-  const kpis='<div class="calc-kpis">'+kpi("TO p.a. mit Verhandlung",calcEur(s.pa.umv))+kpi("TO Laufzeit mit Verhandlung",calcEur(s.lz.umv))+kpi("Umsatz je Netto-FTE p.a.",calcEur(r.perFte))+'</div>';
-  const fte='<table class="calc-tab"><thead><tr><th></th><th class="r">FTE netto</th><th class="r">FTE brutto</th><th class="r">Produktive Jahresstunden</th></tr></thead><tbody>'+
+  const checks=calcChecks(S,r),nWarn=checks.filter(x=>x.sev==="warn").length;
+  const kpis='<div class="calc-kpis">'+calcKpi("TO p.a. mit Verhandlung",calcEur(s.pa.umv))+calcKpi("TO Laufzeit mit Verhandlung",calcEur(s.lz.umv))+calcKpi("Umsatz je Netto-FTE p.a.",calcEur(r.perFte))+
+    calcKpi("EBITA-Marge Angebot",calcPct(r.oto.offer.ebitaPct))+calcKpi("Plausibilität",nWarn?nWarn+(nWarn===1?" Warnung":" Warnungen"):"ohne Warnung",nWarn?"bad":"good")+'</div>';
+  const fte='<table class="calc-tab"><thead><tr><th></th><th class="r">Ø FTE netto</th><th class="r">Ø FTE brutto</th><th class="r">Produktive Jahresstunden</th></tr></thead><tbody>'+
     '<tr><th scope="row">FTE Gehälter</th>'+tdo(fmt(r.sal.fte,2))+tdo(fmt(r.sal.F,2))+tdo(fmt(r.sal.AF))+'</tr>'+
     '<tr><th scope="row">FTE Löhne</th>'+tdo(fmt(r.wage.fte,2))+tdo(fmt(r.wage.F,2))+tdo(fmt(r.wage.AF))+'</tr>'+
     '<tr class="hl"><th scope="row">∑ FTE</th>'+tdo(fmt(r.fteNet,2))+tdo(fmt(r.fteGross,2))+tdo(fmt(r.hoursAll))+'</tr></tbody></table>';
@@ -695,33 +1051,88 @@ function calcSummaryTables(r){
   const main='<table class="calc-tab calc-sum"><thead><tr><th>Summary Kalkulation</th><th class="r">%-Anteile</th><th class="r">Pro Jahr (p.a.)</th><th class="r">Laufzeit</th><th class="r">Je produktive Stunde</th></tr></thead><tbody>'+
     r.groups.map(g=>line(g.label,share(g.lz,s.lz.sk),g.pa,g.lz,ph(g.pa,g.hours))).join("")+
     line("Projektkosten",share(s.lz.K,s.lz.sk),s.pa.K,s.lz.K,ph(s.pa.K,H),"hl")+
+    (s.pa.Kp?line("davon Durchreichposten",share(s.lz.Kp,s.lz.sk),s.pa.Kp,s.lz.Kp,ph(s.pa.Kp,H),"sub"):"")+
     line("Unternehmensumlagen (HV/BU/NL)",share(s.lz.um,s.lz.sk),s.pa.um,s.lz.um,ph(s.pa.um,H),"sub")+
     line("∑ Selbstkosten",share(s.lz.sk,s.lz.sk),s.pa.sk,s.lz.sk,ph(s.pa.sk,H),"hl")+
     line("Gewinn",share(s.lz.ge,s.lz.uov),s.pa.ge,s.lz.ge,ph(s.pa.ge,H),"sub")+
     line("Risiko",share(s.lz.ri,s.lz.uov),s.pa.ri,s.lz.ri,ph(s.pa.ri,H),"sub")+
+    (s.pa.Kp?line("Aufschlag Durchreichposten",share(s.lz.pm,s.lz.uov),s.pa.pm,s.lz.pm,ph(s.pa.pm,H),"sub"):"")+
     line("Umsatz ohne Verhandlung",share(s.lz.uov,s.lz.sk),s.pa.uov,s.lz.uov,ph(s.pa.uov,H),"hl")+
     line("Verhandlung",share(s.lz.ve,s.lz.umv),s.pa.ve,s.lz.ve,ph(s.pa.ve,H),"sub")+
     line("Umsatz mit Verhandlung",share(s.lz.umv,s.lz.sk),s.pa.umv,s.lz.umv,ph(s.pa.umv,H),"top")+
-    '</tbody></table><p class="hint">%-Anteile: Kostenpositionen und Umlagen bezogen auf die Selbstkosten, Gewinn und Risiko auf den Umsatz ohne Verhandlung, Verhandlung auf den Umsatz mit Verhandlung, Umsätze auf die Selbstkosten. Personalkosten je Stunde auf die eigenen produktiven Stunden, übrige Positionen auf alle produktiven Stunden.</p>';
+    '</tbody></table><p class="hint">%-Anteile: Kostenpositionen und Umlagen bezogen auf die Selbstkosten, Gewinn, Risiko und Aufschlag auf den Umsatz ohne Verhandlung, Verhandlung auf den Umsatz mit Verhandlung, Umsätze auf die Selbstkosten. Personalkosten je Stunde auf die eigenen produktiven Stunden, übrige Positionen auf alle produktiven Stunden.</p>';
   const o=r.oto,cur=" "+o.currency,m=v=>fmt(v,0)+cur;
   const otoTab=(title,x,withVerh)=>'<table class="calc-tab calc-oto"><thead><tr><th>'+escH(title)+'</th><th class="r">%-Anteile</th><th class="r">pro Jahr (p.a.)</th></tr></thead><tbody>'+
     '<tr><th scope="row">Umsatz '+(withVerh?"mit":"ohne")+' Verhandlung</th><td></td>'+tdo(m(x.to))+'</tr>'+
     '<tr><th scope="row">EBITA (Gewinn'+(withVerh?" + Verhandlung":"")+')</th>'+tdo(calcPct(x.ebitaPct))+tdo(m(x.ebita))+'</tr>'+
     '<tr><th scope="row">Gross Profit (EBITA + HV + BU)</th>'+tdo(calcPct(x.gpPct))+tdo(m(x.gp))+'</tr></tbody></table>';
   const sc=h=>'<div class="calc-scroll">'+h+'</div>';
-  return {head:sc(head),rates:sc(rates),kpis,fte:sc(fte),main:sc(main),oto:'<div class="calc-grid">'+sc(otoTab("OtO-Wert Angebots-TO",o.offer,true))+sc(otoTab("OtO-Wert Walkaway-Price",o.walk,false))+'</div>'};
+  return {head:sc(head),rates:sc(rates),kpis,fte:sc(fte),main:sc(main),waterfall:calcWaterfallSvg(r),oto:'<div class="calc-grid">'+sc(otoTab("OtO-Wert Angebots-TO",o.offer,true))+sc(otoTab("OtO-Wert Walkaway-Price",o.walk,false))+'</div>'};
 }
 function calcSummaryHtml(r){
   const t=calcSummaryTables(r);
   return calcWarnHtml(r)+calcCard("Summary Kalkulation","Keine Eingaben in diesem Register. Alle Werte aus Projekt & Basisdaten, Personal- und Sachkosten.",
     t.head+t.rates+t.kpis+'<div class="rowbtns"><button type="button" class="btn" id="calc-print-summary">Summary drucken</button></div>')+
-    calcCard("Kosten und Umsatz","",t.main)+calcCard("Personaleinsatz","",t.fte)+calcCard("OtO-Werte","Angebots-TO mit Verhandlung, Walkaway-Price ohne Verhandlung.",t.oto)+
+    calcCard("Kosten und Umsatz","",t.main)+calcCard("Kostenaufbau pro Jahr","Von den Projektkosten bis zum Umsatz mit Verhandlung.",coh(t.waterfall))+
+    '<div class="calc-grid">'+calcCard("Personaleinsatz","Ø über die Laufzeit.",t.fte)+calcCard("OtO-Werte","Angebots-TO mit Verhandlung, Walkaway-Price ohne Verhandlung.",t.oto)+'</div>'+
     '<details class="calc-det card"><summary>Rechenweg</summary><ol class="calc-steps">'+
-    '<li>Personalkosten p.a. = produktive Jahresstunden × Brutto-FTE × kalkulatorischer Satz (Position 300); über die Laufzeit × Laufzeit in Jahren.</li>'+
-    '<li>Sachkosten p.a.: Investitionen und Ramp-up ÷ Laufzeit in Monaten × 12, Betriebskosten × 12, Nachunternehmer je Jahr.</li>'+
-    '<li>Basis = Projektkosten ÷ (1 − Umlagen − Gewinn − Risiko); Umlagen, Gewinn und Risiko = Basis × Satz; Umsatz ohne Verhandlung = Basis.</li>'+
+    '<li>Personalkosten je Kalenderjahr = produktive Jahresstunden × Brutto-FTE des Jahres × kalkulatorischer Satz des Jahres (Position 300) × Monatsanteil; p.a. = Summe ÷ Laufzeit in Jahren.</li>'+
+    '<li>Sachkosten p.a.: Investitionen und Ramp-up auf die Laufzeit verteilt (linear oder als Annuität), Betriebskosten × 12, Nachunternehmer je Jahr, jeweils mit Steigerung.</li>'+
+    '<li>Basis = Projektkosten ohne Durchreichposten ÷ (1 − Umlagen − Gewinn − Risiko); Umlagen, Gewinn und Risiko = Basis × Satz; Durchreichposten mit eigenem Aufschlag.</li>'+
     '<li>Umsatz mit Verhandlung = Umsatz ohne Verhandlung ÷ (1 − Verhandlungsmarge).</li>'+
-    '<li>EBITA = Gewinn (+ Verhandlung beim Angebots-TO); Gross Profit = EBITA + HV- und BU-Umlage.</li></ol></details>';
+    '<li>EBITA = Gewinn + Aufschlag Durchreichposten (+ Verhandlung beim Angebots-TO); Gross Profit = EBITA + HV- und BU-Umlage.</li></ol></details>';
+}
+
+/* Register Auswertung */
+function calcEvalTables(r,sens,checks){
+  const yrs=r.years.filter(x=>x.months>0),tot=k=>yrs.reduce((a,x)=>a+x[k],0),totRev=tot("rev"),totE=tot("ebita");
+  const years=calcStaticTable(["Jahr","Monate","Personalkosten","Sachkosten","Selbstkosten","Risiko","Umsatz (Festpreis)","EBITA","EBITA-Marge","Kostendeckender Preis","Über-/Unterdeckung"],
+    yrs.map(x=>[String(x.year),fmt(x.months,x.months%1?2:0),calcEur(x.pers),calcEur(x.mat),calcEur(x.sk),calcEur(x.ri),calcEur(x.rev),calcEur(x.ebita),calcPct(x.margin,1),calcEur(x.costPrice),calcEur(x.rev-x.costPrice)])
+      .concat([{cls:"hl",cells:["Summe",fmt(tot("months"),0),calcEur(tot("pers")),calcEur(tot("mat")),calcEur(tot("sk")),calcEur(tot("ri")),calcEur(totRev),calcEur(totE),calcPct(totRev?totE/totRev:0,1),calcEur(tot("costPrice")),calcEur(totRev-tot("costPrice"))]}]));
+  const c=r.cash,payback=c.invest<=0?"keine Einmalkosten":c.payback===null?"nicht innerhalb der Laufzeit":fmt(c.payback,1)+" Monate";
+  const cash=calcStaticTable(["Zeitpunkt","Einzahlung","Auszahlung","Cashflow","Kumuliert"],
+    [{cls:"sub",cells:["Start (Investitionen, Ramp-up)",calcEur(0),calcEur(c.invest),calcEur(-c.invest),calcEur(-c.invest)]}].concat(yrs.map(x=>[String(x.year),calcEur(x.rev),calcEur(x.rev-x.cash),calcEur(x.cash),calcEur(x.cum)])));
+  const cashKpi='<div class="calc-kpis">'+calcKpi("Kapitalbindung zum Start",calcEur(c.invest))+calcKpi("Amortisation",payback,c.invest>0&&c.payback===null?"bad":"")+
+    calcKpi("Kapitalwert ("+calcPct(c.discount,1)+")",calcEur(c.npv),c.npv<0?"bad":"")+calcKpi("Interne Verzinsung",c.irr===null?"–":calcPct(c.irr,1))+'</div>';
+  const p=r.price;
+  const price='<div class="calc-kpis">'+calcKpi("Angebotspreis p.a.",calcEur(r.sum.pa.umv))+calcKpi("Preisuntergrenze p.a. (EBITA-Marge "+calcPct(p.minMargin,1)+")",calcEur(p.floor))+
+    calcKpi("Verhandlungsspielraum p.a.",calcEur(p.headroom)+" ("+calcPct(p.headroomPct,1)+")",p.headroom<0?"bad":"good")+calcKpi("Selbstkosten + Risiko p.a.",calcEur(r.sum.pa.sk+r.sum.pa.ri))+'</div>';
+  const sensTab=calcStaticTable(["Treiber","Variation","Δ EBITA p.a. (fester Preis)","Δ kostendeckender Preis p.a."],
+    sens.map(x=>[x.label,x.lowTxt+" / "+x.highTxt,calcShort(x.eLow)+" / "+calcShort(x.eHigh),calcShort(x.pLow)+" / "+calcShort(x.pHigh)]),{numFrom:2});
+  const chk=checks.length?'<ul class="calc-checks">'+checks.map(x=>'<li class="'+x.sev+'">'+co(x.text)+'</li>').join("")+'</ul>':'<p class="hint">'+co("Keine Auffälligkeiten.")+'</p>';
+  return {years,yearChart:calcYearBarsSvg(r),cash,cashKpi,price,sensTab,tornado:calcTornadoSvg(sens),checks:chk};
+}
+function calcVariantsHtml(r){
+  const vars=Array.isArray(S.variants)?S.variants:[];
+  const cur={name:"Aktueller Stand",r};
+  const all=[cur].concat(vars.map(v=>{try{return {name:v.name,date:v.date,r:computeCalc(v.data)};}catch(e){return {name:v.name,date:v.date,r:null};}}));
+  const metric=(label,fn)=>[label].concat(all.map(x=>x.r?fn(x.r):"–"));
+  const rows=[metric("Umsatz p.a. mit Verhandlung",x=>calcEur(x.sum.pa.umv)),metric("Umsatz Laufzeit",x=>calcEur(x.sum.lz.umv)),metric("Projektkosten p.a.",x=>calcEur(x.sum.pa.K)),
+    metric("Personalkosten p.a.",x=>calcEur(x.groups[0].pa+x.groups[1].pa)),metric("Sachkosten p.a.",x=>calcEur(x.sum.pa.K-x.groups[0].pa-x.groups[1].pa)),metric("Ø FTE netto",x=>fmt(x.fteNet,2)),
+    metric("EBITA-Marge Angebot",x=>calcPct(x.oto.offer.ebitaPct)),metric("Gross Margin Angebot",x=>calcPct(x.oto.offer.gpPct)),metric("Preisuntergrenze p.a.",x=>calcEur(x.price.floor)),
+    metric("Kapitalwert",x=>calcEur(x.cash.npv)),metric("Laufzeit [Monate]",x=>fmt(x.period.monthsTotal,0))];
+  const head=["Kennzahl"].concat(all.map(x=>x.name+(x.date?" ("+x.date+")":"")));
+  const btns=vars.length?'<div class="rowbtns">'+vars.map((v,i)=>'<span class="calc-var"><b>'+escH(v.name)+'</b> <button type="button" class="btn btn-quiet ca" data-variant-load="'+i+'" title="Variante laden">Laden</button><button type="button" class="btn btn-quiet ca" data-variant-del="'+i+'" title="Variante löschen" aria-label="Variante '+escH(v.name)+' löschen">✕</button></span>').join("")+'</div>':'';
+  return calcCard("Varianten","Speichert den aktuellen Stand der Kalkulation als Variante (höchstens "+CALC_MAX_VARIANTS+"), etwa 2- gegen 3-Schicht-Betrieb oder Kauf gegen Leasing. Laden ersetzt den aktuellen Stand; Rückgängig bleibt möglich.",
+    '<div class="rowbtns"><input class="ci calc-var-name" type="text" id="calc-variant-name" maxlength="80" placeholder="Name der Variante" aria-label="Name der Variante"><button type="button" class="btn" id="calc-variant-save"'+(vars.length>=CALC_MAX_VARIANTS?' disabled':'')+'>Aktuellen Stand als Variante speichern</button></div>'+
+    btns+calcStaticTable(head,rows),"calc-card-variants");
+}
+function calcEvalHtml(r){
+  const sens=calcSensitivity(S,r),checks=calcChecks(S,r),t=calcEvalTables(r,sens,checks),e="calc.eval.";
+  const ein=(k,label,pctT)=>calcInput(e+k,pctT?"pct":"num",{min:CALC_EVAL_FIELDS[k][0],max:CALC_EVAL_FIELDS[k][1],label});
+  const settings=calcCard("Einstellungen der Auswertung","Preisgleitung: jährliche Anpassung des Festpreises; die Summe über die Laufzeit bleibt gleich (0 % = konstanter Preis). Diskontierungszins für den Kapitalwert. Mindestmarge für die Preisuntergrenze. Variation der Sensitivitätsanalyse. Spanne der VK-Sätze für die Plausibilität.",
+    '<div class="calc-form">'+calcField("Preisgleitung p.a. [%]",ein("priceIndex","Preisgleitung",true))+calcField("Diskontierungszins [%]",ein("discount","Diskontierungszins",true))+
+    calcField("Mindest-EBITA-Marge [%]",ein("minMargin","Mindest-EBITA-Marge",true))+calcField("Variation Sensitivität [%]",ein("sensi","Variation der Sensitivität",true))+
+    calcField("VK-Satz Lohn von [€/h]",ein("vkMin","VK-Satz Lohn Untergrenze"))+calcField("VK-Satz Lohn bis [€/h]",ein("vkMax","VK-Satz Lohn Obergrenze"))+'</div>');
+  return calcWarnHtml(r)+'<div class="calc-grid">'+settings+calcCard("Preisuntergrenze und Verhandlungsspielraum","Preisuntergrenze = (Selbstkosten + Risiko) ÷ (1 − Mindest-EBITA-Marge). Der Spielraum zeigt, wie weit der Preis in der Verhandlung sinken darf.",t.price)+'</div>'+
+    calcCard("Ergebnis je Kalenderjahr bei Festpreis","Umsatz: Angebotspreis p.a. anteilig je Jahr (mit Preisgleitung). Kosten je Jahr mit Tariferhöhung, FTE-Entwicklung und Sachkostensteigerung. Kostendeckender Preis: Umsatz mit Verhandlung, der die Kosten des Jahres mit allen Zuschlägen deckt. Negative Über-/Unterdeckung zeigt das Festpreis-Risiko."+(r.excel?" Im Excel-kompatiblen Modus nach den Monatsanteilen der Excel.":""),
+      t.years+coh(t.yearChart),"calc-card-years")+
+    calcCard("Cashflow und Kapitalbindung","Investitionen und Ramp-up fließen zum Start ab; je Jahr Umsatz abzüglich der zahlungswirksamen Selbstkosten (ohne Abschreibung bzw. Annuität der Einmalkosten, ohne Risiko). Amortisation: Zeitpunkt, an dem der kumulierte Cashflow positiv wird.",
+      t.cashKpi+t.cash,"calc-card-cash")+
+    calcCard("Sensitivitätsanalyse","Ein-Punkt-Variation der Treiber. Δ EBITA: Wirkung auf das EBITA p.a., wenn der Angebotspreis fest bleibt (Kostenrisiko). Δ kostendeckender Preis: Änderung des Angebotspreises, wenn neu kalkuliert wird. Sortiert nach Wirkung.",
+      t.sensTab+coh(t.tornado),"calc-card-sensi")+
+    calcVariantsHtml(r)+
+    calcCard("Plausibilität","Prüfungen auf Mindestlohn, fehlende Angaben, Zuordnungen, Margen und Festpreis-Risiko. Warnungen in Orange, Hinweise in Grau.",coh(t.checks),"calc-card-checks");
 }
 
 /* Register OtO-Werte */
@@ -761,10 +1172,14 @@ function calcOtoText(r){
 }
 
 /* ---- Rendern, Eingaben und Aktionen ---- */
-const CALC_RENDER={projekt:calcProjectHtml,personal:calcPersonnelHtml,sachkosten:calcCostsHtml,summary:calcSummaryHtml,oto:calcOtoHtml};
+const CALC_RENDER={projekt:calcProjectHtml,personal:calcPersonnelHtml,sachkosten:calcCostsHtml,summary:calcSummaryHtml,auswertung:calcEvalHtml,oto:calcOtoHtml};
 function calcDatalists(){
   const box=$("calc-datalists");if(!box)return;
-  box.innerHTML=Object.keys(CALC_CHOICES).map(k=>'<datalist id="calc-dl-'+k+'">'+(((S.calc||{}).lists||{})[k]||[]).map(v=>'<option value="'+escH(v)+'"></option>').join("")+'</datalist>').join("");
+  const c=S.calc||{},opts=arr=>arr.map(v=>'<option value="'+escH(v)+'"></option>').join("");
+  const names=list=>[...new Set((list||[]).map(x=>String(x.name||"").trim()).filter(Boolean))];
+  box.innerHTML=Object.keys(CALC_CHOICES).map(k=>'<datalist id="calc-dl-'+k+'">'+opts((c.lists||{})[k]||[])+'</datalist>').join("")+
+    '<datalist id="calc-dl-quals">'+opts(names((c.salaries||[]).concat(c.wages||[])))+'</datalist>'+
+    ["Lohn","Gehalt"].map(k=>'<datalist id="calc-dl-grades-'+k+'">'+opts(names((c.grades||[]).filter(g=>g.kind===k)))+'</datalist>').join("");
 }
 function renderCalcPanel(n){
   const box=$("calc-panel-"+n);if(!box)return;
@@ -778,7 +1193,7 @@ function renderCalcPanel(n){
   if(keep){
     const el=box.querySelector('[data-cf="'+CSS.escape(keep.cf)+'"]');
     if(el){
-      if(el.type!=="checkbox"&&el.type!=="date")el.value=keep.value;
+      if(el.type!=="checkbox"&&el.type!=="date"&&el.tagName!=="SELECT")el.value=keep.value;
       el.focus();
       try{if(keep.s!=null)el.setSelectionRange(keep.s,keep.e);}catch(e){}
       UNDO_FOCUS_SNAP=snap;UNDO_FOCUS_LABEL=label;UNDO_FOCUS_EL=el;
@@ -792,22 +1207,27 @@ function refreshCalcOutputs(){
     const box=$("calc-panel-"+n);
     if(!box||!$("panel-"+n).classList.contains("on")){STALE_PANELS.add(n);continue;}
     const tpl=document.createElement("div");tpl.innerHTML=CALC_RENDER[n](CALC);
-    const sig=el=>[...el.querySelectorAll("[data-cf],.co")].map(x=>x.dataset.cf||"o").join("|");
+    const sig=el=>[...el.querySelectorAll("[data-cf],.co,.coh")].map(x=>x.dataset.cf||(x.classList.contains("coh")?"h":"o")).join("|");
     if(sig(tpl)!==sig(box)){renderCalcPanel(n);continue;}
     const fresh=tpl.querySelectorAll(".co"),old=box.querySelectorAll(".co");
     old.forEach((el,i)=>{if(el.textContent!==fresh[i].textContent)el.textContent=fresh[i].textContent;});
+    const freshH=tpl.querySelectorAll(".coh"),oldH=box.querySelectorAll(".coh");
+    oldH.forEach((el,i)=>{if(el.innerHTML!==freshH[i].innerHTML)el.innerHTML=freshH[i].innerHTML;});
   }
+  calcDatalists();
 }
 let CALC_PERSIST_TIMER=null;
 function calcPersistSoon(){clearTimeout(CALC_PERSIST_TIMER);CALC_PERSIST_TIMER=setTimeout(()=>{CALC_PERSIST_TIMER=null;persistState();},150);}
 function calcSharedChanged(path){
   if(path==="meta.name"||path==="meta.kunde")updateHeader();
 }
+function calcRerenderAll(){for(const n of CALC_TABS)STALE_PANELS.add(n);renderVisiblePanels();}
 // Feldwert lesen und speichern; liefert false bei ungültiger Zahl
 function calcStoreField(el){
   const path=el.dataset.cf,type=el.dataset.ct;
   let v;
   if(type==="check")v=el.checked;
+  else if(type==="sel")v=el.value;
   else if(type==="text"||type==="date"){
     v=String(el.value).slice(0,el.maxLength>0?el.maxLength:200);
     if(type==="date"&&v&&!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;
@@ -815,12 +1235,19 @@ function calcStoreField(el){
     const n=calcParse(el.value);
     if(Number.isNaN(n)){el.classList.add("bad");return false;}
     el.classList.remove("bad");
+    // Jahreswerte (FTE je Jahr, Tariferhöhung je Jahr): leer = Vorgabe, Eintrag entfällt
+    const ym=/^(.*)\.(\d{4})$/.exec(path);
+    if(ym&&/\.(fteYears|raises)$/.test(ym[1])){
+      const obj=getP(S,ym[1]);
+      if(n===null){if(obj)delete obj[ym[2]];delete el.dataset.clamped;return true;}
+    }
     const min=el.dataset.min!==undefined?Number(el.dataset.min):-Infinity,max=el.dataset.max!==undefined?Number(el.dataset.max):Infinity;
     v=n===null?(path==="calc.oto.rate"?1:0):Math.min(max,Math.max(min,n));
     if(n!==null&&v!==n)el.dataset.clamped=fmt(v,v%1?2:0);else delete el.dataset.clamped;
+    if(ym&&/\.(fteYears|raises)$/.test(ym[1])&&!isPlainObject(getP(S,ym[1])))setP(S,ym[1],{});
   }
   if(path.startsWith("request.")){
-    S.request=S.request||{texts:{},skip:[]};
+    S.request=S.request||{};
     const k=path.slice(8),t=String(v).trim();
     if(t)S.request[k]=t;else delete S.request[k];
   }else if(path.startsWith("meta.")){S.meta[path.slice(5)]=v;}
@@ -830,7 +1257,7 @@ function calcStoreField(el){
 }
 function calcFieldInput(ev){
   const el=ev.target;
-  if(!el.dataset||!el.dataset.cf||el.type==="date"||el.type==="checkbox")return;
+  if(!el.dataset||!el.dataset.cf||el.type==="date"||el.type==="checkbox"||el.tagName==="SELECT")return;
   if(calcStoreField(el)){refreshCalcOutputs();calcPersistSoon();}
 }
 function calcFieldChange(ev){
@@ -850,7 +1277,7 @@ function calcFieldChange(ev){
     const last=new Date(Date.UTC(y,m+1,0)).getUTCDate(),end=new Date(d>last?Date.UTC(y,m,last):Date.UTC(y,m,d)-CALC_DAY_MS);
     S.request.eop=end.toISOString().slice(0,10);
     calcSharedChanged("request.eop");persistState();
-    setTimeout(()=>{for(const k of CALC_TABS)STALE_PANELS.add(k);renderVisiblePanels();},0);
+    setTimeout(calcRerenderAll,0);
     return;
   }
   if(!el.dataset||!el.dataset.cf)return;
@@ -862,7 +1289,7 @@ function calcFieldChange(ev){
   }
   persistState();
   // Neuaufbau nach dem Rückgängig-Schritt der Feldänderung (document-Listener läuft danach)
-  if(type==="date"||type==="check"||el.dataset.cf==="calc.oto.link")setTimeout(()=>{for(const n of CALC_TABS)STALE_PANELS.add(n);renderVisiblePanels();},0);
+  if(type==="date"||type==="check"||type==="sel"||el.dataset.cf==="calc.oto.link"||/\.(name|qual|grade)$/.test(el.dataset.cf))setTimeout(calcRerenderAll,0);
   else refreshCalcOutputs();
 }
 /* Zellbereich aus Excel einfügen: Tabulator trennt Spalten, Zeilenumbruch Zeilen; fehlende Zeilen werden angelegt */
@@ -874,6 +1301,7 @@ function calcPaste(ev){
   if(lines.length<2&&!/\t/.test(text))return;
   ev.preventDefault();
   const key=el.dataset.cl,def=CALC_LISTS[key],i0=+el.dataset.ci,c0=+el.dataset.cc;
+  const fields=def.fields.filter(f=>f[1]!=="years"),start=fields.findIndex(f=>f===def.fields[c0]);
   const list=calcList(key),rowsNeeded=Math.min(CALC_MAX_ROWS,i0+lines.length);
   pushUndo("Einfügen in "+def.label);
   while(list.length<rowsNeeded)list.push(calcNewRow(key));
@@ -881,15 +1309,18 @@ function calcPaste(ev){
   lines.forEach((line,r)=>{
     const row=list[i0+r];if(!row)return;
     line.split("\t").forEach((cell,k)=>{
-      const fd=def.fields[c0+k];if(!fd)return;
-      if(fd[1]==="text"){row[fd[0]]=cell.trim().slice(0,200);return;}
-      const n=calcParse(cell);
+      const fd=fields[start+k];if(!fd)return;
+      const t=fd[1],raw=cell.trim();
+      if(t==="text"){row[fd[0]]=raw.slice(0,200);return;}
+      if(t==="date"){const m=/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(raw);row[fd[0]]=m?m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"):(/^\d{4}-\d{2}-\d{2}$/.test(raw)?raw:"");return;}
+      if(t==="check"){row[fd[0]]=/^(x|ja|j|1|wahr|true|yes)$/i.test(raw);return;}
+      if(t==="sel"){const hit=fd[2].find(o=>o.toLowerCase()===raw.toLowerCase());if(hit)row[fd[0]]=hit;else if(raw)bad++;return;}
+      const n=calcParse(raw);
       if(n===null)row[fd[0]]=0;else if(Number.isNaN(n))bad++;else row[fd[0]]=Math.min(fd[3],Math.max(fd[2],n));
     });
   });
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-  showNotice(lines.length+(lines.length===1?" Zeile":" Zeilen")+" in "+def.label+" eingefügt"+(bad?"; "+bad+" Werte waren keine Zahl und wurden übersprungen.":"."),5000);
+  calcRerenderAll();persistState();
+  showNotice(lines.length+(lines.length===1?" Zeile":" Zeilen")+" in "+def.label+" eingefügt"+(bad?"; "+bad+" Werte passten nicht zur Spalte und wurden übersprungen.":"."),5000);
 }
 function calcRowAction(btn){
   const act=btn.dataset.calcAct,key=btn.dataset.cl,def=CALC_LISTS[key],list=calcList(key),i=+btn.dataset.ci;
@@ -899,14 +1330,13 @@ function calcRowAction(btn){
   }else if(act==="del"){pushUndo("Zeile gelöscht ("+def.label+")");list.splice(i,1);}
   else if(act==="dup"){
     if(list.length>=CALC_MAX_ROWS){alert("Höchstens "+CALC_MAX_ROWS+" Zeilen je Liste.");return;}
-    pushUndo("Zeile dupliziert ("+def.label+")");list.splice(i+1,0,Object.assign({},list[i]));
+    pushUndo("Zeile dupliziert ("+def.label+")");list.splice(i+1,0,JSON.parse(JSON.stringify(list[i])));
   }else if(act==="up"||act==="down"){
     const j=act==="up"?i-1:i+1;if(j<0||j>=list.length)return;
     pushUndo("Zeile verschoben ("+def.label+")");[list[i],list[j]]=[list[j],list[i]];
   }
   setP(S,def.path,list);
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
+  calcRerenderAll();persistState();
   // Neue Zeile: Fokus ins erste Feld
   if(act==="add"||act==="dup"){
     const row=act==="add"?list.length-1:i+1;
@@ -918,13 +1348,12 @@ function calcApplyGrossSuggestion(key){
   if(!list.length||!(v>0))return;
   pushUndo("FTE-Brutto-Zuschlag aus Basisdaten ("+CALC_LISTS[key].label+")");
   for(const row of list)row.gross=v;
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
+  calcRerenderAll();persistState();
 }
 /* Tastatur in Listentabellen wie in Excel: Enter und Pfeil ab in die nächste Zeile (Enter in der letzten legt eine an), Pfeil auf zurück */
 function calcKeydown(ev){
   const el=ev.target;
-  if(!el.dataset||el.dataset.cl===undefined||!el.dataset.cf||ev.altKey||ev.ctrlKey||ev.metaKey)return;
+  if(!el.dataset||el.dataset.cl===undefined||!el.dataset.cf||ev.altKey||ev.ctrlKey||ev.metaKey||el.tagName==="SELECT")return;
   const down=ev.key==="Enter"&&!ev.shiftKey||ev.key==="ArrowDown",up=ev.key==="ArrowUp"||ev.key==="Enter"&&ev.shiftKey;
   if(!down&&!up)return;
   const key=el.dataset.cl,i=+el.dataset.ci,cc=el.dataset.cc,n=calcList(key).length;
@@ -938,40 +1367,111 @@ function calcKeydown(ev){
   el.blur(); // übernimmt den Wert (change) vor dem Neuaufbau
   pushUndo("Zeile angelegt ("+CALC_LISTS[key].label+")");
   calcList(key).push(calcNewRow(key));
-  for(const k of CALC_TABS)STALE_PANELS.add(k);
-  renderVisiblePanels();persistState();focusRow(target);
+  calcRerenderAll();persistState();focusRow(target);
 }
 function calcLoadExample(){
-  const c=S.calc||{},used=["salaries","wages","capex","opex","nu","rampup"].some(k=>(c[k]||[]).length);
+  const c=S.calc||{},used=["salaries","wages","capex","opex","nu","rampup","need"].some(k=>(c[k]||[]).length);
   if(used&&!confirm("Bestehende Kalkulation durch das Beispiel der Excel-Vorlage ersetzen?"))return;
   pushUndo("Beispielkalkulation geladen");
   const keep=S.calc&&S.calc.lists;
-  S.calc=calcExample();if(keep)S.calc.lists=keep;
-  S.request=S.request||{texts:{},skip:[]};
+  S.calc=calcExample();if(keep)S.calc.lists=Object.assign(S.calc.lists,keep);
+  S.request=S.request||{};
   for(const [k,v] of Object.entries(CALC_EXAMPLE_REQUEST))if(k==="sop"||k==="eop"||!S.request[k])S.request[k]=v;
   if(!S.meta.kunde)S.meta.kunde="Mercedes-Benz";
   if(!S.meta.name)S.meta.name="ZV-Packmittel";
-  updateHeader();
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
+  updateHeader();calcRerenderAll();persistState();
 }
 function calcResetAll(){
-  if(!confirm("Kalkulation zurücksetzen? Alle Personal- und Sachkosten, Basisdaten und OtO-Angaben der Kalkulation gehen verloren. Projektdaten bleiben erhalten."))return;
+  if(!confirm("Kalkulation zurücksetzen? Alle Personal- und Sachkosten, Basisdaten und OtO-Angaben der Kalkulation gehen verloren. Projektdaten und Varianten bleiben erhalten."))return;
   pushUndo("Kalkulation zurückgesetzt");
-  S.calc=calcDefaults();
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
+  S.calc=calcNewCalc();
+  calcRerenderAll();persistState();
 }
-function calcCopyOto(){
-  const text=calcOtoText(computeCalc(S));
+function calcCopyText(text,okMsg){
   const fallback=()=>{
     const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";
     document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy");}catch(e){}ta.remove();
-    showNotice(ok?"OtO-Werte in die Zwischenablage kopiert (Bezeichnung und Wert, durch Tabulator getrennt).":"Kopieren nicht möglich. Bitte die Werte im Druckfenster markieren und kopieren.",5000);
+    showNotice(ok?okMsg:"Kopieren nicht möglich. Bitte die Werte im Druckfenster markieren und kopieren.",5000);
   };
-  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>showNotice("OtO-Werte in die Zwischenablage kopiert (Bezeichnung und Wert, durch Tabulator getrennt).",5000),fallback);
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>showNotice(okMsg,5000),fallback);
   else fallback();
 }
+function calcCopyOto(){calcCopyText(calcOtoText(computeCalc(S)),"OtO-Werte in die Zwischenablage kopiert (Bezeichnung und Wert, durch Tabulator getrennt).");}
+
+/* ---- Vorlagen: Basisdaten, Tarifgruppen, Auswahllisten, Auswertung ---- */
+const CALC_TPL_KEY="kalkulationstool-vorlage";
+function calcTemplateFrom(c){return {tool:"Kalkulationstool-Vorlage",toolVersion:APP_VERSION,base:c.base,grades:c.grades,lists:c.lists,eval:c.eval};}
+function calcValidateTemplate(t){
+  if(!isPlainObject(t)||t.tool!=="Kalkulationstool-Vorlage")throw new Error("Die Datei ist keine Vorlage des Kalkulationstools.");
+  assertSafeImportTree(t,0);
+  for(const k of Object.keys(t))if(!["tool","toolVersion","base","grades","lists","eval"].includes(k))throw new Error("Unbekanntes Feld "+k+" in der Vorlage.");
+  validateCalc({base:t.base,grades:t.grades,lists:t.lists,eval:t.eval},"Vorlage");
+  return t;
+}
+function calcApplyTemplate(c,t){
+  const next=deepMerge(calcDefaults(),{base:t.base||{},lists:t.lists||{},eval:t.eval||{}});
+  c.base=next.base;c.lists=next.lists;c.eval=next.eval;
+  if(Array.isArray(t.grades))c.grades=JSON.parse(JSON.stringify(t.grades));
+  const tmp={calc:c};normalizeCalc(tmp);return tmp.calc;
+}
+function calcDefaultTemplate(){
+  try{const raw=localStorage.getItem(CALC_TPL_KEY);return raw?calcValidateTemplate(JSON.parse(raw)):null;}catch(e){return null;}
+}
+// Neue Kalkulation: Standardvorlage, falls hinterlegt
+function calcNewCalc(){
+  const c=calcDefaults(),t=calcDefaultTemplate();
+  return t?calcApplyTemplate(c,t):c;
+}
+function calcTemplateSave(){
+  const t=calcTemplateFrom(S.calc);
+  downloadBlob(new Blob([JSON.stringify(t,null,2)],{type:"application/json"}),"Kalkulationsvorlage.json");
+  showNotice("Vorlage gespeichert (Basisdaten, Tarifgruppen, Auswahllisten, Auswertung).",5000);
+}
+function calcTemplateLoadText(txt){
+  try{
+    let t;try{t=JSON.parse(txt);}catch(e){throw new Error("Die Datei ist kein gültiges JSON.");}
+    calcValidateTemplate(t);
+    pushUndo("Vorlage geladen");
+    S.calc=calcApplyTemplate(S.calc,t);
+    calcRerenderAll();persistState();
+    showNotice("Vorlage übernommen. Projektdaten, Personal- und Sachkosten bleiben unverändert.",5000);
+    return true;
+  }catch(e){alert("Vorlage wurde nicht übernommen: "+e.message);return false;}
+}
+function calcTemplateDefault(clear){
+  try{
+    if(clear)localStorage.removeItem(CALC_TPL_KEY);
+    else localStorage.setItem(CALC_TPL_KEY,JSON.stringify(calcTemplateFrom(S.calc)));
+    showNotice(clear?"Standardvorlage entfernt.":"Basisdaten, Tarifgruppen, Auswahllisten und Auswertung gelten ab jetzt als Standard für neue Kalkulationen in diesem Browser.",5000);
+  }catch(e){alert("Die Vorlage konnte im Browser nicht gespeichert werden.");}
+  calcRerenderAll();
+}
+
+/* ---- Varianten ---- */
+function calcVariantSave(){
+  const vars=S.variants=Array.isArray(S.variants)?S.variants:[];
+  if(vars.length>=CALC_MAX_VARIANTS){alert("Höchstens "+CALC_MAX_VARIANTS+" Varianten.");return;}
+  const inp=$("calc-variant-name"),name=String(inp&&inp.value||"").trim().slice(0,80)||"Variante "+(vars.length+1);
+  pushUndo("Variante gespeichert");
+  vars.push({name,date:new Date().toLocaleDateString("de-DE"),data:JSON.parse(JSON.stringify({meta:S.meta,request:S.request,calc:S.calc}))});
+  calcRerenderAll();persistState();
+}
+function calcVariantLoad(i){
+  const v=(S.variants||[])[i];if(!v)return;
+  if(!confirm("Variante „"+v.name+"“ laden? Der aktuelle Stand wird ersetzt (Rückgängig bleibt möglich)."))return;
+  pushUndo("Variante geladen");
+  const d=JSON.parse(JSON.stringify(v.data));
+  S.meta=Object.assign({name:"",kunde:""},d.meta||{});S.request=d.request||{};S.calc=d.calc;normalizeCalc(S);
+  updateHeader();calcRerenderAll();persistState();
+}
+function calcVariantDelete(i){
+  const v=(S.variants||[])[i];if(!v)return;
+  pushUndo("Variante gelöscht");
+  S.variants.splice(i,1);
+  calcRerenderAll();persistState();
+}
+
+/* ---- Drucken und Gesamtbericht ---- */
 function calcPrint(which){
   const r=computeCalc(S),name=S.meta.name||"Projekt";
   if(which==="oto"){
@@ -980,8 +1480,145 @@ function calcPrint(which){
     return;
   }
   const t=calcSummaryTables(r);
-  openPrintWindow("Summary Kalkulation – "+name,t.head+t.rates+'<h2>Kosten und Umsatz</h2>'+t.main+'<h2>Personaleinsatz</h2>'+t.fte+'<h2>OtO-Werte</h2>'+t.oto+(r.warn.length?'<p><b>Hinweise:</b> '+escH(r.warn.join(" "))+'</p>':''));
+  openPrintWindow("Summary Kalkulation – "+name,t.head+t.rates+t.kpis+'<h2>Kosten und Umsatz</h2>'+t.main+t.waterfall+'<h2>Personaleinsatz</h2>'+t.fte+'<h2>OtO-Werte</h2>'+t.oto+(r.warn.length?'<p><b>Hinweise:</b> '+escH(r.warn.join(" "))+'</p>':''));
 }
+function calcReport(){
+  const r=computeCalc(S),c=S.calc,name=S.meta.name||"Projekt",t=calcSummaryTables(r),sens=calcSensitivity(S,r),checks=calcChecks(S,r),ev=calcEvalTables(r,sens,checks);
+  const person=(res,label)=>'<h3>'+label+'</h3>'+calcStaticTable(["Qualifikation","FTE netto (Ø)","Brutto-FTE (Ø)","Ø Satz [€/h]","Kalk. Satz [€/h]","VK-Satz [€/h]","Kosten p.a.","Kosten Laufzeit","Quelle/Annahme"],
+    res.rows.map((x,i)=>[x.name||"–",fmt(x.fte,2),fmt(x.F,2),calcEur(x.R,2),calcEur(x.V,2),calcEur(x.AB,2),calcEur(x.AG),calcEur(x.AH),(c[res===r.wage?"wages":"salaries"][i]||{}).note||""]));
+  const costs=CALC_COST_KEYS.map(k=>'<h3>'+escH(r.groups.find(g=>g.key===k).label)+'</h3>'+calcStaticTable(["Name","Menge","Preis","Durchreichposten","Jahr","Laufzeit","Quelle/Annahme"],
+    r.cost[k].rows.map((x,i)=>{const row=c[k][i]||{};return [row.name||"–",fmt(x.q,2),calcEur(x.p,2),x.pass?"ja":"",calcEur(x.pa),calcEur(x.lz),row.note||""];}))).join("");
+  const doc=c.doc;
+  const docTab=calcStaticTable(["Angabe","Wert"],[["Version",doc.version||"–"],["Freigabestatus",doc.status||"–"],["Geprüft/freigegeben von",doc.reviewer||"–"],["Datum der Freigabe",fmtDate(doc.reviewDate)||"–"],["Bemerkung",doc.note||"–"]],{numFrom:9})+
+    (c.history.length?calcStaticTable(["Version","Datum","Bearbeiter","Änderung"],c.history.map(h=>[h.version||"–",fmtDate(h.date)||"–",h.author||"",h.note||""]),{numFrom:9}):"");
+  const oto=calcOtoRows(r),otoTab=(list)=>'<table>'+list.map(([l,v])=>'<tr><th>'+escH(l)+'</th><td>'+escH(v)+'</td></tr>').join("")+'</table>';
+  openPrintWindow("Kalkulation – "+name,
+    t.head+t.rates+t.kpis+
+    '<h2>Summary</h2>'+t.main+t.waterfall+t.fte+
+    '<h2>Personalkosten</h2>'+person(r.sal,"I-1. Gehälter")+person(r.wage,"I-2. Löhne")+
+    (r.need.length?'<h3>Personalbedarf</h3>'+calcStaticTable(["Prozess","Qualifikation","FTE/Tag netto"],r.need.map(x=>[x.name||"–",x.qual||"–",fmt(x.fte,2)]),{numFrom:2}):'')+
+    '<h2>Sachkosten</h2>'+costs+
+    '<h2>Ergebnis je Kalenderjahr bei Festpreis</h2>'+ev.years+ev.yearChart+
+    '<h2>Cashflow und Kapitalbindung</h2>'+ev.cashKpi+ev.cash+
+    '<h2>Preisuntergrenze und Verhandlungsspielraum</h2>'+ev.price+
+    '<h2>Sensitivitätsanalyse</h2>'+ev.sensTab+ev.tornado+
+    '<h2>Plausibilität</h2>'+ev.checks+
+    '<h2>OtO-Werte</h2>'+otoTab(oto.info)+otoTab(oto.values)+otoTab(oto.walk)+
+    '<h2>Dokumentation und Freigabe</h2>'+docTab);
+}
+
+/* ---- Excel-Export (.xlsx, ohne Bibliothek: Office Open XML in einem ZIP ohne Kompression) ---- */
+const CALC_CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function calcCrc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CALC_CRC[(c^b[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function calcZip(files){
+  const enc=new TextEncoder(),parts=[],central=[];let offset=0;
+  for(const f of files){
+    const name=enc.encode(f.name),d=typeof f.data==="string"?enc.encode(f.data):f.data,crc=calcCrc32(d);
+    const h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(12,0x21,true);
+    h.setUint32(14,crc,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,name.length,true);
+    parts.push(new Uint8Array(h.buffer),name,d);
+    const cd=new DataView(new ArrayBuffer(46));
+    cd.setUint32(0,0x02014b50,true);cd.setUint16(4,20,true);cd.setUint16(6,20,true);cd.setUint16(8,0x0800,true);cd.setUint16(14,0x21,true);
+    cd.setUint32(16,crc,true);cd.setUint32(20,d.length,true);cd.setUint32(24,d.length,true);cd.setUint16(28,name.length,true);cd.setUint32(42,offset,true);
+    central.push(new Uint8Array(cd.buffer),name);
+    offset+=30+name.length+d.length;
+  }
+  const size=central.reduce((a,x)=>a+x.length,0),e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,size,true);e.setUint32(16,offset,true);
+  return new Blob([...parts,...central,new Uint8Array(e.buffer)],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+/* Zellen: Text, Zahl oder {v, f:"eur"|"eur2"|"pct"|"num2"|"int", b:true}; Formate über styles.xml */
+const CALC_XLSX_STYLE={text:0,b:1,eur:2,eur2:3,pct:4,num2:5,int:6,beur:7};
+function calcXlsx(sheets){
+  const x=s=>String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch])).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"");
+  const col=i=>{let s="";i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;};
+  const sheetXml=sh=>{
+    const widths=[];
+    const rows=sh.rows.map((row,ri)=>'<row r="'+(ri+1)+'">'+row.map((cell,ci)=>{
+      if(cell==null||cell==="")return "";
+      const o=typeof cell==="object"?cell:{v:cell},ref=col(ci)+(ri+1);
+      const len=String(typeof o.v==="number"?fmt(o.v,2):o.v).length;widths[ci]=Math.max(widths[ci]||8,Math.min(60,len+2));
+      const st=o.b&&o.f==="eur"?CALC_XLSX_STYLE.beur:o.f?CALC_XLSX_STYLE[o.f]:(o.b?CALC_XLSX_STYLE.b:0);
+      if(typeof o.v==="number"&&Number.isFinite(o.v))return '<c r="'+ref+'"'+(st?' s="'+st+'"':'')+'><v>'+o.v+'</v></c>';
+      return '<c r="'+ref+'" t="inlineStr"'+(st?' s="'+st+'"':'')+'><is><t xml:space="preserve">'+x(o.v)+'</t></is></c>';
+    }).join("")+'</row>').join("");
+    const cols=widths.length?'<cols>'+widths.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+(w||10)+'" customWidth="1"/>').join("")+'</cols>':'';
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+cols+'<sheetData>'+rows+'</sheetData></worksheet>';
+  };
+  const ns='xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+  const files=[
+    {name:"[Content_Types].xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+      sheets.map((s,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("")+'</Types>'},
+    {name:"_rels/.rels",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+    {name:"xl/workbook.xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook '+ns+'><sheets>'+sheets.map((s,i)=>'<sheet name="'+x(s.name.replace(/[\[\]:*?\/\\]/g," ").slice(0,31))+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join("")+'</sheets></workbook>'},
+    {name:"xl/_rels/workbook.xml.rels",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      sheets.map((s,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join("")+
+      '<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+    {name:"xl/styles.xml",data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+      '<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0 &quot;€&quot;"/><numFmt numFmtId="165" formatCode="#,##0.00 &quot;€&quot;"/><numFmt numFmtId="166" formatCode="0.00%"/><numFmt numFmtId="167" formatCode="#,##0.00"/></numFmts>'+
+      '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'+
+      '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders>'+
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="8">'+
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'+
+      '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'+
+      '<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'+
+      '<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'+
+      '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'},
+    ...sheets.map((s,i)=>({name:"xl/worksheets/sheet"+(i+1)+".xml",data:sheetXml(s)}))
+  ];
+  return calcZip(files);
+}
+function calcExportSheets(){
+  const r=computeCalc(S),c=S.calc,req=S.request||{},meta=S.meta||{},sens=calcSensitivity(S,r),checks=calcChecks(S,r);
+  const H=arr=>arr.map(v=>({v,b:true})),eur=v=>({v,f:"eur"}),eur2=v=>({v,f:"eur2"}),pct=v=>({v,f:"pct"}),n2=v=>({v,f:"num2"});
+  const projekt={name:"Projekt",rows:[H(["Angabe","Wert"]),["Projektname",meta.name||""],["Kundenname",meta.kunde||""],["Projektstandort",req.serviceSite||""],["Kundenkontakt",req.contact||""],
+    ["Geschäftsbereich",req.businessUnit||""],["Service-Line",req.serviceLine||""],["Start Leistung",fmtDate(req.sop)],["Ende Leistung",fmtDate(req.eop)],["Laufzeit [Monate]",n2(r.period.monthsTotal)],
+    ["Datum Kalkulation",fmtDate(c.calcDate)],["Bearbeiter",req.calculator||""],["Rechenmodus",r.excel?"Excel-kompatibel":"korrigiert"],["Version",c.doc.version||""],["Freigabestatus",c.doc.status||""],
+    ["Geprüft/freigegeben von",c.doc.reviewer||""],["Datum der Freigabe",fmtDate(c.doc.reviewDate)],["Bemerkung",c.doc.note||""],[],H(["Versionshistorie","Datum","Bearbeiter","Änderung"])]
+    .concat(c.history.map(h=>[h.version,fmtDate(h.date),h.author,h.note]))};
+  const b=c.base,rt=r.rates;
+  const basis={name:"Basisdaten",rows:[H(["Parameter","Wert"]),["Gewinn",pct(rt.gew)],["Risiko",pct(rt.ris)],["Konzern (HV)",pct(rt.hv)],["Umlage BU",pct(rt.bu)],["Umlage NL",pct(rt.nl)],["Verhandlungsmarge",pct(rt.verh)],
+    ["Personalkostensteigerung p.a.",pct(rt.raise)],["Stichtagsmonat Tariferhöhung",b.raiseMonth],["Hochlauf erstes Jahr",pct(b.firstYearPct/100)],["Volumenwachstum p.a.",pct(b.volumeGrowth/100)],
+    ["Tage pro Jahr",r.period.daysYear],["Samstage/Sonntage",b.weekendDays],["Feiertage",b.holidays],["Urlaubstage",b.vacation],["Krankheitstage",b.sick],["Sonstige Abwesenheit",b.otherOff],
+    ["Anwesenheitstage",n2(r.days.presence)],["Produktive Stunden Lohn",n2(r.days.hWage)],["Produktive Stunden Gehalt",n2(r.days.hSal)],["Soziallohn",pct(r.days.soz)],["SV-Anteil Arbeitgeber (Summe)",pct(r.days.sv)],
+    ["Sachkostensteigerung p.a.",pct(rt.costRaise)],["Kalkulationszins Einmalkosten",pct(rt.interest)],["Aufschlag Durchreichposten",pct(rt.passMarkup)],[],H(["SV-Satz","Satz","BBG [€/Jahr]"])]
+    .concat(b.sv.map(x=>[x.name,pct(x.pct/100),eur(x.bbg)])).concat([[],H(["Tariferhöhung je Jahr","Satz"])]).concat(Object.entries(b.raises||{}).map(([y,v])=>[y,pct(v/100)]))};
+  const persRows=[H(["Art","Qualifikation","Tarifgruppe","FTE netto (Eingabe)","FTE netto (Ø)","Brutto-FTE (Ø)","Satz Jahr 1","Ø Satz [€/h]","SV wirksam","Kalk. Satz [€/h]","VK-Satz [€/h]","VK-Satz Sondertätigkeit [€/h]","Kosten p.a.","Kosten Laufzeit","Quelle/Annahme"])];
+  for(const [key,res,label] of [["salaries",r.sal,"Gehalt"],["wages",r.wage,"Lohn"]])res.rows.forEach((x,i)=>{const row=c[key][i]||{};
+    persRows.push([label,x.name,row.grade||"",n2(x.fteIn),n2(x.fte),n2(x.F),label==="Lohn"?eur2(x.rate):eur(x.rate),eur2(x.R),pct(x.svEff),eur2(x.V),eur2(x.AB),eur2(x.AD),eur(x.AG),eur(x.AH),row.note||""]);});
+  persRows.push([{v:"Summe",b:true},"","","",n2(r.fteNet),n2(r.fteGross),"","","","","","",{v:r.sal.AG+r.wage.AG,f:"eur",b:true},{v:r.sal.AH+r.wage.AH,f:"eur",b:true}]);
+  const bedarf={name:"Personalbedarf",rows:[H(["Prozess","Qualifikation","Art","Menge/Tag bzw. Schichten","Leistung/h bzw. Besetzung","Verteilzeit/Zuschlag","FTE/Tag netto","Quelle/Annahme"])]
+    .concat(c.need.map((row,i)=>[row.name,row.qual,row.mode,n2(row.a),n2(row.b),pct(row.allow/100),n2(r.need[i].fte),row.note]))};
+  const sach={name:"Sachkosten",rows:[H(["Gruppe","Name","Menge","Preis","Durchreichposten","Kosten p.a.","Kosten Laufzeit","Quelle/Annahme"])]};
+  for(const k of CALC_COST_KEYS)r.cost[k].rows.forEach((x,i)=>{const row=c[k][i]||{};sach.rows.push([CALC_LISTS[k].label,row.name||"",n2(x.q),eur2(x.p),x.pass?"ja":"",eur(x.pa),eur(x.lz),row.note||""]);});
+  const s=r.sum;
+  const sumLines=r.groups.map(g=>[g.label,eur(g.pa),eur(g.lz)]).concat([[{v:"Projektkosten",b:true},{v:s.pa.K,f:"eur",b:true},{v:s.lz.K,f:"eur",b:true}],["Durchreichposten",eur(s.pa.Kp),eur(s.lz.Kp)],["Unternehmensumlagen",eur(s.pa.um),eur(s.lz.um)],
+    [{v:"Selbstkosten",b:true},{v:s.pa.sk,f:"eur",b:true},{v:s.lz.sk,f:"eur",b:true}],["Gewinn",eur(s.pa.ge),eur(s.lz.ge)],["Risiko",eur(s.pa.ri),eur(s.lz.ri)],["Aufschlag Durchreichposten",eur(s.pa.pm),eur(s.lz.pm)],
+    [{v:"Umsatz ohne Verhandlung",b:true},{v:s.pa.uov,f:"eur",b:true},{v:s.lz.uov,f:"eur",b:true}],["Verhandlung",eur(s.pa.ve),eur(s.lz.ve)],[{v:"Umsatz mit Verhandlung",b:true},{v:s.pa.umv,f:"eur",b:true},{v:s.lz.umv,f:"eur",b:true}]]);
+  const summary={name:"Summary",rows:[H(["Position","Pro Jahr (p.a.)","Laufzeit"])].concat(sumLines).concat([[],H(["OtO-Werte ("+r.oto.currency+")","Angebot","Walkaway"]),
+    ["Umsatz",n2(r.oto.offer.to),n2(r.oto.walk.to)],["EBITA",n2(r.oto.offer.ebita),n2(r.oto.walk.ebita)],["EBITA-Marge",pct(r.oto.offer.ebitaPct),pct(r.oto.walk.ebitaPct)],
+    ["Gross Profit",n2(r.oto.offer.gp),n2(r.oto.walk.gp)],["Gross Margin",pct(r.oto.offer.gpPct),pct(r.oto.walk.gpPct)],["Investment",n2(r.oto.invest),n2(r.oto.invest)],["Leasing p.a.",n2(r.oto.leasing),n2(r.oto.leasing)]])};
+  const jahre={name:"Jahre",rows:[H(["Jahr","Monate","Personalkosten","Sachkosten","Selbstkosten","Risiko","Umsatz (Festpreis)","EBITA","EBITA-Marge","Kostendeckender Preis","Über-/Unterdeckung"])]
+    .concat(r.years.map(x=>[x.year,n2(x.months),eur(x.pers),eur(x.mat),eur(x.sk),eur(x.ri),eur(x.rev),eur(x.ebita),pct(x.margin),eur(x.costPrice),eur(x.rev-x.costPrice)]))};
+  const cf=r.cash;
+  const cash={name:"Cashflow",rows:[H(["Zeitpunkt","Einzahlung","Auszahlung","Cashflow","Kumuliert"]),["Start",eur(0),eur(cf.invest),eur(-cf.invest),eur(-cf.invest)]]
+    .concat(r.years.map(x=>[x.year,eur(x.rev),eur(x.rev-x.cash),eur(x.cash),eur(x.cum)]))
+    .concat([[],["Amortisation [Monate]",cf.payback===null?"nicht in der Laufzeit":n2(cf.payback)],["Kapitalwert",eur(cf.npv)],["Diskontierungszins",pct(cf.discount)],["Interne Verzinsung",cf.irr===null?"–":pct(cf.irr)],
+      ["Preisuntergrenze p.a.",eur(r.price.floor)],["Verhandlungsspielraum p.a.",eur(r.price.headroom)]])};
+  const sensi={name:"Sensitivität",rows:[H(["Treiber","Variation unten","Variation oben","Δ EBITA unten","Δ EBITA oben","Δ Preis unten","Δ Preis oben"])]
+    .concat(sens.map(x=>[x.label,x.lowTxt,x.highTxt,eur(x.eLow),eur(x.eHigh),eur(x.pLow),eur(x.pHigh)]))};
+  const plaus={name:"Plausibilität",rows:[H(["Art","Hinweis"])].concat(checks.map(x=>[x.sev==="warn"?"Warnung":"Hinweis",x.text]))};
+  const oto=calcOtoRows(r);
+  const otoSheet={name:"OtO",rows:[H(["Feld","Wert"])].concat(oto.info,[[]],oto.values,[[]],oto.walk)};
+  return [projekt,basis,{name:"Personal",rows:persRows},bedarf,sach,summary,jahre,cash,sensi,plaus,otoSheet];
+}
+function calcExportXlsx(){
+  const name=(S.meta.name||"kalkulation").replace(/[^\w\-äöüÄÖÜß]+/g,"_");
+  downloadBlob(calcXlsx(calcExportSheets()),name+"_kalkulation.xlsx");
+  showNotice("Excel-Datei mit allen Tabellen exportiert (Werte ohne Formeln).",5000);
+}
+
 function initCalc(){
   const host=$("panels");
   host.addEventListener("input",calcFieldInput);
@@ -1001,12 +1638,19 @@ function initCalc(){
     const t=ev.target.closest&&ev.target.closest("button");
     if(!t||!host.contains(t))return;
     if(t.dataset.calcAct)calcRowAction(t);
+    else if(t.dataset.variantLoad!==undefined)calcVariantLoad(+t.dataset.variantLoad);
+    else if(t.dataset.variantDel!==undefined)calcVariantDelete(+t.dataset.variantDel);
     else if(t.id==="calc-example")calcLoadExample();
     else if(t.id==="calc-reset")calcResetAll();
     else if(t.id==="calc-gross-salaries"||t.id==="calc-gross-wages")calcApplyGrossSuggestion(t.id.slice(11));
     else if(t.id==="calc-oto-copy")calcCopyOto();
     else if(t.id==="calc-print-summary")calcPrint("summary");
     else if(t.id==="calc-print-oto")calcPrint("oto");
+    else if(t.id==="calc-variant-save")calcVariantSave();
+    else if(t.id==="calc-tpl-save")calcTemplateSave();
+    else if(t.id==="calc-tpl-load")$("file-tpl").click();
+    else if(t.id==="calc-tpl-default")calcTemplateDefault(false);
+    else if(t.id==="calc-tpl-clear")calcTemplateDefault(true);
   });
   calcDatalists();
 }
@@ -1015,7 +1659,7 @@ function initCalc(){
 // Projektkopf: Felder mit denselben Schlüsseln wie die Projekt- und Anfragedaten des Lagerplaners
 const CALC_REQUEST_FIELDS={serviceSite:"text",contact:"text",businessUnit:"text",serviceLine:"text",sop:"date",eop:"date",calculator:"text",sfId:"text"};
 function defaults(){
-  return {schemaVersion:1,tool:"Kalkulationstool",toolVersion:APP_VERSION,meta:{name:"",kunde:""},request:{},calc:calcDefaults()};
+  return {schemaVersion:1,tool:"Kalkulationstool",toolVersion:APP_VERSION,meta:{name:"",kunde:""},request:{},calc:calcDefaults(),variants:[]};
 }
 let S=defaults();
 function validateRequestFields(req,label){
@@ -1039,13 +1683,28 @@ function validateFile(obj){
   for(const k of ["tool","toolVersion"])if(obj[k]!=null&&(typeof obj[k]!=="string"||obj[k].length>50))throw new Error(k+" ist ungültig.");
   validateRequestFields(obj.request,"Projektdaten");
   validateCalc(obj.calc,"Kalkulation");
+  if(obj.variants!=null){
+    if(!Array.isArray(obj.variants)||obj.variants.length>CALC_MAX_VARIANTS)throw new Error("Höchstens "+CALC_MAX_VARIANTS+" Varianten.");
+    obj.variants.forEach((v,i)=>{
+      const where="Variante "+(i+1);
+      if(!isPlainObject(v)||typeof v.name!=="string"||v.name.length>80||(v.date!=null&&(typeof v.date!=="string"||v.date.length>40))||!isPlainObject(v.data))throw new Error(where+" ist ungültig.");
+      for(const k of Object.keys(v))if(!["name","date","data"].includes(k))throw new Error(where+": unbekanntes Feld "+k+".");
+      for(const k of Object.keys(v.data))if(!["meta","request","calc"].includes(k))throw new Error(where+": unbekanntes Feld "+k+".");
+      if(v.data.meta!=null)for(const [k,x] of Object.entries(v.data.meta))if(!["name","kunde"].includes(k)||typeof x!=="string"||x.length>200)throw new Error(where+": meta."+k+" ist ungültig.");
+      validateRequestFields(v.data.request,where+" · Projektdaten");
+      validateCalc(v.data.calc,where+" · Kalkulation");
+    });
+  }
   return obj;
 }
 // Datei oder Browserstand übernehmen; liefert die Reparaturen
 function stateFrom(obj){
   const next=deepMerge(defaults(),obj);
   next.request=Object.assign({},obj.request||{});
-  return {next,fixed:normalizeCalc(next)};
+  const fixed=normalizeCalc(next);
+  // Varianten ebenfalls vervollständigen, damit Vergleich und Laden mit allen Feldern rechnen
+  next.variants=(next.variants||[]).map(v=>{const d={meta:Object.assign({name:"",kunde:""},v.data.meta||{}),request:Object.assign({},v.data.request||{}),calc:v.data.calc||{}};normalizeCalc(d);return {name:v.name,date:v.date||"",data:d};});
+  return {next,fixed};
 }
 function persistState(){
   try{S.toolVersion=APP_VERSION;localStorage.setItem(LS_KEY,JSON.stringify(S));return true;}
@@ -1182,7 +1841,7 @@ function loadLagerplanerText(txt){
 function newCalc(){
   if(hasContent()&&!confirm("Neue Kalkulation beginnen? Der aktuelle Stand wird ersetzt (Rückgängig bleibt möglich)."))return;
   pushUndo("Neue Kalkulation");
-  S=defaults();refreshAll();persistState();
+  S=defaults();S.calc=calcNewCalc();refreshAll();persistState();
 }
 function initFileMenu(){
   const dd=$("dd-file"),btn=$("btn-dd-file");
@@ -1203,7 +1862,9 @@ function initFileMenu(){
   $("btn-open").addEventListener("click",()=>{close();$("file-in").click();});
   $("btn-save").addEventListener("click",()=>{close();saveFile();});
   $("btn-open-lp").addEventListener("click",()=>{close();$("file-lp").click();});
-  pick($("file-in"),loadText);pick($("file-lp"),loadLagerplanerText);
+  $("btn-export-xlsx").addEventListener("click",()=>{close();calcExportXlsx();});
+  $("btn-report").addEventListener("click",()=>{close();calcReport();});
+  pick($("file-in"),loadText);pick($("file-lp"),loadLagerplanerText);pick($("file-tpl"),calcTemplateLoadText);
   $("btn-undo").addEventListener("click",undoLast);
   document.addEventListener("keydown",ev=>{
     if((ev.ctrlKey||ev.metaKey)&&!ev.shiftKey&&ev.key.toLowerCase()==="z"&&!(ev.target&&ev.target.matches&&ev.target.matches("input,textarea"))){ev.preventDefault();undoLast();}
@@ -1215,6 +1876,7 @@ function initFileMenu(){
 (function init(){
   $("app-ver").textContent=APP_VERSION;
   let saved=null;
+  S.calc=calcNewCalc();
   try{saved=localStorage.getItem(LS_KEY);}catch(e){}
   if(saved!==null){
     try{
