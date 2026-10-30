@@ -460,10 +460,17 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
   assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
   await page.keyboard.type("5000");
   await page.keyboard.press("Enter");
-  assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.2.price", "neue Zeile");
-  assert.deepEqual(await page.evaluate(() => S.calc.nu.slice(1).map(({ name, qty, price }) => ({ name, qty, price }))), [{ name: "Sammel", qty: 1, price: 5000 }, { name: "", qty: 1, price: 0 }]);
+  assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.2.price", "nächste Leerzeile");
+  assert.deepEqual(await page.evaluate(() => S.calc.nu.slice(1).map(({ name, qty, price }) => ({ name, qty, price }))), [{ name: "Sammel", qty: 1, price: 5000 }], "Leerzeile ohne Daten");
   await page.keyboard.press("ArrowUp");
   assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
+  // Volle Liste (7 Gehälter): Enter in der letzten Zeile legt eine neue Zeile an
+  await page.click("#tab-personal");
+  await page.click('[data-cf="calc.salaries.6.name"]');
+  await page.keyboard.press("Enter");
+  assert.equal(await page.evaluate(() => [S.calc.salaries.length, document.activeElement.dataset.cf].join()), "8,calc.salaries.7.name");
+  await page.click("#btn-undo");
+  await page.click("#tab-sachkosten");
   // Begrenzung mit Hinweis
   await page.click("#tab-projekt");
   await page.fill('[data-cf="calc.base.profit"]', "120");
@@ -1255,6 +1262,33 @@ test("Inline-Hilfe und Verfahrensanweisung: je Register, abschaltbar, Feldhilfen
   await popup.waitForLoadState();
   assert.equal(await popup.title(), "Operating procedure");
   assert.match(await popup.textContent("body"), /Data storage and filing/);
+});
+
+test("Leerzeilen wie in Excel: fünf Zeilen je Liste, erst mit Eingabe gespeichert, ohne Prüfhinweise", async (page) => {
+  await page.click("#tab-personal");
+  const rows = await page.$$eval("#panel-personal table.calc-tab[data-cl]", (t) => t.map((x) => x.dataset.cl + ":" + x.querySelectorAll("tbody tr.ghost").length));
+  assert.deepEqual(rows, ["need:5", "salaries:5", "wages:5", "grades:5"]);
+  assert.deepEqual(await page.evaluate(() => [S.calc.salaries.length, S.calc.wages.length, S.calc.need.length]), [0, 0, 0], "keine Daten");
+  // Eingabe in die dritte Leerzeile legt die Zeilen bis dorthin an, leere Zeilen ohne Hinweise
+  await page.click('[data-cf="calc.wages.2.name"]');
+  await page.keyboard.type("Lagerist");
+  await page.keyboard.press("Tab");
+  await page.locator('[data-cf="calc.wages.2.fte"]').fill("2");
+  await page.locator('[data-cf="calc.wages.2.fte"]').press("Tab");
+  assert.deepEqual(await page.evaluate(() => S.calc.wages.map((x) => [x.name, x.fte])), [["", 0], ["", 0], ["Lagerist", 2]]);
+  assert.equal(await page.locator('#panel-personal table[data-cl="wages"] tbody tr.ghost').count(), 2, "zwei Leerzeilen bleiben");
+  const checks = await page.evaluate(() => calcChecks(S, computeCalc(S)).map((x) => x.text).join(" | "));
+  assert.doesNotMatch(checks, /Löhne Zeile [12]\b/);
+  // Einfügen aus Excel in eine Leerzeile
+  await page.click("#tab-sachkosten");
+  await page.evaluate(() => { const i = document.querySelector('[data-cf="calc.opex.0.name"]'); const dt = new DataTransfer(); dt.setData("text/plain", "Miete\t1\t5000\nEnergie\t1\t800"); i.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true })); });
+  assert.deepEqual(await page.evaluate(() => S.calc.opex.map((x) => [x.name, x.price])), [["Miete", 5000], ["Energie", 800]]);
+  assert.equal(await page.locator('#panel-sachkosten table[data-cl="opex"] tbody tr.ghost').count(), 3);
+  // Kontrollkästchen in einer Leerzeile
+  await page.locator('[data-cf="calc.nu.0.pass"]').check();
+  assert.deepEqual(await page.evaluate(() => S.calc.nu.map((x) => [x.qty, x.pass])), [[1, true]]);
+  // Gespeicherte Datei enthält keine Leerzeilen
+  assert.equal(await page.evaluate(() => S.calc.capex.length + S.calc.rampup.length), 0);
 });
 
 (async () => {

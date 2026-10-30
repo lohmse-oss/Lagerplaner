@@ -132,6 +132,9 @@ input.ci::placeholder{color:#a8a29e}
 .calc-capex-detail{margin-top:14px;padding-top:10px;border-top:1px solid #e2e8f0}
 .calc-capex-detail h4{margin:0 0 4px;font-size:13px}
 .calc-tab td.calc.tl{text-align:left}
+.calc-tab tr.ghost td.cn{color:#cbd5e1}
+.calc-tab tr.ghost .ci{background:#fff;border-color:#e2e8f0}
+.calc-tab tr.ghost .ci:focus{background:#fffbeb;border-color:#f59e0b}
 input[data-cf="calc.currency.code"]{text-transform:uppercase}
 .kpi-value.long{font-size:14px}
 .calc-tab input[data-cf$=".category"]{min-width:130px}
@@ -883,6 +886,8 @@ function calcSensitivity(state,base){
 }
 
 /* ---- Plausibilität ---- */
+// Unveränderte neue Zeile (etwa beim Ausfüllen einer späteren Leerzeile entstanden): ohne Hinweise
+const calcRowEmpty=(key,row)=>!!row&&JSON.stringify(Object.assign(calcNewRow(key),row))===JSON.stringify(calcNewRow(key));
 function calcChecks(state,r){
   const c=state.calc,out=[],warn=t=>out.push({sev:"warn",text:t}),info=t=>out.push({sev:"info",text:t});
   for(const w of r.warn)warn(w);
@@ -900,6 +905,7 @@ function calcChecks(state,r){
   if(laterYears&&r.wage.rows.length)info("Mindestlohn ab "+(maxY+1)+" noch nicht festgelegt; geprüft gegen "+fmt(CALC_MIN_WAGE[maxY],2)+" €/h.");
   for(const [key,res] of [["salaries",r.sal],["wages",r.wage]]){
     res.rows.forEach((x,i)=>{
+      if(calcRowEmpty(key,c[key][i]))return;
       const where=CALC_LISTS[key].label+" Zeile "+(i+1)+(x.name?" („"+x.name+"“)":"");
       if(!x.name.trim())info(CALC_LISTS[key].label+" Zeile "+(i+1)+": ohne Bezeichnung.");
       if(!(x.fteIn>0))info(where+": ohne FTE.");
@@ -911,6 +917,7 @@ function calcChecks(state,r){
   }
   for(const n of r.dupQuals)warn("Qualifikation „"+n+"“ mehrfach vorhanden; der Personalbedarf wird der ersten Zeile zugeordnet.");
   r.need.forEach((x,i)=>{
+    if(calcRowEmpty("need",c.need[i]))return;
     if(!x.qual.trim())warn("Personalbedarf Zeile "+(i+1)+": keine Qualifikation zugeordnet.");
     else if(!x.target)warn("Personalbedarf Zeile "+(i+1)+": Qualifikation „"+x.qual+"“ nicht in Gehältern oder Löhnen gefunden.");
     if(!(x.fte>0))info("Personalbedarf Zeile "+(i+1)+(x.name?" („"+x.name+"“)":"")+": ergibt 0 FTE (Menge und Leistung bzw. Schichten und Besetzung prüfen).");
@@ -1002,11 +1009,41 @@ function calcListHtml(key,cols,foot,o){
     const fi=def.fields.findIndex(f=>f[0]===c.f),fd=def.fields[fi],t=fd[1];
     return '<td class="cin'+(t==="check"?' cc':'')+cc(c)+'">'+calcInput(def.path+"."+i+"."+c.f,t,{min:t==="sel"?undefined:fd[2],max:fd[3],options:t==="sel"?fd[2]:undefined,cl:key,ci:i,cc:fi,
       label:c.h+", Zeile "+(i+1),cls:t==="text"?(c.wide===false?"":"ci-name"):"",placeholder:t==="text"?(c.ph||c.h):"",list:c.list?c.list(i):undefined})+'</td>';
-  }).join("")+(act?'<td class="cact">'+calcRowBtns(key,i,list.length)+'</td>':'')+'</tr>').join("")||
-    '<tr><td class="cn"></td><td colspan="'+(cols.length+1)+'" class="hint">'+(act?'Keine Einträge. Über „+ Zeile“ anlegen oder einen Bereich aus Excel kopieren und hier mit Strg+V einfügen.':'Keine Einträge.')+'</td></tr>';
+  }).join("")+(act?'<td class="cact">'+calcRowBtns(key,i,list.length)+'</td>':'')+'</tr>').join("")+
+    // Leerzeilen wie in Excel: werden erst mit der ersten Eingabe zur Zeile der Liste
+    (act?calcGhostRows(key,cols,list.length):'')||
+    '<tr><td class="cn"></td><td colspan="'+(cols.length+1)+'" class="hint">Keine Einträge.</td></tr>';
   const tf=foot?'<tfoot><tr><td class="cn"></td>'+foot.map((x,j)=>{const k=cols[j]&&cols[j].cls;return x==null?'<td'+(k?' class="'+k+'"':'')+'></td>':tdo(x,k);}).join("")+(act?'<td></td>':'')+'</tr></tfoot>':'';
   return '<div class="calc-scroll"><table class="calc-tab" data-cl="'+key+'"><thead>'+head+'</thead><tbody>'+body+'</tbody>'+tf+'</table></div>'+
     (act?'<div class="rowbtns"><button type="button" class="btn" data-calc-act="add" data-cl="'+key+'">+ Zeile</button>'+(o.extra||'')+'</div>':'');
+}
+// Mindestens CALC_MIN_ROWS Zeilen je Liste; fehlende als Leerzeilen ohne Daten
+const CALC_MIN_ROWS=5;
+function calcGhostRows(key,cols,n){
+  const def=CALC_LISTS[key],cc=c=>c.cls?" "+c.cls:"";let out="";
+  for(let i=n;i<Math.min(CALC_MIN_ROWS,CALC_MAX_ROWS);i++){
+    out+='<tr class="ghost"><td class="cn">'+(i+1)+'</td>'+cols.map(c=>{
+      if(!c.f)return '<td class="calc'+cc(c)+'"></td>';
+      const fi=def.fields.findIndex(f=>f[0]===c.f),fd=def.fields[fi],t=fd[1];
+      return '<td class="cin'+(t==="check"?' cc':'')+cc(c)+'">'+calcInput(def.path+"."+i+"."+c.f,t,{min:t==="sel"?undefined:fd[2],max:fd[3],options:t==="sel"?fd[2]:undefined,cl:key,ci:i,cc:fi,
+        label:c.h+", Zeile "+(i+1),cls:t==="text"?(c.wide===false?"":"ci-name"):"",list:c.list?c.list(i):undefined})+'</td>';
+    }).join("")+'<td class="cact"></td></tr>';
+  }
+  return out;
+}
+// Eingabe in eine Leerzeile: Liste bis zu dieser Zeile mit neuen Zeilen auffüllen; false, wenn die Höchstzahl erreicht ist
+function calcMaterializeRow(path){
+  for(const [key,def] of Object.entries(CALC_LISTS)){
+    if(!path.startsWith(def.path+"."))continue;
+    const m=/^(\d+)\./.exec(path.slice(def.path.length+1));if(!m)return true;
+    const i=+m[1];if(i>=CALC_MAX_ROWS)return false;
+    const list=Array.isArray(getP(S,def.path))?getP(S,def.path):[];
+    if(list.length>i)return true;
+    while(list.length<=i)list.push(calcNewRow(key));
+    setP(S,def.path,list);
+    return true;
+  }
+  return true;
 }
 const calcCard=(title,tip,inner,id,src)=>'<div class="card"'+(id?' id="'+id+'"':'')+(src?' data-kpi-source="'+src+'"':'')+'><h3>'+escH(title)+(tip?tipHtml(tip):'')+'</h3>'+inner+'</div>';
 const calcWarnHtml=r=>'<p class="calc-warn">'+co(r.warn.join("\n"),"warnline")+'</p>';
@@ -1592,6 +1629,7 @@ function calcRerenderAll(){for(const n of CALC_TABS)STALE_PANELS.add(n);renderVi
 // Feldwert lesen und speichern; liefert false bei ungültiger Zahl
 function calcStoreField(el){
   const path=el.dataset.cf,type=el.dataset.ct;
+  if(el.dataset.cl!==undefined&&!calcMaterializeRow(path))return false;
   let v;
   if(type==="check")v=el.checked;
   else if(type==="sel")v=el.value;
@@ -1730,14 +1768,14 @@ function calcKeydown(ev){
   if(!el.dataset||el.dataset.cl===undefined||!el.dataset.cf||ev.altKey||ev.ctrlKey||ev.metaKey||el.tagName==="SELECT")return;
   const down=ev.key==="Enter"&&!ev.shiftKey||ev.key==="ArrowDown",up=ev.key==="ArrowUp"||ev.key==="Enter"&&ev.shiftKey;
   if(!down&&!up)return;
-  const key=el.dataset.cl,i=+el.dataset.ci,cc=el.dataset.cc,n=calcList(key).length;
+  const key=el.dataset.cl,i=+el.dataset.ci,cc=el.dataset.cc,n=Math.max(calcList(key).length,CALC_MIN_ROWS);
   const target=up?i-1:i+1;
   if(target<0)return;
   ev.preventDefault();
   // Wie in Excel: Zielzelle markiert, Eingabe überschreibt
   const focusRow=r=>{const f=document.querySelector('[data-cl="'+key+'"][data-ci="'+r+'"][data-cc="'+cc+'"]');if(f){f.focus();try{f.select();}catch(e){}}};
   if(target<n){focusRow(target);return;}
-  if(ev.key!=="Enter"||n>=CALC_MAX_ROWS)return;
+  if(ev.key!=="Enter"||n>=CALC_MAX_ROWS||calcList(key).length<n)return; // letzte Leerzeile: keine weitere Zeile
   el.blur(); // übernimmt den Wert (change) vor dem Neuaufbau
   pushUndo("Zeile angelegt ("+CALC_LISTS[key].label+")");
   calcList(key).push(calcNewRow(key));
