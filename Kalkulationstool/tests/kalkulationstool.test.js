@@ -9,7 +9,12 @@ const path = require("path");
 const assert = require("assert/strict");
 const { chromium } = require("playwright");
 
-const FILE = "file://" + path.resolve(__dirname, "..", "Kalkulationstool.html");
+// Werkzeug mit Versionsstand im Dateinamen (Kalkulationstool_V2.12.html); genau eine solche Datei
+const TOOL_DIR = path.resolve(__dirname, "..");
+const TOOL_FILES = require("fs").readdirSync(TOOL_DIR).filter((f) => /^Kalkulationstool_V\d+\.\d+\.html$/.test(f));
+assert.equal(TOOL_FILES.length, 1, "genau eine Datei Kalkulationstool_V<Version>.html erwartet: " + TOOL_FILES.join(", "));
+const TOOL_NAME = TOOL_FILES[0];
+const FILE = "file://" + path.join(TOOL_DIR, TOOL_NAME);
 const DATA = path.resolve(__dirname, "..", "testdaten", "kalkulation-kombinationen.json");
 const LAGERPLANER_DATA = path.resolve(__dirname, "..", "..", "testdaten", "testprojekt-kombinationen.json");
 const choose = async (page, button, file) => {
@@ -1033,11 +1038,12 @@ test("Kopfzeile und Fußzeile: Anordnung, Version, Fußzeile unten auf der Start
   const order = await page.$$eval("header .hdr-actions > *:not(input)", (els) => els.map((e) => e.id || e.className.split(" ").pop()));
   assert.deepEqual(order, ["hdr-group", "view-switch", "btn-help", "lang-switch"]);
   assert.deepEqual(await page.$$eval("header .hdr-group > *", (els) => els.map((e) => e.id)), ["btn-undo", "btn-save-quick", "dd-file"]);
+  // Versionsstand einheitlich: Dateiname, Titel, Kopfzeile, Fußzeile
   const ver = await page.evaluate(() => APP_VERSION);
-  assert.equal(ver, "V2.11");
-  assert.match(await page.title(), /Kalkulationstool V2\.11/);
-  assert.match(await page.textContent("#app-footer"), /V2\.11/);
-  assert.match(await page.textContent("#app-ver"), /V2\.11/);
+  assert.equal(TOOL_NAME, "Kalkulationstool_" + ver + ".html", "Dateiname passt zur Version");
+  assert.match(await page.title(), new RegExp("Kalkulationstool " + ver.replace(".", "\\.")));
+  assert.match(await page.textContent("#app-footer"), new RegExp(ver.replace(".", "\\.")));
+  assert.equal((await page.textContent("#app-ver")).trim(), ver);
   // Fußzeile am unteren Rand, auch wenn die Startseite kürzer als das Fenster ist
   await page.setViewportSize({ width: 1440, height: 1400 });
   const f = await page.evaluate(() => ({ bottom: Math.round($("app-footer").getBoundingClientRect().bottom), h: innerHeight }));

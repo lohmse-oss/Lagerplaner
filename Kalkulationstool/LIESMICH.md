@@ -4,7 +4,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 
 | Datei | Inhalt |
 |---|---|
-| `Kalkulationstool.html` | das Werkzeug: per Doppelklick im Browser öffnen |
+| `Kalkulationstool_V2.12.html` | das Werkzeug: per Doppelklick im Browser öffnen; der Dateiname trägt den Versionsstand |
 | `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Öffnen) |
 | `beispiele/stammdaten-beispiel.json` | Beispiel-Stammdaten aus der Testkalkulation (Land DE): Länderprofil, Mitarbeiterklassen, Tarifgruppen, Sachkosten (Stammdaten › Stammdaten öffnen) |
 | `stammdaten/stammdaten-de-gebaeudereinigung.json` | Startbestand Deutschland: Lohngruppen des Lohntarifs Gebäudereinigerhandwerk (IG BAU) ab 01.01.2026, gültig bis 31.12.2026, und Logistik-Mitarbeiterklassen ohne Eingruppierung; per „Datei zusammenführen“ in die eigenen Stammdaten übernehmen |
@@ -140,6 +140,10 @@ Ohne den Schalter gelten Korrekturen und Erweiterungen:
   - Kauf mit späterem Startjahr: Auszahlung im Kalenderjahr des Kaufs statt zum Start.
 
 Personalbedarf, Tarifgruppen und Zuschläge je Zeile wirken in beiden Modi.
+
+## Versionsstand
+
+Der Dateiname enthält den Versionsstand (`Kalkulationstool_V2.12.html`). Bei einer neuen Version die Datei umbenennen und `APP_VERSION`, Titel, Kopf- und Fußzeile anpassen; der Test prüft, dass Dateiname und Version übereinstimmen. Gespeicherte Kalkulationen und Stammdaten tragen die Version im Feld `toolVersion` und bleiben mit neuen Versionen lesbar.
 
 ## Tests
 
