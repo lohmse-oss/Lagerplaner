@@ -1,14 +1,22 @@
-// Tests zur Phase Kalkulation (Nachbau des Kalkulationstools Light V1.0)
+// Tests zum Kalkulationstool (Nachbau des Kalkulationstools Light V1.0, eigenständige Datei)
 //   Rechenkern gegen die Werte der Excel-Vorlage (Excel-kompatibel) und die Korrekturen,
 //   Listen (anlegen, duplizieren, verschieben, löschen, aus Excel einfügen), Auswahllisten,
-//   gemeinsame Projektdaten, Rückgängig, Speichern und Laden, Import-Prüfung, Druck und Kopie.
-// Ausführen: node tests/kalkulation.test.js   (benötigt das npm-Paket "playwright" mit Chromium)
+//   Projektdaten, Rückgängig, Speichern und Öffnen, Übernahme aus dem Lagerplaner, Import-Prüfung, Druck und Kopie.
+// Ausführen: node Kalkulationstool/tests/kalkulationstool.test.js   (benötigt das npm-Paket "playwright" mit Chromium)
 "use strict";
 const path = require("path");
 const assert = require("assert/strict");
 const { chromium } = require("playwright");
 
-const FILE = "file://" + path.resolve(__dirname, "..", "Lagerplaner.html");
+const FILE = "file://" + path.resolve(__dirname, "..", "Kalkulationstool.html");
+const DATA = path.resolve(__dirname, "..", "testdaten", "kalkulation-kombinationen.json");
+const LAGERPLANER_DATA = path.resolve(__dirname, "..", "..", "testdaten", "testprojekt-kombinationen.json");
+const choose = async (page, button, file) => {
+  await page.click("#btn-dd-file");
+  const [chooser] = await Promise.all([page.waitForEvent("filechooser"), page.click(button)]);
+  await chooser.setFiles(file);
+  await page.waitForTimeout(300);
+};
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -34,8 +42,7 @@ const EXCEL = {
 const GP_CORRECTED = EXCEL.ebita + EXCEL.um * 0.75; // HV + BU = 7,5 % von 10 % Umlagen
 
 async function loadExample(page) {
-  await page.click('#tabs .phase[data-phase="calc"]');
-  await page.click("#tab-12");
+  await page.click("#tab-projekt");
   await page.click("#calc-example");
 }
 const result = (page) => page.evaluate(() => {
@@ -53,9 +60,9 @@ test("Excel-kompatibel: Beispiel ergibt die Werte der Excel-Vorlage", async (pag
   const r = await result(page);
   for (const k of Object.keys(EXCEL)) near(r[k], EXCEL[k], k);
   assert.deepEqual(r.warn, []);
-  await page.click("#tab-15");
-  assert.match(await page.textContent("#calc-panel-15"), /Excel-kompatibel/);
-  assert.match(await page.textContent("#calc-panel-15"), /5\.800\.235 €/);
+  await page.click("#tab-summary");
+  assert.match(await page.textContent("#calc-panel-summary"), /Excel-kompatibel/);
+  assert.match(await page.textContent("#calc-panel-summary"), /5\.800\.235 €/);
 });
 
 test("Korrigiert: Gross Profit mit HV und BU auf den Umsatz ohne Verhandlung, Wechselkurs wirkt", async (page) => {
@@ -66,11 +73,11 @@ test("Korrigiert: Gross Profit mit HV und BU auf den Umsatz ohne Verhandlung, We
   near(r.umv, EXCEL.umv, "Umsatz unverändert");
   near(r.gp, GP_CORRECTED, "Gross Profit korrigiert");
   near(r.gpWalk, EXCEL.gpWalk, "Walkaway unverändert");
-  await page.click("#tab-16");
+  await page.click("#tab-oto");
   await page.fill('[data-cf="calc.oto.rate"]', "1,1");
   r = await result(page);
   near(r.to, EXCEL.umv * 1.1, "TO in Angebotswährung");
-  assert.match(await page.textContent("#calc-panel-16"), /6\.380\.257,95 EUR/);
+  assert.match(await page.textContent("#calc-panel-oto"), /6\.380\.257,95 EUR/);
   await page.evaluate(() => { S.calc.excelMode = true; });
   r = await result(page);
   near(r.to, EXCEL.umv, "Excel: Wechselkurs ohne Wirkung");
@@ -92,13 +99,13 @@ test("Laufzeit: tagesgenau, über 10 Jahre; Excel-kompatibel mit Begrenzung und 
   assert.equal(r.monthsP, 120);
   assert.ok(r.warn.some((w) => /10 Kalenderjahre/.test(w)));
   // Ende vor Start: Hinweis, keine Fehler
-  await page.evaluate(() => { S.calc.excelMode = false; S.request.eop = "2026-01-01"; showTab(15); });
-  assert.match(await page.textContent("#calc-panel-15"), /Leistungsende liegt vor dem Start/);
+  await page.evaluate(() => { S.calc.excelMode = false; S.request.eop = "2026-01-01"; showTab("summary"); });
+  assert.match(await page.textContent("#calc-panel-summary"), /Leistungsende liegt vor dem Start/);
 });
 
 test("Eingabe: deutsche Zahlen, Ausgaben laufen mit, Rückgängig je Feld", async (page) => {
   await loadExample(page);
-  await page.click("#tab-13");
+  await page.click("#tab-personal");
   const cell = '[data-cf="calc.salaries.0.rate"]';
   const before = await page.evaluate(() => computeCalc(S).sal.AG);
   await page.fill(cell, "80.000");
@@ -125,7 +132,7 @@ test("Eingabe: deutsche Zahlen, Ausgaben laufen mit, Rückgängig je Feld", asyn
 
 test("Listen: anlegen, duplizieren, verschieben, löschen, je Schritt rückgängig", async (page) => {
   await loadExample(page);
-  await page.click("#tab-14");
+  await page.click("#tab-sachkosten");
   const names = () => page.evaluate(() => S.calc.nu.map((x) => x.name + ":" + x.price));
   const start = await names();
   await page.click('#calc-card-nu [data-calc-act="add"]');
@@ -150,13 +157,13 @@ test("Listen: anlegen, duplizieren, verschieben, löschen, je Schritt rückgäng
   assert.equal(await page.evaluate(() => S.calc.nu.length), 0, "bis vor das Beispiel zurück");
   await page.evaluate(() => { while (UNDO.length) UNDO.pop(); });
   await loadExample(page);
-  await page.click("#tab-14");
+  await page.click("#tab-sachkosten");
   assert.deepEqual(await names(), start);
 });
 
 test("Einfügen aus Excel: Zellbereich füllt Zeilen und legt fehlende an", async (page) => {
   await loadExample(page);
-  await page.click("#tab-13");
+  await page.click("#tab-personal");
   const text = "Lagerist\t3\t18,50\t15 %\nStaplerfahrer\t1,5\t19,75\t16%\nTeamleiter\t1\t24\t0\n";
   // Einfügen ab Zeile 3 (Index 2): Zeile 3 wird überschrieben, Zeilen 4 und 5 neu
   await page.focus('[data-cf="calc.wages.2.name"]');
@@ -196,54 +203,90 @@ test("Auswahllisten und SV-Liste erweitern", async (page) => {
   await page.fill('[data-cf="calc.base.sv.8.pct"]', "1");
   await page.press('[data-cf="calc.base.sv.8.pct"]', "Tab");
   near(await page.evaluate(() => computeCalc(S).days.sv), 0.2486, "SV-Summe");
-  assert.match(await page.textContent("#calc-panel-12"), /24,860 %/);
+  assert.match(await page.textContent("#calc-panel-projekt"), /24,860 %/);
 });
 
-test("Gemeinsame Projektdaten: Kopfzeile und Projekt- und Anfragedaten", async (page) => {
+test("Projektdaten: Kopfzeile zeigt Projekt und Kunde, Laufzeit aus SOP/EOP", async (page) => {
   await loadExample(page);
-  await page.fill('[data-cf="meta.name"]', "ZV-Packmittel");
-  assert.equal(await page.inputValue("#in-projname"), "ZV-Packmittel");
-  await page.fill('[data-cf="request.contact"]', "Erika Muster");
+  assert.equal(await page.textContent("#hdr-proj"), "ZV-Packmittel · Mercedes-Benz");
+  await page.fill('[data-cf="meta.name"]', "Neues Projekt");
+  assert.equal(await page.textContent("#hdr-proj"), "Neues Projekt · Mercedes-Benz");
+  assert.match(await page.title(), /^Neues Projekt · Kalkulationstool/);
+  await page.fill('[data-cf="request.contact"]', "");
   await page.press('[data-cf="request.contact"]', "Tab");
-  await page.click('#tabs .phase[data-phase="rep"]'); await page.click("#tab-9");
-  assert.equal(await page.inputValue('#request-form [data-req="contact"]'), "Erika Muster");
-  assert.equal(await page.inputValue('#request-form [data-req="sop"]'), "2027-03-01");
-  await page.fill('#request-form [data-req="eop"]', "2031-02-28");
-  await page.dispatchEvent('#request-form [data-req="eop"]', "change");
-  await page.click('#tabs .phase[data-phase="calc"]'); await page.click("#tab-12");
-  assert.equal(await page.inputValue('[data-cf="request.eop"]'), "2031-02-28");
+  assert.equal(await page.evaluate(() => "contact" in S.request), false, "leere Felder entfallen");
+  await page.fill('[data-cf="request.eop"]', "2031-02-28");
+  await page.dispatchEvent('[data-cf="request.eop"]', "change");
+  await page.waitForTimeout(50);
   assert.equal(await page.evaluate(() => computeCalc(S).period.monthsTotal), 48);
-  await page.fill("#in-kunde", "Neuer Kunde");
-  await page.waitForTimeout(300);
-  assert.equal(await page.inputValue('[data-cf="meta.kunde"]'), "Neuer Kunde");
+  assert.equal(await page.inputValue("[data-calc-duration]"), "48");
 });
 
-test("Speichern und Laden: Browserspeicher, Planungsdatei, Szenario", async (page) => {
+test("Lagerplaner-Planungsdatei: Projektdaten übernehmen, als Kalkulation abgelehnt", async (page) => {
   await loadExample(page);
-  await page.click("#tab-16");
+  const before = await page.evaluate(() => JSON.stringify(S.calc));
+  await choose(page, "#btn-open-lp", LAGERPLANER_DATA);
+  const r = await page.evaluate(() => ({ meta: S.meta, req: S.request }));
+  assert.deepEqual(r.meta, { name: "Testprojekt Kombinationen", kunde: "Testkunde" });
+  assert.equal(r.req.sop, "2027-04-01");
+  assert.equal(r.req.eop, "2032-03-31");
+  assert.equal(r.req.serviceLine, "Warehouse");
+  assert.equal(r.req.serviceSite, "Leipzig");
+  assert.equal(await page.evaluate(() => JSON.stringify(S.calc)), before, "Kalkulation unverändert");
+  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => S.meta.name), "ZV-Packmittel");
+  // Über „Kalkulation öffnen“ wird die Planungsdatei mit Hinweis abgelehnt
+  const dialogs = [];
+  page.on("dialog", (d) => dialogs.push(d.message()));
+  await choose(page, "#btn-open", LAGERPLANER_DATA);
+  assert.ok(dialogs.some((m) => /Lagerplaner-Planungsdatei/.test(m)), dialogs.join(" | "));
+  assert.equal(await page.evaluate(() => S.meta.name), "ZV-Packmittel");
+});
+
+test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen, Neue Kalkulation", async (page) => {
+  await loadExample(page);
+  await page.click("#tab-oto");
   await page.fill('[data-cf="calc.oto.offerNo"]', "A-4711");
   await page.press('[data-cf="calc.oto.offerNo"]', "Tab");
   await page.waitForTimeout(300);
-  const json = await page.evaluate(() => JSON.stringify(S));
   await page.reload();
   assert.equal(await page.evaluate(() => S.calc.oto.offerNo), "A-4711");
   assert.equal(await page.evaluate(() => S.calc.salaries.length), 7);
-  const umv = await page.evaluate(() => computeCalc(S).sum.pa.umv);
-  await page.evaluate(() => { S = defaults(); recalc(); });
-  await page.evaluate((t) => applyJson(t), json);
-  near(await page.evaluate(() => computeCalc(S).sum.pa.umv), umv, "nach Laden");
-  // Ältere Planungsdatei ohne Kalkulation: Standardwerte
-  await page.evaluate(() => { const st = JSON.parse(JSON.stringify(S)); delete st.calc; applyJson(JSON.stringify(st)); });
-  assert.equal(await page.evaluate(() => S.calc.salaries.length), 0);
-  assert.equal(await page.evaluate(() => S.calc.base.profit), 6);
-  // Zeilen mit fehlenden Feldern und Werten außerhalb der Grenzen werden ergänzt und begrenzt
-  await page.evaluate(() => { const st = JSON.parse(JSON.stringify(S)); st.calc.wages = [{ name: "X", fte: -3 }]; applyJson(JSON.stringify(st)); });
+  // Datei speichern
+  await page.click("#btn-dd-file");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#btn-save")]);
+  assert.equal(download.suggestedFilename(), "ZV-Packmittel_kalkulation.json");
+  const saved = JSON.parse(require("fs").readFileSync(await download.path(), "utf8"));
+  assert.equal(saved.tool, "Kalkulationstool");
+  assert.equal(saved.calc.oto.offerNo, "A-4711");
+  // Testdatei mit allen Listen, Korrekturen und Fremdwährung öffnen (ersetzt nach Rückfrage)
+  await choose(page, "#btn-open", DATA);
+  const r = await page.evaluate(() => {
+    const c = computeCalc(S);
+    return { lists: Object.keys(CALC_LISTS).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, warn: c.warn, fx: c.oto.fx, cur: c.oto.currency,
+      to: c.oto.offer.to, umv: c.sum.pa.umv, rampup: c.cost.rampup.nominal, sl: S.calc.lists.serviceLines.at(-1), name: S.meta.name };
+  });
+  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9]);
+  assert.deepEqual([r.months, r.warn, r.fx, r.cur, r.sl, r.name], [60, [], 0.94, "CHF", "Warehouse", "Testkalkulation Kombinationen"]);
+  near(r.to, r.umv * 0.94, "Angebots-TO in CHF");
+  assert.equal(r.rampup, 100000, "Gutschrift mindert den Ramp-up");
+  assert.equal(await page.textContent("#hdr-proj"), "Testkalkulation Kombinationen · Testkunde");
+  // Rückgängig stellt den gespeicherten Stand wieder her
+  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => S.calc.oto.offerNo), "A-4711");
+  // Werte außerhalb der Grenzen werden beim Öffnen begrenzt
+  const st = await page.evaluate(() => { const st = JSON.parse(JSON.stringify(S)); st.calc.wages = [{ name: "X", fte: -3 }]; return st; });
+  await page.evaluate((t) => loadText(t), JSON.stringify(st));
   assert.deepEqual(await page.evaluate(() => S.calc.wages), [{ name: "X", fte: 0, rate: 0, gross: 0 }]);
-  // Szenario speichert die Kalkulation mit (Szenarien setzen Positionen voraus)
-  await page.click('#tabs [data-tab="0"]');
-  await page.click("#start-example");
-  await page.evaluate(() => { S.calc.capex = [{ name: "Regal", qty: 2, price: 10 }]; saveScenario(1); S.calc.capex = []; restoreScenario(1); });
-  assert.equal(await page.evaluate(() => S.calc.capex[0].name), "Regal");
+  assert.ok(await page.isVisible(".toast"));
+  // Ältere Datei ohne Kalkulationsteil: Standardwerte
+  await page.evaluate(() => loadText(JSON.stringify({ meta: { name: "Alt" } })));
+  assert.deepEqual(await page.evaluate(() => [S.calc.salaries.length, S.calc.base.profit, S.meta.name]), [0, 6, "Alt"]);
+  // Neue Kalkulation
+  await page.click("#btn-dd-file");
+  await page.click("#btn-new");
+  assert.deepEqual(await page.evaluate(() => [S.meta.name, S.calc.salaries.length]), ["", 0]);
+  assert.equal(await page.textContent("#hdr-proj"), "Neue Kalkulation");
 });
 
 test("Import-Prüfung: ungültige Kalkulationsdaten werden abgelehnt", async (page) => {
@@ -261,26 +304,17 @@ test("Import-Prüfung: ungültige Kalkulationsdaten werden abgelehnt", async (pa
     ];
     return cases.map((mutate) => {
       const st = defaults(); mutate(st.calc);
-      try { validateImportedPayload(JSON.parse(JSON.stringify(st)), "project"); return null; } catch (e) { return e.message; }
+      try { validateFile(JSON.parse(JSON.stringify(st))); return null; } catch (e) { return e.message; }
     });
   });
   errors.forEach((e, i) => assert.ok(e && /Kalkulation/.test(e), "Fall " + (i + 1) + ": " + e));
-  const ok = await page.evaluate(() => { const st = defaults(); st.calc = calcExample(); st.calc.oto.link = "https://example.sharepoint.com/sites/x"; validateImportedPayload(JSON.parse(JSON.stringify(st)), "project"); return true; });
+  const ok = await page.evaluate(() => { const st = defaults(); st.calc = calcExample(); st.calc.oto.link = "https://example.sharepoint.com/sites/x"; validateFile(JSON.parse(JSON.stringify(st))); return true; });
   assert.equal(ok, true);
 });
 
-test("CAPEX aus Stückliste, Link zum Ablageordner, Kopieren und Drucken", async (page) => {
-  await page.click("#start-example");
+test("Link zum Ablageordner, Kopieren und Drucken", async (page) => {
   await loadExample(page);
-  await page.click("#tab-14");
-  const umv0 = await page.evaluate(() => computeCalc(S).sum.pa.umv);
-  const capex = await page.evaluate(() => Math.round(R.capex.total));
-  assert.ok(capex > 0);
-  await page.click("#calc-capex-bom");
-  await page.click("#calc-capex-bom");
-  const rows = await page.evaluate(() => S.calc.capex.filter((x) => x.name === CALC_BOM_ROW));
-  assert.deepEqual(rows, [{ name: "Lagertechnik lt. Stückliste (Lagerplaner)", qty: 1, price: capex }], "einmal angelegt, danach aktualisiert");
-  await page.click("#tab-16");
+  await page.click("#tab-oto");
   await page.fill('[data-cf="calc.oto.link"]', "https://example.sharepoint.com/sites/OtO");
   await page.press('[data-cf="calc.oto.link"]', "Tab");
   await page.waitForSelector(".calc-link");
@@ -289,22 +323,43 @@ test("CAPEX aus Stückliste, Link zum Ablageordner, Kopieren und Drucken", async
   await page.press('[data-cf="calc.oto.link"]', "Tab");
   await page.waitForTimeout(100);
   assert.equal(await page.locator(".calc-link").count(), 0, "nur http- und https-Adressen als Link");
-  // Der übernommene CAPEX erhöht den Umsatz um seinen Jahresanteil im Hundert
   const r = await page.evaluate(() => { const r = computeCalc(S); return { to: r.oto.offer.to, text: calcOtoText(r) }; });
-  near(r.to, umv0 + (capex / 60 * 12) / 0.82 / 0.92, "Angebots-TO mit Stücklisten-CAPEX");
   const toText = r.to.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   assert.ok(r.text.includes("Angebots TO | Offer TO\t" + toText + " EUR"), r.text.slice(0, 600));
-  assert.match(r.text, /Investment \(total netto\) \| Invest \(total net\)\t/);
+  assert.match(r.text, /Walkaway EBITA\t/);
   await page.click("#calc-oto-copy");
   await page.waitForSelector(".toast");
   for (const [id, title] of [["calc-print-oto", /OtO-Werte/], ["calc-print-summary", /Summary Kalkulation/]]) {
-    if (id === "calc-print-summary") await page.click("#tab-15");
+    if (id === "calc-print-summary") await page.click("#tab-summary");
     const [popup] = await Promise.all([page.waitForEvent("popup"), page.click("#" + id)]);
     await popup.waitForLoadState();
     assert.match(await popup.title(), title);
     const body = await popup.textContent("body"), whole = r.to.toLocaleString("de-DE", { maximumFractionDigits: 0 });
     assert.ok(body.includes(whole + " €") || body.includes(toText + " EUR"), "Angebots-TO im Druck");
     await popup.close();
+  }
+});
+
+test("Alle Knöpfe und Felder: ohne Seitenfehler, bei 390 px ohne Seitenüberlauf", async (page) => {
+  await loadExample(page);
+  page.on("popup", (p) => p.close().catch(() => {}));
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "oto"]) {
+    await page.click("#tab-" + tab);
+    const n = await page.locator(`#panel-${tab} button:not([disabled])`).count();
+    for (let i = 0; i < n; i++) {
+      const b = page.locator(`#panel-${tab} button:not([disabled])`).nth(i);
+      if (await b.count()) await b.click();
+    }
+    await page.click("#tab-" + tab);
+  }
+  // Beschriftung für jedes Eingabefeld
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "oto"]) await page.evaluate((t) => showTab(t), tab);
+  const unlabeled = await page.$$eval("#panels input:not([type=hidden]),#panels textarea", (els) => els.filter((e) => !(e.labels && e.labels.length) && !e.getAttribute("aria-label")).map((e) => e.outerHTML.slice(0, 80)));
+  assert.deepEqual(unlabeled, []);
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "oto"]) {
+    await page.evaluate((t) => showTab(t), tab);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Überlauf in " + tab);
   }
 });
 
@@ -336,9 +391,9 @@ test("Sachkosten: Steigerung je Kalenderjahr und Kalkulationszins als Annuität"
   near(r.capex, 209877 * ann, "Annuität");
   near(r.capexLz, 209877 * ann * 5, "Laufzeit inklusive Zins");
   near(r.invest, 209877, "OtO-Investment bleibt nominal");
-  assert.match(await page.textContent("#calc-panel-12"), /23,10 %/, "Annuität angezeigt");
-  await page.click("#tab-14");
-  assert.match(await page.textContent("#calc-panel-14"), /Annuität mit 5,0 % Zins/);
+  assert.match(await page.textContent("#calc-panel-projekt"), /23,10 %/, "Annuität angezeigt");
+  await page.click("#tab-sachkosten");
+  assert.match(await page.textContent("#calc-panel-sachkosten"), /Annuität mit 5,0 % Zins/);
   await page.evaluate(() => { S.calc.excelMode = true; });
   near(await page.evaluate(() => computeCalc(S).cost.opex.pa), 1386787, "Excel: ohne Steigerung");
 });
@@ -353,12 +408,12 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
   await page.click("#btn-undo");
   assert.equal(await page.evaluate(() => S.request.eop), "2032-02-29");
   await page.evaluate(() => { S.request.sop = "2027-01-31"; });
-  await page.evaluate(() => showTab(12));
+  await page.evaluate(() => showTab("projekt"));
   await page.fill("[data-calc-duration]", "1");
   await page.press("[data-calc-duration]", "Tab");
   assert.equal(await page.evaluate(() => S.request.eop), "2027-02-28", "Monatsende");
   // Enter: nächste Zeile, in der letzten Zeile neue Zeile; Pfeil auf zurück
-  await page.click("#tab-14");
+  await page.click("#tab-sachkosten");
   await page.click('[data-cf="calc.nu.0.price"]');
   assert.equal(await page.evaluate(() => { const e = document.activeElement; return e.value.slice(e.selectionStart, e.selectionEnd); }), "671.146,6666666664", "Klick markiert den Inhalt");
   await page.keyboard.press("Enter");
@@ -370,13 +425,13 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
   await page.keyboard.press("ArrowUp");
   assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
   // Begrenzung mit Hinweis
-  await page.click("#tab-12");
+  await page.click("#tab-projekt");
   await page.fill('[data-cf="calc.base.profit"]', "120");
   await page.press('[data-cf="calc.base.profit"]', "Tab");
   assert.equal(await page.evaluate(() => S.calc.base.profit), 90);
   assert.match(await page.textContent(".toast:last-of-type"), /zulässigen Bereich begrenzt: 90 %/);
   // Vorschlag FTE-Brutto-Zuschlag
-  await page.click("#tab-13");
+  await page.click("#tab-personal");
   await page.click("#calc-gross-wages");
   assert.deepEqual(await page.evaluate(() => S.calc.wages.map((x) => x.gross)), [17.76, 17.76, 17.76]);
   await page.click("#btn-undo");
@@ -384,8 +439,7 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
 });
 
 test("Leere Kalkulation: alle Register ohne Fehler und ohne waagerechten Überlauf", async (page) => {
-  await page.click('#tabs .phase[data-phase="calc"]');
-  for (const n of ["12", "13", "14", "15", "16"]) {
+  for (const n of ["projekt", "personal", "sachkosten", "summary", "oto"]) {
     await page.click("#tab-" + n);
     assert.equal(await page.isVisible("#panel-" + n), true);
     const text = await page.textContent("#calc-panel-" + n);
@@ -393,7 +447,7 @@ test("Leere Kalkulation: alle Register ohne Fehler und ohne waagerechten Überla
     const sw = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     assert.ok(sw <= 0, "Überlauf in Register " + n);
   }
-  assert.match(await page.textContent("#calc-panel-15"), /Start und Ende der Leistung eingeben/);
+  assert.match(await page.textContent("#calc-panel-summary"), /Start und Ende der Leistung eingeben/);
 });
 
 (async () => {

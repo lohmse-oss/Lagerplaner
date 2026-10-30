@@ -25,7 +25,7 @@ test("Sichtbare Texte, Hinweise und Berichte mit Umlauten", async (page) => {
   for (const b of [{}, { L: 60, W: 36 }, { mode: "greenfield", gfShape: "length", L: 300 }]) {
     await withData(page, b);
     const texts = await page.evaluate(() => {
-      for (const n of ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]) showTab(n);
+      for (const n of ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]) showTab(n);
       return [document.body.innerText, R.warn.map((w) => w.t).join("\n"), buildReportKundeHtml(), JSON.stringify(assessModelFeasibility(R).reasons)];
     });
     for (const t of texts) {

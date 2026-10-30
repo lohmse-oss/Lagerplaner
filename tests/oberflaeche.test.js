@@ -6,7 +6,7 @@ const assert = require("assert/strict");
 const { chromium } = require("playwright");
 
 const FILE = "file://" + path.resolve(__dirname, "..", "Lagerplaner.html");
-const TABS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
+const TABS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"];
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -146,7 +146,7 @@ for (const width of [1440, 1024, 390]) {
 
 test("Registerzeile passt bei 1440 px ohne Scrollen", async (page) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  for (const phase of ["in", "eng", "eval", "rep", "calc"]) {
+  for (const phase of ["in", "eng", "eval", "rep"]) {
     await page.click(`#tabs .phase[data-phase="${phase}"]`);
     const [sw, cw] = await page.$eval("#tabs .sub-row", (r) => [r.scrollWidth, r.clientWidth]);
     assert.ok(sw <= cw, `Phase ${phase}: ${sw} > ${cw}`);

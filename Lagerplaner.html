@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lagerplaner V2.30</title>
+<title>Lagerplaner V2.29</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -446,59 +446,6 @@ details.obs[open] summary{margin-bottom:4px}
   #app.kpis-collapsed .kpis-head{flex-direction:row}
   #app.kpis-collapsed .kpis-title{writing-mode:horizontal-tb;transform:none}
 }
-/* ============================ Kalkulation ============================ */
-#tabs .phase.on.tc-calc{background:#ccfbf1;border-color:#0d9488;color:#0f766e}
-#tabs .sub-row button.tc-calc{background:#f0fdfa;color:#115e59;border-color:#99f6e4}
-#tabs .sub-row button.on.tc-calc{color:#0f766e;border-color:#0d9488}
-.phase-card.p-calc{background:#f0fdfa;border-color:#99f6e4}
-.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:0 12px;align-items:start}
-.calc-grid-wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr))}
-.calc-grid>*{min-width:0}
-.calc-scroll{position:relative;overflow-x:auto;max-width:100%;min-width:0}
-.calc-tab{font-size:12px;margin:2px 0 6px}
-.calc-tab th{text-transform:none;letter-spacing:0;font-size:11px;white-space:normal;vertical-align:bottom}
-.calc-tab th small{font-weight:400}
-.calc-tab th.r{text-align:right}
-.calc-tab td{padding:2px 5px;height:28px}
-.calc-tab td.cn{width:30px;text-align:center;color:var(--mut)}
-.calc-tab td.cact,.calc-tab th.cact{white-space:nowrap;width:1%}
-.calc-tab td.cin{padding:2px 3px;background:#fffbeb}
-.calc-tab tfoot td{font-weight:700;background:#f1f5f9}
-.calc-tab tr.hl>*{background:#e0e7ff;font-weight:700}
-.calc-tab tr.top>*{background:#c7d2fe;font-weight:700}
-.calc-tab tr.sub>th{font-weight:400;padding-left:18px}
-.calc-kv tbody th{text-align:left;font-weight:400;color:#334155;font-size:12px;background:#fff;white-space:normal}
-.calc-kv td{width:160px}
-.calc-head th{background:#f8fafc;width:auto}
-.calc-head td{min-width:90px}
-td input.ci,input.ci{width:100%;min-width:72px;height:24px;background:#fefce8;border:1px solid #fde68a;border-radius:4px;padding:2px 6px;font-size:12px;color:var(--ink)}
-input.ci.num{text-align:right}
-input.ci.ci-name{min-width:170px}
-input.ci:focus,td input.ci:focus{outline:none;border-color:var(--acc);background:#fff}
-input.ci.bad{border-color:var(--red);background:#fef2f2}
-.btn.ca{padding:1px 6px;min-width:24px;font-size:12px}
-.calc-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px 12px;margin-bottom:6px}
-.calc-form .mf{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mut)}
-.calc-form .mf.wide{grid-column:1/-1}
-input.ci:disabled{background:#f3f3f3;border-color:var(--line);color:var(--mut)}
-input.ci::placeholder{color:#a8a29e}
-.calc-form textarea{width:100%;font:12px/1.4 inherit;border:1px solid #fde68a;background:#fefce8;border-radius:6px;padding:4px 6px;resize:vertical}
-.calc-form .cout{display:block;height:24px;line-height:22px;padding:0 6px;border:1px solid var(--line);border-radius:4px;background:#f3f3f3;color:var(--ink);font-size:12px;text-align:right}
-.calc-check{display:flex;align-items:center;gap:6px;font-size:12.5px;margin-bottom:4px}
-.calc-check input{width:16px;height:16px;accent-color:var(--acc)}
-.calc-warn{margin:0}
-.co.warnline{display:block;color:#b45309;white-space:pre-line;font-size:12px}
-.co.warnline:not(:empty){margin:4px 0 8px;padding:6px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px}
-.calc-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:8px 0}
-.calc-kpi{border:1px solid #c7d2fe;border-radius:8px;padding:8px 10px;background:#eef2ff;font-size:11.5px;color:#3730a3}
-.calc-kpi .kv{display:block;font-size:17px;font-weight:700;color:var(--ink);margin-top:2px}
-.calc-det{margin:6px 0}
-.calc-det>summary{cursor:pointer;font-size:12px;font-weight:600;color:#334155;padding:4px 0}
-.calc-steps{margin:4px 0 8px;padding-left:20px;font-size:12px;line-height:1.5}
-.calc-legend{font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.calc-legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line)}
-.calc-legend .sw-in{background:#fefce8;border-color:#fde68a}.calc-legend .sw-out{background:#f3f3f3}.calc-legend .sw-hl{background:#e0e7ff}
-.calc-link{font-weight:600;color:var(--acc)}
 @media(max-width:900px){
   .items-table-scroll{margin-left:-4px;margin-right:-4px;width:calc(100% + 8px)}
 }
@@ -534,7 +481,7 @@ input.ci::placeholder{color:#a8a29e}
   <header>
     <h1>
       Lagerplaner
-      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.30</span>
+      <span class="v" id="app-ver" title="Änderungslog öffnen">V2.29</span>
     </h1>
     <input id="in-projname" type="text" placeholder="Projektname" aria-label="Projektname" />
     <input id="in-kunde" type="text" placeholder="Kunde / Ausschreibung" aria-label="Kunde / Ausschreibung" />
@@ -621,7 +568,6 @@ input.ci::placeholder{color:#a8a29e}
           <button type="button" class="phase tc-eng" data-phase="eng"><span class="ph-n">2</span>Konzept</button>
           <button type="button" class="phase tc-eval" data-phase="eval"><span class="ph-n">3</span>Bewertung</button>
           <button type="button" class="phase tc-rep" data-phase="rep"><span class="ph-n">4</span>Ergebnis</button>
-          <button type="button" class="phase tc-calc" data-phase="calc"><span class="ph-n">5</span>Kalkulation</button>
         </div>
         <div class="sub-row" role="tablist" aria-label="Register der Phase">
           <button type="button" role="tab" class="tc-in" data-tab="1" data-phase="in" id="tab-1" aria-controls="panel-1">Vorgaben</button>
@@ -635,11 +581,6 @@ input.ci::placeholder{color:#a8a29e}
           <button type="button" role="tab" class="tc-rep" data-tab="10" data-phase="rep" id="tab-10" aria-controls="panel-10">Übersicht</button>
           <button type="button" role="tab" class="tc-rep" data-tab="9" data-phase="rep" id="tab-9" aria-controls="panel-9">Berichte</button>
           <button type="button" role="tab" class="tc-rep" data-tab="11" data-phase="rep" id="tab-11" aria-controls="panel-11">Methodik</button>
-          <button type="button" role="tab" class="tc-calc" data-tab="12" data-phase="calc" id="tab-12" aria-controls="panel-12">Projekt &amp; Basisdaten</button>
-          <button type="button" role="tab" class="tc-calc" data-tab="13" data-phase="calc" id="tab-13" aria-controls="panel-13">Personalkosten</button>
-          <button type="button" role="tab" class="tc-calc" data-tab="14" data-phase="calc" id="tab-14" aria-controls="panel-14">Sachkosten</button>
-          <button type="button" role="tab" class="tc-calc" data-tab="15" data-phase="calc" id="tab-15" aria-controls="panel-15">Summary</button>
-          <button type="button" role="tab" class="tc-calc" data-tab="16" data-phase="calc" id="tab-16" aria-controls="panel-16">OtO-Werte</button>
         </div>
       </nav>
 
@@ -674,7 +615,7 @@ input.ci::placeholder{color:#a8a29e}
             </p>
           </div>
           <div class="card">
-            <h3>Arbeitsablauf in fünf Phasen</h3>
+            <h3>Arbeitsablauf in vier Phasen</h3>
             <div class="phase-grid">
               <section class="phase-card p-in">
                 <h4><span class="ph-n">1</span>Eingabe</h4>
@@ -709,17 +650,6 @@ input.ci::placeholder{color:#a8a29e}
                   <li><button type="button" class="linkbtn" data-goto="10">Übersicht</button> Kurzbericht und alle Plausibilitätshinweise.</li>
                   <li><button type="button" class="linkbtn" data-goto="9">Berichte</button> Interner Bericht und kundenfähiger Grobkonzeptbericht, druckbar.</li>
                   <li><button type="button" class="linkbtn" data-goto="11">Methodik</button> Jeder Rechenschritt mit Eingabefeldern und Formel.</li>
-                </ul>
-              </section>
-              <section class="phase-card p-calc">
-                <h4><span class="ph-n">5</span>Kalkulation</h4>
-                <p>Preis kalkulieren und OtO-Werte ableiten.</p>
-                <ul>
-                  <li><button type="button" class="linkbtn" data-goto="12">Projekt &amp; Basisdaten</button> Laufzeit, Zuschläge, Arbeitszeitmodell, Personalnebenkosten, Auswahllisten.</li>
-                  <li><button type="button" class="linkbtn" data-goto="13">Personalkosten</button> Gehälter und Löhne je Qualifikation mit Stundensätzen.</li>
-                  <li><button type="button" class="linkbtn" data-goto="14">Sachkosten</button> Investitionen, Betriebskosten, Nachunternehmer, Ramp-up.</li>
-                  <li><button type="button" class="linkbtn" data-goto="15">Summary</button> Kostenaufbau bis zum Umsatz, druckbar.</li>
-                  <li><button type="button" class="linkbtn" data-goto="16">OtO-Werte</button> Kopiervorlage für das OtO-Formular.</li>
                 </ul>
               </section>
             </div>
@@ -1522,12 +1452,6 @@ input.ci::placeholder{color:#a8a29e}
             <div id="brief-form"></div>
           </div>
         </div>
-        <div class="panel" id="panel-12" role="tabpanel" aria-labelledby="tab-12"><div id="calc-panel-12"></div></div>
-        <div class="panel" id="panel-13" role="tabpanel" aria-labelledby="tab-13"><div id="calc-panel-13"></div></div>
-        <div class="panel" id="panel-14" role="tabpanel" aria-labelledby="tab-14"><div id="calc-panel-14"></div></div>
-        <div class="panel" id="panel-15" role="tabpanel" aria-labelledby="tab-15"><div id="calc-panel-15"></div></div>
-        <div class="panel" id="panel-16" role="tabpanel" aria-labelledby="tab-16"><div id="calc-panel-16"></div></div>
-        <div id="calc-datalists" hidden></div>
       </div>
     </main>
     <aside id="kpis" aria-label="Kennzahlen">
@@ -1625,7 +1549,7 @@ input.ci::placeholder{color:#a8a29e}
     </aside>
   </div>
 
-  <footer id="app-footer">Lagerplaner V2.30 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
+  <footer id="app-footer">Lagerplaner V2.29 · Vorplanung lokal im Browser, keine Serververbindung · Ergebnisse indikativ, keine Ausführungs-, Statik- oder Brandschutzplanung</footer>
 </div>
 
 <div class="modal" id="modal-paste"><div class="box">
@@ -1666,13 +1590,12 @@ input.ci::placeholder{color:#a8a29e}
   <div style="overflow:auto;max-height:74vh;display:flex;flex-direction:column;gap:10px">
     <details class="obs" open><summary>Kurzhilfe: Arbeitsablauf</summary><div>
       <ol style="margin:6px 0 0;padding-left:20px;line-height:1.7">
-        <li>Start: Die Startseite bietet vier Einstiege (Positionen aus Excel einfügen, Planungsdatei öffnen, Mengengerüst aus CSV, Beispielprojekt) und zeigt den Fortschritt in vier Schritten (Positionen, Halle, Annahmen belegt, Ergebnis); darunter die fünf Phasen mit ihren Registern. Jeder Eintrag springt ins zuständige Register.</li>
+        <li>Start: Die Startseite bietet vier Einstiege (Positionen aus Excel einfügen, Planungsdatei öffnen, Mengengerüst aus CSV, Beispielprojekt) und zeigt den Fortschritt in vier Schritten (Positionen, Halle, Annahmen belegt, Ergebnis); darunter die vier Phasen mit ihren Registern. Jeder Eintrag springt ins zuständige Register.</li>
         <li>Eingabe · Vorgaben: Alle Bereiche stehen untereinander auf einer Seite; die nummerierten Knöpfe springen zum Bereich, das Suchfeld „Feld suchen“ filtert nach Beschriftung und Wirkung (Esc leert). Planungsvorgaben pflegen (1 Gebäude &amp; Flächen, 2 Volumen &amp; Puffer, 3 Stammdaten, 4 Lagertechnik, 5 Blocklager, 6 Kosten &amp; Optionen). Unter jedem Abschnitt zeigt eine Ergebniszeile, was die Eingaben im aktuellen Stand bewirken. Vom Standard abweichende Werte sind mit einem Punkt markiert und lassen sich mit „↺ Standard“ zurücksetzen; die Zahl am Bereich nennt die Abweichungen. Die Datenquelle steht direkt am Feld („Kunde ✓“, „Annahme“, „Quelle fehlt“); ein Klick öffnet die Zeile im Annahmenregister. Beim Bearbeiten erscheint unter dem Feld, wie der Wert wirkt.</li>
         <li>Eingabe · Mengengerüst: Positionen erfassen, aus Excel einfügen (Zellen kopieren, Strg+V; Spalten werden anhand der Überschriften zugeordnet) oder per CSV importieren; die Eingabedatei lädt das Menü Datei. Die Tabelle zeigt je Position eine Zeile; ✎ öffnet alle Felder im Detailfeld neben den Kennzahlen. Enter springt zur nächsten Zeile, Umschalt+Enter zurück. Sammeländerungen (LKW-Typ, Palettentyp, Blockanteil, Datenbasis, Löschen) erscheinen, sobald Positionen ausgewählt sind.</li>
         <li>Berechnung aktualisieren (Kopfzeile) erzwingt den vollständigen Durchlauf aller Rechenschritte und bestätigt den Lauf mit Zeitstempel und Kernergebnissen. Eingaben werden ohnehin automatisch nachberechnet.</li>
         <li>Konzept · Layout: Hallenlayout, Zonen und Tore prüfen; Flächenbedarfsrechnung (Brutto-Lagerfläche) und Wegestrecken (Grundlage MTM) lesen; bei Bedarf zoomen und als PNG speichern.</li>
         <li>Konzept · Regal &amp; Block: Regalschnitt und Blockstruktur prüfen.</li>
-        <li>Kalkulation: Projekt &amp; Basisdaten pflegen, Personal- und Sachkosten je Zeile erfassen (Zeilen anlegen, duplizieren, verschieben, löschen oder Bereiche aus Excel mit Strg+V einfügen; Enter und Pfeiltasten wechseln die Zeile, Enter in der letzten Zeile legt eine neue an), Summary prüfen und die OtO-Werte kopieren oder drucken.</li>
         <li>Konzept · Stückliste &amp; CAPEX: Mengen und Kosten prüfen, Einheitspreise anpassen; das FFZ-Anforderungsblatt je Fahrzeugtyp mit eigener Stückzahl ergänzen und für die Lieferantenanfrage drucken oder als CSV ausgeben.</li>
         <li>Bei Bedarf Layout-Optimierung über das Menü Varianten ermitteln in der Kopfzeile: Ziel wählen (minimaler CAPEX für den Soll-Bestand, maximaler Flächennutzungsgrad oder – nur in der Bestandshalle – maximale Lagerkapazität), Lauf starten, Ergebnis im Register Layout prüfen und eine Variante per Klick übernehmen. Während des Laufs erscheint oben eine Statusleiste mit Abbruchmöglichkeit.</li>
         <li>Bewertung · Varianten: bis zu drei Szenarien mit Namen speichern und vergleichen (Abweichungen zum aktuellen Stand sind hervorgehoben); zusätzlich eine gespeicherte Planungsdatei gegen den aktuellen Stand vergleichen.</li>
@@ -1720,12 +1643,11 @@ input.ci::placeholder{color:#a8a29e}
       <p><b>Was unterscheidet Regalausrichtung und Blockausrichtung?</b> Die Regalausrichtung legt fest, ob die Regalreihen orthogonal oder parallel zu den Toren laufen. Die Blockausrichtung legt die Kanalrichtung im Nordband fest: Kanäle quer laufen in Hallenbreite mit Zugang von der Nordseite (Zone Nord als WE), Kanäle längs laufen in Hallenlänge mit Zugang über eine Längsgasse von Westen (Zone West als WE). Der Optimierungslauf variiert beide Ausrichtungen und vergleicht die Varianten.</p>
       <p><b>Wie leitet das FFZ-Anforderungsblatt seine Werte ab?</b> Grundlage sind die Positionen in den Einsatzbereichen des Fahrzeugtyps (Regal, Block, Vorzone). Tragfähigkeit Q: schwerste Ladeeinheit, auf 100 kg aufgerundet. Lastschwerpunktabstand c: halbe Länge der längsten Ladeeinheit (Aufnahme längs). Hub h3: im Regal oberste Traverse plus Bedienreserve, im Block die Oberkante des höchsten Stapels unter der obersten Palette plus Bedienreserve, auf 50 mm aufgerundet; dazu die Resttragfähigkeit in dieser Höhe. Arbeitsgangbreite Ast: höchstens die geplante Gangbreite. Gabellänge: längste Ladeeinheit minus 50 mm. Zinkenverstellung wird empfohlen, wenn die Ladeeinheitsbreiten um mindestens 150 mm streuen. Bei Frontstaplern in der Vorzone begrenzt die kleinste LKW-Innenhöhe minus 100 mm die Bauhöhe h1; bei zweilagig beladenen LKW kommt ein Freihub über der höchsten Ladeeinheit hinzu. Beim VNA stehen Gangführung, Fahrerplatz, P&D-Plätze und die Bodenebenheit nach DIN 15185-1 im Blatt. Die Anzahl der Fahrzeuge tragen Sie selbst ein; der Spitzenumschlag des Lagers steht als Grundlage der Flottenbemessung dabei. Die Zeilennummern folgen VDI 2198 sinngemäß; maßgeblich sind die Typenblätter und Tragfähigkeitsdiagramme des Herstellers.</p>
       <p><b>Was unterscheidet Eingabedatei und Planungsdatei?</b> tender-input.js enthält die Ausschreibungsdaten (Positionen und Vorgaben). Das Planungs-JSON enthält den vollständigen Ergebnisstand. Drei-Datei-Prinzip: Eingabedatei, Frontend-Datei, Planungsdatei.</p>
-      <p><b>Warum weicht die Kalkulation von der Excel-Vorlage ab?</b> Ohne den Schalter Excel-kompatibel gelten drei Korrekturen: Die Laufzeit wird tagesgenau je Monat und ohne Begrenzung auf 10 Kalenderjahre berechnet, der Gross Profit des Angebots-TO setzt HV und BU als Anteil am Umsatz ohne Verhandlung an (die Excel wendet die Sätze auf den Umsatz mit Verhandlung an und weist den Gross Profit dadurch zu hoch aus), und der Wechselkurs wirkt auf die OtO-Werte. Zusätzlich gelten die Beitragsbemessungsgrenzen je SV-Satz; die Excel rechnet den SV-Anteil auf das volle Gehalt. Mit dem Schalter stimmen die Ergebnisse mit der Excel überein.</p>
       <p><b>Welche Daten verlässt den Rechner?</b> Keine. Alle Berechnungen laufen lokal im Browser; es besteht keine Serververbindung.</p>
     </div></details>
     <details class="obs"><summary>Handbuch: Registerkarten und Funktionen</summary><div>
-      <p>Navigation in fünf Phasen: Unter der Kopfzeile stehen Start und die Phasen Eingabe (blau), Konzept (grün), Bewertung (gelb), Ergebnis (violett) und Kalkulation (türkis); darunter die Register der gewählten Phase. Ein Klick auf eine Phase öffnet das zuletzt genutzte Register dieser Phase. Innerhalb der Registerzeile wechseln die Pfeiltasten das Register.</p>
-      <p>Start – Willkommensseite: Einstiege (Positionen aus Excel einfügen, Planungsdatei öffnen, Mengengerüst aus CSV, Beispielprojekt), Planungsfortschritt in vier Schritten mit Sprung ins zuständige Register, Arbeitsablauf in fünf Phasen mit Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start. Das Beispielprojekt (sechs Positionen mit allen Bedarfsarten, Greenfield-Halle) lässt sich rückgängig machen.</p>
+      <p>Navigation in vier Phasen: Unter der Kopfzeile stehen Start und die Phasen Eingabe (blau), Konzept (grün), Bewertung (gelb) und Ergebnis (violett); darunter die Register der gewählten Phase. Ein Klick auf eine Phase öffnet das zuletzt genutzte Register dieser Phase. Innerhalb der Registerzeile wechseln die Pfeiltasten das Register.</p>
+      <p>Start – Willkommensseite: Einstiege (Positionen aus Excel einfügen, Planungsdatei öffnen, Mengengerüst aus CSV, Beispielprojekt), Planungsfortschritt in vier Schritten mit Sprung ins zuständige Register, Arbeitsablauf in vier Phasen mit Kurzbeschreibung aller Registerkarten und Verweis auf Hilfe, FAQ und Änderungslog. Die Seite öffnet beim Start. Das Beispielprojekt (sechs Positionen mit allen Bedarfsarten, Greenfield-Halle) lässt sich rückgängig machen.</p>
       <p>Eingabe · Vorgaben – Planungsvorgaben: Gebäude und Bauraum (Modus Bestandshalle oder Greenfield, Hallenmaße, Höhenkette mit Sprinkler-Freiraum und In-Rack-Sprinklerung, Tore, Zonen je Himmelsrichtung, Stützenraster, Zusatzflächen, Miete Halle), Paletten- und LKW-Stammdaten (Palettentypen Euro, Industrie, Halbpalette sowie eigene Typen; LKW-Typen 7,5t, Standard, Mega, Jumbo, Giga sowie eigene Typen; berechnete Kreuztabelle der Füllmenge je LKW und Palettentyp), Volumen, Reichweite und Leergut (Lagerreichweite, Füllgrade, Transit-/Cross-Dock-Anteil, WE-Puffer, Durchsatzprofil mit Spitzenstunde, WE-Anteil und Gleichzeitigkeit; Leergutbereich verdichtet als angegliederte Gruppe mit Mengenbasis, Stapelhöhe und Zugangsreserve), Blocklager- und ABC/XYZ-Logik (Verteilungsmethode, Kanaltiefe, Stapelhöhe, Ausrichtung, ABC-Anteile), FFZ und Regaltechnik (Mehrfachauswahl der Flurförderzeuge je Lagerbereich, getrennte Gangbreiten für Regal und Block, P&D-Plätze bei VNA, Regal-Auslegungsbasis, Feldweite automatisch oder fest, Einzelreihen, Fluchttunnel) sowie Kosten und Optionen (Preisquelle als Auswahl Richtpreis, Angebot oder Rahmenvertrag; sie bestimmt die Datenqualität). Alle Bereiche stehen untereinander auf einer Seite; unter jedem Abschnitt zeigt eine Ergebniszeile, was die Eingaben im aktuellen Stand bewirken. Eingabefelder führen ihre Einheit unmittelbar hinter dem Feld; berechnete Werte (etwa die Greenfield-Maße) bleiben hervorgehoben. Erläuternde Infotexte erscheinen als Mausover-Hinweis am ⓘ-Symbol neben der zugehörigen Überschrift; lange Beschriftungen tragen die Erläuterung als Tooltip. Beim Bearbeiten erscheint unter dem Feld ein Wirkungstext. Vom Standard abweichende Werte sind markiert und lassen sich einzeln zurücksetzen; die Datenquelle steht am Feld. Das Suchfeld filtert die Felder nach Beschriftung, Wirkungstext und Parameterpfad. Die FFZ der WE/WA-Vorzone lassen sich auch vollständig abwählen: Das Werkzeug weist dann bei VNA im Regal auf den fehlenden Vorzonentransport hin; beim Neuladen einer Datei wird die leere Auswahl auf Schnellläufer zurückgesetzt.</p>
       <p>Eingabe · Mengengerüst – Ausschreibungspositionen: Bedarfsermittlung je Position (LKW/Tag mit LKW-Typ und automatischem, überschreibbarem Wert Paletten je LKW aus der Kreuztabelle; Paletten/Tag; Stückbasis; Ziel-Bestand; in allen Modi dient der LKW-Typ der Herleitung des LKW-Volumens je Tag), Artikelmerkmale einschließlich Artikelanzahl und Stapelfaktor (Notation 1+x), Palettentyp mit Maßen aus den Stammdaten, Datenbasis (Kundendaten oder Annahme). Die kompakte Tabelle zeigt je Position eine Zeile mit Bezeichnung, Ermittlungsart und deren Hauptwert, Palette, Artikelanzahl, Stapelfaktor, Blockanteil und Datenbasis; ✎ öffnet das Detailfeld mit allen Feldern neben den Kennzahlen (Vor/Zurück, Esc schließt). Enter und Umschalt+Enter wechseln die Zeile. Sammeländerungen an ausgewählten Positionen (LKW-Typ, Palettentyp, Blockanteil, Datenbasis, Löschen) erscheinen erst mit einer Auswahl. Positionen lassen sich aus Excel einfügen (Spaltenzuordnung im Dialog), per CSV importieren und als Eingabedatei ausgeben.</p>
       <p>Konzept · Layout – 2D-Hallenlayout: Grundriss mit Regalen, Blockkanälen, Leergutband, Zonen, Toren, Fluchttunneln und Stützen. Zonenrolle je Himmelsrichtung (keine, WE, WA oder WE und WA kombiniert); bei Kombination liegen WE und WA nebeneinander an derselben Wandlinie, und die Zonentiefe der Seite entspricht dem größeren Einzelwert. Die Legende steht rechts neben der Zeichnung; Nordpfeil und Tornummern je Seite weisen die Ausrichtung aus. Mausrad-Zoom, Verschieben per Ziehen und der PNG-Export dienen der Detailprüfung und der Verwendung in Unterlagen. Die Karte Wegestrecken (Grundlage MTM) weist die Anfahr- und Fahrtwege der Vorplanung aus; die Tiefen stehen zusätzlich als Bemaßungskette an der Ostwand der Zeichnung. Die Flächenbedarfsrechnung unter der Zeichnung weist Regalstellflächen, Arbeitsgänge, Blockstellflächen, Blockgassen, Leergut, Transit-/Cross-Dock-Puffer, Zonen und Abstandsflächen zur Brutto-Lagerfläche aus, dazu Hallenfläche, freie Fläche, Nutzungsgrad und bei eingegebenem Quadratmeterpreis die Miete je Monat und Jahr. Im Greenfield-Modus berechnet das Werkzeug die kleinste machbare Halle, deren Seitenverhältnis im eingestellten Bereich liegt (Standard 1 : 1 bis 3 : 1); alternativ bleibt die Länge vorgegeben und nur die Breite wird berechnet. Der Leergutband für Leerpaletten in verdichteter Bodenstapelung ist über die Register Vorgaben zuschaltbar: Menge als Anteil am Brutto-Bestand (Standard 5 Prozent) oder absolut, Stapelhöhe in der Notation 1+x (Standard 1+9) und Zugangsreserve (Standard 20 Prozent). Einzelreihen sind als Planungsoption zuschaltbar und werden an Wand- und Restflächen genutzt, sobald Doppelreihen nicht mehr passen. Die Layout-Optimierung wird über das Menü Varianten ermitteln in der Kopfzeile gesteuert: Ziel wählen und den Lauf starten. Drei Ziele stehen zur Wahl: minimaler CAPEX für den Soll-Bestand (so wenig Regal wie nötig), maximaler Flächennutzungsgrad (höchste Dichte bezogen auf die tatsächlich belegte Lagerfläche) und maximale Lagerkapazität (die Halle mit Regal füllen, ohne Rücksicht auf den Soll-Bestand; nur in der Bestandshalle). Variiert werden Feldweite (1.800 bis 3.600 mm), Regal- und Blockausrichtung und Kanaltiefe; im Greenfield zusätzlich die Zonenrollen (WE- und WA-Seite), und die Hallenmaße werden je Variante neu ermittelt. In der Bestandshalle bleiben Hallenmaße und Zonenrollen fest. Gangbreite, Stapelhöhe, Fluchttunnel, Zonentiefen, Stützraster und Blockquote bleiben Vorgaben; Varianten davon lassen sich über die Szenario-Slots vergleichen. Die Ergebnistabelle zeigt die 25 besten Varianten; ein Klick übernimmt eine Variante (rückgängig machbar).</p>
@@ -1735,7 +1657,6 @@ input.ci::placeholder{color:#a8a29e}
       <p>Bewertung · Annahmen – Register: Datenbasis je Position, Datenlücken und globale Parameter mit Quelle und Auswirkung; die Quelle am Feld in den Vorgaben führt direkt zur Zeile. Der Fragekatalog für den Kunden übersetzt die offenen Datenlücken in Kundenfragen, ergänzt die Artikelstammdaten der Positionen auf Annahmebasis und öffnet sich als Druckansicht.</p>
       <p>Bewertung · Sensitivität – Analyse: Ein-Punkt-Variation der zentralen Treiber auf Flächenbedarf und CAPEX. Das Tornado-Diagramm unter der Ergebnistabelle zeigt die Wirkung jedes Treibers als Balken; Balken nach links stehen für die untere Variante (blau), Balken nach rechts für die obere Variante (orange), die Balkenlänge folgt dem größeren Betrag aus Δ Fläche und Δ CAPEX.</p>
       <p>Ergebnis · Berichte – interner Bericht und kundenfähiger Grobkonzeptbericht, jeweils als Ansicht und Druckfenster. Die Karte Projekt- und Anfragedaten nimmt die Kopfdaten der Anfragevorlagen auf (Kundenwerk, Leistungs-Standort, Serviceline, Ansprechpartner, Kurzbeschreibung deutsch und englisch, Leistungsstart und -ende, Anmietzeitraum, Mindestmietdauer, Verlängerung, Geschäftsbereich, Kostenstelle, Gesellschaft, RFD, SF-ID, Projektstatus, Kalkulator); SOP, EOP und Ansprechpartner erscheinen auch im FFZ-Anforderungsblatt. Der Immobiliensteckbrief folgt dem Aufbau der Vorlage (Standort, Gebäude, Gelände, Weitere Informationen). Aus der Planung vorgeschlagen werden Betriebszeiten, Hallentyp mit Stellplätzen, Hallenfläche und Mindest-Unterkante Binder (höchster Lagerpunkt plus Sprinklerfreiraum), Ladeinfrastruktur der Flurförderzeuge und Temperaturbereich, Verladetore je Seite mit Rolle und Fahrzeugtypen, Brandschutz (Lagerguthöhe, In-Rack, Fluchttunnel), Boden (Fachlast, Ständerlast, Flächenlast Blocklager, Ebenheit bei VNA), Rangierflächen und LKW-Wartezone sowie das Verkehrsaufkommen. Jeder Vorschlag lässt sich abwählen; Ergänzungen werden je Sprache eingetragen, ein leeres englisches Feld übernimmt den deutschen Text. Das Druckfenster enthält beide Sprachfassungen auf getrennten Seiten.</p>
-      <p>Kalkulation – Nachbau des Kalkulationstools Light V1.0. Projekt &amp; Basisdaten: Projektdaten (gemeinsam mit Kopfzeile und Projekt- und Anfragedaten), Laufzeit aus SOP und EOP, Zuschläge (Gewinn, Risiko, HV-, BU- und NL-Umlage, Verhandlungsmarge), Ermittlung der produktiven Jahresstunden, Personalnebenkosten mit erweiterbarer Liste der SV-Sätze und Auswahllisten für Service-Line, Status und Abrechnungsart. Personalkosten: Gehälter (Jahresgehalt) und Löhne (Stundenlohn) je Qualifikation mit FTE-Brutto-Zuschlag; Ergebnis sind die Stundensätze der Zuschlagskette 100 bis 700 und die kalkulatorischen Kosten p.a. und über die Laufzeit, mit Entwicklung je Kalenderjahr. Sachkosten: Investitionen, monatliche Betriebskosten, Nachunternehmerleistung und Ramp-up; der CAPEX der Stückliste lässt sich übernehmen. Summary: Projektkosten, Umlagen, Gewinn und Risiko im Hundert, Umsatz ohne und mit Verhandlung, je Jahr, Laufzeit und produktive Stunde; druckbar. OtO-Werte: Kopiervorlage mit Angebots-TO, Gross Profit, EBITA, Investment und Leasing sowie Walkaway-Werten, Link zum Ablageordner. Der Schalter Excel-kompatibel rechnet wie die Excel-Vorlage (zum Abgleich); ohne ihn gelten die Korrekturen (tagesgenaue Laufzeit ohne Begrenzung auf 10 Jahre, Gross Profit mit HV und BU auf den Umsatz ohne Verhandlung, Wechselkurs auf die OtO-Werte, Beitragsbemessungsgrenzen je SV-Satz) und die optionalen Sachkostenparameter (Steigerung p.a., Kalkulationszins für Einmalkosten als Annuität).</p>
       <p>Ergebnis · Übersicht – Quick-Report und Hinweise zusammengefasst; der Hinweiszähler in der Kennzahlen-Leiste springt hierher.</p>
       <p>Ergebnis · Methodik – löst alle Rechenschritte von der Bedarfsermittlung je Position über die Blockverteilung, Regal- und Blockgeometrie, das Layout und die Flächenbedarfsrechnung bis zur Stückliste und den Kennzahlen auf. Jeder Schritt nennt die Eingabefelder und den Rechenweg und dient der Nachverfolgbarkeit der Ergebnisse.</p>
       <p>Ergebnisstand: Alle Ergebnisse sind indikativ für die Vorplanung und ersetzen keine Ausführungsplanung. Speicherort des Browser-Stands: lokaler Browser-Speicher des verwendeten Geräts und Browsers.</p>
@@ -1996,7 +1917,7 @@ function migrateFFZ(rawFfz){
   if(!S.request.texts||typeof S.request.texts!=="object")S.request.texts={};
   if(!Array.isArray(S.request.skip))S.request.skip=[];
 }
-const APP_VERSION="V2.30";
+const APP_VERSION="V2.29";
 function newItem(){
   const k=(typeof S!=="undefined"&&S&&S.lhmDefault)||"euro";
   const p=getLhm(k);
@@ -2024,8 +1945,7 @@ function defaults(){
     scenarios:[null,null,null],
     costMeta:{date:"2026-10",sourceKind:"richtpreis",source:"Richtpreis",uncertainty:20,realizationYears:0,priceEscalation:0,projectOverhead:0},
     prices:{frame:48,beamPair:26,grating:95,protector:85,pushThrough:12,marking:4,mount:18,demountPct:8,backMesh:42,markingRack:6,acceptance:120},
-    bom:{pushThrough:true,grating:true,demount:false},
-    calc:calcDefaults()
+    bom:{pushThrough:true,grating:true,demount:false}
   };
 }
 let S=defaults();
@@ -2651,14 +2571,6 @@ const LS_KEY="trbp-state";
 const LS_KEY_LEGACY2="trbp-v22";
 const LS_KEY_LEGACY="trbp-v21-r2";
 const CHANGELOG=[
-  {v:"V2.30",date:"30.10.2026",items:[
-    "Neue Phase Kalkulation mit den Registern Projekt & Basisdaten, Personalkosten, Sachkosten, Summary und OtO-Werte: Nachbau des Excel-Kalkulationstools Light V1.0 mit Personalkosten je Qualifikation (Gehälter und Löhne, Zuschlagskette 100 bis 700, Entwicklung je Kalenderjahr), Sachkosten (Investitionen, Betriebskosten, Nachunternehmer, Ramp-up), Zuschlägen im Hundert, Summary und OtO-Werten.",
-    "Alle Listen erweiterbar: Zeilen anlegen, duplizieren, verschieben und löschen; Zellbereiche aus Excel mit Strg+V einfügen, fehlende Zeilen werden angelegt. SV-Sätze als eigene Liste; Auswahllisten für Service-Line, Status und Abrechnungsart erweiterbar.",
-    "Korrekturen gegenüber der Excel-Vorlage: tagesgenaue Laufzeit ohne Begrenzung auf 10 Kalenderjahre, Gross Profit des Angebots-TO mit HV und BU auf den Umsatz ohne Verhandlung, Wechselkurs auf die OtO-Werte, SV-Anteil als Summe der Einzelsätze. Der Schalter Excel-kompatibel rechnet wie die Vorlage.",
-    "Rechenlogik ergänzt (nicht im Excel-kompatiblen Modus): Beitragsbemessungsgrenzen je SV-Satz, vorbelegt mit den Grenzen 2026 für KV/PV und RV/AV; Sachkostensteigerung p.a. für Betriebskosten und Nachunternehmer; Kalkulationszins für Investitionen und Ramp-up als Annuität; wirksamer SV-Anteil je Qualifikation.",
-    "Eingabehilfen: Enter und Pfeiltasten wechseln wie in Excel die Zeile, Enter in der letzten Zeile legt eine neue an; Klick markiert Zahlen zum Überschreiben; Laufzeit in Monaten setzt das Leistungsende; FTE-Brutto-Zuschlag per Knopf aus den Basisdaten; Hinweis bei begrenzten Werten; neue Sachkostenzeilen mit Menge 1.",
-    "Projektdaten gemeinsam mit Kopfzeile und Projekt- und Anfragedaten; CAPEX der Stückliste übernehmbar; Summary und OtO-Werte druckbar, OtO-Werte in die Zwischenablage kopierbar; Link zum OtO-Ablageordner einstellbar. Teil der Planungsdatei, beim Import geprüft."
-  ]},
   {v:"V2.29",date:"29.10.2026",items:[
     "Immobiliensteckbrief (Register Berichte) im Aufbau der Anfragevorlage, deutsch und englisch: Vorschläge aus der Planung für Betriebszeiten, Hallenfläche und Mindest-Unterkante Binder, Ladeinfrastruktur, Verladetore, Brandschutz, Boden, Rangierflächen und Verkehrsaufkommen; je Kriterium abwählbar und je Sprache ergänzbar; Druckfenster mit beiden Sprachfassungen.",
     "Projekt- und Anfragedaten (Kundenwerk, Standort, Serviceline, Ansprechpartner, SOP/EOP, Anmietzeitraum, Mietdauer, Kostenstelle u. a.) als gemeinsame Kopfdaten für Steckbrief und FFZ-Anfrage; Teil von Planungs- und Eingabedatei, beim Import geprüft.",
@@ -3391,7 +3303,7 @@ function validateImportedPayload(obj,kind,depth){
   if(depth>4)throw new Error("Die Importstruktur enthält zu viele verschachtelte Szenarien.");
   if(!isPlainObject(obj))throw new Error("Die Datei muss ein JSON-Objekt oder eine JSON-Datenzuweisung enthalten.");
   assertSafeImportTree(obj,0);
-  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta","ffzFleet","request","calc"];
+  const objectKeys=kind==="input"?["meta","parameter"]:["meta","building","volume","block","ffz","fire","prices","bom","empty","customLhm","customTrucks","lhmOverrides","truckOverrides","costMeta","ffzFleet","request"];
   for(const key of objectKeys)if(obj[key]!=null&&!isPlainObject(obj[key]))throw new Error(key+" muss ein Objekt sein.");
   if(obj.meta){
     for(const key of ["name","kunde","projekt","stand"]){
@@ -3409,7 +3321,6 @@ function validateImportedPayload(obj,kind,depth){
   validateTruckOverrides(obj.truckOverrides||parm.truckOverrides,"LKW-Überschreibungen");
   validateFfzFleet(obj.ffzFleet||parm.ffzFleet,"FFZ-Anzahl");
   validateRequest(obj.request||parm.request,"Anfragedaten");
-  validateCalc(obj.calc,"Kalkulation");
   if(kind==="input"){
     if(!Array.isArray(obj.positionen))throw new Error("Eingabedatei enthält keine Positionsliste (positionen).");
     validatePositionArray(obj.positionen,"Eingabedatei");
@@ -4202,8 +4113,7 @@ function recalc(){
 }
 /* Register, deren Inhalt aus dem Ergebnis gezeichnet wird. Nach jeder Neuberechnung gelten sie als veraltet;
    gezeichnet wird nur das sichtbare Register, die übrigen beim Öffnen (showTab). */
-const PANEL_RENDERERS={"2":[updateAllCalc],"3":[drawLayout],"4":[drawSection,drawBlockSection],"5":[renderBOM,renderFfzSpec],"6":[renderScenarios],"7":[renderRegister],"9":[renderReports,renderRequestForms],
-  "12":[()=>renderCalcPanel("12")],"13":[()=>renderCalcPanel("13")],"14":[()=>renderCalcPanel("14")],"15":[()=>renderCalcPanel("15")],"16":[()=>renderCalcPanel("16")]};
+const PANEL_RENDERERS={"2":[updateAllCalc],"3":[drawLayout],"4":[drawSection,drawBlockSection],"5":[renderBOM,renderFfzSpec],"6":[renderScenarios],"7":[renderRegister],"9":[renderReports,renderRequestForms]};
 const STALE_PANELS=new Set();
 function renderVisiblePanels(){
   const errors=[];
@@ -6019,7 +5929,7 @@ function restoreScenario(i){
   if(Array.isArray(sc.data.items))S.items=sc.data.items.map(item=>deepMerge(newItem(),item));
   S.scenarios=keep;
   if(sc.data&&Object.prototype.hasOwnProperty.call(sc.data,"customTrucks"))S.customTrucks=sc.data.customTrucks||{};
-  const fixed=repairParamRanges(S).concat(normalizeCalc(S));
+  const fixed=repairParamRanges(S);
   syncAll();refreshModeUI();renderItems();recalc();
   repairNotice("Szenario "+i+" geladen",fixed);
 }
@@ -7080,7 +6990,7 @@ function applyJson(txt){
     else if(Array.isArray(obj.positionen))next.items=obj.positionen.map(p=>deepMerge(newItem(),p));
     if(obj&&Object.prototype.hasOwnProperty.call(obj,"customTrucks"))next.customTrucks=deepMerge({},obj.customTrucks||{});
     if(obj&&Object.prototype.hasOwnProperty.call(obj,"customLhm"))next.customLhm=deepMerge({},obj.customLhm||{});
-    const fixed=repairParamRanges(next).concat(normalizeCalc(next));
+    const fixed=repairParamRanges(next);
     pushUndo("Projektdatei geladen");
     snapshot.changed=true;S=next;
     migrateFFZ(S.ffz);
@@ -7292,795 +7202,7 @@ function initBinds(){
     });
   }
 }
-/* ============================ Kalkulation ============================ */
-/* Nachbau des Kalkulationstools Light V1.0 (Excel): Personal- und Sachkosten, Zuschläge im Hundert, Summary und OtO-Werte.
-   Projektkopf gemeinsam mit Kopfzeile und Projekt- und Anfragedaten (S.meta, S.request); Prozentwerte in Prozent gespeichert.
-   excelMode rechnet wie die Excel-Vorlage (Monatsanteile gerundet, höchstens 10 Kalenderjahre, Gross Profit auf den
-   Angebotsumsatz, Wechselkurs ohne Wirkung); sonst gelten die Korrekturen. */
-const CALC_TABS=["12","13","14","15","16"];
-const CALC_MAX_ROWS=500;
-const CALC_LIST_MAX=50;
-const CALC_BASE_FIELDS={profit:[0,90],risk:[0,90],hv:[0,90],bu:[0,90],nl:[0,90],negotiation:[0,90],raise:[-20,50],
-  weekendDays:[0,200],holidays:[0,60],vacation:[0,100],sick:[0,200],otherOff:[0,200],hoursWage:[0.5,24],hoursSalary:[0.5,24],
-  salBonus:[0,300],salOther:[0,300],wageBonus:[0,300],wageOther:[0,300],salSpecial:[0,300],wageSpecial:[0,300],costRaise:[-20,50],interest:[0,30]};
-const CALC_PERSON_FIELDS=[["name","text"],["fte","num",0,100000],["rate","num",0,100000000],["gross","pct",0,500]];
-const CALC_COST_FIELDS=[["name","text"],["qty","num",0,10000000],["price","num",-10000000000,10000000000]];
-const CALC_LISTS={
-  salaries:{path:"calc.salaries",label:"Gehälter",fields:CALC_PERSON_FIELDS},
-  wages:{path:"calc.wages",label:"Löhne",fields:CALC_PERSON_FIELDS},
-  capex:{path:"calc.capex",label:"Investitionen",fields:CALC_COST_FIELDS},
-  opex:{path:"calc.opex",label:"Betriebskosten",fields:CALC_COST_FIELDS},
-  nu:{path:"calc.nu",label:"Nachunternehmerleistung",fields:CALC_COST_FIELDS},
-  rampup:{path:"calc.rampup",label:"Ramp-up",fields:CALC_COST_FIELDS},
-  sv:{path:"calc.base.sv",label:"SV-Anteile",fields:[["name","text"],["pct","pct",0,100],["bbg","num",0,10000000]]}
-};
-const CALC_CHOICES={serviceLines:"Service-Lines",status:"Angebotsstatus",billing:"Abrechnungsarten"};
-const CALC_OTO_TEXT=["date","status","offerNo","currency","billing","link"];
-function calcDefaults(){
-  return {
-    calcDate:"",excelMode:false,
-    base:{profit:6,risk:2,hv:5,bu:2.5,nl:2.5,negotiation:8,raise:2.5,weekendDays:89.4,holidays:10.4,vacation:30,sick:10,otherOff:0,hoursWage:8,hoursSalary:7.55,
-      salBonus:0,salOther:0,wageBonus:4,wageOther:0,salSpecial:25,wageSpecial:25,costRaise:0,interest:0,
-      // Beitragsbemessungsgrenzen 2026 je Jahr (KV/PV 5.812,50 €, RV/AV 8.450 € im Monat); jährlich prüfen
-      sv:[["Krankenversicherung (AG-Anteil)",8.75,69750],["Rentenversicherung (AG-Anteil)",9.3,101400],["Arbeitslosenversicherung (AG-Anteil)",1.3,101400],["Pflegeversicherung (AG-Anteil)",1.8,69750],
-        ["Umlage U2 (Mutterschutz)",0.56,0],["Insolvenzgeldumlage",0.15,0],["Gesetzliche Unfallversicherung (BG)",1,0],["Schwerbehindertenabgabe",1,0]].map(([name,pct,bbg])=>({name,pct,bbg}))},
-    salaries:[],wages:[],capex:[],opex:[],nu:[],rampup:[],
-    oto:{date:"",status:"Angebot",offerNo:"",currency:"EUR",rate:1,billing:"",link:""},
-    lists:{serviceLines:["TFM","IFM","LOG","PEM","TC"],status:["Angebot","Auftrag","Korrekturangebot"],billing:["Aufwand","Gem. Preisliste","Zahlungsplan","Monatspauschale","Stückpreis"]}
-  };
-}
-function calcNewRow(key){
-  const row={};
-  for(const [f,type] of CALC_LISTS[key].fields)row[f]=type==="text"?"":0;
-  // Sachkosten: neue Zeilen mit Menge 1
-  if("qty" in row)row.qty=1;
-  return row;
-}
-/* Beispiel der Excel-Vorlage (Test-VZ); dient zum Abgleich mit der Excel */
-function calcExample(){
-  const c=calcDefaults();
-  const person=(name,fte,rate,gross)=>({name,fte,rate,gross});
-  c.calcDate="2026-03-30";
-  c.salaries=[person("Test 1",1,75000,0),person("Test 2",0.2,65000,0),person("Test 3",0.2,62000,0),person("Test 4",0.1,50000,0),person("Test 5",2,62500,16),person("Test 6",1,45000,0),person("Test 7",1,70000,0)];
-  c.wages=[person("Test 1",2,21.99909548268,15.99),person("Test 2",7.632242067926599,19.502158393749994,15.99),person("Test 3",18.570114185574624,15.996340358300001,15.99)];
-  c.capex=[{name:"Sammelposition",qty:1,price:209877}];
-  c.opex=[{name:"Sammel",qty:1,price:1386787/12}];
-  c.nu=[{name:"Sammel",qty:1,price:671146.6666666664},{name:"Sammel",qty:1,price:23693.250804854837}];
-  c.rampup=[{name:"Ramp-up Gesamtkosten",qty:1,price:413349}];
-  return c;
-}
-const CALC_EXAMPLE_REQUEST={sop:"2027-03-01",eop:"2032-02-29",serviceSite:"UT",contact:"Mustermann",businessUnit:"VIAS",serviceLine:"LOG",calculator:"Kästner"};
-
-/* ---- Prüfung und Reparatur beim Import ---- */
-function validateCalc(c,label){
-  if(c==null)return;
-  if(!isPlainObject(c))throw new Error(label+" muss ein Objekt sein.");
-  const allowed=new Set(Object.keys(calcDefaults()));
-  for(const k of Object.keys(c))if(!allowed.has(k))throw new Error(label+": unbekanntes Feld "+k+".");
-  const isDate=v=>typeof v==="string"&&(v===""||/^\d{4}-\d{2}-\d{2}$/.test(v));
-  const isNum=v=>typeof v==="number"&&Number.isFinite(v);
-  if(c.calcDate!=null&&!isDate(c.calcDate))throw new Error(label+".calcDate muss ein Datum (JJJJ-MM-TT) sein.");
-  if(c.excelMode!=null&&typeof c.excelMode!=="boolean")throw new Error(label+".excelMode muss wahr oder falsch sein.");
-  const checkList=(key,list,where)=>{
-    if(list==null)return;
-    if(!Array.isArray(list)||list.length>CALC_MAX_ROWS)throw new Error(where+" muss eine Liste mit höchstens "+CALC_MAX_ROWS+" Zeilen sein.");
-    const fields=new Map(CALC_LISTS[key].fields.map(f=>[f[0],f[1]]));
-    list.forEach((row,i)=>{
-      if(!isPlainObject(row))throw new Error(where+", Zeile "+(i+1)+" ist ungültig.");
-      for(const [f,v] of Object.entries(row)){
-        if(!fields.has(f))throw new Error(where+", Zeile "+(i+1)+": unbekanntes Feld "+f+".");
-        if(fields.get(f)==="text"?(typeof v!=="string"||v.length>200):!isNum(v))throw new Error(where+", Zeile "+(i+1)+": "+f+" ist ungültig.");
-      }
-    });
-  };
-  if(c.base!=null){
-    if(!isPlainObject(c.base))throw new Error(label+".base muss ein Objekt sein.");
-    for(const [k,v] of Object.entries(c.base)){
-      if(k==="sv")checkList("sv",v,label+".base.sv");
-      else if(!CALC_BASE_FIELDS[k])throw new Error(label+".base: unbekanntes Feld "+k+".");
-      else if(!isNum(v))throw new Error(label+".base."+k+" muss eine Zahl sein.");
-    }
-  }
-  for(const key of ["salaries","wages","capex","opex","nu","rampup"])checkList(key,c[key],label+"."+key);
-  if(c.oto!=null){
-    if(!isPlainObject(c.oto))throw new Error(label+".oto muss ein Objekt sein.");
-    for(const [k,v] of Object.entries(c.oto)){
-      if(k==="rate"){if(!isNum(v)||v<=0||v>1000000)throw new Error(label+".oto.rate muss eine positive Zahl sein.");}
-      else if(!CALC_OTO_TEXT.includes(k))throw new Error(label+".oto: unbekanntes Feld "+k+".");
-      else if(typeof v!=="string"||v.length>(k==="link"?1000:200))throw new Error(label+".oto."+k+" ist ungültig.");
-    }
-    if(c.oto.date!=null&&!isDate(c.oto.date))throw new Error(label+".oto.date muss ein Datum (JJJJ-MM-TT) sein.");
-    if(c.oto.link&&!/^https?:\/\//i.test(c.oto.link))throw new Error(label+".oto.link muss mit http:// oder https:// beginnen.");
-  }
-  if(c.lists!=null){
-    if(!isPlainObject(c.lists))throw new Error(label+".lists muss ein Objekt sein.");
-    for(const [k,v] of Object.entries(c.lists)){
-      if(!CALC_CHOICES[k])throw new Error(label+".lists: unbekannte Auswahlliste "+k+".");
-      if(!Array.isArray(v)||v.length>CALC_LIST_MAX||v.some(x=>typeof x!=="string"||x.length>100))throw new Error(label+".lists."+k+" muss eine Liste mit höchstens "+CALC_LIST_MAX+" Einträgen sein.");
-    }
-  }
-}
-/* Fehlende Zeilenfelder ergänzen, Zahlen in ihre Grenzen holen; liefert die Reparaturen im Format von describeRepairs */
-function normalizeCalc(state){
-  const fixed=[];
-  const c=state.calc=deepMerge(calcDefaults(),state.calc||{});
-  const clampField=(obj,f,min,max,label)=>{
-    const v=Number(obj[f]);
-    if(!Number.isFinite(v)){obj[f]=0;return;}
-    const n=Math.min(max,Math.max(min,v));
-    if(n!==v){fixed.push({label,from:fmt(v,2),to:fmt(n,2)});obj[f]=n;}
-  };
-  for(const [k,[min,max]] of Object.entries(CALC_BASE_FIELDS))clampField(c.base,k,min,max,"Kalkulation · Basisdaten "+k);
-  for(const key of Object.keys(CALC_LISTS)){
-    const list=getP(state,CALC_LISTS[key].path);
-    const rows=(Array.isArray(list)?list:[]).slice(0,CALC_MAX_ROWS).map(row=>Object.assign(calcNewRow(key),isPlainObject(row)?row:{}));
-    rows.forEach((row,i)=>{for(const [f,type,min,max] of CALC_LISTS[key].fields)if(type!=="text")clampField(row,f,min,max,"Kalkulation · "+CALC_LISTS[key].label+" Zeile "+(i+1));});
-    setP(state,CALC_LISTS[key].path,rows);
-  }
-  if(!(Number(c.oto.rate)>0))c.oto.rate=1;
-  return fixed;
-}
-
-/* ---- Rechenkern ---- */
-const CALC_DAY_MS=86400000;
-function calcParseDate(s){
-  const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||""));
-  if(!m)return null;
-  const d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
-  return d.getUTCMonth()===+m[2]-1?d:null;
-}
-const calcDayDiff=(a,b)=>Math.round((b-a)/CALC_DAY_MS);
-// DATEDIF(a;b;"M"): volle Monate
-function calcFullMonths(a,b){
-  let m=(b.getUTCFullYear()-a.getUTCFullYear())*12+b.getUTCMonth()-a.getUTCMonth();
-  if(b.getUTCDate()<a.getUTCDate())m--;
-  return Math.max(0,m);
-}
-/* Laufzeit und Monatsanteile je Kalenderjahr. Excel: erstes Jahr auf 0,1 Monat abgerundet, letztes aufgerundet,
-   Schaltjahr = durch 4 teilbar, höchstens 10 Jahre, Personaldauer = abgerundete Summe. Korrigiert: tagesgenau je Monat. */
-function calcPeriod(c,req){
-  const start=calcParseDate(req.sop),end=calcParseDate(req.eop);
-  const y0=start?start.getUTCFullYear():0;
-  const P={ok:false,years:[],months:[],monthsTotal:0,monthsPersonnel:0,daysYear:start?calcDayDiff(Date.UTC(y0,0,1),Date.UTC(y0+1,0,1)):365,warn:[]};
-  if(!start||!end){P.warn.push("Start und Ende der Leistung eingeben (Register Projekt & Basisdaten).");return P;}
-  if(end<start){P.warn.push("Das Leistungsende liegt vor dem Start.");return P;}
-  const y1=end.getUTCFullYear();
-  if(y1-y0>=60){P.warn.push("Laufzeiten über 60 Jahre werden nicht berechnet.");return P;}
-  if(c.excelMode){
-    const total=calcFullMonths(start,new Date(end.getTime()+CALC_DAY_MS));
-    const dy=y=>y%4===0?366:365;
-    for(let y=y0;P.years.length<10;y++){
-      let m;
-      if(y0===y1)m=total;
-      else if(y===y0)m=Math.floor((calcDayDiff(start,Date.UTC(y,11,31))+1)/dy(y)*120+1e-9)/10;
-      else if(y!==y1)m=12;
-      else m=Math.ceil((calcDayDiff(Date.UTC(y,0,1),end)+1)/dy(y)*120-1e-9)/10;
-      P.years.push(y);P.months.push(m);
-      if(y>=y1)break;
-    }
-    if(y1-y0+1>10)P.warn.push("Excel-kompatibel: Die Personalkosten berücksichtigen nur die ersten 10 Kalenderjahre.");
-    P.monthsTotal=total;
-    P.monthsPersonnel=Math.floor(P.months.reduce((a,b)=>a+b,0)+1e-9);
-  }else{
-    for(let y=y0;y<=y1;y++){
-      let m=0;
-      for(let mo=0;mo<12;mo++){
-        const ms=Date.UTC(y,mo,1),me=Date.UTC(y,mo+1,0),a=Math.max(ms,start.getTime()),b=Math.min(me,end.getTime());
-        if(b>=a)m+=(calcDayDiff(a,b)+1)/(calcDayDiff(ms,me)+1);
-      }
-      P.years.push(y);P.months.push(m);
-    }
-    P.monthsTotal=P.monthsPersonnel=P.months.reduce((a,b)=>a+b,0);
-  }
-  P.ok=P.monthsTotal>0;
-  if(!P.ok)P.warn.push("Die Laufzeit ist kürzer als ein Monat.");
-  return P;
-}
-function calcNum(v,min,max){const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):0;}
-function computeCalc(state){
-  const c=state.calc||calcDefaults(),req=state.request||{},b=c.base||{};
-  const g=k=>calcNum(b[k],CALC_BASE_FIELDS[k][0],CALC_BASE_FIELDS[k][1]),pct=k=>g(k)/100;
-  const P=calcPeriod(c,req),warn=P.warn.slice(),excel=!!c.excelMode;
-  const gew=pct("profit"),ris=pct("risk"),hv=pct("hv"),bu=pct("bu"),nl=pct("nl"),verh=pct("negotiation"),raise=pct("raise");
-  const umlg=hv+bu+nl,den=1-umlg-gew-ris;
-  if(den<=0.0001)warn.push("Umlagen, Gewinn und Risiko ergeben zusammen 100 % oder mehr; die Zuschläge im Hundert sind nicht berechenbar.");
-  if(verh>=0.9)warn.push("Die Verhandlungsmarge ist zu hoch.");
-  const inH=x=>den>0.0001?x/den:0,withVerh=x=>verh<0.9?x/(1-verh):0;
-  // Ø produktive Jahresstunden
-  const grossDays=P.daysYear-g("weekendDays")-g("holidays");
-  const presence=grossDays-g("vacation")-g("sick")-g("otherOff");
-  if(presence<=0)warn.push("Keine Anwesenheitstage: Abwesenheiten prüfen.");
-  const hWage=Math.max(0,presence*g("hoursWage")),hSal=Math.max(0,presence*g("hoursSalary"));
-  const soz=presence>0?(g("holidays")+g("vacation")+g("sick")+g("otherOff"))/presence:0;
-  const svRows=(Array.isArray(b.sv)?b.sv:[]).map(x=>({p:calcNum(x&&x.pct,0,100)/100,cap:excel?0:calcNum(x&&x.bbg,0,1e7)}));
-  const sv=svRows.reduce((a,x)=>a+x.p,0);
-  // SV-Anteil je Stunde; Sätze mit Beitragsbemessungsgrenze nur bis zur Grenze des Jahresentgelts je FTE
-  const svOn=(T,hours)=>{const ann=T*hours;return T*svRows.reduce((a,x)=>a+x.p*(x.cap>0&&ann>x.cap?x.cap/ann:1),0);};
-  const weights=P.months.map(m=>m/12),wSum=weights.reduce((a,x)=>a+x,0);
-  const durP=P.monthsPersonnel/12,durT=P.monthsTotal/12;
-  // Personalkosten: Zuschlagskette 100 … 700 je Qualifikation
-  function person(list,isWage){
-    const zus=isWage?soz+pct("wageBonus")+pct("wageOther"):pct("salBonus")+pct("salOther");
-    const special=isWage?pct("wageSpecial"):pct("salSpecial"),hours=isWage?hWage:hSal;
-    const rows=(Array.isArray(list)?list:[]).map(row=>{
-      const fte=calcNum(row.fte,0,1e5),rate=calcNum(row.rate,0,1e8),gross=calcNum(row.gross,0,500)/100;
-      const yearly=weights.map((w,i)=>rate*Math.pow(1+raise,i));
-      let avg=wSum>0?yearly.reduce((a,s,i)=>a+s*weights[i],0)/wSum:rate;
-      const R=isWage?avg:(hSal>0?avg/hSal:0);
-      const Sz=R*zus,T=R+Sz,U=svOn(T,hours),V=T+U,W=inH(V)*umlg,X=V+W,Y=inH(V)*(gew+ris),Z=X+Y,AB=withVerh(Z),AA=AB-Z,AC=AB*special,AD=AB+AC;
-      const F=fte*(1+gross),AF=hours*F,AG=AF*V,AH=AG*durP;
-      return {name:String(row.name||""),fte,rate,gross,yearly,R,Sz,T,U,V,W,X,Y,Z,AA,AB,AC,AD,F,AF,AG,AH,svEff:T>0?U/T:0};
-    });
-    const sum=k=>rows.reduce((a,x)=>a+x[k],0);
-    // Zuschlagsfaktoren je produktiver Stunde (Kalkulationsschema, Basis 1)
-    const f={R:1,Sz:zus};f.T=1+zus;f.U=f.T*sv;f.V=f.T+f.U;f.W=inH(f.V)*umlg;f.X=f.V+f.W;f.Y=inH(f.V)*(gew+ris);f.Z=f.X+f.Y;f.AB=withVerh(f.Z);f.AA=f.AB-f.Z;f.AC=f.AB*special;f.AD=f.AB+f.AC;
-    return {rows,fte:sum("fte"),F:sum("F"),AF:sum("AF"),AG:sum("AG"),AH:sum("AH"),hours,zus,special,factors:f};
-  }
-  const sal=person(c.salaries,false),wage=person(c.wages,true);
-  // Sachkosten
-  // Korrigiert: Betriebskosten und Nachunternehmer mit Steigerung je Kalenderjahr (Ø-Faktor wie bei den Personalkosten),
-  // Einmalkosten mit Kalkulationszins als Annuität über die Laufzeit
-  const mT=P.monthsTotal,costRaise=excel?0:pct("costRaise"),interest=excel?0:pct("interest");
-  const esc=wSum>0?weights.reduce((a,w,i)=>a+w*Math.pow(1+costRaise,i),0)/wSum:1;
-  const annuity=interest>0&&durT>0?interest/(1-Math.pow(1+interest,-durT)):0;
-  const once=list=>(Array.isArray(list)?list:[]).map(x=>{
-    const q=calcNum(x.qty,0,1e7),p=calcNum(x.price,-1e10,1e10),nominal=q*p;
-    const pa=annuity?nominal*annuity:(mT>0?nominal/mT*12:0);
-    return {q,p,nominal,pa,lz:annuity?pa*durT:nominal};
-  });
-  const yearly=(list,perYear)=>(Array.isArray(list)?list:[]).map(x=>{const q=calcNum(x.qty,0,1e7),p=calcNum(x.price,-1e10,1e10),pa=q*p*perYear*esc;return {q,p,pa,lz:pa*durT};});
-  const tot=rows=>({pa:rows.reduce((a,x)=>a+x.pa,0),lz:rows.reduce((a,x)=>a+x.lz,0),nominal:rows.reduce((a,x)=>a+(x.nominal||0),0)});
-  const capex=once(c.capex),opex=yearly(c.opex,12),nu=yearly(c.nu,1),ramp=once(c.rampup);
-  const cost={capex:{rows:capex,...tot(capex)},opex:{rows:opex,...tot(opex)},nu:{rows:nu,...tot(nu)},rampup:{rows:ramp,...tot(ramp)}};
-  // Summary: Zuschläge im Hundert auf die Projektkosten
-  const hoursAll=sal.AF+wage.AF;
-  const groups=[
-    {key:"sal",label:"I-1. Personalkosten Gehälter",pa:sal.AG,lz:sal.AG*durT,hours:sal.AF},
-    {key:"wage",label:"I-2. Personalkosten Löhne",pa:wage.AG,lz:wage.AG*durT,hours:wage.AF},
-    {key:"capex",label:"II-1. Investitionen/Einmalkosten",pa:cost.capex.pa,lz:cost.capex.lz,hours:hoursAll},
-    {key:"opex",label:"II-2. Monatliche Betriebskosten/Verbräuche",pa:cost.opex.pa,lz:cost.opex.lz,hours:hoursAll},
-    {key:"nu",label:"II-3. Nachunternehmerleistung",pa:cost.nu.pa,lz:cost.nu.lz,hours:hoursAll},
-    {key:"rampup",label:"II-4. Ramp-up-Kosten",pa:cost.rampup.pa,lz:cost.rampup.lz,hours:hoursAll}
-  ];
-  const level=k=>{
-    const K=groups.reduce((a,x)=>a+x[k],0),base=inH(K);
-    const um=base*umlg,sk=K+um,ge=base*gew,ri=base*ris,uov=sk+ge+ri,ve=verh<0.9?verh*base/(1-verh):0;
-    return {K,um,sk,ge,ri,uov,ve,umv:uov+ve,base};
-  };
-  const sum={pa:level("pa"),lz:level("lz")};
-  // OtO-Werte; korrigiert: HV+BU als Anteil am Umsatz ohne Verhandlung, Wechselkurs angewendet
-  const fx=excel?1:(Number(c.oto&&c.oto.rate)>0?Number(c.oto.rate):1);
-  const s=sum.pa,hvbu=hv+bu;
-  const oto=(to,ebita)=>{
-    const gp=excel?(to?(ebita/to+hvbu)*to:0):ebita+s.base*hvbu;
-    return {to:to*fx,ebita:ebita*fx,gp:gp*fx,ebitaPct:to?ebita/to:0,gpPct:to?gp/to:0};
-  };
-  const offer=oto(s.umv,s.ge+s.ve),walk=oto(s.uov,s.ge);
-  const fteNet=sal.fte+wage.fte;
-  return {period:P,warn,excel,rates:{gew,ris,hv,bu,nl,umlg,verh,raise,den,hvbu,costRaise,interest,esc,annuity},
-    days:{grossDays,presence,hWage,hSal,soz,sv,grossSuggest:presence>0?grossDays/presence-1:0},
-    sal,wage,cost,groups,sum,hoursAll,fteNet,fteGross:sal.F+wage.F,perFte:fteNet>0?s.umv/fteNet:0,
-    oto:{offer,walk,invest:cost.capex.nominal*fx,leasing:cost.opex.pa*fx,fx,currency:(c.oto&&c.oto.currency)||"EUR"}};
-}
-
-/* ---- Darstellung ---- */
-let CALC=null;
-const calcEur=(n,d)=>fmt(n,d===undefined?0:d)+" €";
-const calcPct=(n,d)=>fmt(n*100,d===undefined?2:d)+" %";
-function calcFmtIn(v){return Number.isFinite(Number(v))?Number(v).toLocaleString("de-DE",{maximumFractionDigits:10}):"";}
-// Deutsche Schreibweise: Punkt als Tausender-, Komma als Dezimaltrennzeichen; € und % werden ignoriert
-function calcParse(text){
-  let s=String(text==null?"":text).trim().replace(/[\s €%]/g,"");
-  if(!s)return null;
-  if(s.includes(","))s=s.replace(/\./g,"").replace(",",".");
-  else if(/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,"");
-  const n=Number(s);
-  return Number.isFinite(n)?n:NaN;
-}
-const co=(text,cls)=>'<span class="co'+(cls?" "+cls:"")+'">'+escH(text)+'</span>';
-const tdo=(text,cls)=>'<td class="calc'+(cls?" "+cls:"")+'">'+co(text)+'</td>';
-function calcInput(path,type,o){
-  o=o||{};
-  const v=getP(S,path);
-  const val=type==="text"||type==="date"?(v==null?"":String(v)):(v===""||v==null?"":calcFmtIn(v));
-  const range=o.min!=null&&o.max!=null&&(type==="num"||type==="pct")?' title="Zulässig: '+escH(fmt(o.min,o.min%1?6:0))+' bis '+escH(fmt(o.max,0))+(type==="pct"?" %":"")+'"':'';
-  const attrs=' data-cf="'+escH(path)+'" data-ct="'+type+'"'+range+(o.placeholder?' placeholder="'+escH(o.placeholder)+'"':'')+(o.min!=null?' data-min="'+o.min+'"':'')+(o.max!=null?' data-max="'+o.max+'"':'')+
-    (o.list?' list="'+o.list+'"':'')+(o.cl?' data-cl="'+o.cl+'" data-ci="'+o.ci+'" data-cc="'+o.cc+'"':'')+' aria-label="'+escH(o.label||"")+'"';
-  if(type==="check")return '<input type="checkbox"'+attrs+(v?' checked':'')+'>';
-  return '<input class="ci'+(type==="num"||type==="pct"?' num':'')+(o.cls?' '+o.cls:'')+'" type="'+(type==="date"?"date":"text")+'"'+(type==="num"||type==="pct"?' inputmode="decimal"':'')+
-    (type==="text"?' maxlength="'+(o.maxlength||200)+'"':'')+attrs+' value="'+escH(val)+'">';
-}
-const calcField=(label,inner,tip,wide)=>'<label class="mf'+(wide?' wide':'')+'"><span>'+escH(label)+(tip?tipHtml(tip):'')+'</span>'+inner+'</label>';
-const calcOutField=(label,text,tip)=>'<div class="mf"><span>'+escH(label)+(tip?tipHtml(tip):'')+'</span><span class="cout">'+co(text)+'</span></div>';
-function calcList(key){const l=getP(S,CALC_LISTS[key].path);return Array.isArray(l)?l:[];}
-function calcRowBtns(key,i,n){
-  const b=(act,sym,title,dis)=>'<button type="button" class="btn btn-quiet ca" data-calc-act="'+act+'" data-cl="'+key+'" data-ci="'+i+'" title="'+title+'" aria-label="'+title+', Zeile '+(i+1)+'"'+(dis?' disabled':'')+'>'+sym+'</button>';
-  return b("up","↑","Nach oben",i===0)+b("down","↓","Nach unten",i===n-1)+b("dup","⧉","Zeile duplizieren")+b("del","✕","Zeile löschen");
-}
-/* Listentabelle: cols {h, f (Eingabefeld) | out(i) (Ausgabe), num, tip}; foot: Zellen der Summenzeile nach der Nr-Spalte */
-function calcListHtml(key,cols,foot,o){
-  o=o||{};
-  const def=CALC_LISTS[key],list=calcList(key);
-  const head='<tr><th class="cn">Nr</th>'+cols.map(c=>'<th'+(c.num?' class="r"':'')+'>'+escH(c.h)+(c.tip?tipHtml(c.tip):'')+'</th>').join("")+'<th class="cact"><span class="sr-only">Zeilenaktionen</span></th></tr>';
-  const body=list.map((row,i)=>'<tr><td class="cn">'+(i+1)+'</td>'+cols.map(c=>{
-    if(!c.f)return tdo(c.out(i));
-    const fi=def.fields.findIndex(f=>f[0]===c.f),fd=def.fields[fi];
-    return '<td class="cin">'+calcInput(def.path+"."+i+"."+c.f,fd[1],{min:fd[2],max:fd[3],cl:key,ci:i,cc:fi,label:c.h+", Zeile "+(i+1),cls:fd[1]==="text"?"ci-name":"",placeholder:fd[1]==="text"?c.h:""})+'</td>';
-  }).join("")+'<td class="cact">'+calcRowBtns(key,i,list.length)+'</td></tr>').join("")||
-    '<tr><td class="cn"></td><td colspan="'+(cols.length+1)+'" class="hint">Keine Einträge. Über „+ Zeile“ anlegen oder einen Bereich aus Excel kopieren und hier mit Strg+V einfügen.</td></tr>';
-  const tf=foot?'<tfoot><tr><td class="cn"></td>'+foot.map(x=>x==null?'<td></td>':tdo(x)).join("")+'<td></td></tr></tfoot>':'';
-  return '<div class="calc-scroll"><table class="calc-tab" data-cl="'+key+'"><thead>'+head+'</thead><tbody>'+body+'</tbody>'+tf+'</table></div>'+
-    '<div class="rowbtns"><button type="button" class="btn" data-calc-act="add" data-cl="'+key+'">+ Zeile</button>'+(o.extra||'')+'</div>';
-}
-const calcCard=(title,tip,inner,id)=>'<div class="card"'+(id?' id="'+id+'"':'')+'><h3>'+escH(title)+(tip?tipHtml(tip):'')+'</h3>'+inner+'</div>';
-const calcWarnHtml=r=>'<p class="calc-warn">'+co(r.warn.join("\n"),"warnline")+'</p>';
-function calcKvTable(rows){
-  return '<div class="calc-scroll"><table class="calc-tab calc-kv"><tbody>'+rows.map(([label,inner,cls])=>'<tr'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+escH(label)+'</th>'+(String(inner).startsWith("<td")?inner:'<td class="cin">'+inner+'</td>')+'</tr>').join("")+'</tbody></table></div>';
-}
-
-/* Register Projekt & Basisdaten */
-function calcProjectHtml(r){
-  const P=r.period,b="calc.base.",pin=(k,label)=>calcInput(b+k,"pct",{min:CALC_BASE_FIELDS[k][0],max:CALC_BASE_FIELDS[k][1],label});
-  const nin=(k,label)=>calcInput(b+k,"num",{min:CALC_BASE_FIELDS[k][0],max:CALC_BASE_FIELDS[k][1],label});
-  const proj=calcCard("Projektdaten","Projektname und Kunde sind dieselben Felder wie in der Kopfzeile; Standort, Ansprechpartner, Geschäftsbereich, Serviceline, SOP/EOP und Kalkulator dieselben wie in den Projekt- und Anfragedaten (Register Berichte).",
-    '<div class="calc-form">'+
-    calcField("Projektname",calcInput("meta.name","text",{label:"Projektname"}))+calcField("Kundenname",calcInput("meta.kunde","text",{label:"Kundenname"}))+
-    calcField("Projektstandort",calcInput("request.serviceSite","text",{label:"Projektstandort"}))+calcField("Kundenkontakt",calcInput("request.contact","text",{label:"Kundenkontakt"}))+
-    calcField("Geschäftsbereich",calcInput("request.businessUnit","text",{label:"Geschäftsbereich"}))+calcField("Service-Line",calcInput("request.serviceLine","text",{label:"Service-Line",list:"calc-dl-serviceLines"}),"Auswahl aus der Liste Service-Lines (unten erweiterbar) oder freie Eingabe.")+
-    calcField("Start Leistung (SOP)",calcInput("request.sop","date",{label:"Start Leistung"}))+calcField("Ende Leistung (EOP)",calcInput("request.eop","date",{label:"Ende Leistung"}))+
-    calcField("Laufzeit [Monate]",'<input class="ci num" type="text" inputmode="numeric" data-calc-duration="1" aria-label="Laufzeit in Monaten" title="Ganze Monate ab Start; setzt das Leistungsende" value="'+(P.ok?escH(fmt(P.monthsTotal,P.monthsTotal%1?2:0)):"")+'"'+(S.request&&S.request.sop?'':' disabled')+'>',"Eingabe in ganzen Monaten setzt das Ende der Leistung auf den Vortag des Monatstags (z. B. 01.03.2027 + 60 Monate = 29.02.2032). Erfordert den Start.")+calcOutField("Laufzeit [Jahre]",P.ok?fmt(P.monthsTotal/12,2):"–")+
-    calcField("Datum Kalkulation",calcInput("calc.calcDate","date",{label:"Datum Kalkulation"}))+calcField("Bearbeiter",calcInput("request.calculator","text",{label:"Bearbeiter"}))+
-    '</div>'+calcWarnHtml(r)+
-    '<div class="rowbtns"><button type="button" class="btn" id="calc-example">Beispielkalkulation laden</button><button type="button" class="btn danger" id="calc-reset">Kalkulation zurücksetzen</button></div>');
-  const mode=calcCard("Rechenmodus","",
-    '<label class="calc-check">'+calcInput("calc.excelMode","check",{label:"Excel-kompatibel rechnen"})+' <b>Excel-kompatibel rechnen</b></label>'+
-    '<p class="hint">Aus: Es gelten die Korrekturen gegenüber der Excel-Vorlage. 1) Monatsanteile je Kalenderjahr tagesgenau, beliebig viele Jahre, eine einheitliche Laufzeit für Personal- und Sachkosten (Excel: gerundete Anteile, höchstens 10 Kalenderjahre). 2) Gross Profit des Angebots-TO mit HV und BU als Anteil am Umsatz ohne Verhandlung (Excel: Sätze auf den Umsatz mit Verhandlung, dadurch zu hoch). 3) Wechselkurs wirkt auf die OtO-Werte (Excel: ohne Wirkung). 4) SV-Anteil Arbeitgeber als Summe der Einzelsätze, je Satz mit Beitragsbemessungsgrenze. 5) Optional Sachkostensteigerung und Kalkulationszins für Einmalkosten (Projekt & Basisdaten › Sachkosten).<br>An: rechnet wie die Excel-Vorlage V1.0, zum Abgleich mit bestehenden Kalkulationen.</p>');
-  const sur=calcCard("Preiskalkulation (Zuschläge)","Gewinn, Risiko und Umlagen werden im Hundert auf die Projektkosten aufgeschlagen: Kosten ÷ (1 − Summe der Sätze) × Satz. Die Verhandlungsmarge kommt anschließend auf den Umsatz ohne Verhandlung.",
-    calcKvTable([["Gewinn",pin("profit","Gewinn")],["Risiko (Leadec Global C2 = 1,00 %)",pin("risk","Risiko")],["Total Gewinn und Risiko",tdo(calcPct(r.rates.gew+r.rates.ris)),"hl"],
-      ["Konzern (HV)",pin("hv","Konzernumlage HV")],["Umlagen für den Geschäftsbereich (BU)",pin("bu","Umlage BU")],["Umlagen für die Niederlassung (NL)",pin("nl","Umlage NL")],["Total Umlagen",tdo(calcPct(r.rates.umlg)),"hl"],
-      ["Verhandlungsmarge",pin("negotiation","Verhandlungsmarge")]])+'<p class="hint">Eingaben in Prozent.</p>');
-  const d=r.days;
-  const hours=calcCard("Ermittlung der Ø produktiven Jahresstunden","Tage pro Jahr aus dem Startjahr. Die produktiven Stunden sind die Bezugsgröße für die Stundensätze und die Personalkosten.",
-    calcKvTable([["Personalkostensteigerung p.a. (Löhne & Gehälter) [%]",pin("raise","Personalkostensteigerung")],["Tage pro Jahr",tdo(fmt(P.daysYear))],
-      ["Samstage/Sonntage",nin("weekendDays","Samstage und Sonntage")],["Feiertage",nin("holidays","Feiertage")],["Bruttoarbeitstage",tdo(fmt(d.grossDays,1)),"hl"],
-      ["Urlaubstage",nin("vacation","Urlaubstage")],["Krankheitstage",nin("sick","Krankheitstage")],["Sonstiges/Arbeitsfreistellung",nin("otherOff","Sonstige Abwesenheitstage")],
-      ["Ø Anwesenheitstage FTE pro Jahr",tdo(fmt(d.presence,1)),"hl"],
-      ["Arbeitsstunden Lohnempfänger pro Tag [h]",nin("hoursWage","Arbeitsstunden Lohnempfänger")],["Ø produktive Jahresstunden Lohn [h]",tdo(fmt(d.hWage,2)),"hl"],
-      ["Arbeitsstunden Gehaltsempfänger pro Tag [h]",nin("hoursSalary","Arbeitsstunden Gehaltsempfänger")],["Ø produktive Jahresstunden Gehalt [h]",tdo(fmt(d.hSal,2)),"hl"],
-      ["Vorschlag FTE-Brutto-Zuschlag (Bruttoarbeitstage ÷ Anwesenheitstage − 1)",tdo(calcPct(d.grossSuggest))]]));
-  const pnk=calcCard("Personalnebenkosten","Diese Sätze beruhen auf dem deutschen Sozialversicherungssystem. Für andere Länder oder zur Vereinfachung die Einzelsätze auf 0 setzen und einen Gesamtwert über die sonstigen Zuschläge oder eine eigene SV-Zeile abbilden. Der Zuschlag für Sondertätigkeiten wird separat aufgeschlagen, sodass Sätze mit und ohne Zuschlag sichtbar sind.",
-    '<div class="calc-scroll"><table class="calc-tab calc-kv"><thead><tr><th>Position</th><th class="r">Gehaltsempfänger</th><th class="r">Lohnempfänger</th></tr></thead><tbody>'+
-    '<tr><th scope="row">101 Soziallöhne (bezahlte Abwesenheit)</th><td class="calc">n. v.</td>'+tdo(calcPct(d.soz))+'</tr>'+
-    '<tr><th scope="row">102 Urlaubsgeld/Prämie [%]</th><td class="cin num">'+pin("salBonus","Urlaubsgeld und Prämie Gehalt")+'</td><td class="cin num">'+pin("wageBonus","Urlaubsgeld und Prämie Lohn")+'</td></tr>'+
-    '<tr><th scope="row">102 Sonstige Zuschläge auf Basisgehalt/Tariflohn [%]</th><td class="cin num">'+pin("salOther","Sonstige Zuschläge Gehalt")+'</td><td class="cin num">'+pin("wageOther","Sonstige Zuschläge Lohn")+'</td></tr>'+
-    '<tr class="hl"><th scope="row">201 Sozialabgaben (SV-Anteil Arbeitgeber)</th>'+tdo(calcPct(d.sv,3))+tdo(calcPct(d.sv,3))+'</tr>'+
-    '<tr><th scope="row">601 Zuschlag für Sondertätigkeiten [%]</th><td class="cin num">'+pin("salSpecial","Zuschlag Sondertätigkeiten Gehalt")+'</td><td class="cin num">'+pin("wageSpecial","Zuschlag Sondertätigkeiten Lohn")+'</td></tr>'+
-    '</tbody></table></div><p class="hint">Soziallöhne = (Feiertage + Urlaub + Krankheit + Sonstiges) ÷ Anwesenheitstage; bei Gehältern im Jahresgehalt enthalten.</p>');
-  const svCard=calcCard("SV-Anteil Arbeitgeber","Der SV-Anteil Arbeitgeber (Position 201) ist die Summe dieser Sätze. Mit Beitragsbemessungsgrenze (BBG) gilt ein Satz nur bis zur Grenze des Jahresentgelts je FTE; 0 = ohne Grenze. Vorbelegt sind die Grenzen 2026 (KV/PV 69.750 €, RV/AV 101.400 € im Jahr); bitte jährlich prüfen. Im Excel-kompatiblen Modus gelten keine Grenzen. Zeilen lassen sich ergänzen, löschen und umsortieren.",
-    calcListHtml("sv",[{h:"Bezeichnung",f:"name"},{h:"Satz [%]",f:"pct",num:true},{h:"BBG [€/Jahr]",f:"bbg",num:true}],[null,calcPct(d.sv,3),null])+
-    '<p class="hint">Wirksamer SV-Anteil je Qualifikation in Personalkosten › Stundensätze (Position 201).</p>');
-  const costPar=calcCard("Sachkosten","Steigerung je Kalenderjahr ab dem zweiten Jahr der Laufzeit, gewichtet wie bei den Personalkosten. Der Kalkulationszins verteilt Investitionen und Ramp-up als Annuität (Tilgung und Zins) auf die Laufzeit statt linear. Beide wirken nicht im Excel-kompatiblen Modus.",
-    calcKvTable([["Sachkostensteigerung p.a. (Betriebskosten, Nachunternehmer) [%]",pin("costRaise","Sachkostensteigerung")],["Kalkulationszins für Einmalkosten p.a. [%]",pin("interest","Kalkulationszins")],
-      ["Ø Steigerungsfaktor über die Laufzeit",tdo(r.excel?"–":fmt(r.rates.esc,4))],["Annuität p.a.",tdo(r.excel||!r.rates.annuity?"– (linear)":calcPct(r.rates.annuity))]]));
-  const lists=calcCard("Auswahllisten","Einträge je Zeile. Sie stehen in den Feldern Service-Line, Status und Abrechnungsart zur Auswahl; freie Eingaben bleiben möglich.",
-    '<div class="calc-form calc-lists">'+Object.entries(CALC_CHOICES).map(([k,label])=>'<label class="mf"><span>'+escH(label)+'</span><textarea rows="5" data-calc-choices="'+k+'" aria-label="'+escH(label)+'">'+escH(((S.calc.lists||{})[k]||[]).join("\n"))+'</textarea></label>').join("")+'</div>');
-  const guide=calcCard("Kurzanleitung","",
-    '<ol class="calc-steps"><li><b>Projekt &amp; Basisdaten:</b> Projektdaten, Laufzeit, Zuschläge, Arbeitszeitmodell und Personalnebenkosten pflegen.</li>'+
-    '<li><b>Personalkosten:</b> je Funktion Netto-FTE pro Tag, Jahresgehalt (Gehälter) oder Stundenlohn (Löhne) im Startjahr und den FTE-Brutto-Zuschlag eingeben. Ergebnis: Ø Stundensätze und Kosten über die Laufzeit.</li>'+
-    '<li><b>Sachkosten:</b> Investitionen über die Laufzeit, Betriebskosten pro Monat, Nachunternehmerleistungen pro Jahr und Ramp-up-Kosten erfassen.</li>'+
-    '<li><b>Summary:</b> Kostenaufbau bis zum Umsatz mit Verhandlung, keine Eingaben.</li><li><b>OtO-Werte:</b> Kopiervorlage für das OtO-Formular. Die Vertragsprüfung erfolgt separat.</li></ol>'+
-    '<p class="calc-legend"><span class="sw sw-in"></span> Eingabefeld <span class="sw sw-out"></span> Ausgabefeld <span class="sw sw-hl"></span> Zwischensumme</p>'+
-    '<p class="hint">Hinweis: Das Werkzeug unterstützt die Projektkalkulation; alle Eingaben und Ergebnisse sind vom Anwender eigenverantwortlich auf Richtigkeit und Plausibilität zu prüfen.</p>');
-  return '<div class="calc-grid">'+proj+mode+'</div><div class="calc-grid">'+sur+hours+'</div><div class="calc-grid">'+pnk+svCard+'</div><div class="calc-grid">'+costPar+lists+'</div>'+guide;
-}
-
-/* Register Personalkosten */
-const CALC_CHAIN=[["100","Ø Stundensatz Laufzeit","R"],["101/102","Zuschläge (Soziallohn, Prämien)","Sz"],["200","Brutto-Arbeitnehmerlohn","T"],["201","SV-Anteil Arbeitgeber","U"],
-  ["300","Kalkulatorischer Satz","V"],["301","Verwaltungsgemeinkosten (HV/BU/NL)","W"],["400","Selbstkosten-Stundenverrechnungssatz","X"],["401/402","Gewinn und Risiko","Y"],
-  ["500","VK-Stundensatz ohne Verhandlung","Z"],["501","Verhandlung","AA"],["600","Mitarbeiterverkaufsstundensatz","AB"],["601","Zuschlag Sondertätigkeiten","AC"],["700","VK-Stundensatz Sondertätigkeiten","AD"]];
-function calcPersonHtml(r,isWage){
-  const key=isWage?"wages":"salaries",res=isWage?r.wage:r.sal,P=r.period;
-  const title=isWage?"I-2. Personalkosten Löhne":"I-1. Personalkosten Gehälter";
-  const rows=res.rows,e2=n=>calcEur(n,2);
-  const table=calcListHtml(key,[
-    {h:"Qualifikation",f:"name"},{h:"Ø-FTE/Tag netto",f:"fte",num:true},
-    {h:isWage?"Tarifl. Grundlohn Jahr 1 [€/h]":"Jahresgehalt Jahr 1 [€]",f:"rate",num:true},
-    {h:"FTE-Brutto-Zuschlag [%]",f:"gross",num:true,tip:"Mehrbedarf für Abwesenheiten, damit die Netto-FTE täglich anwesend sind. Vorschlag aus den Basisdaten: "+calcPct(r.days.grossSuggest)+"."},
-    {h:"Brutto-FTE",out:i=>fmt(rows[i].F,2),num:true},{h:"Ø Satz [€/h]",out:i=>e2(rows[i].R),num:true,tip:"Position 100: mit der Personalkostensteigerung über die Kalenderjahre gewichtet"+(isWage?".":", je produktiver Stunde.")},
-    {h:"Kalk. Satz [€/h]",out:i=>e2(rows[i].V),num:true,tip:"Position 300: inklusive Zuschlägen und SV-Anteil Arbeitgeber; Grundlage der Kosten."},
-    {h:"VK-Satz [€/h]",out:i=>e2(rows[i].AB),num:true,tip:"Position 600: Mitarbeiterverkaufsstundensatz inklusive Umlagen, Gewinn, Risiko und Verhandlung."},
-    {h:"Prod. Std./Jahr",out:i=>fmt(rows[i].AF,1),num:true},{h:"Kosten p.a.",out:i=>calcEur(rows[i].AG),num:true},{h:"Kosten Laufzeit",out:i=>calcEur(rows[i].AH),num:true}
-  ],[null,fmt(res.fte,2),null,null,fmt(res.F,2),null,null,null,fmt(res.AF,1),calcEur(res.AG),calcEur(res.AH)],
-    {extra:'<button type="button" class="btn" id="calc-gross-'+key+'"'+(rows.length&&r.days.grossSuggest>0?'':' disabled')+' title="Setzt den FTE-Brutto-Zuschlag aller Zeilen auf Bruttoarbeitstage ÷ Anwesenheitstage − 1 aus den Basisdaten.">FTE-Brutto-Zuschlag aus Basisdaten ('+co(calcPct(r.days.grossSuggest))+')</button>'});
-  const chain='<details class="calc-det"><summary>Stundensätze je Qualifikation (Zuschlagskette)</summary><div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Qualifikation</th>'+
-    CALC_CHAIN.map(([nr,label])=>'<th class="r" title="'+escH(label)+'">'+nr+'<br><small>'+escH(label)+'</small></th>').join("")+'<th class="r">SV wirksam</th></tr></thead><tbody>'+
-    (rows.map(x=>'<tr><td>'+escH(x.name||"–")+'</td>'+CALC_CHAIN.map(([,,k])=>tdo(e2(x[k]))).join("")+tdo(calcPct(x.svEff))+'</tr>').join("")||'<tr><td colspan="'+(CALC_CHAIN.length+2)+'" class="hint">Keine Einträge.</td></tr>')+
-    '</tbody></table></div></details>';
-  const years='<details class="calc-det"><summary>'+(isWage?"Lohn":"Gehalt")+'entwicklung je Kalenderjahr</summary><div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Qualifikation</th>'+
-    P.years.map(y=>'<th class="r">'+y+'</th>').join("")+'</tr><tr class="hl"><td>Monatsanteil</td>'+P.months.map(m=>tdo(fmt(m,m%1?2:0)+" Mon.")).join("")+'</tr></thead><tbody>'+
-    (rows.map(x=>'<tr><td>'+escH(x.name||"–")+'</td>'+x.yearly.map(v=>tdo(isWage?e2(v):calcEur(v))).join("")+'</tr>').join("")||'<tr><td colspan="'+(P.years.length+1)+'" class="hint">Keine Einträge.</td></tr>')+
-    '</tbody></table></div><p class="hint">Laufzeit Personal: '+co(fmt(P.monthsPersonnel,P.monthsPersonnel%1?2:0))+' Monate · produktive Stunden je FTE: '+co(fmt(res.hours,2))+' h/Jahr</p></details>';
-  return calcCard(title,isWage?"Eingabe des tariflichen Grundlohns je Stunde im Startjahr. Soziallöhne, Prämien und Zuschläge kommen aus den Basisdaten.":"Eingabe des Jahresgehalts im Startjahr. Der Satz je produktiver Stunde ergibt sich aus den produktiven Jahresstunden Gehalt.",
-    table+chain+years,"calc-card-"+key);
-}
-function calcPersonnelHtml(r){
-  const fs=r.sal.factors,fw=r.wage.factors;
-  const schema=calcCard("Kalkulationsschema","Faktoren je produktiver Stunde bezogen auf Gehalt bzw. Grundlohn = 1,00. Gehalt ohne Soziallöhne, weil bezahlte Abwesenheit im Jahresgehalt enthalten ist.",
-    '<div class="calc-scroll"><table class="calc-tab"><thead><tr><th>Nr</th><th>Bezeichnung</th><th class="r">Faktor Gehalt</th><th class="r">Faktor Lohn</th></tr></thead><tbody>'+
-    CALC_CHAIN.map(([nr,label,k])=>'<tr'+(["T","V","X","Z","AB","AD"].includes(k)?' class="hl"':'')+'><td>'+nr+'</td><td>'+escH(label)+'</td>'+tdo(fmt(fs[k],4))+tdo(fmt(fw[k],4))+'</tr>').join("")+
-    '</tbody></table></div>');
-  return calcWarnHtml(r)+calcPersonHtml(r,false)+calcPersonHtml(r,true)+schema;
-}
-
-/* Register Sachkosten */
-function calcCostCard(key,title,tip,priceLabel,extra){
-  const res=CALC.cost[key];
-  return calcCard(title,tip,calcListHtml(key,[{h:"Name",f:"name"},{h:"Menge",f:"qty",num:true},{h:priceLabel,f:"price",num:true},
-    {h:"Gesamtkosten Jahr",out:i=>calcEur(res.rows[i].pa,2),num:true},{h:"Gesamtkosten Laufzeit",out:i=>calcEur(res.rows[i].lz,2),num:true}],
-    [null,null,null,calcEur(res.pa,2),calcEur(res.lz,2)],{extra}),"calc-card-"+key);
-}
-function calcCostsHtml(r){
-  const bom=(R&&R.capex&&R.capex.total)||0;
-  const rt=r.rates,par=r.excel?"Excel-kompatibel: Sachkosten ohne Steigerung, Einmalkosten linear verteilt.":
-    "Sachkostensteigerung "+calcPct(rt.costRaise,1)+" p.a. (Ø Faktor "+fmt(rt.esc,4)+") · Einmalkosten "+(rt.annuity?"als Annuität mit "+calcPct(rt.interest,1)+" Zins ("+calcPct(rt.annuity)+" p.a.)":"linear verteilt")+". Einstellbar unter Projekt & Basisdaten › Sachkosten.";
-  return calcWarnHtml(r)+'<p class="hint">'+co(par)+'</p><div class="calc-grid calc-grid-wide">'+
-    calcCostCard("capex","II-1. Investitionen/Einmalkosten","Einzelkosten über die gesamte Laufzeit; für das Jahr linear auf die Laufzeit verteilt.","Kosten/Einheit [€]",
-      '<button type="button" class="btn" id="calc-capex-bom"'+(bom>0?'':' disabled')+' title="Übernimmt den CAPEX aus dem Register Stückliste & CAPEX ('+escH(calcEur(bom))+') als Zeile „'+CALC_BOM_ROW+'“.">CAPEX aus Stückliste übernehmen</button>')+
-    calcCostCard("opex","II-2. Monatliche Betriebskosten/Verbräuche","Einzelkosten pro Monat, etwa Miete, Leasing, Energie und Verbräuche.","Kosten/Monat [€]")+
-    calcCostCard("nu","II-3. Nachunternehmerleistung","Einzelkosten pro Jahr für Fremdleistungen.","Kosten/Jahr [€]")+
-    calcCostCard("rampup","II-4. Ramp-up-Kosten","Einmalige Anlaufkosten über die Laufzeit; für das Jahr linear verteilt.","Kosten/Einheit [€]")+
-    '</div>';
-}
-const CALC_BOM_ROW="Lagertechnik lt. Stückliste (Lagerplaner)";
-
-/* Register Summary */
-function calcSummaryTables(r){
-  const s=r.sum,P=r.period,c=S.calc,req=S.request||{},meta=S.meta||{},rt=r.rates,share=(a,b)=>b?calcPct(a/b):"–";
-  const head='<table class="calc-tab calc-head"><tbody>'+
-    '<tr><th>Projektname</th><td>'+co(meta.name||"–")+'</td><th>Start Leistung</th><td>'+co(fmtDate(req.sop)||"–")+'</td><th>Geschäftsbereich / Service-Line</th><td>'+co([req.businessUnit,req.serviceLine].filter(Boolean).join(" / ")||"–")+'</td></tr>'+
-    '<tr><th>Kundenname</th><td>'+co(meta.kunde||"–")+'</td><th>Ende Leistung</th><td>'+co(fmtDate(req.eop)||"–")+'</td><th>Kalkulationsdatum</th><td>'+co(fmtDate(c.calcDate)||"–")+'</td></tr>'+
-    '<tr><th>Projektstandort</th><td>'+co(req.serviceSite||"–")+'</td><th>Laufzeit [Monate]</th><td>'+co(P.ok?fmt(P.monthsTotal,P.monthsTotal%1?2:0):"–")+'</td><th>Rechenmodus</th><td>'+co(r.excel?"Excel-kompatibel":"korrigiert")+'</td></tr>'+
-    '</tbody></table>';
-  const rates='<table class="calc-tab calc-head"><tbody><tr><th>HV-Umlage</th>'+tdo(calcPct(rt.hv))+'<th>BU-Umlage</th>'+tdo(calcPct(rt.bu))+'<th>NL-Umlage</th>'+tdo(calcPct(rt.nl))+
-    '<th>Gewinn</th>'+tdo(calcPct(rt.gew))+'<th>Risiko</th>'+tdo(calcPct(rt.ris))+'<th>Verhandlung</th>'+tdo(calcPct(rt.verh))+'</tr></tbody></table>';
-  const kpi=(label,val)=>'<div class="calc-kpi"><span>'+escH(label)+'</span>'+co(val,"kv")+'</div>';
-  const kpis='<div class="calc-kpis">'+kpi("TO p.a. mit Verhandlung",calcEur(s.pa.umv))+kpi("TO Laufzeit mit Verhandlung",calcEur(s.lz.umv))+kpi("Umsatz je Netto-FTE p.a.",calcEur(r.perFte))+'</div>';
-  const fte='<table class="calc-tab"><thead><tr><th></th><th class="r">FTE netto</th><th class="r">FTE brutto</th><th class="r">Produktive Jahresstunden</th></tr></thead><tbody>'+
-    '<tr><th scope="row">FTE Gehälter</th>'+tdo(fmt(r.sal.fte,2))+tdo(fmt(r.sal.F,2))+tdo(fmt(r.sal.AF))+'</tr>'+
-    '<tr><th scope="row">FTE Löhne</th>'+tdo(fmt(r.wage.fte,2))+tdo(fmt(r.wage.F,2))+tdo(fmt(r.wage.AF))+'</tr>'+
-    '<tr class="hl"><th scope="row">∑ FTE</th>'+tdo(fmt(r.fteNet,2))+tdo(fmt(r.fteGross,2))+tdo(fmt(r.hoursAll))+'</tr></tbody></table>';
-  const ph=(v,h)=>h>0?calcEur(v/h,2):"–",H=r.hoursAll;
-  const line=(label,pct,pa,lz,perH,cls)=>'<tr'+(cls?' class="'+cls+'"':'')+'><th scope="row">'+escH(label)+'</th>'+tdo(pct)+tdo(calcEur(pa))+tdo(calcEur(lz))+tdo(perH)+'</tr>';
-  const main='<table class="calc-tab calc-sum"><thead><tr><th>Summary Kalkulation</th><th class="r">%-Anteile</th><th class="r">Pro Jahr (p.a.)</th><th class="r">Laufzeit</th><th class="r">Je produktive Stunde</th></tr></thead><tbody>'+
-    r.groups.map(g=>line(g.label,share(g.lz,s.lz.sk),g.pa,g.lz,ph(g.pa,g.hours))).join("")+
-    line("Projektkosten",share(s.lz.K,s.lz.sk),s.pa.K,s.lz.K,ph(s.pa.K,H),"hl")+
-    line("Unternehmensumlagen (HV/BU/NL)",share(s.lz.um,s.lz.sk),s.pa.um,s.lz.um,ph(s.pa.um,H),"sub")+
-    line("∑ Selbstkosten",share(s.lz.sk,s.lz.sk),s.pa.sk,s.lz.sk,ph(s.pa.sk,H),"hl")+
-    line("Gewinn",share(s.lz.ge,s.lz.uov),s.pa.ge,s.lz.ge,ph(s.pa.ge,H),"sub")+
-    line("Risiko",share(s.lz.ri,s.lz.uov),s.pa.ri,s.lz.ri,ph(s.pa.ri,H),"sub")+
-    line("Umsatz ohne Verhandlung",share(s.lz.uov,s.lz.sk),s.pa.uov,s.lz.uov,ph(s.pa.uov,H),"hl")+
-    line("Verhandlung",share(s.lz.ve,s.lz.umv),s.pa.ve,s.lz.ve,ph(s.pa.ve,H),"sub")+
-    line("Umsatz mit Verhandlung",share(s.lz.umv,s.lz.sk),s.pa.umv,s.lz.umv,ph(s.pa.umv,H),"top")+
-    '</tbody></table><p class="hint">%-Anteile: Kostenpositionen und Umlagen bezogen auf die Selbstkosten, Gewinn und Risiko auf den Umsatz ohne Verhandlung, Verhandlung auf den Umsatz mit Verhandlung, Umsätze auf die Selbstkosten. Personalkosten je Stunde auf die eigenen produktiven Stunden, übrige Positionen auf alle produktiven Stunden.</p>';
-  const o=r.oto,cur=" "+o.currency,m=v=>fmt(v,0)+cur;
-  const otoTab=(title,x,withVerh)=>'<table class="calc-tab calc-oto"><thead><tr><th>'+escH(title)+'</th><th class="r">%-Anteile</th><th class="r">pro Jahr (p.a.)</th></tr></thead><tbody>'+
-    '<tr><th scope="row">Umsatz '+(withVerh?"mit":"ohne")+' Verhandlung</th><td></td>'+tdo(m(x.to))+'</tr>'+
-    '<tr><th scope="row">EBITA (Gewinn'+(withVerh?" + Verhandlung":"")+')</th>'+tdo(calcPct(x.ebitaPct))+tdo(m(x.ebita))+'</tr>'+
-    '<tr><th scope="row">Gross Profit (EBITA + HV + BU)</th>'+tdo(calcPct(x.gpPct))+tdo(m(x.gp))+'</tr></tbody></table>';
-  const sc=h=>'<div class="calc-scroll">'+h+'</div>';
-  return {head:sc(head),rates:sc(rates),kpis,fte:sc(fte),main:sc(main),oto:'<div class="calc-grid">'+sc(otoTab("OtO-Wert Angebots-TO",o.offer,true))+sc(otoTab("OtO-Wert Walkaway-Price",o.walk,false))+'</div>'};
-}
-function calcSummaryHtml(r){
-  const t=calcSummaryTables(r);
-  return calcWarnHtml(r)+calcCard("Summary Kalkulation","Keine Eingaben in diesem Register. Alle Werte aus Projekt & Basisdaten, Personal- und Sachkosten.",
-    t.head+t.rates+t.kpis+'<div class="rowbtns"><button type="button" class="btn" id="calc-print-summary">Summary drucken</button></div>')+
-    calcCard("Kosten und Umsatz","",t.main)+calcCard("Personaleinsatz","",t.fte)+calcCard("OtO-Werte","Angebots-TO mit Verhandlung, Walkaway-Price ohne Verhandlung.",t.oto)+
-    '<details class="calc-det card"><summary>Rechenweg</summary><ol class="calc-steps">'+
-    '<li>Personalkosten p.a. = produktive Jahresstunden × Brutto-FTE × kalkulatorischer Satz (Position 300); über die Laufzeit × Laufzeit in Jahren.</li>'+
-    '<li>Sachkosten p.a.: Investitionen und Ramp-up ÷ Laufzeit in Monaten × 12, Betriebskosten × 12, Nachunternehmer je Jahr.</li>'+
-    '<li>Basis = Projektkosten ÷ (1 − Umlagen − Gewinn − Risiko); Umlagen, Gewinn und Risiko = Basis × Satz; Umsatz ohne Verhandlung = Basis.</li>'+
-    '<li>Umsatz mit Verhandlung = Umsatz ohne Verhandlung ÷ (1 − Verhandlungsmarge).</li>'+
-    '<li>EBITA = Gewinn (+ Verhandlung beim Angebots-TO); Gross Profit = EBITA + HV- und BU-Umlage.</li></ol></details>';
-}
-
-/* Register OtO-Werte */
-function calcOtoRows(r){
-  const req=S.request||{},meta=S.meta||{},c=S.calc,o=r.oto,cur=o.currency,m=v=>fmt(v,2)+" "+cur;
-  return {
-    info:[["Angebots-/Auftragsdatum | Date",fmtDate(c.oto.date)||""],["Status | Status",c.oto.status||""],["Gesellschaft | Business Unit",req.businessUnit||""],["SFDC-Nr.",req.sfId||""],
-      ["Kunde/ Account | Customer",meta.kunde||""],["Umfang | Opportunity Name",meta.name||""],["Kalkulation von | Calculated by",req.calculator||""],["Service Line | Service Line",req.serviceLine||""],
-      ["Angebotsnummer | Offer Number",c.oto.offerNo||""],["Angebotswährung | offer currency",cur],["Wechselkurs | exchange rate",fmt(o.fx,4)],["Zuschlag HV+BU | Contribution",calcPct(r.rates.hvbu,1)]],
-    values:[["Angebots TO | Offer TO",m(o.offer.to)],["Gross Profit | Bruttogewinn",m(o.offer.gp)],["Gross Margin",calcPct(o.offer.gpPct)],["EBITA (excl. Zinsen) | EBITA (excl. interest rates)",m(o.offer.ebita)],
-      ["EBITA Margin",calcPct(o.offer.ebitaPct)],["Differenz Gross/EBITA Margin",calcPct(o.offer.gpPct-o.offer.ebitaPct)],["Investment (total netto) | Invest (total net)",m(o.invest)],["Leasing p.a. | Leasing p.a.",m(o.leasing)],["Abrechnungsart | Payment model",c.oto.billing||""]],
-    walk:[["Walkaway-/Verhandlungspreis",m(o.walk.to)],["Walkaway Gross Profit",m(o.walk.gp)],["Gross Margin",calcPct(o.walk.gpPct)],["Walkaway EBITA",m(o.walk.ebita)],["EBITA Margin",calcPct(o.walk.ebitaPct)],
-      ["Differenz Gross/EBITA Margin",calcPct(o.walk.gpPct-o.walk.ebitaPct)],["Investment",m(o.invest)],["Leasing",m(o.leasing)]]
-  };
-}
-function calcOtoHtml(r){
-  const rows=calcOtoRows(r),c=S.calc;
-  const ro=list=>calcKvTable(list.map(([l,v])=>[l,tdo(v)]));
-  const editable={"Angebots-/Auftragsdatum | Date":calcInput("calc.oto.date","date",{label:"Angebotsdatum"}),"Status | Status":calcInput("calc.oto.status","text",{label:"Status",list:"calc-dl-status"}),
-    "SFDC-Nr.":calcInput("request.sfId","text",{label:"SFDC-Nr."}),"Angebotsnummer | Offer Number":calcInput("calc.oto.offerNo","text",{label:"Angebotsnummer"}),
-    "Angebotswährung | offer currency":calcInput("calc.oto.currency","text",{label:"Angebotswährung",maxlength:10}),"Wechselkurs | exchange rate":calcInput("calc.oto.rate","num",{min:0.000001,max:1000000,label:"Wechselkurs"}),
-    "Abrechnungsart | Payment model":calcInput("calc.oto.billing","text",{label:"Abrechnungsart",list:"calc-dl-billing"})};
-  const mixed=list=>calcKvTable(list.map(([l,v])=>[l,editable[l]||tdo(v)]));
-  const link=c.oto.link&&/^https?:\/\//i.test(c.oto.link)?c.oto.link:"";
-  return calcWarnHtml(r)+'<div class="calc-grid">'+
-    calcCard("Opportunity Informationen I","Felder mit Eingabe pflegen Sie hier; die übrigen Angaben stammen aus den Projektdaten. Wechselkurs: 1 EUR = x Angebotswährung"+(r.excel?" (im Excel-kompatiblen Modus ohne Wirkung).":"."),mixed(rows.info))+
-    calcCard("OtO-Werte Angebot","Rahmenvertrag: Jahresvolumen; Projektgeschäft: Gesamtvolumen. Werte in Angebotswährung.",mixed(rows.values)+
-      '<div class="rowbtns"><button type="button" class="btn acc" id="calc-oto-copy">OtO-Werte kopieren</button><button type="button" class="btn" id="calc-print-oto">OtO-Werte drucken</button></div>')+
-    '</div><div class="calc-grid">'+calcCard("Opportunity Informationen II","Walkaway- bzw. Verhandlungspreis ohne Verhandlungsmarge.",ro(rows.walk))+
-    calcCard("Approval Process und Ablage","Die Vertragsprüfung erfolgt separat. OtO-Abgabeunterlage aus dem Ablageordner kopieren und als separate Datei anlegen.",
-      '<div class="calc-form">'+calcField("Ablageordner OtO (Link)",calcInput("calc.oto.link","text",{label:"Ablageordner OtO",maxlength:1000,placeholder:"https://…"}),"Adresse des Ablageordners, etwa der SharePoint-Ordner Tendermanagement › OtO+Risk. Beginnt mit https://.",true)+'</div>'+
-      '<p>'+(link?'<a href="'+escH(link)+'" target="_blank" rel="noopener noreferrer" class="calc-link">Ablageordner öffnen ↗</a>':'<span class="hint">Kein Link hinterlegt (Adresse mit https:// eingeben).</span>')+'</p>')+'</div>';
-}
-function calcOtoText(r){
-  const rows=calcOtoRows(r);
-  return ["Opportunity Informationen I",...rows.info.map(x=>x.join("\t")),"","OtO-Werte",...rows.values.map(x=>x.join("\t")),"","Opportunity Informationen II",...rows.walk.map(x=>x.join("\t"))].join("\n");
-}
-
-/* ---- Rendern, Eingaben und Aktionen ---- */
-const CALC_RENDER={"12":calcProjectHtml,"13":calcPersonnelHtml,"14":calcCostsHtml,"15":calcSummaryHtml,"16":calcOtoHtml};
-function calcDatalists(){
-  const box=$("calc-datalists");if(!box)return;
-  box.innerHTML=Object.keys(CALC_CHOICES).map(k=>'<datalist id="calc-dl-'+k+'">'+(((S.calc||{}).lists||{})[k]||[]).map(v=>'<option value="'+escH(v)+'"></option>').join("")+'</datalist>').join("");
-}
-function renderCalcPanel(n){
-  const box=$("calc-panel-"+n);if(!box)return;
-  if(!S.calc)S.calc=calcDefaults();
-  CALC=computeCalc(S);
-  // Fokus und Eingabe des aktiven Feldes bleiben beim Neuaufbau erhalten
-  const a=document.activeElement,keep=a&&box.contains(a)&&a.dataset&&a.dataset.cf?{cf:a.dataset.cf,value:a.value,s:a.selectionStart,e:a.selectionEnd}:null;
-  const snap=UNDO_FOCUS_SNAP,label=UNDO_FOCUS_LABEL;
-  box.innerHTML=CALC_RENDER[n](CALC);
-  calcDatalists();
-  if(keep){
-    const el=box.querySelector('[data-cf="'+CSS.escape(keep.cf)+'"]');
-    if(el){
-      if(el.type!=="checkbox"&&el.type!=="date")el.value=keep.value;
-      el.focus();
-      try{if(keep.s!=null)el.setSelectionRange(keep.s,keep.e);}catch(e){}
-      UNDO_FOCUS_SNAP=snap;UNDO_FOCUS_LABEL=label;UNDO_FOCUS_EL=el;
-    }
-  }
-}
-/* Ausgaben des sichtbaren Registers nachführen, ohne Eingabefelder neu aufzubauen; bei geänderter Struktur Neuaufbau */
-function refreshCalcOutputs(){
-  CALC=computeCalc(S);
-  for(const n of CALC_TABS){
-    const box=$("calc-panel-"+n);
-    if(!box||!$("panel-"+n).classList.contains("on")){STALE_PANELS.add(n);continue;}
-    const tpl=document.createElement("div");tpl.innerHTML=CALC_RENDER[n](CALC);
-    const sig=el=>[...el.querySelectorAll("[data-cf],.co")].map(x=>x.dataset.cf||"o").join("|");
-    if(sig(tpl)!==sig(box)){renderCalcPanel(n);continue;}
-    const fresh=tpl.querySelectorAll(".co"),old=box.querySelectorAll(".co");
-    old.forEach((el,i)=>{if(el.textContent!==fresh[i].textContent)el.textContent=fresh[i].textContent;});
-  }
-}
-let CALC_PERSIST_TIMER=null;
-function calcPersistSoon(){clearTimeout(CALC_PERSIST_TIMER);CALC_PERSIST_TIMER=setTimeout(()=>{CALC_PERSIST_TIMER=null;persistState();},150);}
-function calcSharedChanged(path){
-  if(/^(request|meta)\./.test(path))STALE_PANELS.add("9");
-  if(path==="meta.name"&&$("in-projname"))$("in-projname").value=S.meta.name;
-  if(path==="meta.kunde"&&$("in-kunde"))$("in-kunde").value=S.meta.kunde;
-}
-// Feldwert lesen und speichern; liefert false bei ungültiger Zahl
-function calcStoreField(el){
-  const path=el.dataset.cf,type=el.dataset.ct;
-  let v;
-  if(type==="check")v=el.checked;
-  else if(type==="text"||type==="date"){
-    v=String(el.value).slice(0,el.maxLength>0?el.maxLength:200);
-    if(type==="date"&&v&&!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;
-  }else{
-    const n=calcParse(el.value);
-    if(Number.isNaN(n)){el.classList.add("bad");return false;}
-    el.classList.remove("bad");
-    const min=el.dataset.min!==undefined?Number(el.dataset.min):-Infinity,max=el.dataset.max!==undefined?Number(el.dataset.max):Infinity;
-    v=n===null?(path==="calc.oto.rate"?1:0):Math.min(max,Math.max(min,n));
-    if(n!==null&&v!==n)el.dataset.clamped=fmt(v,v%1?2:0);else delete el.dataset.clamped;
-  }
-  if(path.startsWith("request.")){
-    S.request=S.request||{texts:{},skip:[]};
-    const k=path.slice(8),t=String(v).trim();
-    if(t)S.request[k]=t;else delete S.request[k];
-  }else if(path.startsWith("meta.")){S.meta[path.slice(5)]=v;}
-  else setP(S,path,v);
-  calcSharedChanged(path);
-  return true;
-}
-function calcFieldInput(ev){
-  const el=ev.target;
-  if(!el.dataset||!el.dataset.cf||el.type==="date"||el.type==="checkbox")return;
-  if(calcStoreField(el)){refreshCalcOutputs();calcPersistSoon();}
-}
-function calcFieldChange(ev){
-  const el=ev.target;
-  if(el.dataset&&el.dataset.calcChoices){
-    const k=el.dataset.calcChoices,seen=new Set();
-    S.calc.lists[k]=String(el.value).split(/\r?\n/).map(x=>x.trim().slice(0,100)).filter(x=>x&&!seen.has(x)&&seen.add(x)).slice(0,CALC_LIST_MAX);
-    calcDatalists();persistState();
-    return;
-  }
-  if(el.dataset&&el.dataset.calcDuration){
-    const n=calcParse(el.value),start=calcParseDate(S.request&&S.request.sop);
-    if(!start||n===null||Number.isNaN(n)||n<1||n>720||n%1){el.classList.add("bad");return;}
-    el.classList.remove("bad");
-    // Gleicher Monatstag n Monate später, minus ein Tag; fehlt der Tag im Zielmonat, endet die Leistung am Monatsletzten
-    const y=start.getUTCFullYear(),m=start.getUTCMonth()+n,d=start.getUTCDate();
-    const last=new Date(Date.UTC(y,m+1,0)).getUTCDate(),end=new Date(d>last?Date.UTC(y,m,last):Date.UTC(y,m,d)-CALC_DAY_MS);
-    S.request.eop=end.toISOString().slice(0,10);
-    calcSharedChanged("request.eop");persistState();
-    setTimeout(()=>{for(const k of CALC_TABS)STALE_PANELS.add(k);renderVisiblePanels();},0);
-    return;
-  }
-  if(!el.dataset||!el.dataset.cf)return;
-  if(!calcStoreField(el))return;
-  const type=el.dataset.ct;
-  if(type==="num"||type==="pct"){
-    const v=getP(S,el.dataset.cf);if(Number.isFinite(v)&&!el.classList.contains("bad"))el.value=calcFmtIn(v);
-    if(el.dataset.clamped){showNotice("Wert auf den zulässigen Bereich begrenzt: "+el.dataset.clamped+(type==="pct"?" %":"")+" ("+(el.getAttribute("aria-label")||"Feld")+").",5000);delete el.dataset.clamped;}
-  }
-  persistState();
-  // Neuaufbau nach dem Rückgängig-Schritt der Feldänderung (document-Listener läuft danach)
-  if(type==="date"||type==="check"||el.dataset.cf==="calc.oto.link")setTimeout(()=>{for(const n of CALC_TABS)STALE_PANELS.add(n);renderVisiblePanels();},0);
-  else refreshCalcOutputs();
-}
-/* Zellbereich aus Excel einfügen: Tabulator trennt Spalten, Zeilenumbruch Zeilen; fehlende Zeilen werden angelegt */
-function calcPaste(ev){
-  const el=ev.target;
-  if(!el.dataset||el.dataset.cl===undefined||!el.dataset.cf)return;
-  const text=(ev.clipboardData&&ev.clipboardData.getData("text/plain"))||"";
-  const lines=text.replace(/\r/g,"").replace(/\n+$/,"").split("\n");
-  if(lines.length<2&&!/\t/.test(text))return;
-  ev.preventDefault();
-  const key=el.dataset.cl,def=CALC_LISTS[key],i0=+el.dataset.ci,c0=+el.dataset.cc;
-  const list=calcList(key),rowsNeeded=Math.min(CALC_MAX_ROWS,i0+lines.length);
-  pushUndo("Einfügen in "+def.label);
-  while(list.length<rowsNeeded)list.push(calcNewRow(key));
-  let bad=0;
-  lines.forEach((line,r)=>{
-    const row=list[i0+r];if(!row)return;
-    line.split("\t").forEach((cell,k)=>{
-      const fd=def.fields[c0+k];if(!fd)return;
-      if(fd[1]==="text"){row[fd[0]]=cell.trim().slice(0,200);return;}
-      const n=calcParse(cell);
-      if(n===null)row[fd[0]]=0;else if(Number.isNaN(n))bad++;else row[fd[0]]=Math.min(fd[3],Math.max(fd[2],n));
-    });
-  });
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-  showNotice(lines.length+(lines.length===1?" Zeile":" Zeilen")+" in "+def.label+" eingefügt"+(bad?"; "+bad+" Werte waren keine Zahl und wurden übersprungen.":"."),5000);
-}
-function calcRowAction(btn){
-  const act=btn.dataset.calcAct,key=btn.dataset.cl,def=CALC_LISTS[key],list=calcList(key),i=+btn.dataset.ci;
-  if(act==="add"){
-    if(list.length>=CALC_MAX_ROWS){alert("Höchstens "+CALC_MAX_ROWS+" Zeilen je Liste.");return;}
-    pushUndo("Zeile angelegt ("+def.label+")");list.push(calcNewRow(key));
-  }else if(act==="del"){pushUndo("Zeile gelöscht ("+def.label+")");list.splice(i,1);}
-  else if(act==="dup"){
-    if(list.length>=CALC_MAX_ROWS){alert("Höchstens "+CALC_MAX_ROWS+" Zeilen je Liste.");return;}
-    pushUndo("Zeile dupliziert ("+def.label+")");list.splice(i+1,0,Object.assign({},list[i]));
-  }else if(act==="up"||act==="down"){
-    const j=act==="up"?i-1:i+1;if(j<0||j>=list.length)return;
-    pushUndo("Zeile verschoben ("+def.label+")");[list[i],list[j]]=[list[j],list[i]];
-  }
-  setP(S,def.path,list);
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-  // Neue Zeile: Fokus ins erste Feld
-  if(act==="add"||act==="dup"){
-    const row=act==="add"?list.length-1:i+1;
-    const f=document.querySelector('[data-cl="'+key+'"][data-ci="'+row+'"][data-cc="0"]');if(f)f.focus();
-  }
-}
-function calcApplyGrossSuggestion(key){
-  const v=Math.round(computeCalc(S).days.grossSuggest*10000)/100,list=calcList(key);
-  if(!list.length||!(v>0))return;
-  pushUndo("FTE-Brutto-Zuschlag aus Basisdaten ("+CALC_LISTS[key].label+")");
-  for(const row of list)row.gross=v;
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-}
-/* Tastatur in Listentabellen wie in Excel: Enter und Pfeil ab in die nächste Zeile (Enter in der letzten legt eine an), Pfeil auf zurück */
-function calcKeydown(ev){
-  const el=ev.target;
-  if(!el.dataset||el.dataset.cl===undefined||!el.dataset.cf||ev.altKey||ev.ctrlKey||ev.metaKey)return;
-  const down=ev.key==="Enter"&&!ev.shiftKey||ev.key==="ArrowDown",up=ev.key==="ArrowUp"||ev.key==="Enter"&&ev.shiftKey;
-  if(!down&&!up)return;
-  const key=el.dataset.cl,i=+el.dataset.ci,cc=el.dataset.cc,n=calcList(key).length;
-  const target=up?i-1:i+1;
-  if(target<0)return;
-  ev.preventDefault();
-  // Wie in Excel: Zielzelle markiert, Eingabe überschreibt
-  const focusRow=r=>{const f=document.querySelector('[data-cl="'+key+'"][data-ci="'+r+'"][data-cc="'+cc+'"]');if(f){f.focus();try{f.select();}catch(e){}}};
-  if(target<n){focusRow(target);return;}
-  if(ev.key!=="Enter"||n>=CALC_MAX_ROWS)return;
-  el.blur(); // übernimmt den Wert (change) vor dem Neuaufbau
-  pushUndo("Zeile angelegt ("+CALC_LISTS[key].label+")");
-  calcList(key).push(calcNewRow(key));
-  for(const k of CALC_TABS)STALE_PANELS.add(k);
-  renderVisiblePanels();persistState();focusRow(target);
-}
-function calcLoadExample(){
-  const c=S.calc||{},used=["salaries","wages","capex","opex","nu","rampup"].some(k=>(c[k]||[]).length);
-  if(used&&!confirm("Bestehende Kalkulation durch das Beispiel der Excel-Vorlage ersetzen?"))return;
-  pushUndo("Beispielkalkulation geladen");
-  const keep=S.calc&&S.calc.lists;
-  S.calc=calcExample();if(keep)S.calc.lists=keep;
-  S.request=S.request||{texts:{},skip:[]};
-  for(const [k,v] of Object.entries(CALC_EXAMPLE_REQUEST))if(k==="sop"||k==="eop"||!S.request[k])S.request[k]=v;
-  if(!S.meta.kunde){S.meta.kunde="Mercedes-Benz";$("in-kunde").value=S.meta.kunde;}
-  for(const n of [...CALC_TABS,"9"])STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-}
-function calcResetAll(){
-  if(!confirm("Kalkulation zurücksetzen? Alle Personal- und Sachkosten, Basisdaten und OtO-Angaben der Kalkulation gehen verloren. Projektdaten bleiben erhalten."))return;
-  pushUndo("Kalkulation zurückgesetzt");
-  S.calc=calcDefaults();
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-}
-function calcTakeBomCapex(){
-  const total=(R&&R.capex&&R.capex.total)||0;
-  if(!(total>0)){alert("Die Stückliste enthält noch keinen CAPEX.");return;}
-  pushUndo("CAPEX aus Stückliste übernommen");
-  const row=S.calc.capex.find(x=>x.name===CALC_BOM_ROW);
-  if(row){row.qty=1;row.price=Math.round(total);}else S.calc.capex.push({name:CALC_BOM_ROW,qty:1,price:Math.round(total)});
-  for(const n of CALC_TABS)STALE_PANELS.add(n);
-  renderVisiblePanels();persistState();
-  showNotice("CAPEX der Stückliste ("+calcEur(total)+") in II-1. Investitionen übernommen.",5000);
-}
-function calcCopyOto(){
-  const text=calcOtoText(computeCalc(S));
-  const fallback=()=>{
-    const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";
-    document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy");}catch(e){}ta.remove();
-    showNotice(ok?"OtO-Werte in die Zwischenablage kopiert (Bezeichnung und Wert, durch Tabulator getrennt).":"Kopieren nicht möglich. Bitte die Werte im Druckfenster markieren und kopieren.",5000);
-  };
-  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(text).then(()=>showNotice("OtO-Werte in die Zwischenablage kopiert (Bezeichnung und Wert, durch Tabulator getrennt).",5000),fallback);
-  else fallback();
-}
-function calcPrint(which){
-  const r=computeCalc(S),name=S.meta.name||"Projekt";
-  if(which==="oto"){
-    const rows=calcOtoRows(r),tab=(t,list)=>'<h2>'+escH(t)+'</h2><table>'+list.map(([l,v])=>'<tr><th>'+escH(l)+'</th><td>'+escH(v)+'</td></tr>').join("")+'</table>';
-    openPrintWindow("OtO-Werte – "+name,tab("Opportunity Informationen I",rows.info)+tab("OtO-Werte Angebot",rows.values)+tab("Opportunity Informationen II",rows.walk));
-    return;
-  }
-  const t=calcSummaryTables(r);
-  openPrintWindow("Summary Kalkulation – "+name,t.head+t.rates+'<h2>Kosten und Umsatz</h2>'+t.main+'<h2>Personaleinsatz</h2>'+t.fte+'<h2>OtO-Werte</h2>'+t.oto+(r.warn.length?'<p><b>Hinweise:</b> '+escH(r.warn.join(" "))+'</p>':''));
-}
-function initCalc(){
-  const host=$("panels");
-  host.addEventListener("input",calcFieldInput);
-  host.addEventListener("change",calcFieldChange);
-  host.addEventListener("paste",calcPaste);
-  host.addEventListener("keydown",calcKeydown);
-  // Zahlenfelder: Klick in ein nicht fokussiertes Feld markiert den Inhalt, Eingabe überschreibt wie in Excel
-  // (beim Tabulator markiert der Browser selbst)
-  const isNumField=el=>el&&el.dataset&&(el.dataset.ct==="num"||el.dataset.ct==="pct"||el.dataset.calcDuration);
-  let selectOnUp=null;
-  host.addEventListener("mousedown",ev=>{selectOnUp=isNumField(ev.target)&&document.activeElement!==ev.target?ev.target:null;});
-  host.addEventListener("mouseup",ev=>{
-    if(selectOnUp&&ev.target===selectOnUp&&selectOnUp.selectionStart===selectOnUp.selectionEnd){ev.preventDefault();selectOnUp.select();}
-    selectOnUp=null;
-  });
-  host.addEventListener("click",ev=>{
-    const t=ev.target.closest&&ev.target.closest("button");
-    if(!t||!host.contains(t))return;
-    if(t.dataset.calcAct)calcRowAction(t);
-    else if(t.id==="calc-example")calcLoadExample();
-    else if(t.id==="calc-reset")calcResetAll();
-    else if(t.id==="calc-capex-bom")calcTakeBomCapex();
-    else if(t.id==="calc-gross-salaries"||t.id==="calc-gross-wages")calcApplyGrossSuggestion(t.id.slice(11));
-    else if(t.id==="calc-oto-copy")calcCopyOto();
-    else if(t.id==="calc-print-summary")calcPrint("summary");
-    else if(t.id==="calc-print-oto")calcPrint("oto");
-  });
-  calcDatalists();
-}
-/* Navigation: Phasen (Start, Eingabe, Konzept, Bewertung, Ergebnis, Kalkulation) und ihre Register */
+/* Navigation: Phasen (Start, Eingabe, Konzept, Bewertung, Ergebnis) und ihre Register */
 const LAST_TAB_OF_PHASE={};
 function showTab(n){
   const btn=document.querySelector('#tabs [data-tab="'+n+'"]');
@@ -8102,8 +7224,6 @@ function showTab(n){
   // Zeichnungen brauchen die sichtbare Größe; veraltete Register werden jetzt gezeichnet
   if(String(n)==="3")STALE_PANELS.add("3");
   if(String(n)==="4")STALE_PANELS.add("4");
-  // Kalkulation: gemeinsame Projektdaten können sich in anderen Registern geändert haben
-  if(CALC_TABS.includes(String(n)))STALE_PANELS.add(String(n));
   const errors=renderVisiblePanels();
   if(errors.length)showRenderErrors(errors);
 }
@@ -8695,7 +7815,7 @@ function syncVersionLabels(){
         validateImportedPayload(parsedState,"project");
         const restored=deepMerge(defaults(),parsedState);
         if(Array.isArray(parsedState.items))restored.items=parsedState.items.map(item=>deepMerge(newItem(),item));
-        storedRepairs=repairParamRanges(restored).concat(normalizeCalc(restored));
+        storedRepairs=repairParamRanges(restored);
         if(repairedItems)storedRepairs.push({label:"Positionswerte",from:repairedItems+" außerhalb",to:"begrenzt"});
         S=restored;
         migrateFFZ(parsedState.ffz);
@@ -8715,7 +7835,7 @@ function syncVersionLabels(){
   }
   renderParamForm();
   enhanceAccessibility();
-  initBinds();initTabs();initDropdowns();initKpiPanel();initButtons();initItems();initCalc();
+  initBinds();initTabs();initDropdowns();initKpiPanel();initButtons();initItems();
   document.addEventListener("input",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
   document.addEventListener("change",()=>setTimeout(()=>{updateParameterVisibility();renderHeightBalance();},0));
   bindFieldUndoTracking();
