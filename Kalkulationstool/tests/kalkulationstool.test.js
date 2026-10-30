@@ -1019,8 +1019,8 @@ test("KPI-Leiste: läuft beim Tippen mit, springt zur markierten Herkunft", asyn
 
 test("Kopfzeile und Fußzeile: Anordnung, Version, Fußzeile unten auf der Startseite", async (page) => {
   assert.equal(await page.locator("#btn-home").count(), 0, "kein doppelter Start-Knopf");
-  const order = await page.$$eval("header .hdr-actions > *:not(input)", (els) => els.map((e) => e.className.split(" ").pop() || e.id));
-  assert.deepEqual(order, ["hdr-group", "view-switch", "lang-switch"]);
+  const order = await page.$$eval("header .hdr-actions > *:not(input)", (els) => els.map((e) => e.id || e.className.split(" ").pop()));
+  assert.deepEqual(order, ["hdr-group", "view-switch", "btn-help", "lang-switch"]);
   assert.deepEqual(await page.$$eval("header .hdr-group > *", (els) => els.map((e) => e.id)), ["btn-undo", "btn-save-quick", "dd-file"]);
   const ver = await page.evaluate(() => APP_VERSION);
   assert.equal(ver, "V2.11");
@@ -1213,6 +1213,48 @@ test("Kalkulationswährung: Beträge in Landeswährung, OtO gesamt in EUR, Expor
   const toast = await page.evaluate(() => [...document.querySelectorAll(".toast")].map((t) => t.textContent).join(" "));
   assert.match(toast, /OtO-Wechselkurs der Angebotswährung CHF/);
   assert.deepEqual(await page.evaluate(() => ["rate" in S.calc.oto, S.calc.currency.code]), [false, "EUR"]);
+});
+
+test("Inline-Hilfe und Verfahrensanweisung: je Register, abschaltbar, Feldhilfen, zweisprachig, druckbar", async (page) => {
+  // Startseite: Verfahrensanweisung mit Ablauf
+  const guide = await page.textContent("#calc-guide");
+  for (const h of ["Handlungs- und Verfahrensanweisung", "Zweck und Geltungsbereich", "Rollen und Verantwortung", "Ablauf", "Prüfungen vor der Freigabe", "Dokumentation und Versionierung", "Datenhaltung und Ablage", "Besondere Fälle"]) assert.ok(guide.includes(h), h);
+  assert.ok(await page.locator("#calc-guide details[open]").count() >= 1, "Ablauf aufgeklappt");
+  // Hilfe-Box in jedem Register
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation"]) {
+    await page.click("#tab-" + tab);
+    assert.ok(await page.locator(`#panel-${tab} .help-box[open] li`).first().isVisible(), "Hilfe in " + tab);
+  }
+  // Zuklappen wird je Register gemerkt, Hilfen insgesamt abschaltbar
+  await page.click("#tab-sachkosten");
+  await page.click("#panel-sachkosten .help-box summary");
+  await page.click("#tab-summary");
+  await page.click("#tab-sachkosten");
+  assert.equal(await page.locator("#panel-sachkosten .help-box[open]").count(), 0, "zugeklappt gemerkt");
+  await page.click("#btn-help");
+  assert.equal(await page.getAttribute("#btn-help", "aria-pressed"), "false");
+  await page.click("#tab-projekt");
+  assert.equal(await page.locator("#panel-projekt .help-box").isVisible(), false);
+  await page.reload();
+  await page.click("#tab-projekt");
+  assert.equal(await page.locator("#panel-projekt .help-box").isVisible(), false, "Einstellung bleibt nach dem Neuladen");
+  await page.click("#btn-help");
+  assert.ok(await page.locator("#panel-projekt .help-box").isVisible());
+  // Feldhilfen (ⓘ) für Felder ohne eigene Erläuterung
+  const tips = await page.$$eval('#panel-projekt label.mf', (els) => els.filter((l) => l.querySelector("[data-cf]")).map((l) => [l.querySelector("[data-cf]").dataset.cf, !!l.querySelector(".tt")]));
+  assert.deepEqual(tips.filter(([, t]) => !t).map(([cf]) => cf), [], "Felder ohne Hilfe");
+  // Englisch: Hilfe, Anweisung und Feldhilfen übersetzt
+  await page.click('.lang-switch [data-lang="en"]');
+  assert.match(await page.textContent("#panel-projekt .help-box"), /How to work on this tab/);
+  assert.match(await page.getAttribute('[data-cf="meta.name"] >> xpath=ancestor::label//span[contains(@class,"tt")]', "data-tip"), /Name of the project/);
+  assert.equal((await page.textContent("#btn-help")).trim(), "? Help");
+  await page.click("#tab-home");
+  assert.match(await page.textContent("#calc-guide"), /Operating procedure[\s\S]*Roles and responsibilities[\s\S]*Checks before approval/);
+  // Druck der Anweisung
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.click("#calc-guide-print")]);
+  await popup.waitForLoadState();
+  assert.equal(await popup.title(), "Operating procedure");
+  assert.match(await popup.textContent("body"), /Data storage and filing/);
 });
 
 (async () => {

@@ -11,7 +11,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 
 ## Register
 
-- **Start:** Projektkopf, Bearbeitungsstand und Einstieg in die Register.
+- **Start:** Projektkopf, Bearbeitungsstand, Einstieg in die Register und die **Handlungs- und Verfahrensanweisung**: Zweck, Rollen, Ablauf in neun Schritten, Prüfungen vor der Freigabe, Dokumentation, Datenhaltung und besondere Fälle; druckbar.
 
 - **Projekt & Basisdaten:**
   - Projektdaten, Laufzeit aus Start und Ende (oder Laufzeit in Monaten);
@@ -50,7 +50,8 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
 
 - **Kopfzeile:** links Titel, Projekt und Dateiname (● = ungespeicherte Änderungen), rechts Rückgängig, Speichern und das Datei-Menü, die Ansicht (Standard/Detail) und die Sprache (DE/EN).
 - **Ansicht Standard/Detail:** die Detailansicht zeigt zusätzliche Parameter, etwa Kategorie und Abschreibung. Hinterlegte Detailwerte wirken auch in der Standardansicht; ein Hinweis zeigt das an.
-- **Sprache DE/EN:** übersetzt die Oberfläche, Meldungen, Bericht und die Bezeichnungen im Excel-Export. Zahlen und Datumsangaben folgen der Sprache (1.234,56 bzw. 1,234.56), auch bei der Eingabe. Eingaben und Nutzerdaten (Namen, Kategorien, Notizen, Protokolleinträge) werden nie übersetzt.
+- **Hilfe:** Jedes Register beginnt mit einer Hilfe-Box (Arbeitsschritte und Tipps), einzeln zuklappbar; der Knopf „? Hilfe“ blendet alle Hilfe-Boxen aus und ein. Das ⓘ an Feldern und Überschriften erklärt das jeweilige Feld.
+- **Sprache DE/EN:** übersetzt die Oberfläche, Hilfen, Verfahrensanweisung, Meldungen, Bericht und die Bezeichnungen im Excel-Export. Zahlen und Datumsangaben folgen der Sprache (1.234,56 bzw. 1,234.56), auch bei der Eingabe. Eingaben und Nutzerdaten (Namen, Kategorien, Notizen, Protokolleinträge) werden nie übersetzt.
 
 - Alle Listen sind erweiterbar: Zeilen anlegen, duplizieren, verschieben und löschen.
 - Zellbereiche aus Excel kopieren und mit Strg+V einfügen; fehlende Zeilen werden angelegt.
