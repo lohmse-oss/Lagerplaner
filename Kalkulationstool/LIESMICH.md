@@ -53,10 +53,10 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
 - **Hilfe:** Jedes Register beginnt mit einer Hilfe-Box (Arbeitsschritte und Tipps), einzeln zuklappbar; der Knopf „? Hilfe“ blendet alle Hilfe-Boxen aus und ein. Das ⓘ an Feldern und Überschriften erklärt das jeweilige Feld.
 - **Sprache DE/EN:** übersetzt die Oberfläche, Hilfen, Verfahrensanweisung, Meldungen, Bericht und die Bezeichnungen im Excel-Export. Zahlen und Datumsangaben folgen der Sprache (1.234,56 bzw. 1,234.56), auch bei der Eingabe. Eingaben und Nutzerdaten (Namen, Kategorien, Notizen, Protokolleinträge) werden nie übersetzt.
 
-- Jede Liste zeigt wie in Excel mindestens fünf Zeilen. Leerzeilen enthalten keine Daten. Erst die erste Eingabe, ein Häkchen oder Einfügen macht sie zur Zeile der Liste (gegebenenfalls mit den leeren Zeilen davor). Unveränderte leere Zeilen lösen keine Prüfhinweise aus.
+- Jede Liste zeigt wie in Excel mindestens fünf Zeilen und darunter immer zwei freie Zeilen. Leerzeilen enthalten keine Daten. Erst die erste Eingabe, ein Häkchen oder Einfügen macht sie zur Zeile der Liste (gegebenenfalls mit den leeren Zeilen davor). Unveränderte leere Zeilen lösen keine Prüfhinweise aus.
 - Alle Listen sind erweiterbar: Zeilen anlegen, duplizieren, verschieben und löschen.
 - Zellbereiche aus Excel kopieren und mit Strg+V einfügen; fehlende Zeilen werden angelegt.
-- Enter und die Pfeiltasten wechseln wie in Excel die Zeile, auch in die Leerzeilen; Enter in der letzten Zeile einer vollen Liste legt eine neue an.
+- Enter und die Pfeiltasten wechseln wie in Excel die Zeile, auch in die Leerzeilen; die erste Eingabe in einer freien Zeile legt sie an, darunter erscheinen wieder zwei freie Zeilen.
 - Datei-Menü:
   - **Öffnen (Strg+O):** lädt eine Kalkulationsdatei (JSON).
   - **Speichern (Strg+S):** schreibt in die geöffnete bzw. zuletzt gespeicherte Datei. In Chrome und Edge geschieht das direkt in die Datei; beim ersten Speichern wird der Ablageort abgefragt. Andere Browser laden die Datei unter dem bekannten Namen in den Download-Ordner.

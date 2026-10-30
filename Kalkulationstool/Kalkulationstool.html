@@ -1017,11 +1017,12 @@ function calcListHtml(key,cols,foot,o){
   return '<div class="calc-scroll"><table class="calc-tab" data-cl="'+key+'"><thead>'+head+'</thead><tbody>'+body+'</tbody>'+tf+'</table></div>'+
     (act?'<div class="rowbtns"><button type="button" class="btn" data-calc-act="add" data-cl="'+key+'">+ Zeile</button>'+(o.extra||'')+'</div>':'');
 }
-// Mindestens CALC_MIN_ROWS Zeilen je Liste; fehlende als Leerzeilen ohne Daten
-const CALC_MIN_ROWS=5;
+// Mindestens CALC_MIN_ROWS Zeilen je Liste und immer CALC_SPARE_ROWS freie Zeilen darunter; Leerzeilen ohne Daten
+const CALC_MIN_ROWS=5,CALC_SPARE_ROWS=2;
+const calcRowsShown=n=>Math.min(CALC_MAX_ROWS,Math.max(CALC_MIN_ROWS,n+CALC_SPARE_ROWS));
 function calcGhostRows(key,cols,n){
   const def=CALC_LISTS[key],cc=c=>c.cls?" "+c.cls:"";let out="";
-  for(let i=n;i<Math.min(CALC_MIN_ROWS,CALC_MAX_ROWS);i++){
+  for(let i=n;i<calcRowsShown(n);i++){
     out+='<tr class="ghost"><td class="cn">'+(i+1)+'</td>'+cols.map(c=>{
       if(!c.f)return '<td class="calc'+cc(c)+'"></td>';
       const fi=def.fields.findIndex(f=>f[0]===c.f),fd=def.fields[fi],t=fd[1];
@@ -1768,14 +1769,14 @@ function calcKeydown(ev){
   if(!el.dataset||el.dataset.cl===undefined||!el.dataset.cf||ev.altKey||ev.ctrlKey||ev.metaKey||el.tagName==="SELECT")return;
   const down=ev.key==="Enter"&&!ev.shiftKey||ev.key==="ArrowDown",up=ev.key==="ArrowUp"||ev.key==="Enter"&&ev.shiftKey;
   if(!down&&!up)return;
-  const key=el.dataset.cl,i=+el.dataset.ci,cc=el.dataset.cc,n=Math.max(calcList(key).length,CALC_MIN_ROWS);
+  const key=el.dataset.cl,i=+el.dataset.ci,cc=el.dataset.cc,n=calcRowsShown(calcList(key).length);
   const target=up?i-1:i+1;
   if(target<0)return;
   ev.preventDefault();
   // Wie in Excel: Zielzelle markiert, Eingabe überschreibt
   const focusRow=r=>{const f=document.querySelector('[data-cl="'+key+'"][data-ci="'+r+'"][data-cc="'+cc+'"]');if(f){f.focus();try{f.select();}catch(e){}}};
   if(target<n){focusRow(target);return;}
-  if(ev.key!=="Enter"||n>=CALC_MAX_ROWS||calcList(key).length<n)return; // letzte Leerzeile: keine weitere Zeile
+  if(ev.key!=="Enter"||n>=CALC_MAX_ROWS||calcList(key).length<n)return; // letzte Leerzeile: neue Zeilen entstehen mit der Eingabe
   el.blur(); // übernimmt den Wert (change) vor dem Neuaufbau
   pushUndo("Zeile angelegt ("+CALC_LISTS[key].label+")");
   calcList(key).push(calcNewRow(key));

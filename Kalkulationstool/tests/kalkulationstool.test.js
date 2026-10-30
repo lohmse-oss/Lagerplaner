@@ -184,7 +184,8 @@ test("Einfügen aus Excel: Zellbereich füllt Zeilen und legt fehlende an", asyn
     { name: "Staplerfahrer", fte: 1.5, rate: 19.75, gross: 16 },
     { name: "Teamleiter", fte: 1, rate: 24, gross: 0 },
   ]);
-  assert.equal(await page.locator('#calc-card-wages table[data-cl="wages"] > tbody > tr').count(), 5);
+  assert.equal(await page.locator('#calc-card-wages table[data-cl="wages"] > tbody > tr:not(.ghost)').count(), 5);
+  assert.equal(await page.locator('#calc-card-wages table[data-cl="wages"] > tbody > tr.ghost').count(), 2, "zwei freie Zeilen");
   assert.ok(await page.isVisible(".toast"));
   await page.click("#btn-undo");
   assert.equal(await page.evaluate(() => S.calc.wages.length), 3);
@@ -464,12 +465,16 @@ test("Eingabehilfen: Enter und Pfeiltasten, Laufzeit setzt das Ende, Vorschlag B
   assert.deepEqual(await page.evaluate(() => S.calc.nu.slice(1).map(({ name, qty, price }) => ({ name, qty, price }))), [{ name: "Sammel", qty: 1, price: 5000 }], "Leerzeile ohne Daten");
   await page.keyboard.press("ArrowUp");
   assert.equal(await page.evaluate(() => document.activeElement.dataset.cf), "calc.nu.1.price");
-  // Volle Liste (7 Gehälter): Enter in der letzten Zeile legt eine neue Zeile an
+  // Volle Liste (7 Gehälter): zwei freie Zeilen darunter; Enter springt hinein, die Eingabe legt die Zeile an
   await page.click("#tab-personal");
+  assert.equal(await page.locator('#panel-personal table[data-cl="salaries"] tbody tr.ghost').count(), 2);
   await page.click('[data-cf="calc.salaries.6.name"]');
   await page.keyboard.press("Enter");
-  assert.equal(await page.evaluate(() => [S.calc.salaries.length, document.activeElement.dataset.cf].join()), "8,calc.salaries.7.name");
-  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => [S.calc.salaries.length, document.activeElement.dataset.cf].join()), "7,calc.salaries.7.name");
+  await page.keyboard.type("Teamleitung");
+  await page.keyboard.press("Tab");
+  assert.equal(await page.evaluate(() => S.calc.salaries.length), 8);
+  assert.equal(await page.locator('#panel-personal table[data-cl="salaries"] tbody tr.ghost').count(), 2, "wieder zwei freie Zeilen");
   await page.click("#tab-sachkosten");
   // Begrenzung mit Hinweis
   await page.click("#tab-projekt");
@@ -1264,7 +1269,7 @@ test("Inline-Hilfe und Verfahrensanweisung: je Register, abschaltbar, Feldhilfen
   assert.match(await popup.textContent("body"), /Data storage and filing/);
 });
 
-test("Leerzeilen wie in Excel: fünf Zeilen je Liste, erst mit Eingabe gespeichert, ohne Prüfhinweise", async (page) => {
+test("Leerzeilen wie in Excel: mindestens fünf Zeilen, immer zwei freie, erst mit Eingabe gespeichert, ohne Prüfhinweise", async (page) => {
   await page.click("#tab-personal");
   const rows = await page.$$eval("#panel-personal table.calc-tab[data-cl]", (t) => t.map((x) => x.dataset.cl + ":" + x.querySelectorAll("tbody tr.ghost").length));
   assert.deepEqual(rows, ["need:5", "salaries:5", "wages:5", "grades:5"]);
@@ -1276,14 +1281,16 @@ test("Leerzeilen wie in Excel: fünf Zeilen je Liste, erst mit Eingabe gespeiche
   await page.locator('[data-cf="calc.wages.2.fte"]').fill("2");
   await page.locator('[data-cf="calc.wages.2.fte"]').press("Tab");
   assert.deepEqual(await page.evaluate(() => S.calc.wages.map((x) => [x.name, x.fte])), [["", 0], ["", 0], ["Lagerist", 2]]);
-  assert.equal(await page.locator('#panel-personal table[data-cl="wages"] tbody tr.ghost').count(), 2, "zwei Leerzeilen bleiben");
+  assert.equal(await page.locator('#panel-personal table[data-cl="wages"] tbody tr.ghost').count(), 2, "zwei freie Zeilen bleiben");
   const checks = await page.evaluate(() => calcChecks(S, computeCalc(S)).map((x) => x.text).join(" | "));
   assert.doesNotMatch(checks, /Löhne Zeile [12]\b/);
   // Einfügen aus Excel in eine Leerzeile
   await page.click("#tab-sachkosten");
   await page.evaluate(() => { const i = document.querySelector('[data-cf="calc.opex.0.name"]'); const dt = new DataTransfer(); dt.setData("text/plain", "Miete\t1\t5000\nEnergie\t1\t800"); i.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true })); });
   assert.deepEqual(await page.evaluate(() => S.calc.opex.map((x) => [x.name, x.price])), [["Miete", 5000], ["Energie", 800]]);
-  assert.equal(await page.locator('#panel-sachkosten table[data-cl="opex"] tbody tr.ghost').count(), 3);
+  assert.equal(await page.locator('#panel-sachkosten table[data-cl="opex"] tbody tr.ghost').count(), 3, "fünf Zeilen insgesamt");
+  await page.evaluate(() => { for (let i = 0; i < 4; i++) S.calc.opex.push(Object.assign(calcNewRow("opex"), { name: "P" + i })); refreshAll(); });
+  assert.equal(await page.locator('#panel-sachkosten table[data-cl="opex"] tbody tr.ghost').count(), 2, "bei sechs Zeilen zwei freie");
   // Kontrollkästchen in einer Leerzeile
   await page.locator('[data-cf="calc.nu.0.pass"]').check();
   assert.deepEqual(await page.evaluate(() => S.calc.nu.map((x) => [x.qty, x.pass])), [[1, true]]);
