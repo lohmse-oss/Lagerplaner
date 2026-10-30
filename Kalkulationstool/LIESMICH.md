@@ -7,6 +7,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 | `Kalkulationstool.html` | das Werkzeug: per Doppelklick im Browser öffnen |
 | `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Öffnen) |
 | `beispiele/stammdaten-beispiel.json` | Beispiel-Stammdaten aus der Testkalkulation (Land DE): Länderprofil, Mitarbeiterklassen, Tarifgruppen, Sachkosten (Stammdaten › Stammdaten öffnen) |
+| `stammdaten/stammdaten-de-gebaeudereinigung.json` | Startbestand Deutschland: Lohngruppen des Lohntarifs Gebäudereinigerhandwerk (IG BAU) ab 01.01.2026, gültig bis 31.12.2026, und Logistik-Mitarbeiterklassen ohne Eingruppierung; per „Datei zusammenführen“ in die eigenen Stammdaten übernehmen |
 | `testdaten/kalkulation-kombinationen.json` | Testkalkulation mit möglichst vielen Kombinationen (Datei › Öffnen) |
 | `tests/kalkulationstool.test.js` | automatische Tests |
 | `vergleich/Vergleich_Excel_HTML.xlsx` | Vergleichsrechnung Excel-Vorlage gegen HTML-Tool: Beispiel und Testwerte, Überleitung der Deltas |

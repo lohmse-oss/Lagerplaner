@@ -2554,24 +2554,27 @@ function mdApplyRow(key,i){
 // Länderprofil in die Kalkulation übernehmen: Basisdaten, Auswertung, Währung mit gültigem Kurs, Tarifgruppen des Landes
 function mdApplyCountry(){
   const code=mdNorm(S.calc.country),d=mdRefDate();
-  const p=mdList("mdCountries").find(x=>mdNorm(x.code)===code&&mdValid(x,d));
-  if(!p){alert(code?"Kein gültiges Länderprofil für „"+S.calc.country+"“ in den Stammdaten.":"Bitte zuerst das Land der Kalkulation eintragen.");return;}
-  pushUndo("Länderprofil übernommen ("+p.code+")");
+  if(!code){alert("Bitte zuerst das Land der Kalkulation eintragen.");return;}
+  // Ohne Länderprofil: nur die gültigen Tarifgruppen des Landes ergänzen
+  const p=mdList("mdCountries").find(x=>mdNorm(x.code)===code&&mdValid(x,d))||null;
+  const gradesOf=mdList("mdGrades").filter(x=>(mdNorm(x.country)===code||!mdNorm(x.country))&&mdValid(x,d));
+  if(!p&&!gradesOf.length){alert("Kein gültiges Länderprofil für „"+S.calc.country+"“ in den Stammdaten.");return;}
+  pushUndo("Länderprofil übernommen ("+S.calc.country+")");
   const done=[];
-  if(isPlainObject(p.base)){S.calc.base=JSON.parse(JSON.stringify(p.base));done.push("Basisdaten");}
-  if(isPlainObject(p.eval)){S.calc.eval=Object.assign(S.calc.eval||{},JSON.parse(JSON.stringify(p.eval)));done.push("Auswertung");}
-  const cur=String(p.currency||"EUR").trim().toUpperCase()||"EUR";
-  if(/^[A-Z]{3}$/.test(cur)){
+  if(p&&isPlainObject(p.base)){S.calc.base=JSON.parse(JSON.stringify(p.base));done.push("Basisdaten");}
+  if(p&&isPlainObject(p.eval)){S.calc.eval=Object.assign(S.calc.eval||{},JSON.parse(JSON.stringify(p.eval)));done.push("Auswertung");}
+  const cur=p?String(p.currency||"EUR").trim().toUpperCase()||"EUR":"";
+  if(p&&/^[A-Z]{3}$/.test(cur)){
     const r=cur==="EUR"?null:mdList("mdRates").filter(x=>mdNorm(x.currency)===mdNorm(cur)&&x.rate>0&&mdValid(x,d)).sort((a,b)=>String(b.validFrom).localeCompare(String(a.validFrom)))[0];
     S.calc.currency={code:cur,rate:cur==="EUR"?1:(r?r.rate:S.calc.currency.rate||1),date:cur==="EUR"?"":(r?(r.validFrom||""):S.calc.currency.date||"")};
     done.push("Währung "+cur+(r?" (Kurs "+fmt(r.rate,4)+")":""));
   }
   let ng=0;
-  for(const g of mdList("mdGrades").filter(x=>(mdNorm(x.country)===code||!mdNorm(x.country))&&mdValid(x,d)))
+  for(const g of gradesOf)
     if(!S.calc.grades.some(x=>x.kind===g.kind&&mdNorm(x.name)===mdNorm(g.name))){S.calc.grades.push(Object.assign(calcNewRow("grades"),{name:g.name,kind:g.kind,rate:g.rate,note:"Stammdaten"+(g.note?": "+g.note:"")}));ng++;}
   if(ng)done.push(ng+" Tarifgruppen");
   normalizeCalc(S);calcRerenderAll();persistState();
-  showNotice("Länderprofil "+p.code+" übernommen: "+(done.join(", ")||"keine Werte hinterlegt")+".",6000);
+  showNotice("Länderprofil "+String(S.calc.country)+" übernommen: "+(done.join(", ")||"keine Werte hinterlegt")+(p?"":" (kein Länderprofil, nur Tarifgruppen)")+".",6000);
 }
 // Werte einer Kalkulationsliste in die Stammdaten schreiben (neu oder aktualisieren)
 function mdTakeFromCalc(key){
@@ -2947,7 +2950,7 @@ const I18N_EN_RX=[
   [/^Stammdaten \((.+?), (alle Länder|[A-Z]{2,3})\): (\d+) neu, (\d+) aktualisiert, (\d+) unverändert\.$/,m=>"Master data ("+(I18N_EN[m[1]]||m[1])+", "+(m[2]==="alle Länder"?"all countries":m[2])+"): "+m[3]+" new, "+m[4]+" updated, "+m[5]+" unchanged."],
   [/^In Stammdaten übernommen \((.+)\)$/,m=>"Added to master data ("+(I18N_EN[m[1]]||m[1])+")"],
   [/^Rückgängig: In Stammdaten übernommen \((.+)\)$/,m=>"Undo: added to master data ("+(I18N_EN[m[1]]||m[1])+")"],
-  [/^Länderprofil (\S+) übernommen: (.+)\.$/,m=>"Country profile "+m[1]+" applied: "+m[2].replace(/Basisdaten/,"base data").replace(/Auswertung/,"analysis").replace(/Währung (\w+)/,"currency $1").replace(/\(Kurs /,"(rate ").replace(/(\d+) Tarifgruppen/,"$1 pay groups").replace(/keine Werte hinterlegt/,"no values stored")+"."],
+  [/^Länderprofil (\S+) übernommen: (.+)\.$/,m=>"Country profile "+m[1]+" applied: "+m[2].replace(/Basisdaten/,"base data").replace(/Auswertung/,"analysis").replace(/Währung (\w+)/,"currency $1").replace(/\(Kurs /,"(rate ").replace(/(\d+) Tarifgruppen/,"$1 pay groups").replace(/keine Werte hinterlegt/,"no values stored").replace(/\(kein Länderprofil, nur Tarifgruppen\)/,"(no country profile, pay groups only)")+"."],
   [/^Stammdaten geöffnet: (.+)\.$/,m=>"Master data opened: "+m[1].split(", ").map(x=>x.replace(/^(\d+) (.+)$/,(q,n,l)=>n+" "+(I18N_EN[l]||l))).join(", ")+"."],
   [/^OtO-Werte in EUR: Umsatz p\.a\. (.+) ÷ (.+) = (.+) EUR\.$/,m=>"OtO values in EUR: revenue p.a. "+m[1]+" ÷ "+m[2]+" = "+m[3]+" EUR."],
   [/^(.+) muss ein Währungskürzel mit drei Buchstaben sein\.$/,m=>I18N_EN_PATH(m[1])+" must be a three-letter currency code."],

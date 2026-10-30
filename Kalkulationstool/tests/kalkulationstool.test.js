@@ -1416,6 +1416,28 @@ test("Stammdaten: zurückschreiben, Vorschläge mit Gültigkeit, Länderprofil m
   assert.match(await page.textContent("#md-card-costs"), /Material cost catalogue/);
 });
 
+test("Startbestand Stammdaten Deutschland: Lohngruppen Gebäudereinigerhandwerk 2026, Logistik-Klassen, Gültigkeit", async (page) => {
+  const txt = require("fs").readFileSync(path.resolve(__dirname, "..", "stammdaten", "stammdaten-de-gebaeudereinigung.json"), "utf8");
+  assert.equal(await page.evaluate((t) => mdLoadText(t, "stammdaten-de-gebaeudereinigung.json"), txt), true);
+  const g = await page.evaluate(() => MD.grades.map((x) => [x.country, x.kind, x.name, x.rate, x.validFrom, x.validTo]));
+  assert.deepEqual(g.map((x) => x[2] + "=" + x[3]), ["GR LG 1=15", "GR LG 2=15.46", "GR LG 3=15.95", "GR LG 4=16.66", "GR LG 6=18.4", "GR LG 7=19.39", "GR LG 8=20.42", "GR LG 9=21.64"]);
+  assert.ok(g.every((x) => x[0] === "DE" && x[1] === "Lohn" && x[4] === "2026-01-01" && x[5] === "2026-12-31"));
+  // Neue Kalkulation in Deutschland: Lohngruppen übernehmen, nach Ablauf der Gültigkeit nicht mehr
+  await page.click("#tab-projekt");
+  await setField(page, "calc.calcDate", "2026-11-02");
+  await setField(page, "calc.country", "DE");
+  await page.click('[data-md="country-apply"]');
+  assert.deepEqual(await page.evaluate(() => S.calc.grades.map((x) => x.name)), g.map((x) => x[2]));
+  assert.match(await page.textContent(".toast:last-of-type"), /nur Tarifgruppen/);
+  await page.click("#tab-personal");
+  assert.ok((await page.$$eval("#calc-dl-md-Lohn option", (o) => o.map((x) => x.value))).includes("Staplerfahrer"));
+  await page.evaluate(() => { S.calc.grades = []; S.calc.calcDate = "2027-01-15"; refreshAll(); });
+  const msgs = [];
+  page.on("dialog", (d) => msgs.push(d.message()));
+  await page.evaluate(() => mdApplyCountry());
+  assert.match(msgs.join(" "), /Kein gültiges Länderprofil/, "2027 nicht mehr gültig");
+});
+
 (async () => {
   const browser = await chromium.launch();
   let failed = 0;
