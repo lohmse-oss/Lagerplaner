@@ -4,5 +4,6 @@ window.BM_LINKS = {
  "stand": "",
  "basis": "",
  "links": {},
- "ergaenzungen": []
+ "ergaenzungen": [],
+ "anhaenge": {}
 };
