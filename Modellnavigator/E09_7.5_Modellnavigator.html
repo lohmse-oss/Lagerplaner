@@ -115,6 +115,19 @@ h3.sec { font-size: 15.5px; font-weight: 800; margin: 24px 0 10px; }
 .toast[hidden] { display: none; }
 .toast .btn { background: #fff; color: var(--ink); }
 .konflikt td { vertical-align: top; }
+.stift { display: inline-block; margin-left: 5px; padding: 0 5px; border: 1px solid #d97706; border-radius: 4px; background: #fff; color: #8a4b00; font-size: 11.5px; font-weight: 700; line-height: 1.5; cursor: pointer; vertical-align: 1px; }
+.stift:hover, .stift:focus-visible { background: #fef3c7; }
+.band-head .stift { background: rgba(255, 255, 255, .9); }
+.inline-ed { position: fixed; z-index: 150; width: min(440px, calc(100vw - 24px)); background: #fff; border: 1px solid #d97706; border-radius: 8px; box-shadow: 0 12px 32px rgba(15, 23, 42, .25); padding: 10px 12px; }
+.inline-ed h4 { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+.rollen { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: -4px 0 12px; }
+.rollen .btn { font-size: 12.5px; padding: 3px 10px; }
+.rollen-box { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; font-size: 13.5px; }
+.rollen-box .los { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+mark { background: #fde68a; color: inherit; border-radius: 2px; padding: 0 1px; }
+.nav .anz { float: right; font-size: 11px; font-weight: 700; background: #334155; color: #e2e8f0; border-radius: 8px; padding: 0 6px; margin-top: 2px; }
+.nav.on .anz { background: #bfdbfe; color: var(--accent-ink); }
+#d-merk.on { color: #b45309; border-color: #d97706; }
 .banner { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #fef3c7; border: 1px solid #d97706; color: #8a4b00; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 13.5px; }
 .okmsg { background: #dcfce7; border: 1px solid #16a34a; color: #14532d; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: 13.5px; }
 @media (max-width: 760px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
@@ -321,6 +334,8 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   <div class="sb-title" title="Verknüpfung der Dokumente mit ihren Dateien">Pflegen</div>
   <button class="nav" type="button" data-view="ablage">Dokumentablage</button>
   <button class="nav" type="button" data-view="aenderungen">Änderungen</button>
+  <div class="sb-title" title="Eigene Merkliste und zuletzt angesehene Elemente">Persönlich</div>
+  <button class="nav" type="button" data-view="meine">Merkliste und Verlauf</button>
   <div class="sb-title">Über</div>
   <button class="nav" type="button" data-view="info">Info</button>
   <div class="sb-meta" id="sb-meta"></div>
@@ -346,6 +361,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     <div class="d-head">
       <button class="btn" id="d-back" type="button">Zurück</button>
       <div><div id="d-kicker"></div><h2 id="d-title" tabindex="-1"></h2></div>
+      <button class="btn" id="d-merk" type="button" aria-pressed="false" title="Element auf die Merkliste setzen">☆ Merken</button>
       <button class="btn" id="d-edit" type="button" aria-pressed="false" title="Bearbeiten-Modus ein- oder ausschalten">✎ Bearbeiten</button>
       <button class="btn" id="d-link" type="button" title="Adresse dieses Detailfensters kopieren">Link kopieren</button>
       <button class="btn" id="d-close" type="button">Schließen</button>
@@ -837,6 +853,62 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     const o = IX.obj.get(k); return o ? k + ' ' + o.n : k;
   }
 
+  // ---------- Bearbeiten direkt auf den Karten ----------
+  // Im Bearbeiten-Modus trägt jeder bearbeitbare Text ein ✎. Es öffnet einen kleinen Dialog an Ort und Stelle.
+  const stift = (ziel, feld) => bearbeiten && !kanonSicht && feldOrt(B0, ziel, feld) ? `<span class="stift" role="button" tabindex="0" data-inline="${esc(ziel)}|${esc(feld)}" title="${esc(feld)} bearbeiten" aria-label="${esc(feld)} von ${esc(elementName(ziel))} bearbeiten">✎</span>` : '';
+  function inlineEditor(ziel, feld, anker) {
+    inlineZu();
+    const ae = aenderung(ziel, feld), d = document.createElement('div');
+    d.className = 'inline-ed'; d.id = 'inline-ed'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', `${feld} bearbeiten`);
+    d.innerHTML = `<h4>${esc(elementName(ziel))} · ${esc(feld)}</h4><div class="ed-form"><textarea aria-label="Neue Fassung">${esc(wertIn(B, ziel, feld) || '')}</textarea><input type="text" placeholder="Begründung (optional)" aria-label="Begründung" value="${esc(ae ? ae.begruendung || '' : '')}" /><div class="row"><button type="button" class="btn primary" data-ie="ok">Übernehmen</button><button type="button" class="btn" data-ie="zu">Abbrechen</button>${ae ? '<button type="button" class="btn" data-ie="kanon">Kanonfassung</button>' : ''}</div><p class="hint" style="margin-top:4px">Kanon: ${rich(wertIn(B0, ziel, feld) || '') || '–'}</p></div>`;
+    document.body.appendChild(d);
+    const r = anker.getBoundingClientRect(), h = d.offsetHeight, w = d.offsetWidth;
+    d.style.left = Math.max(12, Math.min(r.left, innerWidth - w - 12)) + 'px';
+    d.style.top = (r.bottom + 6 + h < innerHeight ? r.bottom + 6 : Math.max(12, r.top - h - 6)) + 'px';
+    inlineAnker = anker;
+    d.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); inlineZu(true); } });
+    d.addEventListener('click', e => {
+      const b = e.target.closest('[data-ie]'); if (!b) return;
+      if (b.dataset.ie === 'ok') { const f = aendere(ziel, feld, d.querySelector('textarea').value, d.querySelector('input').value); if (f) { alert(f); return; } }
+      else if (b.dataset.ie === 'kanon') aktion(`${feld} von ${elementName(ziel)} auf die Kanonfassung zurückgesetzt.`, () => { A.aenderungen = A.aenderungen.filter(v => !(v.ziel === ziel && v.feld === feld)); aenMerken(); });
+      else { inlineZu(true); return; }
+      inlineZu(); renderView();
+      if ($('ovl').classList.contains('open') && state.o) open(state.o, true);
+    });
+    d.querySelector('textarea').focus();
+  }
+  let inlineAnker = null;
+  function inlineZu(fokus) { const d = $('inline-ed'); if (d) d.remove(); if (fokus && inlineAnker && document.contains(inlineAnker)) inlineAnker.focus(); inlineAnker = null; }
+  document.addEventListener('click', e => {
+    const s = e.target.closest('[data-inline]');
+    if (s) { e.preventDefault(); e.stopPropagation(); const [ziel, feld] = s.dataset.inline.split('|'); inlineEditor(ziel, feld, s); return; }
+    if ($('inline-ed') && !e.target.closest('#inline-ed')) inlineZu();
+  }, true);
+  document.addEventListener('keydown', e => { const s = e.target.closest && e.target.closest('[data-inline]'); if (s && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.stopPropagation(); const [ziel, feld] = s.dataset.inline.split('|'); inlineEditor(ziel, feld, s); } }, true);
+
+  // ---------- Merkliste und Verlauf ----------
+  const MERK_KEY = 'bm-merkliste', VERLAUF_KEY = 'bm-verlauf', ROLLE_KEY = 'bm-rolle', VERLAUF_MAX = 15;
+  const lies = k => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } };
+  const schreib = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* nur für diese Sitzung */ } };
+  let MERK = lies(MERK_KEY), VERLAUF = lies(VERLAUF_KEY);
+  const merkbar = k => editierbarZiel(k) || k.startsWith('feld:');
+  function verlaufDazu(k) { if (!merkbar(k)) return; VERLAUF = [k].concat(VERLAUF.filter(x => x !== k)).slice(0, VERLAUF_MAX); schreib(VERLAUF_KEY, VERLAUF); }
+  function merkAnzeigen() {
+    const k = state.o, an = !!k && MERK.includes(k);
+    $('d-merk').hidden = !k || !merkbar(k);
+    $('d-merk').classList.toggle('on', an); $('d-merk').setAttribute('aria-pressed', String(an));
+    $('d-merk').textContent = an ? '★ Gemerkt' : '☆ Merken';
+    const nb = document.querySelector('.nav[data-view="meine"]');
+    if (nb) nb.innerHTML = `Merkliste und Verlauf${MERK.length ? `<span class="anz">${MERK.length}</span>` : ''}`;
+  }
+  $('d-merk').onclick = () => {
+    const k = state.o; if (!k) return;
+    MERK = MERK.includes(k) ? MERK.filter(x => x !== k) : MERK.concat(k); schreib(MERK_KEY, MERK);
+    merkAnzeigen(); toast(MERK.includes(k) ? `${elementName(k)} gemerkt.` : `${elementName(k)} von der Merkliste genommen.`, false);
+    if (state.ansicht === 'meine') renderView();
+  };
+  const nameVon = k => k.startsWith('feld:') ? 'Entwicklungsfeld ' + ((IX.feld.get(+k.slice(5)) || {}).n || '') : elementName(k);
+
   // ---------- Verweise im Text ----------
   const REF_RE = /\b(M-\d{2}-\d{2}|D-[A-Z]{2}-\d{2}|W-[RMIPQS]-\d{2}|RT-\d-\d{2}|K[34]-[SCORE]-\d{2}|D0\d-[A-Z]+|[ABCE]0\d|Regel \d{1,2})\b/g;
   function rich(text) {
@@ -885,9 +957,9 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     const band = (code, blocks) => {
       const e = IX.ebene.get(code);
       const p = B.perspektiven.find(x => x.ebenen.includes(code));
-      return `<div class="band"><button type="button" class="band-head b-${code}" data-open="ebene:${code}" aria-label="Ebene ${esc(e.n)}"><span class="code">${code}${p ? ` <span class="ptag">· ${esc(p.n)}</span>` : ''}</span><b>${esc(e.n)}</b><span class="lf">${esc(e.leitfrage)}</span></button><div class="blocks">${blocks}</div></div>`;
+      return `<div class="band"><button type="button" class="band-head b-${code}" data-open="ebene:${code}" aria-label="Ebene ${esc(e.n)}"><span class="code">${code}${p ? ` <span class="ptag">· ${esc(p.n)}</span>` : ''}</span><b>${esc(e.n)}</b><span class="lf">${esc(e.leitfrage)}${stift('ebene:' + code, 'Leitfrage')}</span></button><div class="blocks">${blocks}</div></div>`;
     };
-    const blk = (key, titel, text, foot) => `<button type="button" class="blk" data-open="${esc(key)}"><b>${esc(titel)}</b><span class="t">${esc(text)}</span>${foot ? `<span class="foot">${foot}</span>` : ''}</button>`;
+    const blk = (key, titel, text, foot, attr) => `<button type="button" class="blk" data-open="${esc(key)}"${attr || ''}><b>${esc(titel)}</b><span class="t">${esc(text)}${stift(key, 'Gegenstand')}</span>${foot ? `<span class="foot">${foot}</span>` : ''}</button>`;
     const cnt = (n, l) => `<span class="cnt"><b>${n}</b> ${esc(l)}</span>`;
     const k3 = objekte(o => o.art === 'K' && o.kontext === 3), k4 = objekte(o => o.art === 'K' && o.kontext === 4);
     const fuBlocks = B.bloecke.FU.map(b => {
@@ -910,6 +982,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       return `<details class="side-box"><summary><h4>${esc(titel)}</h4><p>${esc(kurz)}</p><span class="more">${rest ? 'Mehr lesen' : 'Mehr'}</span></summary>${rest ? `<p>${rich(rest)}</p>` : ''}<p>${refBtn(key, linkText)}</p></details>`;
     };
     return head('Ebenenmodell', 'Fünf Ebenen mit ihren Komponenten. Ein Klick auf eine Ebene zeigt ihr Raster. Ein Klick auf einen Block führt zur Ordnung und zu den Objekten.')
+      + rollenHtml()
       + `<div class="em">
         ${persp('PE', 'Performance', 1)}${band('FU', fuBlocks)}
         <div class="side-col">
@@ -921,6 +994,32 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
       </div>
       <div class="em-foot">${einl('ebenenraster')}<p style="margin-top:4px">Am linken Rand stehen die Perspektiven. ${refBtn('view:bewertung', 'Bewertungsperspektiven')} · Führend ist ${refBtn('kanon:A02', 'A02')} Kapitel 2.1.</p></div>`;
   };
+
+  // Einstieg je Rolle nach A02 Kapitel 6.3. Die Ansichten ergeben sich aus den dort genannten Dokumenten.
+  const DOK_ANSICHT = { A02: ['start', 'Ebenenmodell'], B01: ['regeln', 'Goldene Regeln'], B02: ['bausteine', 'Bausteine'], B03: ['komponenten', 'Befähigungskomponenten'], B04: ['fuehrung', 'Führung und SCORE'], C04: ['fuehrung', 'Führung und SCORE'], C05: ['fuehrung', 'Führung und SCORE'], C01: ['regeln', 'Goldene Regeln'] };
+  function rollenHtml() {
+    if (!B.einstieg || !B.einstieg.length) return '';
+    let rolle = ''; try { rolle = localStorage.getItem(ROLLE_KEY) || ''; } catch (e) { rolle = ''; }
+    const r = B.einstieg.find(x => x.rolle === rolle);
+    let box = '';
+    if (r) {
+      const ziele = [];
+      // Bereiche wie „B02 bis B04“ zählen jedes Dokument dazwischen.
+      const text = r.einstieg.replace(/\b([ABC])0(\d) bis (?:[ABC]0)?(\d)\b/g, (m, g, a, z) => Array.from({ length: Math.max(0, +z - +a + 1) }, (_, i) => `${g}0${+a + i}`).join(', '));
+      (text.match(/\b[ABC]0\d\b/g) || []).forEach(d => { const a = DOK_ANSICHT[d]; if (a && !ziele.some(z => z[0] === a[0])) ziele.push(a); });
+      const los = ziele.map(([v, l]) => refBtn('view:' + v, l)).join(' · ');
+      const stufen = B.stufen.filter(st => r.einstieg.includes(st.n));
+      const ml = /D02-MET/.test(r.einstieg) ? (stufen.length ? stufen.map(st => goLink(`Methoden Stufe ${st.nr} ${st.n}`, { art: 'M', stufe: st.nr })).join(' · ') : goLink('Alle Methoden', { art: 'M' })) : '';
+      box = `<div class="rollen-box"><b>Einstieg für ${esc(r.rolle)}</b> nach ${refBtn('kanon:A02', 'A02')} Kapitel 6.3: ${rich(r.einstieg)}<div class="los"><span class="hint">Im Navigator:</span> ${[los, ml].filter(Boolean).join(' · ')}</div></div>`;
+    }
+    return `<div class="rollen" role="group" aria-label="Einstieg je Rolle"><span class="hint">Einstieg für</span>${B.einstieg.map(x => `<button type="button" class="btn ${x.rolle === rolle ? 'on' : ''}" data-rolle="${esc(x.rolle)}" aria-pressed="${x.rolle === rolle}">${esc(x.rolle)}</button>`).join('')}</div>${box}`;
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-rolle]'); if (!b) return;
+    e.preventDefault();
+    let alt = ''; try { alt = localStorage.getItem(ROLLE_KEY) || ''; localStorage.setItem(ROLLE_KEY, alt === b.dataset.rolle ? '' : b.dataset.rolle); } catch (x) { /* ohne Speicher keine Auswahl */ }
+    renderView();
+  }, true);
 
   VIEWS.wirkung = () => {
     const reihe = ['AU', 'NO', 'GE', 'BE', 'FU'];
@@ -951,7 +1050,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   };
 
   VIEWS.regeln = () => {
-    const cols = B.felder.map(f => `<div class="feld-col"><h4>${f.nr} ${esc(f.n)}</h4>${f.regeln.map((r, i) => { const R = IX.regel.get(r); const nm = objekte(o => o.art === 'M' && o.regel === r).length, nd = objekte(o => o.art === 'D' && (o.regeln || []).includes(r)).length; return `<button type="button" class="regel-card ${i ? 'w' : ''}" data-open="Regel ${r}"><span class="rolle">${esc(R.rolle)}</span><b>Regel ${r} ${esc(R.kurz)}</b><p>${esc(R.leitsatz)}</p><span class="tags"><span class="cnt"><b>${nm}</b> Methoden</span><span class="cnt"><b>${nd}</b> Dokumente</span></span></button>`; }).join('')}</div>`).join('');
+    const cols = B.felder.map(f => `<div class="feld-col"><h4>${f.nr} ${esc(f.n)}</h4>${f.regeln.map((r, i) => { const R = IX.regel.get(r); const nm = objekte(o => o.art === 'M' && o.regel === r).length, nd = objekte(o => o.art === 'D' && (o.regeln || []).includes(r)).length; return `<button type="button" class="regel-card ${i ? 'w' : ''}" data-open="Regel ${r}"><span class="rolle">${esc(R.rolle)}</span><b>Regel ${r} ${esc(R.kurz)}</b><p>${esc(R.leitsatz)}${stift('Regel ' + r, 'Leitsatz')}</p><span class="tags"><span class="cnt"><b>${nm}</b> Methoden</span><span class="cnt"><b>${nd}</b> Dokumente</span></span></button>`; }).join('')}</div>`).join('');
     // Die Liste der Gegenstände folgt in B01 Kapitel 3 auf den ersten Absatz.
     const [mk1, ...mkRest] = B.mindestkriterien.text;
     const mk = `<div class="card"><h4>Mindestkriterien</h4><p>${rich(mk1 || '')}</p><div class="tags" style="margin:8px 0">${B.mindestkriterien.gegenstaende.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>${mkRest.map(t => `<p>${rich(t)}</p>`).join('')}</div>`;
@@ -960,11 +1059,11 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   };
 
   VIEWS.bausteine = () => head('Bausteine der Gestaltung', 'Acht Bausteine stellen Gestaltungsmittel und Best Practice bereit. Die Dokumente sind nach Baustein geordnet. Führend ist B02.')
-    + `<div class="cards">${B.bausteine.map(b => { const nd = objekte(o => o.art === 'D' && o.baustein === b.code).length, nm = objekte(o => o.art === 'M' && o.baustein === b.code).length; return `<button type="button" class="card click" data-open="bs:${b.code}"><span class="kenn">${b.code}</span><h4>${esc(b.n)}</h4><p>${esc(b.leitfrage || b.gegenstand)}</p><div class="tags"><span class="cnt"><b>${nd}</b> Dokumente</span><span class="cnt"><b>${nm}</b> Methoden</span></div></button>`; }).join('')}</div>`;
+    + `<div class="cards">${B.bausteine.map(b => { const nd = objekte(o => o.art === 'D' && o.baustein === b.code).length, nm = objekte(o => o.art === 'M' && o.baustein === b.code).length; return `<button type="button" class="card click" data-open="bs:${b.code}"><span class="kenn">${b.code}</span><h4>${esc(b.n)}</h4><p>${esc(b.leitfrage || b.gegenstand)}${stift('bs:' + b.code, b.leitfrage ? 'Leitfrage' : 'Gegenstand')}</p><div class="tags"><span class="cnt"><b>${nd}</b> Dokumente</span><span class="cnt"><b>${nm}</b> Methoden</span></div></button>`; }).join('')}</div>`;
 
   VIEWS.komponenten = () => head('Befähigungskomponenten', 'Sechs Befähigungskomponenten bündeln die Zweige, die aus mehreren Bausteinen zusammenlaufen. Führend ist B03.')
     + (einl('wirkungsprinzip') ? `<div class="note" style="margin:0 0 14px"><b>Wirkungsprinzip nach B03 Kapitel 1.2</b>${einl('wirkungsprinzip', 'margin-top:4px')}</div>` : '')
-    + `<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${B.komponenten.map(k => `<button type="button" class="card click" data-open="komp:${k.code}"><span class="kenn">${k.code}</span><h4>${esc(k.n)}</h4><p>${esc(k.gegenstand)}</p>${k.weg ? `<div class="weg"><div><i>Gestaltungsmittel</i>${esc(stripRefs(k.weg.gestaltungsmittel))}</div><span aria-hidden="true">↓</span><div><i>Methode</i>${esc(stripRefs(k.weg.methode))}</div><span aria-hidden="true">↓</span><div><i>Realisierung</i>${esc(k.weg.realisierung)}</div></div>` : ''}<div class="tags">${(k.zufuehrend || []).map(b => `<span class="tag">${esc(b)}</span>`).join('')}</div></button>`).join('')}</div>`;
+    + `<div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(360px,1fr))">${B.komponenten.map(k => `<button type="button" class="card click" data-open="komp:${k.code}"><span class="kenn">${k.code}</span><h4>${esc(k.n)}</h4><p>${esc(k.gegenstand)}${stift('komp:' + k.code, 'Gegenstand')}</p>${k.weg ? `<div class="weg"><div><i>Gestaltungsmittel</i><span>${esc(stripRefs(k.weg.gestaltungsmittel))}${stift('komp:' + k.code, 'Gestaltungsmittel')}</span></div><span aria-hidden="true">↓</span><div><i>Methode</i><span>${esc(stripRefs(k.weg.methode))}${stift('komp:' + k.code, 'Methode oder Verfahren')}</span></div><span aria-hidden="true">↓</span><div><i>Realisierung</i><span>${esc(k.weg.realisierung)}${stift('komp:' + k.code, 'Realisierung')}</span></div></div>` : ''}<div class="tags">${(k.zufuehrend || []).map(b => `<span class="tag">${esc(b)}</span>`).join('')}</div></button>`).join('')}</div>`;
   const stripRefs = t => String(t || '').replace(/\s*\([^)]*\)/g, '');
 
   VIEWS.fuehrung = () => {
@@ -978,12 +1077,30 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   };
 
   // Objektkatalog mit Filtern
-  const F_KEYS = ['q', 'art', 'ebene', 'regel', 'baustein', 'komp', 'stufe'];
+  const F_KEYS = ['q', 'art', 'ebene', 'regel', 'baustein', 'komp', 'stufe', 'pflege'];
+  const PFLEGE = { geaendert: 'gegenüber Kanon geändert', anhang: 'mit Anhang', ohneDatei: 'Dokument ohne Datei', kohaerenz: 'mit Kohärenzhinweis' };
+  const kohaerenzSet = () => new Set(((B0 && B0.meta.pruefung && B0.meta.pruefung.kohaerenz) || []).flatMap(x => x.match(/\b(M-\d{2}-\d{2}|D-[A-Z]{2}-\d{2}|W-[RMIPQS]-\d{2}|RT-\d-\d{2}|K[34]-[SCORE]-\d{2})\b/g) || []));
+  const zielVon = o => o.art === 'P' ? 'Regel ' + o.regel : o.kennung;
+  function pflegeTrifft(o, wert, koh) {
+    if (wert === 'geaendert') return !kanonSicht && A.aenderungen.some(v => v.ziel === zielVon(o));
+    if (wert === 'anhang') return anhaenge(zielVon(o)).length > 0;
+    if (wert === 'ohneDatei') return o.art === 'D' && !linkPfad(o.kennung);
+    if (wert === 'kohaerenz') return koh.has(o.kennung);
+    return true;
+  }
+  // Markiert die Suchbegriffe im Text.
+  function hl(text) {
+    const h = esc(text), w = (state.q || '').trim().split(/\s+/).filter(x => x.length > 1);
+    if (!w.length || state.ansicht !== 'objekte') return h;
+    return h.replace(new RegExp('(' + w.map(x => esc(x).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi'), '<mark>$1</mark>');
+  }
   function filtern() {
     const q = (state.q || '').trim().toLowerCase();
     const arts = (state.art || '').split(',').filter(Boolean);
+    const koh = state.pflege === 'kohaerenz' ? kohaerenzSet() : null;
     return alle().filter(o => {
       if (arts.length && !arts.includes(o.art)) return false;
+      if (state.pflege && !pflegeTrifft(o, state.pflege, koh)) return false;
       if (state.ebene && o.ebene !== state.ebene) return false;
       if (state.regel && !(String(o.regel) === state.regel || (o.regeln || []).map(String).includes(state.regel))) return false;
       if (state.baustein && o.baustein !== state.baustein) return false;
@@ -1013,15 +1130,15 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
   function aktivChips() {
     const lab = {
       ebene: v => 'Ebene ' + ebeneName(v), regel: v => 'Regel ' + v + ' ' + ((IX.regel.get(+v) || {}).kurz || ''), baustein: v => v + ' ' + bsName(v),
-      komp: v => v + ' ' + kompName(v), stufe: v => 'Stufe ' + v + ' ' + ((IX.stufe.get(+v) || {}).n || ''), q: v => '„' + v + '“'
+      komp: v => v + ' ' + kompName(v), stufe: v => 'Stufe ' + v + ' ' + ((IX.stufe.get(+v) || {}).n || ''), q: v => '„' + v + '“', pflege: v => PFLEGE[v] || v
     };
     const c = [];
     (state.art || '').split(',').filter(Boolean).forEach(a => c.push([`art:${a}`, ART_PL[a]]));
-    ['q', 'ebene', 'regel', 'baustein', 'komp', 'stufe'].forEach(k => { if (state[k]) c.push([k, lab[k](state[k])]); });
+    ['q', 'ebene', 'regel', 'baustein', 'komp', 'stufe', 'pflege'].forEach(k => { if (state[k]) c.push([k, lab[k](state[k])]); });
     return c.length ? `<span class="hint">Aktive Filter:</span>${c.map(([k, l]) => `<button type="button" class="f-chip" data-unset="${esc(k)}" aria-label="Filter ${esc(l)} entfernen">${esc(l)}<span aria-hidden="true">×</span></button>`).join('')}` : '';
   }
   let filterAuf = false;
-  const objRow = o => `<button type="button" class="obj-row a-${o.art}" data-open="${esc(o.kennung)}"><span class="kenn">${esc(o.kennung)}</span><span><span class="nm">${esc(o.n)}</span><span class="zw" style="display:block">${esc(o.zweck || (o.typ ? o.typ + ' · ' + bsName(o.baustein) : (o.profil && o.profil.Fundstelle) || ''))}</span></span><span class="rt">${artTag(o.art)}${objTags(o)}</span></button>`;
+  const objRow = o => `<button type="button" class="obj-row a-${o.art}" data-open="${esc(o.kennung)}"><span class="kenn">${hl(o.kennung)}</span><span><span class="nm">${hl(o.n)}</span><span class="zw" style="display:block">${hl(o.zweck || (o.typ ? o.typ + ' · ' + bsName(o.baustein) : (o.profil && o.profil.Fundstelle) || ''))}${o.art !== 'P' ? stift(o.kennung, 'Zweck') : stift(zielVon(o), 'Leitsatz')}</span></span><span class="rt">${artTag(o.art)}${objTags(o)}</span></button>`;
   VIEWS.objekte = () => {
     const arts = (state.art || '').split(',').filter(Boolean);
     const opt = (key, vals, label) => `<select data-f="${key}" aria-label="${label}"><option value="">${label}: alle</option>${vals.map(([v, l]) => `<option value="${esc(v)}" ${String(state[key] || '') === String(v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
@@ -1037,6 +1154,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
         ${opt('baustein', B.bausteine.map(b => [b.code, b.code + ' ' + b.n]), 'Baustein')}
         ${opt('komp', B.komponenten.map(k => [k.code, k.code + ' ' + k.n]), 'Komponente')}
         ${opt('stufe', B.stufen.map(s => [s.nr, s.nr + ' ' + s.n]), 'Kaskadenstufe')}
+        ${opt('pflege', Object.entries(PFLEGE), 'Pflege')}
         <button type="button" class="btn" id="f-reset">Filter zurücksetzen</button>
         </div>
       </div>
@@ -1210,6 +1328,18 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     else if (a === 'verwerfen') { if (!confirm('Alle ungespeicherten Änderungen verwerfen?')) return; aktion('Ungespeicherte Änderungen verworfen.', () => { A = ADATEI ? kopie(ADATEI) : normA(); konflikte = []; aenMerken(); }); renderView(); }
   }, true);
 
+  VIEWS.meine = () => {
+    const zeile = (k, weg) => `<tr><td>${refBtn(k, nameVon(k))}</td><td class="akt">${weg ? `<button type="button" class="btn" data-merk-weg="${esc(k)}" style="font-size:12px;padding:2px 8px">Entfernen</button>` : ''}</td></tr>`;
+    return head('Merkliste und Verlauf', 'Deine Merkliste und die zuletzt geöffneten Elemente. Beides gilt nur in diesem Browser. Gemerkt wird über ☆ Merken im Detailfenster.')
+      + `<h3 class="sec" style="margin-top:0">Merkliste (${MERK.length})</h3>` + (MERK.length ? `<div class="scroll"><table class="list ablage">${MERK.map(k => zeile(k, true)).join('')}</table></div>` : '<p class="hint">Noch nichts gemerkt.</p>')
+      + `<h3 class="sec">Zuletzt angesehen</h3>` + (VERLAUF.length ? `<div class="scroll"><table class="list ablage">${VERLAUF.map(k => zeile(k, false)).join('')}</table></div><p style="margin-top:8px"><button type="button" class="btn" data-verlauf-leeren>Verlauf leeren</button></p>` : '<p class="hint">Noch kein Element geöffnet.</p>');
+  };
+  document.addEventListener('click', e => {
+    const m = e.target.closest('[data-merk-weg]');
+    if (m) { e.preventDefault(); MERK = MERK.filter(x => x !== m.dataset.merkWeg); schreib(MERK_KEY, MERK); merkAnzeigen(); renderView(); return; }
+    if (e.target.closest('[data-verlauf-leeren]')) { e.preventDefault(); VERLAUF = []; schreib(VERLAUF_KEY, VERLAUF); renderView(); }
+  }, true);
+
   VIEWS.info = () => {
     const m = B.meta;
     const cnt = ARTEN.map(a => `<tr><td>${artTag(a)}</td><td>${objekte(o => o.art === a).length}</td></tr>`).join('');
@@ -1251,6 +1381,7 @@ table.mx td .m { color: var(--a-M); font-weight: 800; } table.mx td .d { color: 
     $('d-back').hidden = stack.length < 2;
     $('ovl').classList.add('open');
     state.o = key; writeHash(state, false);
+    verlaufDazu(key); merkAnzeigen();
     $('d-title').focus();
   }
   function closeDrawer(silent) {
