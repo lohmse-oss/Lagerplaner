@@ -76,6 +76,7 @@ function installHelpers() {
       const mk = (n, tr, st, sk) => Object.assign(newItem(), { name: n, trucks: tr, stack: st, skus: sk });
       S.items = [mk("A", 4, 1, 200), mk("B", 2, 3, 20), mk("C", 1, 1, 0)];
       S.building.L = 80; S.building.W = 60;
+      S.calc = calcExample(); S.request.sop = "2027-03-01"; S.request.eop = "2032-02-29";
     }
     UNDO.length = 0; updateUndoBtn();
     VIEW.zoom = 1; VIEW.px = 0; VIEW.py = 0;
@@ -109,6 +110,7 @@ function installHelpers() {
     trucks: S.items.map((i) => i.truck), lhm: S.items.map((i) => i.lhm),
     basis: S.items.map((i) => i.dataBasis), blockShare: S.items.map((i) => i.blockShare),
     status: $("calc-status").textContent, json: $("jsonArea").value.slice(0, 40), chip: $("src-chip").textContent,
+    calc: Object.fromEntries(Object.keys(CALC_LISTS).map((k) => [k, getP(S, CALC_LISTS[k].path).map((r) => r.name)])),
   });
   window.__state = () => JSON.stringify(S);
   window.__check = () => {
@@ -138,6 +140,7 @@ function installHelpers() {
         : d.del !== undefined ? "item-del" : d.edit !== undefined ? "item-edit"
         : d.paramReset ? "param-reset" : d.paramSource ? "param-source" : d.lhmReset ? "lhm-reset" : d.lhmDel ? "lhm-del" : d.trkDel ? "trk-del" : d.trkReset ? "trk-reset"
         : d.sourceSave !== undefined ? "source-save" : d.optIdx !== undefined ? "opt-row"
+        : d.calcAct ? "calc-" + d.calcAct
         : "?" + el.outerHTML.slice(0, 80);
       keys.add(key);
     }
@@ -178,8 +181,9 @@ async function waitOptimization(page) {
    expect   prüft die Wirkung (Teil 2); a = Momentaufnahme vorher, b = nachher
    confirm  Aktion fragt nach; Teil 3 prüft OK und Abbrechen
    slow     in Teil 5 und 6 nur in jedem 4. Paar bzw. seltener                                       */
-const TAB_NAMES = { 0: "Start", 1: "Vorgaben", 2: "Mengengerüst", 3: "Layout", 4: "Regal & Block", 5: "Stückliste & CAPEX", 6: "Varianten", 7: "Annahmen", 8: "Sensitivität", 9: "Berichte", 10: "Übersicht", 11: "Methodik" };
-const PHASE_OF = { 1: "in", 2: "in", 3: "eng", 4: "eng", 5: "eng", 6: "eval", 7: "eval", 8: "eval", 9: "rep", 10: "rep", 11: "rep" };
+const TAB_NAMES = { 0: "Start", 1: "Vorgaben", 2: "Mengengerüst", 3: "Layout", 4: "Regal & Block", 5: "Stückliste & CAPEX", 6: "Varianten", 7: "Annahmen", 8: "Sensitivität", 9: "Berichte", 10: "Übersicht", 11: "Methodik",
+  12: "Projekt & Basisdaten", 13: "Personalkosten", 14: "Sachkosten", 15: "Summary", 16: "OtO-Werte" };
+const PHASE_OF = { 1: "in", 2: "in", 3: "eng", 4: "eng", 5: "eng", 6: "eval", 7: "eval", 8: "eval", 9: "rep", 10: "rep", 11: "rep", 12: "calc", 13: "calc", 14: "calc", 15: "calc", 16: "calc" };
 
 const ACTIONS = [
   /* ---------- Navigation ---------- */
@@ -191,7 +195,7 @@ const ACTIONS = [
     },
     expect: (a, b) => assert.equal(b.tab, n),
   })),
-  ...["in", "eng", "eval", "rep"].map((ph) => ({
+  ...["in", "eng", "eval", "rep", "calc"].map((ph) => ({
     key: "Phase " + ph, covers: ["phase:" + ph],
     run: (p) => p.click(`#tabs .phase[data-phase="${ph}"]`),
     expect: (a, b) => assert.equal(PHASE_OF[b.tab], ph),
@@ -204,7 +208,7 @@ const ACTIONS = [
   {
     key: "Startseite: Sprungziele", covers: ["goto"],
     run: async (p) => {
-      for (const n of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]) {
+      for (const n of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]) {
         await go(p, 0); await p.click(`#panel-0 .linkbtn[data-goto="${n}"]`);
         assert.equal((await snap(p)).tab, n, "Sprung nach " + TAB_NAMES[n]);
       }
@@ -633,6 +637,46 @@ const ACTIONS = [
     expect: (a, b) => assert.ok(b.sources.includes("volume.fillRack")),
   },
   ...[["btn-print-gap", 7, /Fragekatalog/], ["btn-print-int", 9, /Interner Bericht/], ["btn-print-cust", 9, /Grobkonzeptbericht/], ["btn-ffz-print", 5, /FFZ-Anforderungsblatt/], ["btn-print-brief", 9, /Immobiliensteckbrief/]].map(([id, tab, title]) => ({
+    key: "Druckfenster " + id, covers: ["#" + id],
+    run: async (p) => { await go(p, tab); await withEvent(p, "popup", () => p.click("#" + id)); await wait(100); },
+    expect: (a, b, p, ctx) => assert.ok(ctx.popups.some((t) => title.test(t)), "Druckfenster: " + ctx.popups.join(", ")),
+  })),
+
+  /* ---------- Kalkulation ---------- */
+  {
+    key: "Kalkulation: Beispiel laden", covers: ["#calc-example"], confirm: true,
+    run: async (p) => { await go(p, 12); await p.click("#calc-example"); },
+    expect: (a, b) => assert.equal(b.calc.salaries.length, 7),
+  },
+  {
+    key: "Kalkulation zurücksetzen", covers: ["#calc-reset"], confirm: true,
+    run: async (p) => { await go(p, 12); await p.click("#calc-reset"); },
+    expect: (a, b, p, ctx) => assert.equal(b.calc.salaries.length, ctx.confirm ? 0 : a.calc.salaries.length),
+  },
+  ...[["add", 1], ["dup", 1], ["del", -1], ["up", 0], ["down", 0]].map(([act, delta]) => ({
+    key: "Kalkulation: Zeile " + act, covers: ["calc-" + act],
+    run: async (p) => {
+      await go(p, 14);
+      const btn = await p.$(`#calc-card-nu [data-calc-act="${act}"]:not([disabled])`);
+      if (!btn) return "übersprungen";
+      await btn.click();
+    },
+    expect: (a, b) => {
+      assert.equal(b.calc.nu.length, a.calc.nu.length + delta);
+      assert.ok(b.undo > a.undo, "Rückgängig-Schritt");
+    },
+  })),
+  {
+    key: "Kalkulation: CAPEX aus Stückliste", covers: ["#calc-capex-bom"],
+    run: async (p) => { await go(p, 14); if (await p.isDisabled("#calc-capex-bom")) return "übersprungen"; await p.click("#calc-capex-bom"); },
+    expect: (a, b) => assert.ok(b.calc.capex.includes("Lagertechnik lt. Stückliste (Lagerplaner)")),
+  },
+  {
+    key: "Kalkulation: OtO-Werte kopieren", covers: ["#calc-oto-copy"],
+    run: async (p) => { await go(p, 16); await p.click("#calc-oto-copy"); await p.waitForSelector(".toast"); },
+    expect: (a, b) => assert.ok(b.toasts > a.toasts, "Meldung erscheint"),
+  },
+  ...[["calc-print-summary", 15, /Summary Kalkulation/], ["calc-print-oto", 16, /OtO-Werte/]].map(([id, tab, title]) => ({
     key: "Druckfenster " + id, covers: ["#" + id],
     run: async (p) => { await go(p, tab); await withEvent(p, "popup", () => p.click("#" + id)); await wait(100); },
     expect: (a, b, p, ctx) => assert.ok(ctx.popups.some((t) => title.test(t)), "Druckfenster: " + ctx.popups.join(", ")),

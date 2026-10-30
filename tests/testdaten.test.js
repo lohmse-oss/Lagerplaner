@@ -39,6 +39,24 @@ test("Planungsdatei: alle Bedarfsarten, Paletten- und LKW-Typen, Überschreibung
   assert.match(await page.textContent('.pmeta[data-pmeta="volume.transit"]'), /Kunde !/);
 });
 
+test("Planungsdatei: Kalkulation mit allen Listen, Korrekturen und Fremdwährung", async (page) => {
+  await choose(page, "#btn-dd-file", "#btn-load", DATA("testprojekt-kombinationen.json"));
+  const r = await page.evaluate(() => {
+    const c = computeCalc(S);
+    return { lists: Object.keys(CALC_LISTS).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, years: c.period.years.length,
+      sv: c.days.sv, warn: c.warn, fx: c.oto.fx, cur: c.oto.currency, to: c.oto.offer.to, umv: c.sum.pa.umv, rampup: c.cost.rampup.lz, lists2: S.calc.lists.serviceLines.at(-1) };
+  });
+  assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9]);
+  assert.deepEqual([r.months, r.years, r.warn], [60, 6, []]);
+  assert.ok(Math.abs(r.sv - 0.2436) < 1e-9, "SV-Summe mit eigener Zeile");
+  assert.deepEqual([r.fx, r.cur, r.lists2], [0.94, "CHF", "Warehouse"]);
+  assert.ok(Math.abs(r.to - r.umv * 0.94) < 1e-6, "Angebots-TO in CHF");
+  assert.equal(r.rampup, 100000, "Gutschrift mindert den Ramp-up");
+  await page.evaluate(() => showTab(16));
+  assert.equal(await page.getAttribute(".calc-link", "href"), "https://example.sharepoint.com/sites/Tendermanagement/OtO");
+  assert.match(await page.textContent("#calc-panel-16"), /CHF/);
+});
+
 test("Planungsdatei: drei Szenarien laden und bleiben machbar", async (page) => {
   await choose(page, "#btn-dd-file", "#btn-load", DATA("testprojekt-kombinationen.json"));
   const names = await page.evaluate(() => S.scenarios.map((s) => s && s.name));
