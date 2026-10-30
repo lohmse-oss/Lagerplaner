@@ -336,7 +336,6 @@
       "status": "Angebot",
       "offerNo": "ANG-2026-0001",
       "currency": "EUR",
-      "rate": 1,
       "billing": "Monatspauschale",
       "link": ""
     },
@@ -461,6 +460,11 @@
       "sensi": 10,
       "vkMin": 25,
       "vkMax": 75
+    },
+    "currency": {
+      "code": "EUR",
+      "rate": 1,
+      "date": ""
     }
   }
 }

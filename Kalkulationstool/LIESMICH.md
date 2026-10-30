@@ -15,6 +15,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 
 - **Projekt & Basisdaten:**
   - Projektdaten, Laufzeit aus Start und Ende (oder Laufzeit in Monaten);
+  - Kalkulationswährung mit Wechselkurs (siehe unten);
   - Zuschläge, produktive Jahresstunden;
   - Tariferhöhung zum Stichtag und je Jahr, Hochlauf und Volumenwachstum;
   - Personalnebenkosten, SV-Sätze mit Beitragsbemessungsgrenzen;
@@ -37,7 +38,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - Sensitivitätsanalyse mit Tornado-Diagramm;
   - Varianten;
   - Plausibilitätsprüfungen (u. a. Mindestlohn).
-- **OtO-Werte:** Kopiervorlage für das OtO-Formular; kopieren, drucken, Link zum Ablageordner.
+- **OtO-Werte:** Kopiervorlage für das OtO-Formular, alle Werte in EUR; kopieren, drucken, Link zum Ablageordner. Die Angebotswährung ist eine Angabe für das Formular ohne Umrechnung.
 - **Dokumentation:**
   - Kalkulationsstand mit Version und Freigabestatus;
   - „Version abschließen“ übernimmt Umsatz und EBITA-Marge in die Versionshistorie, mit Vergleich zur Vorversion;
@@ -63,6 +64,14 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
   - **Gesamtbericht drucken / als PDF:** alle Register mit Diagrammen.
   - **Projektdaten aus Lagerplaner-Planungsdatei:** übernimmt Projektname, Kunde, Standort, Serviceline, SOP/EOP und weitere Kopfdaten.
 
+## Währungen
+
+- **Kalkulationswährung** (Projekt & Basisdaten › Projektdaten, Kürzel nach ISO 4217, z. B. PLN, CZK, CHF): Alle Beträge der Kalkulation werden in dieser Währung erfasst und angezeigt, also Löhne, Gehälter, Tarifgruppen, Sachkosten, BBG, VK-Spanne, Summary und Auswertung. Statt „€“ steht das Kürzel, auch im Excel-Export und im Bericht.
+- **Wechselkurs** „1 EUR = x“ mit Kursdatum: Damit werden die OtO-Werte in EUR umgerechnet (Umsatz, EBITA, Gross Profit, Investment, Leasing, Walkaway). Prozentwerte bleiben gleich. In der KPI-Leiste stehen die OtO-Kennzahlen in EUR, die übrigen in der Kalkulationswährung.
+- Die Währung ist Teil der Vorlage, sodass eine Landesvorlage Währung, Zuschläge und Tarifgruppen gemeinsam setzt.
+- Mindestlohnprüfung und vorbelegte Beitragsbemessungsgrenzen beziehen sich auf Deutschland. Bei anderer Währung entfällt die Mindestlohnprüfung (Hinweis), die BBG sind anzupassen.
+- Dateien bis V2.11 hatten einen Wechselkurs der Angebotswährung im OtO. Er entfällt beim Öffnen mit Hinweis; die Kalkulation gilt dann in EUR.
+
 ## Testdatei
 
 `testdaten/kalkulation-kombinationen.json` enthält:
@@ -80,7 +89,7 @@ Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen.
   - eine Qualifikation ohne FTE.
 - **Sachkosten:** Durchreichposten bei Betriebskosten und Nachunternehmer, Ramp-up mit Gutschrift, Quellenangaben, Kategorien.
 - **Auswertung:** Preisgleitung, Diskontierungszins, Mindestmarge, Variation und VK-Spanne abweichend vom Standard.
-- **OtO:** Korrekturangebot in CHF mit Wechselkurs und Link zum Ablageordner.
+- **Währung und OtO:** Kalkulation in CHF (1 EUR = 0,94 CHF), OtO-Werte in EUR, Korrekturangebot mit Link zum Ablageordner.
 - **Dokumentation:**
   - freigegebener Stand mit Prüfer und Datum;
   - Versionshistorie mit und ohne Kennzahlen;

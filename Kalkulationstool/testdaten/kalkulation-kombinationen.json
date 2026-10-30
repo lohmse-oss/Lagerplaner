@@ -251,7 +251,6 @@
       "status": "Korrekturangebot",
       "offerNo": "ANG-2026-0815",
       "currency": "CHF",
-      "rate": 0.94,
       "billing": "Monatspauschale",
       "link": "https://example.sharepoint.com/sites/Tendermanagement/OtO"
     },
@@ -373,7 +372,12 @@
         "umv": 0,
         "ebita": 0
       }
-    ]
+    ],
+    "currency": {
+      "code": "CHF",
+      "rate": 0.94,
+      "date": "2027-03-31"
+    }
   },
   "audit": [
     {
