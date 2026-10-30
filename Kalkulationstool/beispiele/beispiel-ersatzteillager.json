@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "tool": "Kalkulationstool",
-  "toolVersion": "V2.0",
+  "toolVersion": "V2.11",
   "meta": {
     "name": "Ersatzteillager Leipzig",
     "kunde": "Musterkunde GmbH"
@@ -90,7 +90,8 @@
       "passMarkup": 3,
       "raises": {
         "2028": 3.0
-      }
+      },
+      "residualMode": 1
     },
     "salaries": [
       {
@@ -191,29 +192,49 @@
         "name": "Regalanlage (Fachboden und Palettenregal)",
         "qty": 1,
         "price": 420000,
-        "note": "Angebot Regalhersteller",
-        "pass": false
+        "note": "Angebot Regalhersteller; Nutzungsdauer 10 Jahre, Übernahme durch den Kunden zum Restbuchwert bei Vertragsende",
+        "pass": false,
+        "category": "Regaltechnik",
+        "procurement": "Kauf",
+        "startYear": 1,
+        "usefulLife": 10,
+        "residual": 0
       },
       {
         "name": "Mobile Datenerfassung (Scanner, Drucker)",
         "qty": 25,
         "price": 1400,
-        "note": "25 × 1.400 €",
-        "pass": false
+        "note": "Leasing über 5 Jahre, Gesamtrate je Gerät; ohne Kapitalbindung",
+        "pass": false,
+        "category": "IT/Software",
+        "procurement": "Leasing",
+        "startYear": 1,
+        "usefulLife": 5,
+        "residual": 0
       },
       {
         "name": "Büro- und Sozialraumausstattung",
         "qty": 1,
         "price": 45000,
         "note": "Pauschale",
-        "pass": false
+        "pass": false,
+        "category": "Ausstattung",
+        "procurement": "Kauf",
+        "startYear": 0,
+        "usefulLife": 0,
+        "residual": 0
       },
       {
         "name": "Ladungssicherung und Kleingeräte",
         "qty": 1,
         "price": 18000,
-        "note": "Pauschale",
-        "pass": false
+        "note": "Ersatzbeschaffung im dritten Vertragsjahr",
+        "pass": false,
+        "category": "Ausstattung",
+        "procurement": "Kauf",
+        "startYear": 3,
+        "usefulLife": 3,
+        "residual": 0
       }
     ],
     "opex": [
@@ -222,42 +243,48 @@
         "qty": 12000,
         "price": 6.2,
         "note": "Mietangebot, 1:1 weiterberechnet",
-        "pass": true
+        "pass": true,
+        "category": "Gebäude/Miete"
       },
       {
         "name": "Nebenkosten [m²]",
         "qty": 12000,
         "price": 1.5,
         "note": "Vorauszahlung lt. Mietangebot",
-        "pass": true
+        "pass": true,
+        "category": "Gebäude/Miete"
       },
       {
         "name": "Staplerleasing (Full Service)",
         "qty": 10,
         "price": 950,
         "note": "Leasingangebot FFZ",
-        "pass": false
+        "pass": false,
+        "category": "Flurförderzeuge"
       },
       {
         "name": "Energie",
         "qty": 1,
         "price": 9500,
         "note": "Erfahrungswert",
-        "pass": false
+        "pass": false,
+        "category": "Energie"
       },
       {
         "name": "WMS-Lizenzen und IT-Betrieb",
         "qty": 1,
         "price": 4200,
         "note": "Lizenzmodell WMS",
-        "pass": false
+        "pass": false,
+        "category": "IT/Software"
       },
       {
         "name": "Verbrauchsmaterial",
         "qty": 1,
         "price": 3000,
         "note": "Erfahrungswert",
-        "pass": false
+        "pass": false,
+        "category": "Sonstiges"
       }
     ],
     "nu": [
@@ -266,21 +293,24 @@
         "qty": 1,
         "price": 48000,
         "note": "Angebot Reinigung",
-        "pass": false
+        "pass": false,
+        "category": "Fremdleistung"
       },
       {
         "name": "Wachdienst",
         "qty": 1,
         "price": 85000,
         "note": "Angebot Wachdienst",
-        "pass": false
+        "pass": false,
+        "category": "Fremdleistung"
       },
       {
         "name": "Entsorgung",
         "qty": 1,
         "price": 24000,
         "note": "Angebot Entsorger",
-        "pass": false
+        "pass": false,
+        "category": "Fremdleistung"
       }
     ],
     "rampup": [
@@ -289,14 +319,16 @@
         "qty": 1,
         "price": 150000,
         "note": "6 Wochen Doppelbesetzung",
-        "pass": false
+        "pass": false,
+        "category": "Anlauf"
       },
       {
         "name": "Umzug und Ersteinlagerung",
         "qty": 1,
         "price": 60000,
         "note": "Angebot Umzugsdienst",
-        "pass": false
+        "pass": false,
+        "category": "Anlauf"
       }
     ],
     "oto": {

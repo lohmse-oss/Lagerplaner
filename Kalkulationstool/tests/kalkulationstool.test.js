@@ -2,6 +2,7 @@
 //   Rechenkern gegen die Werte der Excel-Vorlage (Excel-kompatibel) und die Korrekturen,
 //   Listen (anlegen, duplizieren, verschieben, löschen, aus Excel einfügen), Auswahllisten,
 //   Projektdaten, Rückgängig, Speichern und Öffnen, Übernahme aus dem Lagerplaner, Import-Prüfung, Druck und Kopie.
+//   Ab V2.11: Abschreibung, Restbuchwert und Beschaffung, Kategorien, KPI-Leiste, Kopfzeile, Speichern unter, Sprache Deutsch/Englisch.
 // Ausführen: node Kalkulationstool/tests/kalkulationstool.test.js   (benötigt das npm-Paket "playwright" mit Chromium)
 "use strict";
 const path = require("path");
@@ -19,7 +20,7 @@ const choose = async (page, button, file) => {
 };
 
 const tests = [];
-const test = (name, fn) => tests.push({ name, fn });
+const test = (name, fn, o) => tests.push(Object.assign({ name, fn }, o));
 const near = (a, b, msg) => assert.ok(Math.abs(a - b) <= 1e-7 * Math.max(1, Math.abs(b)), `${msg}: ${a} ≠ ${b}`);
 
 // Zellwerte der Excel-Vorlage PM_Kali_Tool_Light_V1.0 (Blatt und Zelle in Klammern)
@@ -142,7 +143,7 @@ test("Listen: anlegen, duplizieren, verschieben, löschen, je Schritt rückgäng
   await page.keyboard.press("Tab"); await page.keyboard.type("2");
   await page.keyboard.press("Tab"); await page.keyboard.type("12.000,50");
   await page.keyboard.press("Tab");
-  assert.deepEqual(await page.evaluate(() => S.calc.nu[2]), { name: "Wachdienst", qty: 2, price: 12000.5, pass: false, note: "" });
+  assert.deepEqual(await page.evaluate(() => S.calc.nu[2]), { name: "Wachdienst", qty: 2, price: 12000.5, pass: false, note: "", category: "" });
   await page.click('#calc-card-nu [data-calc-act="up"][data-ci="2"]');
   assert.equal((await names())[1], "Wachdienst:12000.5");
   await page.click('#calc-card-nu [data-calc-act="dup"][data-ci="1"]');
@@ -211,7 +212,7 @@ test("Projektdaten: Kopfzeile zeigt Projekt und Kunde, Laufzeit aus SOP/EOP", as
   assert.equal(await page.textContent("#hdr-proj"), "ZV-Packmittel · Mercedes-Benz");
   await page.fill('[data-cf="meta.name"]', "Neues Projekt");
   assert.equal(await page.textContent("#hdr-proj"), "Neues Projekt · Mercedes-Benz");
-  assert.match(await page.title(), /^Neues Projekt · Kalkulationstool/);
+  assert.match(await page.title(), /^(● )?Neues Projekt · Kalkulationstool/);
   await page.fill('[data-cf="request.contact"]', "");
   await page.press('[data-cf="request.contact"]', "Tab");
   assert.equal(await page.evaluate(() => "contact" in S.request), false, "leere Felder entfallen");
@@ -834,12 +835,303 @@ test("Leere Kalkulation: alle Register ohne Fehler und ohne waagerechten Überla
   assert.match(await page.textContent("#calc-panel-summary"), /Start und Ende der Leistung eingeben/);
 });
 
+/* ---------------- V2.11 ---------------- */
+const openTestData = async (page) => {
+  await page.evaluate((t) => loadText(t), require("fs").readFileSync(DATA, "utf8"));
+  await page.waitForTimeout(100);
+};
+const capex = (page) => page.evaluate(() => {
+  const r = computeCalc(S), k = r.cost.capex;
+  return { rows: k.rows.map((x) => ({ proc: x.proc, lz: x.lz, dep: x.dep, interest: x.interest, bookEnd: x.bookEnd, endCharge: x.endCharge, recovery: x.recovery, nominal: x.nominal, outside: x.outside })),
+    cashT0: k.cashT0, invest: r.cash.invest, investLater: r.cash.investLater, otoInvest: r.oto.invest, fx: r.oto.fx, years: r.years.map((y) => ({ year: y.year, invOut: y.invOut, recovery: y.recovery })),
+    checks: calcChecks(S, r).map((x) => x.text).join(" | "), mT: r.period.monthsTotal };
+});
+const setField = async (page, cf, value) => {
+  const el = page.locator(`[data-cf="${cf}"]`);
+  if ((await el.evaluate((e) => e.tagName)) === "SELECT") await el.selectOption(value);
+  else { await el.fill(value); await el.press("Tab"); }
+  await page.waitForTimeout(60);
+};
+
+test("Investitionen: Abschreibung über Vertragsmonate, Restbuchwert, Leasing, Startjahr; Excel-kompatibel ohne Wirkung", async (page) => {
+  await openTestData(page);
+  await page.click("#view-detail");
+  await page.click("#tab-sachkosten");
+  const base = await capex(page);
+  assert.equal(base.mT, 60);
+  // Nutzungsdauer 0: wie bisher über die Laufzeit (Annuität mit Kalkulationszins), Kapitalbindung zum Start
+  assert.equal(base.rows[0].proc, "Kauf");
+  near(base.rows[0].dep, 850000, "Abschreibung = Anschaffung");
+  near(base.cashT0, base.rows[0].nominal + base.rows[1].nominal, "Kapitalbindung zum Start");
+  // 8 Jahre Nutzungsdauer, Restwert 10.000: 60 von 96 Monaten abgeschrieben, Restbuchwert 325.000
+  await setField(page, "calc.capex.0.usefulLife", "8");
+  await setField(page, "calc.capex.0.residual", "10.000");
+  let c = await capex(page);
+  near(c.rows[0].dep, 840000 * 60 / 96, "Abschreibung über Vertragsmonate");
+  near(c.rows[0].bookEnd, 325000, "Restbuchwert zum Vertragsende");
+  near(c.rows[0].recovery, 10000, "Verwertung zum Restwert");
+  near(c.rows[0].endCharge, 315000, "übriger Buchwert im letzten Jahr");
+  near(c.rows[0].lz, c.rows[0].dep + c.rows[0].interest + c.rows[0].endCharge, "Kosten Laufzeit");
+  assert.ok(c.rows[0].interest > 0, "kalkulatorische Zinsen auf den Restbuchwert");
+  near(c.years.at(-1).recovery, 10000, "Rückfluss im letzten Jahr");
+  assert.match(c.checks, /Restbuchwert über dem Restwert/);
+  assert.match(await page.textContent("#calc-card-capex"), /Abschreibung, Beschaffung und Restbuchwert/);
+  // Übernahme durch den Kunden: keine Belastung, Rückfluss in Höhe des Restbuchwerts, Warnung
+  await setField(page, "calc.base.residualMode", "1");
+  c = await capex(page);
+  near(c.rows[0].endCharge, 0, "keine Belastung");
+  near(c.rows[0].recovery, 325000, "Kunde zahlt den Restbuchwert");
+  near(c.rows[0].lz, c.rows[0].dep + c.rows[0].interest, "Kosten Laufzeit ohne Restbuchwert");
+  assert.match(c.checks, /vom Kunden übernommen/);
+  await setField(page, "calc.base.residualMode", "0");
+  // Leasing: keine Kapitalbindung, kein Investment im OtO, Kosten über die Nutzung; über das Vertragsende hinaus mit Warnung
+  await setField(page, "calc.capex.0.procurement", "Leasing");
+  c = await capex(page);
+  near(c.rows[0].lz, 850000, "Leasingkosten vollständig in der Laufzeit");
+  near(c.rows[0].nominal, 0, "kein Investment");
+  near(c.cashT0, base.rows[1].nominal, "nur der Kauf bindet Kapital");
+  near(c.otoInvest, base.rows[1].nominal * c.fx, "OtO-Investment ohne Leasing");
+  assert.match(c.checks, /Leasing läuft über das Vertragsende hinaus/);
+  assert.match(c.checks, /Restwert wird bei Leasing nicht berücksichtigt/);
+  // Kauf im dritten Vertragsjahr: Auszahlung im Kalenderjahr des Kaufs, nicht zum Start
+  await setField(page, "calc.capex.0.procurement", "Kauf");
+  await setField(page, "calc.capex.0.residual", "0");
+  await setField(page, "calc.capex.0.startYear", "3");
+  await setField(page, "calc.capex.0.usefulLife", "3");
+  c = await capex(page);
+  near(c.cashT0, base.rows[1].nominal, "Start ohne die spätere Investition");
+  assert.deepEqual(c.years.filter((y) => y.invOut > 0).map((y) => y.year), [2029]);
+  near(c.investLater, 850000, "Investition im Startjahr");
+  near(c.rows[0].dep, 850000, "voll abgeschrieben");
+  near(c.rows[0].bookEnd, 0, "kein Restbuchwert");
+  // Startjahr nach dem Vertragsende: nicht berücksichtigt, Warnung
+  await setField(page, "calc.capex.0.startYear", "9");
+  c = await capex(page);
+  assert.ok(c.rows[0].outside);
+  near(c.rows[0].lz, 0, "außerhalb der Laufzeit");
+  assert.match(c.checks, /Startjahr 9 liegt nach dem Vertragsende/);
+  // Excel-kompatibel: Angaben ohne Wirkung, linear über die Laufzeit
+  await page.evaluate(() => { S.calc.excelMode = true; refreshAll(); });
+  c = await capex(page);
+  near(c.rows[0].lz, 850000, "linear, ohne Startjahr und Zinsen");
+  assert.match(await page.textContent("#calc-card-capex"), /Excel-kompatibel: Beschaffung, Startjahr, Nutzungsdauer und Restwert wirken nicht/);
+});
+
+test("Migration V2.10: Vorgaben Nutzungsdauer 1 und Startjahr 1 werden zurückgesetzt, eigene Werte bleiben", async (page) => {
+  const obj = JSON.parse(require("fs").readFileSync(DATA, "utf8"));
+  obj.toolVersion = "V2.10";
+  Object.assign(obj.calc.capex[0], { procurement: "Kauf", startYear: 1, usefulLife: 1, residual: 0 });
+  Object.assign(obj.calc.capex[1], { procurement: "Kauf", startYear: 1, usefulLife: 5, residual: 0 });
+  obj.calc.opex[0].usefulLife = 1; // Altfeld aus V2.10 in den Betriebskosten
+  await page.evaluate((t) => loadText(t), JSON.stringify(obj));
+  await page.waitForTimeout(100);
+  const r = await page.evaluate(() => ({ c: S.calc.capex.map((x) => [x.usefulLife, x.startYear]), opex: "usefulLife" in S.calc.opex[0], toast: [...document.querySelectorAll(".toast")].map((t) => t.textContent).join(" ") }));
+  assert.deepEqual(r.c, [[0, 0], [5, 1]]);
+  assert.equal(r.opex, false, "Altfelder der Betriebskosten entfernt");
+  assert.match(r.toast, /Vorgabe aus V2\.10/);
+  // Ab V2.11 gespeicherte Werte bleiben unverändert
+  obj.toolVersion = "V2.11";
+  await page.evaluate((t) => loadText(t), JSON.stringify(obj));
+  assert.deepEqual(await page.evaluate(() => S.calc.capex.map((x) => [x.usefulLife, x.startYear])), [[1, 1], [5, 1]]);
+});
+
+test("Kategorien und Ansicht: Spalte in der Detailansicht, Auswertung in Summary und Excel", async (page) => {
+  await openTestData(page);
+  // Kategorien der Testdatei leeren, damit die Auswertung nur die hier gesetzten zeigt
+  await page.evaluate(() => { for (const k of ["capex", "opex", "nu", "rampup"]) S.calc[k].forEach((r) => (r.category = "")); refreshAll(); });
+  await page.click("#view-standard");
+  await page.click("#tab-sachkosten");
+  assert.equal(await page.locator('#calc-card-capex th:has-text("Kategorie")').first().isVisible(), false, "Standard ohne Kategorie");
+  assert.equal(await page.locator(".calc-capex-detail").isVisible(), false);
+  await page.click("#view-detail");
+  assert.ok(await page.locator('#calc-card-capex th:has-text("Kategorie")').first().isVisible());
+  await setField(page, "calc.capex.0.category", "Fördertechnik");
+  await setField(page, "calc.opex.0.category", "Gebäude/Miete");
+  await setField(page, "calc.opex.1.category", "Gebäude/Miete");
+  const r = await page.evaluate(() => { const c = computeCalc(S); return { cats: c.categories, mat: ["capex", "opex", "nu", "rampup"].reduce((a, k) => a + c.cost[k].lz, 0) }; });
+  assert.deepEqual(r.cats.filter((x) => x.name).map((x) => [x.name, x.n]).sort(), [["Fördertechnik", 1], ["Gebäude/Miete", 2]]);
+  assert.equal(r.cats.at(-1).name, "", "ohne Kategorie zuletzt");
+  near(r.cats.reduce((a, x) => a + x.lz, 0), r.mat, "Kategorien ergeben die Sachkosten");
+  await page.click("#tab-summary");
+  const card = await page.textContent("#calc-card-categories");
+  assert.match(card, /Fördertechnik/);
+  assert.match(card, /ohne Kategorie/);
+  const sheets = await page.evaluate(() => calcExportSheets().find((x) => x.name === "Sachkosten").rows.map((row) => row.map((c) => (c && typeof c === "object" ? c.v : c)).join("|")).join("\n"));
+  assert.match(sheets, /Kategorie\|Menge/);
+  assert.match(sheets, /Sachkosten nach Kategorie/);
+  assert.match(sheets, /Fördertechnik/);
+  // Standardansicht: Hinweis, dass Abschreibungsdetails wirken
+  await page.evaluate(() => { S.calc.capex[0].usefulLife = 8; refreshAll(); });
+  await page.click("#view-standard");
+  await page.click("#tab-sachkosten");
+  assert.ok(await page.locator("text=Abschreibungsdetails sind hinterlegt").isVisible());
+});
+
+test("KPI-Leiste: läuft beim Tippen mit, springt zur markierten Herkunft", async (page) => {
+  await openTestData(page);
+  await page.click("#tab-sachkosten");
+  const value = () => page.locator('.kpi-card[data-origin-source="toPa"] .kpi-value').textContent();
+  const before = await value();
+  const inp = page.locator('[data-cf="calc.capex.0.price"]');
+  await inp.click();
+  await inp.press("End");
+  await page.keyboard.type("0");
+  await page.waitForTimeout(100);
+  assert.notEqual(await value(), before, "ohne Verlassen des Feldes aktualisiert");
+  await page.keyboard.press("Tab");
+  // Jede Kennzahl hat eine markierte Herkunft im Zielregister
+  const cards = await page.$$eval(".kpi-card", (els) => els.map((e) => [e.dataset.originTab, e.dataset.originSource]));
+  assert.equal(cards.length, 8);
+  for (const [tab, src] of cards) {
+    await page.evaluate((t) => showTab(t), tab);
+    assert.ok(await page.locator(`#panel-${tab} [data-kpi-source~="${src}"]`).count(), "Herkunft " + src);
+  }
+  await page.click('.kpi-card[data-origin-source="investment"]');
+  await page.waitForTimeout(100);
+  assert.equal(await page.getAttribute("#tab-sachkosten", "aria-selected"), "true");
+  assert.equal(await page.locator('#panel-sachkosten [data-kpi-source~="investment"]').getAttribute("id"), "calc-card-capex");
+  // Auswahl bleibt beim Rechnen geöffnet
+  await page.click("#kpi-config");
+  await page.evaluate(() => refreshCalcOutputs());
+  assert.ok(await page.locator("#kpi-picker.open").count());
+});
+
+test("Kopfzeile und Fußzeile: Anordnung, Version, Fußzeile unten auf der Startseite", async (page) => {
+  assert.equal(await page.locator("#btn-home").count(), 0, "kein doppelter Start-Knopf");
+  const order = await page.$$eval("header .hdr-actions > *:not(input)", (els) => els.map((e) => e.className.split(" ").pop() || e.id));
+  assert.deepEqual(order, ["hdr-group", "view-switch", "lang-switch"]);
+  assert.deepEqual(await page.$$eval("header .hdr-group > *", (els) => els.map((e) => e.id)), ["btn-undo", "btn-save-quick", "dd-file"]);
+  const ver = await page.evaluate(() => APP_VERSION);
+  assert.equal(ver, "V2.11");
+  assert.match(await page.title(), /Kalkulationstool V2\.11/);
+  assert.match(await page.textContent("#app-footer"), /V2\.11/);
+  assert.match(await page.textContent("#app-ver"), /V2\.11/);
+  // Fußzeile am unteren Rand, auch wenn die Startseite kürzer als das Fenster ist
+  await page.setViewportSize({ width: 1440, height: 1400 });
+  const f = await page.evaluate(() => ({ bottom: Math.round($("app-footer").getBoundingClientRect().bottom), h: innerHeight }));
+  assert.equal(f.bottom, f.h);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Kopfzeile bei 390 px ohne Überlauf");
+});
+
+test("Speichern unter ohne Dateizugriff: Dateiname abfragen, danach Speichern unter diesem Namen", async (page) => {
+  await loadExample(page);
+  assert.ok(await page.locator("#hdr-dirty").isVisible(), "ungespeicherte Änderungen markiert");
+  await page.click("#btn-dd-file");
+  const [d1] = await Promise.all([page.waitForEvent("download"), page.click("#btn-save-as")]);
+  assert.equal(d1.suggestedFilename(), "ZV-Packmittel_kalkulation.json");
+  assert.equal(await page.textContent("#hdr-file-name"), "ZV-Packmittel_kalkulation.json");
+  assert.equal(await page.locator("#hdr-dirty").isVisible(), false);
+  // Ansicht, Register und Sprache ändern die Kalkulation nicht
+  await page.click("#view-detail");
+  await page.click("#tab-summary");
+  await page.click('.lang-switch [data-lang="en"]');
+  await page.click('.lang-switch [data-lang="de"]');
+  await page.click("#tab-projekt");
+  assert.equal(await page.locator("#hdr-dirty").isVisible(), false, "ohne Änderung nicht markiert");
+  await setField(page, "calc.base.profit", "7");
+  assert.ok(await page.locator("#hdr-dirty").isVisible());
+  const [d2] = await Promise.all([page.waitForEvent("download"), page.keyboard.press("Control+s")]);
+  assert.equal(d2.suggestedFilename(), "ZV-Packmittel_kalkulation.json");
+  assert.equal(JSON.parse(require("fs").readFileSync(await d2.path(), "utf8")).calc.base.profit, 7);
+  assert.equal(await page.locator("#hdr-dirty").isVisible(), false);
+  // Dateiname und Status bleiben nach dem Neuladen erhalten
+  await page.reload();
+  assert.equal(await page.textContent("#hdr-file-name"), "ZV-Packmittel_kalkulation.json");
+});
+
+test("Speichern unter und Öffnen mit Dateizugriff: gleiche Datei wird überschrieben", async (page) => {
+  await page.addInitScript(() => {
+    window.__files = {};
+    window.__pickerCalls = 0;
+    const handle = (name) => ({ name, createWritable: async () => ({ write: async (b) => { window.__files[name] = await b.text(); }, close: async () => {} }),
+      getFile: async () => new File([window.__files[name] || ""], name, { type: "application/json" }) });
+    window.showSaveFilePicker = async (o) => { window.__pickerCalls++; window.__suggested = o.suggestedName; return handle("angebot-a.json"); };
+    window.showOpenFilePicker = async () => [handle("angebot-a.json")];
+  });
+  await page.reload();
+  await loadExample(page);
+  await page.click("#btn-save-quick"); // erstes Speichern fragt nach Ablageort
+  await page.waitForTimeout(100);
+  let r = await page.evaluate(() => ({ calls: __pickerCalls, sug: __suggested, saved: JSON.parse(__files["angebot-a.json"]).meta.name }));
+  assert.deepEqual(r, { calls: 1, sug: "ZV-Packmittel_kalkulation.json", saved: "ZV-Packmittel" });
+  assert.equal(await page.textContent("#hdr-file-name"), "angebot-a.json");
+  await setField(page, "meta.name", "Variante A");
+  await page.keyboard.press("Control+s");
+  await page.waitForTimeout(100);
+  r = await page.evaluate(() => ({ calls: __pickerCalls, saved: JSON.parse(__files["angebot-a.json"]).meta.name }));
+  assert.deepEqual(r, { calls: 1, saved: "Variante A" }, "ohne erneute Abfrage in dieselbe Datei");
+  await page.keyboard.press("Control+Shift+S");
+  await page.waitForTimeout(100);
+  assert.equal(await page.evaluate(() => __pickerCalls), 2, "Speichern unter fragt erneut");
+  // Öffnen über den Dateizugriff
+  await page.evaluate(() => { newCalc(); });
+  await page.click("#btn-dd-file");
+  await page.click("#btn-open");
+  await page.waitForTimeout(200);
+  assert.equal(await page.evaluate(() => S.meta.name), "Variante A");
+  assert.equal(await page.textContent("#hdr-file-name"), "angebot-a.json");
+  assert.equal(await page.locator("#hdr-dirty").isVisible(), false);
+}, { fsAccess: true });
+
+test("Sprache Englisch: Oberfläche, Zahlenformat, Meldungen, Bericht und Excel; Nutzerdaten unverändert", async (page) => {
+  await openTestData(page);
+  // Nutzerdaten, die zufällig Begriffen der Oberfläche entsprechen
+  await page.evaluate(() => { S.meta.kunde = "Investitionen"; S.calc.capex[1].name = "Kauf"; S.calc.capex[1].category = "Sachkosten"; refreshAll(); });
+  await page.click('.lang-switch [data-lang="en"]');
+  assert.equal(await page.getAttribute("html", "lang"), "en");
+  assert.equal(await page.textContent("#tab-sachkosten"), "Material costs");
+  assert.equal(await page.textContent("#btn-save-quick"), "Save");
+  assert.match(await page.textContent("#app-footer"), /runs locally in the browser/);
+  await page.click("#tab-home");
+  assert.match(await page.textContent(".home-hero"), /Investitionen/, "Kunde unverändert");
+  await page.click("#view-detail");
+  await page.click("#tab-summary");
+  const sum = await page.textContent("#calc-panel-summary");
+  assert.match(sum, /Revenue incl\. negotiation/);
+  assert.match(sum, /Investitionen/);
+  assert.match(sum, /Sachkosten/, "Kategorie als Nutzerdatum");
+  await page.click("#tab-sachkosten");
+  assert.match(await page.textContent(".calc-capex-detail"), /Kauf/, "Name der Position unverändert");
+  assert.match(await page.textContent(".calc-capex-detail"), /Depreciation, procurement and residual book value/);
+  // Zahlen im englischen Format, Eingabe ebenso
+  assert.equal(await page.inputValue('[data-cf="calc.capex.1.price"]'), "1,450.5");
+  await setField(page, "calc.capex.1.price", "2,000.75");
+  assert.equal(await page.evaluate(() => S.calc.capex[1].price), 2000.75);
+  assert.match(await page.textContent(".kpi-card .kpi-value"), /^\d{1,3}(,\d{3})+ €$/);
+  // Meldungen
+  const msgs = [];
+  page.on("dialog", (d) => msgs.push(d.message()));
+  await page.evaluate(() => newCalc());
+  assert.match(msgs.join(" | "), /Start a new calculation\?/);
+  await page.click("#btn-undo");
+  // Bericht
+  await page.click("#btn-dd-file");
+  const [popup] = await Promise.all([page.waitForEvent("popup"), page.click("#btn-report")]);
+  await popup.waitForLoadState();
+  assert.match(await popup.title(), /^Calculation – Testkalkulation Kombinationen/);
+  assert.match(await popup.textContent("body"), /Cash flow and capital commitment/);
+  await popup.close();
+  // Excel mit englischen Blattnamen und Überschriften
+  const sheets = await page.evaluate(() => calcExportTranslate(calcExportSheets()).map((x) => x.name));
+  assert.ok(sheets.includes("Material costs") && sheets.includes("Base data"), sheets.join(","));
+  // Sprache bleibt nach dem Neuladen, Rückkehr zu Deutsch
+  await page.reload();
+  assert.equal(await page.textContent("#tab-sachkosten"), "Material costs");
+  await page.click('.lang-switch [data-lang="de"]');
+  assert.equal(await page.textContent("#tab-sachkosten"), "Sachkosten");
+  await page.click("#tab-sachkosten");
+  assert.equal(await page.inputValue('[data-cf="calc.capex.1.price"]'), "2.000,75");
+  assert.equal(await page.evaluate(() => S.meta.kunde), "Investitionen");
+});
+
 (async () => {
   const browser = await chromium.launch();
   let failed = 0;
   for (const t of tests) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     await context.grantPermissions(["clipboard-read", "clipboard-write"]).catch(() => {});
+    if (!t.fsAccess) await context.addInitScript(() => { window.showOpenFilePicker = undefined; window.showSaveFilePicker = undefined; });
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));

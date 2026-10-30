@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "tool": "Kalkulationstool",
-  "toolVersion": "V2.2",
+  "toolVersion": "V2.11",
   "meta": {
     "name": "Testkalkulation Kombinationen",
     "kunde": "Testkunde"
@@ -96,7 +96,8 @@
       "raises": {
         "2028": 3.5,
         "2030": 2.0
-      }
+      },
+      "residualMode": 0
     },
     "salaries": [
       {
@@ -171,14 +172,24 @@
         "qty": 1,
         "price": 850000,
         "pass": false,
-        "note": "Lagertechnik lt. Lagerplaner"
+        "note": "Lagertechnik lt. Lagerplaner",
+        "category": "Lagertechnik",
+        "procurement": "Kauf",
+        "startYear": 0,
+        "usefulLife": 0,
+        "residual": 0
       },
       {
         "name": "IT-Ausstattung",
         "qty": 12,
         "price": 1450.5,
         "pass": false,
-        "note": ""
+        "note": "",
+        "category": "IT/Software",
+        "procurement": "Kauf",
+        "startYear": 0,
+        "usefulLife": 0,
+        "residual": 0
       }
     ],
     "opex": [
@@ -187,21 +198,24 @@
         "qty": 1,
         "price": 78500,
         "pass": true,
-        "note": "Miete 1:1 weiterberechnet"
+        "note": "Miete 1:1 weiterberechnet",
+        "category": "Gebäude/Miete"
       },
       {
         "name": "Staplerleasing",
         "qty": 9,
         "price": 1150,
         "pass": false,
-        "note": ""
+        "note": "",
+        "category": "Flurförderzeuge"
       },
       {
         "name": "Energie",
         "qty": 1,
         "price": 6200,
         "pass": false,
-        "note": ""
+        "note": "",
+        "category": "Energie"
       }
     ],
     "nu": [
@@ -210,7 +224,8 @@
         "qty": 1,
         "price": 96000,
         "pass": true,
-        "note": "Wachdienst als Durchreichposten"
+        "note": "Wachdienst als Durchreichposten",
+        "category": "Fremdleistung"
       }
     ],
     "rampup": [
@@ -219,14 +234,16 @@
         "qty": 1,
         "price": 120000,
         "pass": false,
-        "note": ""
+        "note": "",
+        "category": "Anlauf"
       },
       {
         "name": "Gutschrift Kunde",
         "qty": 1,
         "price": -20000,
         "pass": false,
-        "note": ""
+        "note": "",
+        "category": "Anlauf"
       }
     ],
     "oto": {

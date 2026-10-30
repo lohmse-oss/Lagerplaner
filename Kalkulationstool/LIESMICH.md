@@ -5,11 +5,13 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 | Datei | Inhalt |
 |---|---|
 | `Kalkulationstool.html` | das Werkzeug: per Doppelklick im Browser öffnen |
-| `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Kalkulation öffnen) |
-| `testdaten/kalkulation-kombinationen.json` | Testkalkulation mit möglichst vielen Kombinationen (Datei › Kalkulation öffnen) |
+| `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Öffnen) |
+| `testdaten/kalkulation-kombinationen.json` | Testkalkulation mit möglichst vielen Kombinationen (Datei › Öffnen) |
 | `tests/kalkulationstool.test.js` | automatische Tests |
 
 ## Register
+
+- **Start:** Projektkopf, Bearbeitungsstand und Einstieg in die Register.
 
 - **Projekt & Basisdaten:**
   - Projektdaten, Laufzeit aus Start und Ende (oder Laufzeit in Monaten);
@@ -23,8 +25,11 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - Gehälter und Löhne je Qualifikation mit Tarifgruppe, Zuschlag je Zeile und Quelle;
   - Zuschlagskette 100 bis 700, Entwicklung und FTE je Kalenderjahr;
   - Lohn- und Gehaltsgruppen.
-- **Sachkosten:** Investitionen, monatliche Betriebskosten, Nachunternehmerleistung, Ramp-up; Durchreichposten mit eigenem Aufschlag.
-- **Summary:** Kostenaufbau bis zum Umsatz mit Verhandlung, Wasserfalldiagramm, Kennzahlen; druckbar.
+- **Sachkosten:**
+  - Investitionen, monatliche Betriebskosten, Nachunternehmerleistung, Ramp-up; Durchreichposten mit eigenem Aufschlag;
+  - Kategorie je Zeile (Detailansicht) für die Auswertung „Sachkosten nach Kategorie“;
+  - Investitionen in der Detailansicht mit Beschaffung (Kauf, Leasing, Miete), Startjahr, Nutzungsdauer und Restwert sowie der Behandlung des Restbuchwerts zum Vertragsende (siehe Rechenmodus).
+- **Summary:** Kostenaufbau bis zum Umsatz mit Verhandlung, Wasserfalldiagramm, Kennzahlen, Sachkosten nach Kategorie; druckbar.
 - **Auswertung:**
   - Ergebnis je Kalenderjahr bei Festpreis (optional mit Preisgleitung);
   - Cashflow mit Amortisation, Kapitalwert und interner Verzinsung;
@@ -38,13 +43,22 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - „Version abschließen“ übernimmt Umsatz und EBITA-Marge in die Versionshistorie, mit Vergleich zur Vorversion;
   - automatisches Änderungsprotokoll der Kalkulationsinhalte: jede Änderung mit altem und neuem Wert, Anlass, Version, Bearbeiter, Wirkung auf den Umsatz p.a. und Kommentar; Suche, Versionsfilter, Druck, Excel-Blatt.
 
+Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen. Sie rechnet beim Tippen mit; ein Klick springt zur markierten Herkunft im jeweiligen Register.
+
 ## Bedienung
+
+- **Kopfzeile:** links Titel, Projekt und Dateiname (● = ungespeicherte Änderungen), rechts Rückgängig, Speichern und das Datei-Menü, die Ansicht (Standard/Detail) und die Sprache (DE/EN).
+- **Ansicht Standard/Detail:** die Detailansicht zeigt zusätzliche Parameter, etwa Kategorie und Abschreibung. Hinterlegte Detailwerte wirken auch in der Standardansicht; ein Hinweis zeigt das an.
+- **Sprache DE/EN:** übersetzt die Oberfläche, Meldungen, Bericht und die Bezeichnungen im Excel-Export. Zahlen und Datumsangaben folgen der Sprache (1.234,56 bzw. 1,234.56), auch bei der Eingabe. Eingaben und Nutzerdaten (Namen, Kategorien, Notizen, Protokolleinträge) werden nie übersetzt.
 
 - Alle Listen sind erweiterbar: Zeilen anlegen, duplizieren, verschieben und löschen.
 - Zellbereiche aus Excel kopieren und mit Strg+V einfügen; fehlende Zeilen werden angelegt.
 - Enter und die Pfeiltasten wechseln wie in Excel die Zeile; Enter in der letzten Zeile legt eine neue an.
 - Datei-Menü:
-  - **Kalkulation speichern:** legt eine JSON-Datei ab; der Stand bleibt außerdem im Browser des Geräts erhalten.
+  - **Öffnen (Strg+O):** lädt eine Kalkulationsdatei (JSON).
+  - **Speichern (Strg+S):** schreibt in die geöffnete bzw. zuletzt gespeicherte Datei. In Chrome und Edge geschieht das direkt in die Datei; beim ersten Speichern wird der Ablageort abgefragt. Andere Browser laden die Datei unter dem bekannten Namen in den Download-Ordner.
+  - **Speichern unter (Strg+Umschalt+S):** neuer Dateiname und Ablageort (ohne Dateizugriff: Abfrage des Dateinamens, dann Download).
+  - Der Stand bleibt außerdem im Browser des Geräts erhalten.
   - **Als Excel-Datei exportieren:** .xlsx mit dreizehn Blättern, darunter Versionen und Änderungen (Werte ohne Formeln).
   - **Gesamtbericht drucken / als PDF:** alle Register mit Diagrammen.
   - **Projektdaten aus Lagerplaner-Planungsdatei:** übernimmt Projektname, Kunde, Standort, Serviceline, SOP/EOP und weitere Kopfdaten.
@@ -64,7 +78,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - Tarifgruppen für Lohn und Gehalt;
   - Zuschlag je Zeile, FTE je Kalenderjahr überschrieben;
   - eine Qualifikation ohne FTE.
-- **Sachkosten:** Durchreichposten bei Betriebskosten und Nachunternehmer, Ramp-up mit Gutschrift, Quellenangaben.
+- **Sachkosten:** Durchreichposten bei Betriebskosten und Nachunternehmer, Ramp-up mit Gutschrift, Quellenangaben, Kategorien.
 - **Auswertung:** Preisgleitung, Diskontierungszins, Mindestmarge, Variation und VK-Spanne abweichend vom Standard.
 - **OtO:** Korrekturangebot in CHF mit Wechselkurs und Link zum Ablageordner.
 - **Dokumentation:**
@@ -73,6 +87,10 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - Änderungsprotokoll mit Kommentaren;
   - erweiterte Liste der Freigabestatus.
 - **Varianten:** 3 Fahrer je Schicht; Stapler kaufen statt leasen.
+
+Die Beispieldatei zeigt die Abschreibungsdetails: Regalanlage mit 10 Jahren Nutzungsdauer und Übernahme durch den Kunden zum Restbuchwert, geleaste Scanner, Ersatzbeschaffung im dritten Vertragsjahr.
+
+Dateien aus V2.3 bis V2.10 enthalten bei Investitionen oft die damaligen Vorgaben Nutzungsdauer 1 und Startjahr 1. Diese verteilten die Investition auf das erste Jahr. Beim Öffnen werden solche unveränderten Vorgaben auf 0 zurückgesetzt (über die Laufzeit), mit Hinweis.
 
 ## Rechenmodus
 
@@ -85,7 +103,13 @@ Ohne den Schalter gelten Korrekturen und Erweiterungen:
 - Wechselkurs wirkt auf die OtO-Werte;
 - Beitragsbemessungsgrenzen je SV-Satz, vorbelegt mit den Werten für 2026 (jährlich prüfen);
 - Tariferhöhung zum Stichtag, Hochlauf, Volumenwachstum und FTE je Kalenderjahr;
-- Sachkostensteigerung, Kalkulationszins für Einmalkosten und Durchreichposten.
+- Sachkostensteigerung, Kalkulationszins für Einmalkosten und Durchreichposten;
+- Investitionen mit Abschreibung (Detailansicht):
+  - Nutzungsdauer 0 verteilt die Investition wie bisher über die Laufzeit, linear oder mit Kalkulationszins als Annuität;
+  - Kauf mit Nutzungsdauer: lineare Abschreibung über die Vertragsmonate ab dem Startjahr, kalkulatorische Zinsen auf den Restbuchwert;
+  - Restbuchwert zum Vertragsende wahlweise „Verwertung zum Restwert“ (übriger Buchwert im letzten Vertragsjahr belastet, Restwert als Rückfluss im Cashflow) oder „Übernahme durch den Kunden“ (keine Belastung, Restbuchwert als Rückfluss, Warnung zur vertraglichen Vereinbarung);
+  - Leasing und Miete: Kosten über die Nutzung verteilt, ohne Kapitalbindung und ohne Investment im OtO; läuft die Nutzung über das Vertragsende hinaus, werden die vollen Kosten in der Laufzeit angesetzt (Warnung);
+  - Kauf mit späterem Startjahr: Auszahlung im Kalenderjahr des Kaufs statt zum Start.
 
 Personalbedarf, Tarifgruppen und Zuschläge je Zeile wirken in beiden Modi.
 
