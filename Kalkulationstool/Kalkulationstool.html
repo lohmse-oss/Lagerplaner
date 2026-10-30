@@ -2450,6 +2450,7 @@ const I18N_EN_PATH=x=>x.replace(/^Kalkulation\b/,"Calculation").replace(/^Vorlag
   .replace(/^(Basisdaten|Auswertung|Tariferhöhung|Gehälter|Löhne|Investitionen|Betriebskosten|Nachunternehmerleistung|Ramp-up|SV-Anteile|Personalbedarf|Lohn- und Gehaltsgruppen|Versionshistorie)\b/,m=>I18N_EN[m]||m)
   .replace(/ Nutzungsdauer \(Vorgabe aus (V[\d.]+)\)$/," useful life (default from $1)").replace(/ FTE$/," FTE").replace(/^Variante „([^“]*)“: /,"Variant “$1”: ").replace(/^OtO-Wechselkurs der Angebotswährung/,"OtO exchange rate of offer currency");
 const I18N_EN_RX=[
+  [/^OtO-Werte in EUR: Umsatz p\.a\. (.+) ÷ (.+) = (.+) EUR\.$/,m=>"OtO values in EUR: revenue p.a. "+m[1]+" ÷ "+m[2]+" = "+m[3]+" EUR."],
   [/^(.+) muss ein Währungskürzel mit drei Buchstaben sein\.$/,m=>I18N_EN_PATH(m[1])+" must be a three-letter currency code."],
   [/^Unbekanntes Feld (.+)\. Ist das eine Kalkulationsdatei\?$/,m=>"Unknown field "+m[1]+". Is this a calculation file?"],
   [/^Unbekanntes Feld (.+) in der Vorlage\.$/,m=>"Unknown field "+m[1]+" in the template."],
