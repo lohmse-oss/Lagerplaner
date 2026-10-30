@@ -1180,7 +1180,10 @@ test("Kalkulationswährung: Beträge in Landeswährung, OtO gesamt in EUR, Expor
   assert.match(await page.textContent("#calc-panel-summary .calc-sum"), /€/);
   assert.equal(await page.evaluate(() => S.calc.currency.code), "EUR");
   assert.equal(await page.evaluate(() => defaults().calc.currency.code), "EUR", "neue Kalkulationen in EUR");
-  assert.deepEqual(await page.$$eval("#calc-dl-currencies option", (o) => o.map((x) => x.value)), ["EUR", "HUF", "GBP"]);
+  const list = await page.$$eval("#calc-dl-currencies option", (o) => o.map((x) => x.value + "|" + x.label));
+  assert.equal(list[0], "EUR|Euro", "Euro zuerst");
+  for (const k of ["HUF|Ungarischer Forint", "GBP|Britisches Pfund", "CZK|Tschechische Krone", "PLN|Polnischer Zloty"]) assert.ok(list.includes(k), k);
+  assert.ok(!list.some((x) => x.startsWith("CHF")), "ohne Franken");
   // Forint
   await page.click("#tab-projekt");
   await setField(page, "calc.currency.code", "huf");
@@ -1222,6 +1225,19 @@ test("Kalkulationswährung: Beträge in Landeswährung, OtO gesamt in EUR, Expor
   const g = await page.evaluate(() => { const c = computeCalc(S); return { umv: c.sum.pa.umv, to: c.oto.offer.to }; });
   near(g.to, g.umv / 0.85, "OtO-TO in EUR aus GBP");
   assert.match(await page.textContent('.kpi-card[data-origin-source="toPa"]'), /GBP$/);
+  // Tschechische Krone und polnischer Zloty
+  for (const [code, rate, txt] of [["CZK", 25.1, "25,1"], ["PLN", 4.27, "4,27"]]) {
+    await page.click("#tab-projekt");
+    await setField(page, "calc.currency.code", code);
+    await setField(page, "calc.currency.rate", txt);
+    const q = await page.evaluate(() => { const c = computeCalc(S); return { umv: c.sum.pa.umv, to: c.oto.offer.to, code: c.oto.calcCurrency }; });
+    assert.equal(q.code, code);
+    near(q.to, q.umv / rate, "OtO-TO in EUR aus " + code);
+  }
+  await page.click('.lang-switch [data-lang="en"]');
+  await page.click("#tab-projekt");
+  assert.ok((await page.$$eval("#calc-dl-currencies option", (o) => o.map((x) => x.label))).includes("Czech koruna"), "Namen auf Englisch");
+  await page.click('.lang-switch [data-lang="de"]');
   // Zurück auf EUR: Kurs 1, Anzeige in €
   await page.click("#tab-projekt");
   await setField(page, "calc.currency.code", "EUR");
