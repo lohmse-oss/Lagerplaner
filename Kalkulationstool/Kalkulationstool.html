@@ -2297,7 +2297,7 @@ function tr(text){
   if(out===undefined){
     const j=t.indexOf(" – ");
     if(j>0&&I18N_EN[t.slice(0,j)]!==undefined)out=I18N_EN[t.slice(0,j)]+" – "+t.slice(j+3);
-    else{const m=/^(.+), Zeile (\d+)$/.exec(t);if(m&&I18N_EN[m[1]]!==undefined)out=I18N_EN[m[1]]+", row "+m[2];}
+    else{const m=/^(.+), Zeile (\d+)$/.exec(t);if(m){const x=tr(m[1]);if(x!==m[1]||I18N_EN[m[1]]!==undefined)out=x+", row "+m[2];}}
   }
   if(out===undefined)return str;
   const lead=str.match(/^\s*/)[0],trail=str.match(/\s*$/)[0];
