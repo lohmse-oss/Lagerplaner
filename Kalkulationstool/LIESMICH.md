@@ -17,7 +17,6 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - Tariferhöhung zum Stichtag und je Jahr, Hochlauf und Volumenwachstum;
   - Personalnebenkosten, SV-Sätze mit Beitragsbemessungsgrenzen;
   - Sachkostenparameter;
-  - Dokumentation und Freigabe mit Versionshistorie;
   - Vorlagen, Auswahllisten.
 - **Personalkosten:**
   - Personalbedarf aus Mengen (Menge ÷ Leistung) oder Schichtmodell, zugeordnet über den Namen der Qualifikation;
@@ -34,6 +33,10 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - Varianten;
   - Plausibilitätsprüfungen (u. a. Mindestlohn).
 - **OtO-Werte:** Kopiervorlage für das OtO-Formular; kopieren, drucken, Link zum Ablageordner.
+- **Dokumentation:**
+  - Kalkulationsstand mit Version und Freigabestatus;
+  - „Version abschließen“ übernimmt Umsatz und EBITA-Marge in die Versionshistorie, mit Vergleich zur Vorversion;
+  - automatisches Änderungsprotokoll der Kalkulationsinhalte: jede Änderung mit altem und neuem Wert, Anlass, Version, Bearbeiter, Wirkung auf den Umsatz p.a. und Kommentar; Suche, Versionsfilter, Druck, Excel-Blatt.
 
 ## Bedienung
 
@@ -42,7 +45,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 - Enter und die Pfeiltasten wechseln wie in Excel die Zeile; Enter in der letzten Zeile legt eine neue an.
 - Datei-Menü:
   - **Kalkulation speichern:** legt eine JSON-Datei ab; der Stand bleibt außerdem im Browser des Geräts erhalten.
-  - **Als Excel-Datei exportieren:** .xlsx mit elf Blättern (Werte ohne Formeln).
+  - **Als Excel-Datei exportieren:** .xlsx mit dreizehn Blättern, darunter Versionen und Änderungen (Werte ohne Formeln).
   - **Gesamtbericht drucken / als PDF:** alle Register mit Diagrammen.
   - **Projektdaten aus Lagerplaner-Planungsdatei:** übernimmt Projektname, Kunde, Standort, Serviceline, SOP/EOP und weitere Kopfdaten.
 

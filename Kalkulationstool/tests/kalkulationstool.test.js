@@ -343,7 +343,7 @@ test("Link zum Ablageordner, Kopieren und Drucken", async (page) => {
 test("Alle Knöpfe und Felder: ohne Seitenfehler, bei 390 px ohne Seitenüberlauf", async (page) => {
   await loadExample(page);
   page.on("popup", (p) => p.close().catch(() => {}));
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) {
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation"]) {
     await page.click("#tab-" + tab);
     const n = await page.locator(`#panel-${tab} button:not([disabled])`).count();
     for (let i = 0; i < n; i++) {
@@ -353,11 +353,11 @@ test("Alle Knöpfe und Felder: ohne Seitenfehler, bei 390 px ohne Seitenüberlau
     await page.click("#tab-" + tab);
   }
   // Beschriftung für jedes Eingabefeld
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) await page.evaluate((t) => showTab(t), tab);
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation"]) await page.evaluate((t) => showTab(t), tab);
   const unlabeled = await page.$$eval("#panels input:not([type=hidden]),#panels textarea", (els) => els.filter((e) => !(e.labels && e.labels.length) && !e.getAttribute("aria-label")).map((e) => e.outerHTML.slice(0, 80)));
   assert.deepEqual(unlabeled, []);
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) {
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation"]) {
     await page.evaluate((t) => showTab(t), tab);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Überlauf in " + tab);
   }
@@ -652,7 +652,7 @@ test("Excel-Export (.xlsx) und Gesamtbericht", async (page) => {
   assert.equal(buf.slice(0, 2).toString(), "PK");
   const txt = buf.toString("utf8");
   for (const n of ["[Content_Types].xml", "xl/workbook.xml", "xl/styles.xml", "xl/worksheets/sheet11.xml"]) assert.ok(txt.includes(n), n);
-  for (const n of ["Projekt", "Basisdaten", "Personal", "Personalbedarf", "Sachkosten", "Summary", "Jahre", "Cashflow", "Sensitivität", "Plausibilität", "OtO"]) assert.ok(txt.includes('name="' + n + '"'), "Blatt " + n);
+  for (const n of ["Projekt", "Basisdaten", "Personal", "Personalbedarf", "Sachkosten", "Summary", "Jahre", "Cashflow", "Sensitivität", "Plausibilität", "OtO", "Versionen", "Änderungen"]) assert.ok(txt.includes('name="' + n + '"'), "Blatt " + n);
   const umv = await page.evaluate(() => computeCalc(S).sum.pa.umv);
   assert.ok(txt.includes("<v>" + umv + "</v>"), "Umsatz als Zahl");
   page.on("popup", () => {});
@@ -661,7 +661,7 @@ test("Excel-Export (.xlsx) und Gesamtbericht", async (page) => {
   await popup.waitForLoadState();
   assert.match(await popup.title(), /^Kalkulation – ZV-Packmittel/);
   const body = await popup.textContent("body");
-  for (const h of ["Summary", "Personalkosten", "Sachkosten", "Ergebnis je Kalenderjahr", "Cashflow", "Sensitivitätsanalyse", "Plausibilität", "OtO-Werte", "Dokumentation und Freigabe"]) assert.ok(body.includes(h), h);
+  for (const h of ["Summary", "Personalkosten", "Sachkosten", "Ergebnis je Kalenderjahr", "Cashflow", "Sensitivitätsanalyse", "Plausibilität", "OtO-Werte", "Dokumentation und Freigabe", "Änderungsprotokoll"]) assert.ok(body.includes(h), h);
   assert.ok((await popup.locator("svg").count()) >= 3, "Diagramme im Bericht");
 });
 
@@ -688,6 +688,7 @@ test("Vorlagen: speichern, laden, Standard für neue Kalkulationen; Dokumentatio
   await page.waitForTimeout(300);
   assert.deepEqual(await page.evaluate(() => [S.calc.base.profit, S.calc.salaries.length]), [7, 7]);
   // Dokumentation
+  await page.click("#tab-dokumentation");
   await page.fill('[data-cf="calc.doc.version"]', "1.1");
   await page.fill('[data-cf="calc.doc.status"]', "Freigegeben");
   await page.click('[data-calc-act="add"][data-cl="history"]');
@@ -699,8 +700,101 @@ test("Vorlagen: speichern, laden, Standard für neue Kalkulationen; Dokumentatio
   assert.match(await page.textContent("#calc-panel-summary"), /1\.1 \(Freigegeben\)/);
 });
 
+
+test("Änderungsprotokoll: Felder, Zeilen, Einfügen, Reihenfolge, Rückgängig, Kommentar, Bearbeiter", async (page) => {
+  await loadExample(page);
+  const log = () => page.evaluate(() => S.audit.map((e) => ({ action: e.action, area: e.area, item: e.item, field: e.field, from: e.from, to: e.to, delta: e.delta, user: e.user, version: e.version })));
+  const n0 = (await log()).length;
+  assert.equal((await log())[0].action, "Beispielkalkulation geladen");
+  await page.click("#tab-dokumentation");
+  await page.fill("#calc-audit-user", "Erika Beispiel");
+  await page.press("#calc-audit-user", "Tab");
+  assert.equal((await log()).length, n0, "Bearbeitername ist keine Kalkulationsänderung");
+  // Feldänderung mit alt, neu und Wirkung auf den Umsatz
+  await page.click("#tab-personal");
+  const umv0 = await page.evaluate(() => computeCalc(S).sum.pa.umv);
+  await page.fill('[data-cf="calc.wages.0.rate"]', "23");
+  await page.press('[data-cf="calc.wages.0.rate"]', "Tab");
+  let e = (await log()).at(-1);
+  assert.deepEqual([e.action, e.area, e.item, e.field, e.from, e.to, e.user, e.version], ["Eingabe", "Löhne", "Lohn 1", "Satz Jahr 1", "21,9991", "23", "Erika Beispiel", "1.0"]);
+  near(e.delta, (await page.evaluate(() => computeCalc(S).sum.pa.umv)) - umv0, "Δ Umsatz p.a.");
+  // Zeile gelöscht, Reihenfolge, Einfügen
+  await page.click("#tab-sachkosten");
+  await page.click('#calc-card-nu [data-calc-act="del"][data-ci="1"]');
+  e = (await log()).at(-1);
+  assert.deepEqual([e.action, e.area, e.field, e.from], ["Zeile gelöscht (Nachunternehmerleistung)", "Nachunternehmerleistung", "Zeile entfernt", "Menge 1; Preis 23.693,2508"]);
+  await page.click('#calc-card-nu [data-calc-act="add"]');
+  await page.keyboard.type("Wachdienst");
+  await page.keyboard.press("Tab");
+  e = (await log()).at(-1);
+  assert.deepEqual([e.item, e.field, e.from, e.to], ["Wachdienst", "Bezeichnung", "–", "Wachdienst"]);
+  await page.click('#calc-card-nu [data-calc-act="up"][data-ci="1"]');
+  assert.equal((await log()).at(-1).field, "Reihenfolge geändert");
+  await page.focus('[data-cf="calc.opex.0.name"]');
+  await page.evaluate(() => { const dt = new DataTransfer(); dt.setData("text/plain", "Miete\t1\t80000\nEnergie\t1\t9000"); document.activeElement.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true })); });
+  const pasted = (await log()).filter((x) => x.action === "Einfügen in Betriebskosten").map((x) => x.field);
+  assert.deepEqual(pasted, ["Bezeichnung", "Preis", "Zeile angelegt"]);
+  // Rückgängig nimmt den Eintrag zurück
+  const before = (await log()).length;
+  await page.click("#btn-undo");
+  assert.equal((await log()).length, before - 3);
+  // Kommentar zu einem Eintrag erzeugt keinen neuen Eintrag und bleibt gespeichert
+  await page.click("#tab-dokumentation");
+  const cnt = (await log()).length;
+  await page.fill('[data-cf="audit.' + (cnt - 1) + '.note"]', "Angebot Wachdienst neu");
+  await page.press('[data-cf="audit.' + (cnt - 1) + '.note"]', "Tab");
+  assert.equal((await log()).length, cnt);
+  await page.waitForTimeout(200);
+  await page.reload();
+  assert.equal(await page.evaluate((i) => S.audit[i].note, cnt - 1), "Angebot Wachdienst neu");
+  // Suche filtert die Tabelle
+  await page.click("#tab-dokumentation");
+  await page.fill("#calc-audit-search", "Wachdienst");
+  // Treffer in Werten oder im Kommentar (Eingabefeld)
+  const rows = await page.$$eval(".calc-audit tbody tr", (tr) => tr.map((x) => x.textContent + " " + [...x.querySelectorAll("input")].map((i) => i.value).join(" ")));
+  assert.ok(rows.length >= 2 && rows.every((t) => /Wachdienst/.test(t)), rows.join(" | "));
+  assert.equal(rows.length, await page.evaluate(() => S.audit.filter((e) => JSON.stringify(e).includes("Wachdienst")).length));
+});
+
+test("Versionen: abschließen mit Kennzahlen, Vergleich zur Vorversion, Filter, Datei-Prüfung", async (page) => {
+  await loadExample(page);
+  await page.click("#tab-dokumentation");
+  await page.fill('[data-cf="calc.doc.note"]', "Erstkalkulation");
+  await page.press('[data-cf="calc.doc.note"]', "Tab");
+  await page.click("#calc-version-close");
+  let st = await page.evaluate(() => ({ v: S.calc.doc.version, note: S.calc.doc.note, h: S.calc.history.map((x) => [x.version, x.note, x.umv, x.ebita]), umv: computeCalc(S).sum.pa.umv, eb: computeCalc(S).oto.offer.ebitaPct }));
+  assert.equal(st.v, "1.1");
+  assert.equal(st.note, "");
+  assert.equal(st.h[0][0], "1.0");
+  assert.match(st.h[0][1], /^Erstkalkulation · \d+ Änderungen$/);
+  near(st.h[0][2], Math.round(st.umv * 100) / 100, "Umsatz der Version");
+  near(st.h[0][3], Math.round(st.eb * 1e6) / 1e4, "EBITA-Marge der Version");
+  // Änderung in Version 1.1, zweite Version, Vergleich zur Vorversion
+  await page.click("#tab-personal");
+  await page.fill('[data-cf="calc.wages.0.rate"]', "23");
+  await page.press('[data-cf="calc.wages.0.rate"]', "Tab");
+  assert.equal(await page.evaluate(() => S.audit.at(-1).version), "1.1");
+  await page.click("#tab-dokumentation");
+  await page.click("#calc-version-close");
+  const h = await page.evaluate(() => S.calc.history.map((x) => x.umv));
+  const txt = await page.textContent("#calc-card-history");
+  assert.ok(txt.includes("+" + Math.round(h[1] - h[0]).toLocaleString("de-DE") + " €"), "Δ zur Vorversion: " + txt);
+  // Filter nach Version
+  await page.selectOption("#calc-audit-version", "1.1");
+  const versions = await page.$$eval(".calc-audit tbody tr td:nth-child(2)", (td) => [...new Set(td.map((x) => x.textContent))]);
+  assert.deepEqual(versions, ["1.1"]);
+  // Datei: Protokoll enthalten und geprüft
+  const ok = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(S)); validateFile(o); return o.audit.length > 3; });
+  assert.equal(ok, true);
+  const errs = await page.evaluate(() => [
+    (o) => { o.audit[0].fremd = "x"; }, (o) => { o.audit[0].delta = "viel"; }, (o) => { o.audit = "kein Protokoll"; },
+  ].map((f) => { const o = JSON.parse(JSON.stringify(S)); f(o); try { validateFile(o); return ""; } catch (e) { return e.message; } }));
+  errs.forEach((m) => assert.match(m, /Änderungsprotokoll/));
+  assert.deepEqual(await page.evaluate(() => ["1.9", "2", "V3", "A", ""].map(calcNextVersion)), ["1.10", "3", "V4", "A.1", "1.1"]);
+});
+
 test("Leere Kalkulation: alle Register ohne Fehler und ohne waagerechten Überlauf", async (page) => {
-  for (const n of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto"]) {
+  for (const n of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation"]) {
     await page.click("#tab-" + n);
     assert.equal(await page.isVisible("#panel-" + n), true);
     const text = await page.textContent("#calc-panel-" + n);

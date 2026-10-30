@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulationstool V2.1</title>
+<title>Kalkulationstool V2.2</title>
 <style>
 /* ============================ Grundlagen ============================ */
 :root{
@@ -121,6 +121,9 @@ input.ci::placeholder{color:#a8a29e}
 .calc-legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid var(--line)}
 .calc-legend .sw-in{background:#fefce8;border-color:#fde68a}.calc-legend .sw-out{background:#f3f3f3}.calc-legend .sw-hl{background:#e0e7ff}
 .calc-link{font-weight:600;color:var(--acc)}
+.calc-audit td{white-space:normal;vertical-align:top;font-size:11.5px;padding:3px 5px}
+.calc-audit td.calc-old{color:#94a3b8;text-decoration:line-through}
+.calc-audit td.cin{min-width:180px}
 .calc-tab td.linked{background:#dcfce7}
 .calc-tab td.cc{text-align:center}
 .calc-tab td.cc input{width:16px;height:16px;accent-color:var(--acc)}
@@ -139,7 +142,7 @@ input.ci.calc-var-name{width:240px;flex:0 1 240px}
 </head>
 <body>
 <header>
-  <h1>Kalkulationstool<span class="v" id="app-ver">V2.1</span></h1>
+  <h1>Kalkulationstool<span class="v" id="app-ver">V2.2</span></h1>
   <span class="proj" id="hdr-proj">Neue Kalkulation</span>
   <div class="hdr-actions">
     <button type="button" class="btn" id="btn-undo" disabled title="Rückgängig">Rückgängig</button>
@@ -168,6 +171,7 @@ input.ci.calc-var-name{width:240px;flex:0 1 240px}
   <button type="button" role="tab" id="tab-summary" data-tab="summary" aria-controls="panel-summary">Summary</button>
   <button type="button" role="tab" id="tab-auswertung" data-tab="auswertung" aria-controls="panel-auswertung">Auswertung</button>
   <button type="button" role="tab" id="tab-oto" data-tab="oto" aria-controls="panel-oto">OtO-Werte</button>
+  <button type="button" role="tab" id="tab-dokumentation" data-tab="dokumentation" aria-controls="panel-dokumentation">Dokumentation</button>
 </nav>
 <main id="panels">
   <div class="panel" id="panel-projekt" role="tabpanel" aria-labelledby="tab-projekt"><div id="calc-panel-projekt"></div></div>
@@ -176,13 +180,14 @@ input.ci.calc-var-name{width:240px;flex:0 1 240px}
   <div class="panel" id="panel-summary" role="tabpanel" aria-labelledby="tab-summary"><div id="calc-panel-summary"></div></div>
   <div class="panel" id="panel-auswertung" role="tabpanel" aria-labelledby="tab-auswertung"><div id="calc-panel-auswertung"></div></div>
   <div class="panel" id="panel-oto" role="tabpanel" aria-labelledby="tab-oto"><div id="calc-panel-oto"></div></div>
+  <div class="panel" id="panel-dokumentation" role="tabpanel" aria-labelledby="tab-dokumentation"><div id="calc-panel-dokumentation"></div></div>
   <div id="calc-datalists" hidden></div>
 </main>
-<footer id="app-footer">Kalkulationstool V2.1 · Nachbau des Kalkulationstools Light V1.0 · läuft lokal im Browser, keine Serververbindung · Ergebnisse vom Anwender auf Plausibilität zu prüfen</footer>
+<footer id="app-footer">Kalkulationstool V2.2 · Nachbau des Kalkulationstools Light V1.0 · läuft lokal im Browser, keine Serververbindung · Ergebnisse vom Anwender auf Plausibilität zu prüfen</footer>
 <script>
 "use strict";
 /* ============================ Hilfsfunktionen ============================ */
-const APP_VERSION="V2.1";
+const APP_VERSION="V2.2";
 const LS_KEY="kalkulationstool-state";
 const $=id=>document.getElementById(id);
 const fmt=(n,d)=>{d=(d===undefined)?0:d;return (isFinite(n)?n:0).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});};
@@ -263,7 +268,7 @@ function openPrintWindow(title,inner){
    excelMode rechnet wie die Excel-Vorlage (Monatsanteile gerundet, höchstens 10 Kalenderjahre, Gross Profit auf den
    Angebotsumsatz, Wechselkurs ohne Wirkung) und lässt die Methodenerweiterungen außen vor; sonst gelten die Korrekturen.
    Eingabehilfen (Personalbedarf, Tarifgruppen, Zuschlag je Zeile) wirken in beiden Modi. */
-const CALC_TABS=["projekt","personal","sachkosten","summary","auswertung","oto"];
+const CALC_TABS=["projekt","personal","sachkosten","summary","auswertung","oto","dokumentation"];
 const CALC_MAX_ROWS=500;
 const CALC_LIST_MAX=50;
 const CALC_MAX_VARIANTS=10;
@@ -286,7 +291,7 @@ const CALC_LISTS={
   sv:{path:"calc.base.sv",label:"SV-Anteile",fields:[["name","text"],["pct","pct",0,100],["bbg","num",0,10000000]]},
   need:{path:"calc.need",label:"Personalbedarf",fields:[["name","text"],["qual","text"],["mode","sel",["Menge","Schicht"]],["a","num",0,1000000000],["b","num",0,1000000000],["allow","pct",0,300],["note","text"]]},
   grades:{path:"calc.grades",label:"Lohn- und Gehaltsgruppen",fields:[["name","text"],["kind","sel",["Lohn","Gehalt"]],["rate","num",0,100000000],["note","text"]]},
-  history:{path:"calc.history",label:"Versionshistorie",fields:[["version","text"],["date","date"],["author","text"],["note","text"]]}
+  history:{path:"calc.history",label:"Versionshistorie",fields:[["version","text"],["date","date"],["author","text"],["note","text"],["umv","num",-10000000000000,10000000000000],["ebita","num",-1000,1000]]}
 };
 const CALC_COST_KEYS=["capex","opex","nu","rampup"];
 const CALC_CHOICES={serviceLines:"Service-Lines",status:"Angebotsstatus",billing:"Abrechnungsarten",docStatus:"Freigabestatus"};
@@ -934,21 +939,17 @@ function calcProjectHtml(r){
     '<div class="rowbtns"><button type="button" class="btn" id="calc-tpl-save">Vorlage speichern</button><button type="button" class="btn" id="calc-tpl-load">Vorlage laden …</button>'+
     '<button type="button" class="btn" id="calc-tpl-default">Als Standard für neue Kalkulationen</button><button type="button" class="btn btn-quiet" id="calc-tpl-clear"'+(calcDefaultTemplate()?'':' disabled')+'>Standard entfernen</button></div>'+
     '<p class="hint">'+co(calcDefaultTemplate()?"Für neue Kalkulationen ist eine Standardvorlage hinterlegt (in diesem Browser).":"Neue Kalkulationen beginnen mit den Werten der Excel-Vorlage.")+'</p>');
-  const doc=calcCard("Dokumentation und Freigabe","Kalkulationsstand mit Version und Freigabestatus; Änderungen tragen Sie in die Versionshistorie ein. Quelle und Annahme je Position stehen in den Tabellen der Personal- und Sachkosten.",
-    '<div class="calc-form">'+calcField("Version",calcInput("calc.doc.version","text",{label:"Version",maxlength:40}))+calcField("Freigabestatus",calcInput("calc.doc.status","text",{label:"Freigabestatus",list:"calc-dl-docStatus"}))+
-    calcField("Geprüft/freigegeben von",calcInput("calc.doc.reviewer","text",{label:"Geprüft oder freigegeben von"}))+calcField("Datum der Freigabe",calcInput("calc.doc.reviewDate","date",{label:"Datum der Freigabe"}))+
-    calcField("Bemerkung",calcInput("calc.doc.note","text",{label:"Bemerkung zur Freigabe",maxlength:1000}),"",true)+'</div>'+
-    '<h4 class="calc-sub">Versionshistorie</h4>'+calcListHtml("history",[{h:"Version",f:"version",wide:false},{h:"Datum",f:"date"},{h:"Bearbeiter",f:"author",wide:false},{h:"Änderung",f:"note"}]));
   const guide=calcCard("Kurzanleitung","",
     '<ol class="calc-steps"><li><b>Projekt &amp; Basisdaten:</b> Projektdaten, Laufzeit, Zuschläge, Arbeitszeitmodell, Tariferhöhung und Personalnebenkosten pflegen.</li>'+
     '<li><b>Personalkosten:</b> Personalbedarf aus Mengen oder Schichten ableiten oder je Qualifikation Netto-FTE eingeben, dazu Jahresgehalt (Gehälter) oder Stundenlohn (Löhne) im Startjahr bzw. eine Tarifgruppe und den FTE-Brutto-Zuschlag.</li>'+
     '<li><b>Sachkosten:</b> Investitionen über die Laufzeit, Betriebskosten pro Monat, Nachunternehmerleistungen pro Jahr und Ramp-up-Kosten erfassen; Durchreichposten markieren.</li>'+
     '<li><b>Summary:</b> Kostenaufbau bis zum Umsatz mit Verhandlung.</li><li><b>Auswertung:</b> Ergebnis je Jahr bei Festpreis, Cashflow, Sensitivität, Preisuntergrenze, Varianten und Plausibilität.</li>'+
-    '<li><b>OtO-Werte:</b> Kopiervorlage für das OtO-Formular. Die Vertragsprüfung erfolgt separat.</li></ol>'+
+    '<li><b>OtO-Werte:</b> Kopiervorlage für das OtO-Formular. Die Vertragsprüfung erfolgt separat.</li>'+
+    '<li><b>Dokumentation:</b> Version und Freigabe, Versionshistorie mit Kennzahlen und das automatische Änderungsprotokoll der Kalkulationsinhalte.</li></ol>'+
     '<p class="calc-legend"><span class="sw sw-in"></span> Eingabefeld <span class="sw sw-out"></span> Ausgabefeld <span class="sw sw-hl"></span> Zwischensumme <span class="sw sw-link"></span> aus Personalbedarf oder Tarifgruppe</p>'+
     '<p class="hint">Hinweis: Das Werkzeug unterstützt die Projektkalkulation; alle Eingaben und Ergebnisse sind vom Anwender eigenverantwortlich auf Richtigkeit und Plausibilität zu prüfen.</p>');
   return '<div class="calc-grid">'+proj+mode+'</div><div class="calc-grid">'+sur+hours+'</div><div class="calc-grid">'+dev+pnk+'</div><div class="calc-grid">'+svCard+costPar+'</div>'+
-    '<div class="calc-grid">'+doc+tpl+'</div><div class="calc-grid">'+lists+guide+'</div>';
+    '<div class="calc-grid">'+tpl+lists+'</div>'+guide;
 }
 
 /* Register Personalkosten */
@@ -1172,7 +1173,7 @@ function calcOtoText(r){
 }
 
 /* ---- Rendern, Eingaben und Aktionen ---- */
-const CALC_RENDER={projekt:calcProjectHtml,personal:calcPersonnelHtml,sachkosten:calcCostsHtml,summary:calcSummaryHtml,auswertung:calcEvalHtml,oto:calcOtoHtml};
+const CALC_RENDER={projekt:calcProjectHtml,personal:calcPersonnelHtml,sachkosten:calcCostsHtml,summary:calcSummaryHtml,auswertung:calcEvalHtml,oto:calcOtoHtml,dokumentation:calcDocHtml};
 function calcDatalists(){
   const box=$("calc-datalists");if(!box)return;
   const c=S.calc||{},opts=arr=>arr.map(v=>'<option value="'+escH(v)+'"></option>').join("");
@@ -1186,12 +1187,12 @@ function renderCalcPanel(n){
   if(!S.calc)S.calc=calcDefaults();
   CALC=computeCalc(S);
   // Fokus und Eingabe des aktiven Feldes bleiben beim Neuaufbau erhalten
-  const a=document.activeElement,keep=a&&box.contains(a)&&a.dataset&&a.dataset.cf?{cf:a.dataset.cf,value:a.value,s:a.selectionStart,e:a.selectionEnd}:null;
+  const a=document.activeElement,keep=a&&box.contains(a)&&(a.dataset&&a.dataset.cf||a.id)?{cf:a.dataset.cf,id:a.id,value:a.value,s:a.selectionStart,e:a.selectionEnd}:null;
   const snap=UNDO_FOCUS_SNAP,label=UNDO_FOCUS_LABEL;
   box.innerHTML=CALC_RENDER[n](CALC);
   calcDatalists();
   if(keep){
-    const el=box.querySelector('[data-cf="'+CSS.escape(keep.cf)+'"]');
+    const el=keep.cf?box.querySelector('[data-cf="'+CSS.escape(keep.cf)+'"]'):$(keep.id);
     if(el){
       if(el.type!=="checkbox"&&el.type!=="date"&&el.tagName!=="SELECT")el.value=keep.value;
       el.focus();
@@ -1504,7 +1505,9 @@ function calcReport(){
     '<h2>Sensitivitätsanalyse</h2>'+ev.sensTab+ev.tornado+
     '<h2>Plausibilität</h2>'+ev.checks+
     '<h2>OtO-Werte</h2>'+otoTab(oto.info)+otoTab(oto.values)+otoTab(oto.walk)+
-    '<h2>Dokumentation und Freigabe</h2>'+docTab);
+    '<h2>Dokumentation und Freigabe</h2>'+docTab+
+    '<h2>Änderungsprotokoll (Version '+escH(c.doc.version||"–")+')</h2>'+calcStaticTable(["Zeitpunkt","Bearbeiter","Anlass","Bereich","Position","Feld","Alt","Neu","Δ Umsatz p.a.","Kommentar"],
+      (S.audit||[]).filter(e=>e.version===String(c.doc.version||"")).slice(-200).reverse().map(e=>[calcAuditTime(e.ts),e.user||"–",e.action,e.area,e.item,e.field,e.from,e.to,calcAuditDelta(e.delta),e.note||""]),{numFrom:8}));
 }
 
 /* ---- Excel-Export (.xlsx, ohne Bibliothek: Office Open XML in einem ZIP ohne Kompression) ---- */
@@ -1611,7 +1614,10 @@ function calcExportSheets(){
   const plaus={name:"Plausibilität",rows:[H(["Art","Hinweis"])].concat(checks.map(x=>[x.sev==="warn"?"Warnung":"Hinweis",x.text]))};
   const oto=calcOtoRows(r);
   const otoSheet={name:"OtO",rows:[H(["Feld","Wert"])].concat(oto.info,[[]],oto.values,[[]],oto.walk)};
-  return [projekt,basis,{name:"Personal",rows:persRows},bedarf,sach,summary,jahre,cash,sensi,plaus,otoSheet];
+  const changes={name:"Änderungen",rows:[H(["Zeitpunkt","Version","Bearbeiter","Anlass","Bereich","Position","Feld","Alt","Neu","Δ Umsatz p.a.","Kommentar"])]
+    .concat((S.audit||[]).map(e=>[calcAuditTime(e.ts),e.version,e.user,e.action,e.area,e.item,e.field,e.from,e.to,e.delta==null?"":eur(e.delta),e.note]))};
+  const hist={name:"Versionen",rows:[H(["Version","Datum","Bearbeiter","Änderung","Umsatz p.a.","EBITA-Marge"])].concat(c.history.map(h=>[h.version,fmtDate(h.date),h.author,h.note,h.umv?eur(h.umv):"",h.umv?pct(h.ebita/100):""]))};
+  return [projekt,basis,{name:"Personal",rows:persRows},bedarf,sach,summary,jahre,cash,sensi,plaus,otoSheet,hist,changes];
 }
 function calcExportXlsx(){
   const name=(S.meta.name||"kalkulation").replace(/[^\w\-äöüÄÖÜß]+/g,"_");
@@ -1619,9 +1625,180 @@ function calcExportXlsx(){
   showNotice("Excel-Datei mit allen Tabellen exportiert (Werte ohne Formeln).",5000);
 }
 
+/* ---- Änderungsprotokoll der Kalkulationsinhalte ----
+   Jede übernommene Änderung (Feld, Zeilenaktion, Einfügen, Laden) wird als Unterschied zwischen dem Stand davor und danach
+   protokolliert: Bereich, Position, Feld, alter und neuer Wert, Anlass, Version, Bearbeiter und Wirkung auf den Umsatz p.a.
+   Rückgängig nimmt den Eintrag mit zurück. Das Protokoll ist Teil der Kalkulationsdatei (S.audit). */
+const CALC_AUDIT_MAX=5000,CALC_AUDIT_SHOW=300,CALC_AUDIT_USER_KEY="kalkulationstool-bearbeiter";
+const CALC_AUDIT_FIELDS=["ts","user","version","action","area","item","field","from","to","delta","note"];
+const CALC_REQ_LABELS={serviceSite:"Projektstandort",contact:"Kundenkontakt",businessUnit:"Geschäftsbereich",serviceLine:"Service-Line",sop:"Start Leistung",eop:"Ende Leistung",calculator:"Bearbeiter (Projekt)",sfId:"SFDC-Nr."};
+const CALC_BASE_LABELS={profit:"Gewinn",risk:"Risiko",hv:"Konzernumlage HV",bu:"Umlage BU",nl:"Umlage NL",negotiation:"Verhandlungsmarge",raise:"Personalkostensteigerung p.a.",
+  weekendDays:"Samstage/Sonntage",holidays:"Feiertage",vacation:"Urlaubstage",sick:"Krankheitstage",otherOff:"Sonstige Abwesenheit",hoursWage:"Arbeitsstunden Lohn pro Tag",hoursSalary:"Arbeitsstunden Gehalt pro Tag",
+  salBonus:"Urlaubsgeld/Prämie Gehalt",salOther:"Sonstige Zuschläge Gehalt",wageBonus:"Urlaubsgeld/Prämie Lohn",wageOther:"Sonstige Zuschläge Lohn",salSpecial:"Zuschlag Sondertätigkeiten Gehalt",wageSpecial:"Zuschlag Sondertätigkeiten Lohn",
+  costRaise:"Sachkostensteigerung p.a.",interest:"Kalkulationszins Einmalkosten",raiseMonth:"Stichtagsmonat Tariferhöhung",firstYearPct:"Hochlauf erstes Jahr",volumeGrowth:"Volumenwachstum p.a.",passMarkup:"Aufschlag Durchreichposten"};
+const CALC_BASE_PCT=new Set(["profit","risk","hv","bu","nl","negotiation","raise","salBonus","salOther","wageBonus","wageOther","salSpecial","wageSpecial","costRaise","interest","firstYearPct","volumeGrowth","passMarkup"]);
+const CALC_EVAL_LABELS={priceIndex:"Preisgleitung p.a.",discount:"Diskontierungszins",minMargin:"Mindest-EBITA-Marge",sensi:"Variation Sensitivität",vkMin:"VK-Satz Lohn von",vkMax:"VK-Satz Lohn bis"};
+const CALC_DOC_LABELS={version:"Version",status:"Freigabestatus",reviewer:"Geprüft/freigegeben von",reviewDate:"Datum der Freigabe",note:"Bemerkung"};
+const CALC_OTO_LABELS={date:"Angebotsdatum",status:"Status",offerNo:"Angebotsnummer",currency:"Angebotswährung",rate:"Wechselkurs",billing:"Abrechnungsart",link:"Ablageordner"};
+const CALC_FIELD_LABELS={name:"Bezeichnung",fte:"FTE netto",rate:"Satz Jahr 1",gross:"FTE-Brutto-Zuschlag",grade:"Tarifgruppe",extra:"Zuschlag Zeile",note:"Quelle/Annahme",qty:"Menge",price:"Preis",
+  pass:"Durchreichposten",pct:"Satz",bbg:"BBG",qual:"Qualifikation",mode:"Art",a:"Menge bzw. Schichten",b:"Leistung bzw. Besetzung",allow:"Verteilzeit/Zuschlag",kind:"Art"};
+// Versionshistorie und Protokoll selbst werden nicht protokolliert
+const CALC_AUDIT_LISTS=["salaries","wages","need","grades","capex","opex","nu","rampup","sv"];
+let CALC_AUDIT_FILTER={q:"",v:""};
+function calcAuditVal(v,type){
+  if(v==null||v==="")return "–";
+  if(typeof v==="boolean")return v?"ja":"nein";
+  if(type==="date")return fmtDate(v);
+  if(typeof v==="number"){const dec=(String(v).split(".")[1]||"").length;return fmt(v,Math.min(4,dec))+(type==="pct"?" %":"");}
+  return String(v);
+}
+function calcAuditRow(def,r){
+  return def.fields.filter(([f,t])=>t!=="years"&&f!=="note"&&f!=="name"&&r[f]!==""&&r[f]!=null&&r[f]!==false&&r[f]!==0)
+    .map(([f,t])=>(CALC_FIELD_LABELS[f]||f)+" "+calcAuditVal(r[f],t)).join("; ")||"leer";
+}
+// Unterschiede zwischen zwei Ständen als lesbare Einträge
+function calcAuditDiff(a,b){
+  const out=[],push=(area,item,field,from,to)=>out.push({area,item,field,from,to});
+  const scalars=(area,labels,x,y,typeOf)=>{for(const k of Object.keys(labels)){const u=(x||{})[k],v=(y||{})[k];if(JSON.stringify(u)!==JSON.stringify(v))push(area,"",labels[k],calcAuditVal(u,typeOf(k)),calcAuditVal(v,typeOf(k)));}};
+  scalars("Projektdaten",{name:"Projektname",kunde:"Kundenname"},a.meta,b.meta,()=>"text");
+  scalars("Projektdaten",CALC_REQ_LABELS,a.request,b.request,k=>k==="sop"||k==="eop"?"date":"text");
+  const ca=a.calc||{},cb=b.calc||{};
+  if((ca.calcDate||"")!==(cb.calcDate||""))push("Projektdaten","","Datum Kalkulation",calcAuditVal(ca.calcDate,"date"),calcAuditVal(cb.calcDate,"date"));
+  if(!!ca.excelMode!==!!cb.excelMode)push("Rechenmodus","","Excel-kompatibel",calcAuditVal(!!ca.excelMode),calcAuditVal(!!cb.excelMode));
+  scalars("Basisdaten",CALC_BASE_LABELS,ca.base,cb.base,k=>CALC_BASE_PCT.has(k)?"pct":"num");
+  const ra=(ca.base||{}).raises||{},rb=(cb.base||{}).raises||{};
+  for(const y of new Set([...Object.keys(ra),...Object.keys(rb)]))if(ra[y]!==rb[y])push("Basisdaten","Tariferhöhung "+y,"Satz",calcAuditVal(ra[y],"pct"),calcAuditVal(rb[y],"pct"));
+  scalars("Auswertung",CALC_EVAL_LABELS,ca.eval,cb.eval,k=>["priceIndex","discount","minMargin","sensi"].includes(k)?"pct":"num");
+  scalars("Dokumentation",CALC_DOC_LABELS,ca.doc,cb.doc,k=>k==="reviewDate"?"date":"text");
+  scalars("OtO-Werte",CALC_OTO_LABELS,ca.oto,cb.oto,k=>k==="date"?"date":k==="rate"?"num":"text");
+  for(const [k,label] of Object.entries(CALC_CHOICES)){const u=((ca.lists||{})[k]||[]).join(", "),v=((cb.lists||{})[k]||[]).join(", ");if(u!==v)push("Auswahllisten",label,"Einträge",u||"–",v||"–");}
+  for(const key of CALC_AUDIT_LISTS){
+    const def=CALC_LISTS[key],la=getP(a,def.path)||[],lb=getP(b,def.path)||[],area=def.label,nm=(r,i)=>String(r&&r.name||"").trim()||"Zeile "+(i+1);
+    const ja=la.map(r=>JSON.stringify(r)),jb=lb.map(r=>JSON.stringify(r));
+    if(ja.join("\n")===jb.join("\n"))continue;
+    if(la.length===lb.length&&[...ja].sort().join("\n")===[...jb].sort().join("\n")){push(area,"","Reihenfolge geändert","","");continue;}
+    // Unveränderte Zeilen über den Inhalt zuordnen; übrige paarweise als Änderung, Rest als angelegt bzw. entfernt
+    const left=new Map();ja.forEach(j=>left.set(j,(left.get(j)||0)+1));
+    const added=[];lb.forEach((r,i)=>{const j=jb[i];if(left.get(j))left.set(j,left.get(j)-1);else added.push([r,i]);});
+    const removed=[];la.forEach((r,i)=>{const j=ja[i];if(left.get(j)>0){left.set(j,left.get(j)-1);removed.push([r,i]);}});
+    const pairs=Math.min(added.length,removed.length);
+    for(let k=0;k<pairs;k++){
+      const [rowA]=removed[k],[rowB,i]=added[k];
+      for(const [f,t] of def.fields){
+        if(t==="years"){
+          const ya=rowA[f]||{},yb=rowB[f]||{};
+          for(const y of new Set([...Object.keys(ya),...Object.keys(yb)]))if(ya[y]!==yb[y])push(area,nm(rowB,i),"FTE "+y,calcAuditVal(ya[y]),calcAuditVal(yb[y]));
+        }else if(JSON.stringify(rowA[f])!==JSON.stringify(rowB[f]))push(area,nm(f==="name"&&String(rowA.name||"").trim()?rowA:rowB,i),CALC_FIELD_LABELS[f]||f,calcAuditVal(rowA[f],t),calcAuditVal(rowB[f],t));
+      }
+    }
+    for(const [r,i] of removed.slice(pairs))push(area,nm(r,i),"Zeile entfernt",calcAuditRow(def,r),"–");
+    for(const [r,i] of added.slice(pairs))push(area,nm(r,i),"Zeile angelegt","–",calcAuditRow(def,r));
+  }
+  return out;
+}
+function calcAuditUserName(){
+  let u="";try{u=localStorage.getItem(CALC_AUDIT_USER_KEY)||"";}catch(e){}
+  return u||(S.request&&S.request.calculator)||"";
+}
+// Änderung protokollieren: prev = Stand davor (Objekt), action = Anlass (leer: Feldeingabe, nur bei Unterschieden)
+function calcAuditCommit(prev,action){
+  if(!prev||!S.calc)return 0;
+  const diff=calcAuditDiff(prev,S);
+  if(!diff.length&&!action)return 0;
+  let delta=null;
+  try{if(prev.calc){const d=computeCalc(S).sum.pa.umv-computeCalc(prev).sum.pa.umv;delta=Math.abs(d)<0.005?0:d;}}catch(e){}
+  const base={ts:new Date().toISOString(),user:calcAuditUserName(),version:String((S.calc.doc||{}).version||""),action:action||"Eingabe",note:""};
+  let entries;
+  if(diff.length>15){
+    const areas=[...new Set(diff.map(x=>x.area))];
+    entries=[Object.assign({},base,{area:areas.length===1?areas[0]:"Mehrere Bereiche",item:"",field:diff.length+" Änderungen",from:"",to:areas.join(", ")})];
+  }else if(!diff.length)entries=[Object.assign({},base,{area:"",item:"",field:"",from:"",to:""})];
+  else entries=diff.map(x=>Object.assign({},base,x));
+  entries.forEach((e,i)=>{e.delta=i===0?delta:null;});
+  const log=Array.isArray(S.audit)?S.audit:[];
+  S.audit=log.concat(entries);
+  if(S.audit.length>CALC_AUDIT_MAX)S.audit=S.audit.slice(-CALC_AUDIT_MAX);
+  return entries.length;
+}
+function validateAudit(list){
+  if(list==null)return;
+  if(!Array.isArray(list)||list.length>CALC_AUDIT_MAX)throw new Error("Das Änderungsprotokoll darf höchstens "+CALC_AUDIT_MAX+" Einträge enthalten.");
+  list.forEach((e,i)=>{
+    if(!isPlainObject(e))throw new Error("Änderungsprotokoll, Eintrag "+(i+1)+" ist ungültig.");
+    for(const [k,v] of Object.entries(e)){
+      if(!CALC_AUDIT_FIELDS.includes(k))throw new Error("Änderungsprotokoll, Eintrag "+(i+1)+": unbekanntes Feld "+k+".");
+      if(k==="delta"?!(v===null||calcIsNum(v)):(typeof v!=="string"||v.length>2000))throw new Error("Änderungsprotokoll, Eintrag "+(i+1)+": "+k+" ist ungültig.");
+    }
+  });
+}
+function calcNextVersion(v){
+  const m=/^(.*?)(\d+)$/.exec(String(v||"").trim());
+  return m?m[1]+(+m[2]+1):(String(v||"1").trim()||"1")+".1";
+}
+// Version abschließen: Stand mit Kennzahlen in die Versionshistorie, Version hochzählen
+function calcVersionClose(){
+  const r=computeCalc(S),doc=S.calc.doc,ver=String(doc.version||"1.0"),n=(S.audit||[]).filter(e=>e.version===ver).length;
+  pushUndo("Version "+ver+" abgeschlossen");
+  S.calc.history.push(Object.assign(calcNewRow("history"),{version:ver,date:new Date().toISOString().slice(0,10),author:calcAuditUserName(),
+    note:(doc.note?doc.note+" · ":"")+n+(n===1?" Änderung":" Änderungen"),umv:Math.round(r.sum.pa.umv*100)/100,ebita:Math.round(r.oto.offer.ebitaPct*1e6)/1e4}));
+  doc.version=calcNextVersion(ver);doc.note="";
+  calcRerenderAll();persistState();
+  showNotice("Version "+ver+" abgeschlossen; weiter mit Version "+doc.version+".",5000);
+}
+function calcAuditRowsFiltered(){
+  const q=CALC_AUDIT_FILTER.q.trim().toLowerCase(),v=CALC_AUDIT_FILTER.v;
+  return (S.audit||[]).map((e,i)=>[e,i]).filter(([e])=>(!v||e.version===v)&&(!q||[e.user,e.action,e.area,e.item,e.field,e.from,e.to,e.note].join(" ").toLowerCase().includes(q))).reverse();
+}
+const calcAuditTime=ts=>{const d=new Date(ts);return isNaN(d)?String(ts||""):d.toLocaleString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});};
+const calcAuditDelta=d=>d==null?"":(d>0?"+":d<0?"−":"±")+fmt(Math.abs(d),0)+" €";
+
+/* Register Dokumentation */
+function calcDocHtml(r){
+  const c=S.calc,doc=c.doc,log=S.audit||[],ver=String(doc.version||"");
+  const cur=log.filter(e=>e.version===ver),curDelta=cur.reduce((a,e)=>a+(e.delta||0),0);
+  const docCard=calcCard("Kalkulationsstand und Freigabe","Version und Freigabestatus des aktuellen Stands. „Version abschließen“ übernimmt Datum, Bearbeiter, Umsatz und EBITA-Marge in die Versionshistorie und zählt die Version hoch; Änderungen danach gehören zur neuen Version.",
+    '<div class="calc-form">'+calcField("Version",calcInput("calc.doc.version","text",{label:"Version",maxlength:40}))+calcField("Freigabestatus",calcInput("calc.doc.status","text",{label:"Freigabestatus",list:"calc-dl-docStatus"}))+
+    calcField("Geprüft/freigegeben von",calcInput("calc.doc.reviewer","text",{label:"Geprüft oder freigegeben von"}))+calcField("Datum der Freigabe",calcInput("calc.doc.reviewDate","date",{label:"Datum der Freigabe"}))+
+    calcField("Bemerkung zur Version",calcInput("calc.doc.note","text",{label:"Bemerkung zur Version",maxlength:1000}),"",true)+'</div>'+
+    '<div class="calc-kpis">'+calcKpi("Änderungen in Version "+(ver||"–"),String(cur.length))+calcKpi("Δ Umsatz p.a. in dieser Version",calcAuditDelta(curDelta)||"±0 €")+calcKpi("Umsatz p.a. aktuell",calcEur(r.sum.pa.umv))+'</div>'+
+    '<div class="rowbtns"><button type="button" class="btn acc" id="calc-version-close">Version '+escH(ver||"–")+' abschließen</button></div>');
+  const hist=c.history,prevUmv=i=>{for(let k=i-1;k>=0;k--)if(hist[k].umv)return hist[k].umv;return null;};
+  const histCard=calcCard("Versionshistorie","Abgeschlossene Versionen mit Kennzahlen; der Vergleich zeigt die Änderung des Umsatzes gegenüber der Vorversion. Einträge lassen sich ergänzen und kommentieren.",
+    calcListHtml("history",[{h:"Version",f:"version",wide:false},{h:"Datum",f:"date"},{h:"Bearbeiter",f:"author",wide:false},{h:"Änderung",f:"note"},
+      {h:"Umsatz p.a.",out:i=>hist[i].umv?calcEur(hist[i].umv):"–",num:true},{h:"EBITA-Marge",out:i=>hist[i].umv?fmt(hist[i].ebita,2)+" %":"–",num:true},
+      {h:"Δ zur Vorversion",out:i=>{const p=prevUmv(i);return hist[i].umv&&p?calcAuditDelta(hist[i].umv-p):"–";},num:true}]),"calc-card-history");
+  const versions=[...new Set(log.map(e=>e.version))];
+  const rows=calcAuditRowsFiltered(),shown=rows.slice(0,CALC_AUDIT_SHOW);
+  let user="";try{user=localStorage.getItem(CALC_AUDIT_USER_KEY)||"";}catch(e){}
+  const table='<div class="calc-scroll"><table class="calc-tab calc-audit"><thead><tr><th>Zeitpunkt</th><th>Version</th><th>Bearbeiter</th><th>Anlass</th><th>Bereich</th><th>Position</th><th>Feld</th><th>Alt</th><th>Neu</th><th class="r">Δ Umsatz p.a.</th><th>Kommentar</th></tr></thead><tbody>'+
+    (shown.map(([e,i])=>'<tr><td>'+co(calcAuditTime(e.ts))+'</td><td>'+co(e.version)+'</td><td>'+co(e.user||"–")+'</td><td>'+co(e.action)+'</td><td>'+co(e.area)+'</td><td>'+co(e.item)+'</td><td>'+co(e.field)+'</td>'+
+      '<td class="calc-old">'+co(e.from)+'</td><td>'+co(e.to)+'</td>'+tdo(calcAuditDelta(e.delta))+'<td class="cin">'+calcInput("audit."+i+".note","text",{label:"Kommentar zur Änderung "+(i+1),maxlength:2000,placeholder:"Begründung"})+'</td></tr>').join("")||
+      '<tr><td colspan="11" class="hint">'+(log.length?"Keine Einträge für diesen Filter.":"Noch keine Änderungen protokolliert.")+'</td></tr>')+'</tbody></table></div>'+
+    (rows.length>shown.length?'<p class="hint">Angezeigt: die neuesten '+CALC_AUDIT_SHOW+' von '+rows.length+' Einträgen. Alle Einträge stehen im Excel-Export (Blatt Änderungen).</p>':'');
+  const auditCard=calcCard("Änderungsprotokoll der Kalkulation","Wird automatisch geführt: jede übernommene Änderung an Projektdaten, Basisdaten, Personal- und Sachkosten, Auswertung, OtO-Angaben und Freigabe mit altem und neuem Wert, Anlass, Version, Bearbeiter und Wirkung auf den Umsatz p.a. Rückgängig nimmt den Eintrag mit zurück. Kommentare je Eintrag dokumentieren die Begründung. Das Protokoll ist Teil der Kalkulationsdatei.",
+    '<div class="calc-form">'+'<label class="mf"><span>Ihr Name (Bearbeiter im Protokoll)</span><input class="ci" type="text" id="calc-audit-user" maxlength="80" aria-label="Ihr Name für das Änderungsprotokoll" placeholder="'+escH((S.request&&S.request.calculator)||"Name")+'" value="'+escH(user)+'"></label>'+
+    '<label class="mf"><span>Suche</span><input class="ci" type="search" id="calc-audit-search" aria-label="Änderungsprotokoll durchsuchen" placeholder="Feld, Position, Wert …" value="'+escH(CALC_AUDIT_FILTER.q)+'"></label>'+
+    '<label class="mf"><span>Version</span><select class="ci" id="calc-audit-version" aria-label="Version filtern"><option value="">alle Versionen</option>'+versions.map(v=>'<option'+(v===CALC_AUDIT_FILTER.v?' selected':'')+'>'+escH(v)+'</option>').join("")+'</select></label></div>'+
+    table+'<div class="rowbtns"><button type="button" class="btn" id="calc-audit-print">Protokoll drucken</button></div>',"calc-card-audit");
+  return '<div class="calc-grid">'+docCard+histCard+'</div>'+auditCard;
+}
+function calcAuditPrint(){
+  const rows=calcAuditRowsFiltered(),name=S.meta.name||"Projekt";
+  openPrintWindow("Änderungsprotokoll – "+name,'<p>Filter: '+escH(CALC_AUDIT_FILTER.v?"Version "+CALC_AUDIT_FILTER.v:"alle Versionen")+(CALC_AUDIT_FILTER.q?", Suche „"+escH(CALC_AUDIT_FILTER.q)+"“":"")+' · '+rows.length+' Einträge</p>'+
+    calcStaticTable(["Zeitpunkt","Version","Bearbeiter","Anlass","Bereich","Position","Feld","Alt","Neu","Δ Umsatz p.a.","Kommentar"],
+      rows.map(([e])=>[calcAuditTime(e.ts),e.version,e.user||"–",e.action,e.area,e.item,e.field,e.from,e.to,calcAuditDelta(e.delta),e.note||""]),{numFrom:9}));
+}
+
 function initCalc(){
   const host=$("panels");
   host.addEventListener("input",calcFieldInput);
+  // Filter des Änderungsprotokolls und Bearbeitername (nicht Teil der Kalkulation)
+  host.addEventListener("input",ev=>{if(ev.target.id==="calc-audit-search"){CALC_AUDIT_FILTER.q=ev.target.value;STALE_PANELS.add("dokumentation");renderVisiblePanels();}});
+  host.addEventListener("change",ev=>{
+    const t=ev.target;
+    if(t.id==="calc-audit-version"){CALC_AUDIT_FILTER.v=t.value;STALE_PANELS.add("dokumentation");renderVisiblePanels();}
+    if(t.id==="calc-audit-user"){try{localStorage.setItem(CALC_AUDIT_USER_KEY,String(t.value).trim().slice(0,80));}catch(e){}}
+  });
   host.addEventListener("change",calcFieldChange);
   host.addEventListener("paste",calcPaste);
   host.addEventListener("keydown",calcKeydown);
@@ -1651,6 +1828,8 @@ function initCalc(){
     else if(t.id==="calc-tpl-load")$("file-tpl").click();
     else if(t.id==="calc-tpl-default")calcTemplateDefault(false);
     else if(t.id==="calc-tpl-clear")calcTemplateDefault(true);
+    else if(t.id==="calc-version-close")calcVersionClose();
+    else if(t.id==="calc-audit-print")calcAuditPrint();
   });
   calcDatalists();
 }
@@ -1659,7 +1838,7 @@ function initCalc(){
 // Projektkopf: Felder mit denselben Schlüsseln wie die Projekt- und Anfragedaten des Lagerplaners
 const CALC_REQUEST_FIELDS={serviceSite:"text",contact:"text",businessUnit:"text",serviceLine:"text",sop:"date",eop:"date",calculator:"text",sfId:"text"};
 function defaults(){
-  return {schemaVersion:1,tool:"Kalkulationstool",toolVersion:APP_VERSION,meta:{name:"",kunde:""},request:{},calc:calcDefaults(),variants:[]};
+  return {schemaVersion:1,tool:"Kalkulationstool",toolVersion:APP_VERSION,meta:{name:"",kunde:""},request:{},calc:calcDefaults(),variants:[],audit:[]};
 }
 let S=defaults();
 function validateRequestFields(req,label){
@@ -1683,6 +1862,7 @@ function validateFile(obj){
   for(const k of ["tool","toolVersion"])if(obj[k]!=null&&(typeof obj[k]!=="string"||obj[k].length>50))throw new Error(k+" ist ungültig.");
   validateRequestFields(obj.request,"Projektdaten");
   validateCalc(obj.calc,"Kalkulation");
+  validateAudit(obj.audit);
   if(obj.variants!=null){
     if(!Array.isArray(obj.variants)||obj.variants.length>CALC_MAX_VARIANTS)throw new Error("Höchstens "+CALC_MAX_VARIANTS+" Varianten.");
     obj.variants.forEach((v,i)=>{
@@ -1706,13 +1886,24 @@ function stateFrom(obj){
   next.variants=(next.variants||[]).map(v=>{const d={meta:Object.assign({name:"",kunde:""},v.data.meta||{}),request:Object.assign({},v.data.request||{}),calc:v.data.calc||{}};normalizeCalc(d);return {name:v.name,date:v.date||"",data:d};});
   return {next,fixed};
 }
+// Änderungsprotokoll: Aktionen mit Rückgängig-Schritt werden beim nächsten Speichern als Unterschied protokolliert
+let CALC_AUDIT_PENDING=null;
+function calcAuditFlush(){
+  if(!CALC_AUDIT_PENDING)return;
+  const p=CALC_AUDIT_PENDING;CALC_AUDIT_PENDING=null;
+  try{if(calcAuditCommit(p.prev,p.label)){STALE_PANELS.add("dokumentation");setTimeout(renderVisiblePanels,0);}}catch(e){console.warn("Änderungsprotokoll:",e);}
+}
 function persistState(){
+  calcAuditFlush();
   try{S.toolVersion=APP_VERSION;localStorage.setItem(LS_KEY,JSON.stringify(S));return true;}
   catch(e){console.warn("Kalkulation konnte nicht im Browser gespeichert werden:",e);return false;}
 }
 const UNDO=[],UNDO_MAX=30;
 function pushUndo(label){
-  try{UNDO.push({label,state:JSON.parse(JSON.stringify(S))});}catch(e){return;}
+  let snap;
+  try{snap=JSON.parse(JSON.stringify(S));}catch(e){return;}
+  UNDO.push({label,state:snap});
+  calcAuditFlush();CALC_AUDIT_PENDING={label,prev:snap};
   if(UNDO.length>UNDO_MAX)UNDO.shift();
   updateUndoBtn();
 }
@@ -1723,6 +1914,7 @@ function updateUndoBtn(){
 }
 function undoLast(){
   const u=UNDO.pop();if(!u)return;
+  CALC_AUDIT_PENDING=null;
   S=u.state;
   refreshAll();persistState();updateUndoBtn();
 }
@@ -1745,7 +1937,9 @@ function bindFieldUndoTracking(){
     try{now=JSON.stringify(S);}catch(err){}
     if(now!==null&&now!==UNDO_FOCUS_SNAP){
       try{UNDO.push({label:UNDO_FOCUS_LABEL,state:JSON.parse(UNDO_FOCUS_SNAP)});if(UNDO.length>UNDO_MAX)UNDO.shift();updateUndoBtn();}catch(err){}
-      UNDO_FOCUS_SNAP=now;
+      // Feldänderung protokollieren (ohne Eintrag, wenn nur Kommentare des Protokolls geändert wurden)
+      try{if(calcAuditCommit(JSON.parse(UNDO_FOCUS_SNAP),"")){persistState();STALE_PANELS.add("dokumentation");setTimeout(renderVisiblePanels,0);}}catch(err){console.warn("Änderungsprotokoll:",err);}
+      UNDO_FOCUS_SNAP=JSON.stringify(S);
     }
   });
 }
