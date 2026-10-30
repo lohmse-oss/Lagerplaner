@@ -271,7 +271,7 @@ test("Speichern und Öffnen: Browserspeicher, Datei speichern, Testdatei öffnen
   await choose(page, "#btn-open", DATA);
   const r = await page.evaluate(() => {
     const c = computeCalc(S);
-    return { lists: Object.keys(CALC_LISTS).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, warn: c.warn, fx: c.oto.fx, cur: c.oto.calcCurrency,
+    return { lists: Object.keys(CALC_LISTS).filter((k) => !CALC_LISTS[k].md).map((k) => getP(S, CALC_LISTS[k].path).length), months: c.period.monthsTotal, warn: c.warn, fx: c.oto.fx, cur: c.oto.calcCurrency,
       to: c.oto.offer.to, umv: c.sum.pa.umv, rampup: c.cost.rampup.nominal, sl: S.calc.lists.serviceLines.at(-1), name: S.meta.name };
   });
   assert.deepEqual(r.lists, [3, 3, 2, 3, 1, 2, 9, 3, 3, 3]);
@@ -1258,7 +1258,7 @@ test("Inline-Hilfe und Verfahrensanweisung: je Register, abschaltbar, Feldhilfen
   for (const h of ["Handlungs- und Verfahrensanweisung", "Zweck und Geltungsbereich", "Rollen und Verantwortung", "Ablauf", "Prüfungen vor der Freigabe", "Dokumentation und Versionierung", "Datenhaltung und Ablage", "Besondere Fälle"]) assert.ok(guide.includes(h), h);
   assert.ok(await page.locator("#calc-guide details[open]").count() >= 1, "Ablauf aufgeklappt");
   // Hilfe-Box in jedem Register
-  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation"]) {
+  for (const tab of ["projekt", "personal", "sachkosten", "summary", "auswertung", "oto", "dokumentation", "stammdaten"]) {
     await page.click("#tab-" + tab);
     assert.ok(await page.locator(`#panel-${tab} .help-box[open] li`).first().isVisible(), "Hilfe in " + tab);
   }
@@ -1321,6 +1321,99 @@ test("Leerzeilen wie in Excel: mindestens fünf Zeilen, immer zwei freie, erst m
   assert.deepEqual(await page.evaluate(() => S.calc.nu.map((x) => [x.qty, x.pass])), [[1, true]]);
   // Gespeicherte Datei enthält keine Leerzeilen
   assert.equal(await page.evaluate(() => S.calc.capex.length + S.calc.rampup.length), 0);
+});
+
+test("Stammdaten: zurückschreiben, Vorschläge mit Gültigkeit, Länderprofil mit Kurs, Datei, Zusammenführen, Rückgängig", async (page) => {
+  await openTestData(page);
+  // Land setzen, Listen in die Stammdaten schreiben, Länderprofil speichern
+  await page.click("#tab-projekt");
+  await setField(page, "calc.country", "hu");
+  assert.equal(await page.evaluate(() => S.calc.country), "HU");
+  await setField(page, "calc.currency.code", "HUF");
+  await setField(page, "calc.currency.rate", "395,5");
+  await setField(page, "calc.currency.date", "2026-10-01");
+  await page.click('[data-md="country-save"]');
+  await page.click("#tab-personal");
+  await page.click('[data-md="take"][data-cl="wages"]');
+  await page.click('[data-md="take"][data-cl="grades"]');
+  await page.click("#tab-sachkosten");
+  await page.click('[data-md="take"][data-cl="opex"]');
+  let md = await page.evaluate(() => ({ c: MD.countries.map((x) => [x.code, x.currency, !!x.base]), r: MD.rates.map((x) => [x.currency, x.rate, x.validFrom]), staff: MD.staff.map((x) => [x.country, x.kind, x.name]), costs: MD.costs.map((x) => [x.list, x.name, x.price]), dirty: MD_FILE.dirty }));
+  assert.deepEqual(md.c, [["HU", "HUF", true]]);
+  assert.deepEqual(md.r, [["HUF", 395.5, "2026-10-01"]]);
+  assert.deepEqual(md.staff.map((x) => x[2]), ["Lagerist", "Staplerfahrer", "Kommissionierer (Aushilfe)"]);
+  assert.ok(md.staff.every((x) => x[0] === "HU" && x[1] === "Lohn"));
+  assert.deepEqual(md.costs.map((x) => x[1]), ["Hallenmiete", "Staplerleasing", "Energie"]);
+  assert.equal(md.dirty, true);
+  // Erneutes Zurückschreiben: unverändert, nach Preisänderung aktualisiert
+  await page.evaluate(() => { S.calc.opex[2].price = 7000; });
+  await page.click('[data-md="take"][data-cl="opex"]');
+  assert.match(await page.textContent(".toast:last-of-type"), /0 neu, 1 aktualisiert, 2 unverändert/);
+  // Gültigkeit: abgelaufener Eintrag wird nicht vorgeschlagen
+  await page.evaluate(() => { MD.staff.find((x) => x.name === "Staplerfahrer").validTo = "2020-12-31"; persistState(); });
+  // Neue Kalkulation: Länderprofil übernehmen, Vorschlag füllt die Zeile
+  await page.evaluate(() => newCalc());
+  await page.click("#tab-projekt");
+  await setField(page, "calc.country", "HU");
+  await page.click('[data-md="country-apply"]');
+  let c = await page.evaluate(() => ({ cur: S.calc.currency, grades: S.calc.grades.length, profit: S.calc.base.profit }));
+  assert.deepEqual([c.cur.code, c.cur.rate, c.cur.date], ["HUF", 395.5, "2026-10-01"]);
+  assert.ok(c.grades >= 2, "Tarifgruppen des Landes ergänzt");
+  assert.equal(c.profit, 5, "Basisdaten aus dem Länderprofil");
+  await page.click("#tab-personal");
+  const opts = await page.$$eval("#calc-dl-md-Lohn option", (o) => o.map((x) => x.value));
+  assert.ok(opts.includes("Lagerist") && !opts.includes("Staplerfahrer"), "nur gültige Einträge: " + opts.join(","));
+  await page.locator('[data-cf="calc.wages.0.name"]').fill("Lagerist");
+  await page.locator('[data-cf="calc.wages.0.name"]').press("Tab");
+  await page.waitForTimeout(100);
+  const w = await page.evaluate(() => S.calc.wages[0]);
+  assert.equal(w.grade, "E5 Lager");
+  assert.equal(w.gross, 17.76);
+  assert.match(w.note, /^Stammdaten/);
+  // Rückgängig nimmt den Vorschlag als einen Schritt zurück
+  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => S.calc.wages.length), 0);
+  // Stammdaten in der Stammdaten-Tabelle bearbeiten, Rückgängig
+  await page.click("#tab-stammdaten");
+  assert.ok(await page.locator("#md-card-staff").isVisible());
+  assert.match(await page.textContent("#md-card-staff"), /abgelaufen/);
+  await setField(page, "md.costs.0.price", "80.000");
+  assert.equal(await page.evaluate(() => MD.costs[0].price), 80000);
+  await page.click("#btn-undo");
+  assert.equal(await page.evaluate(() => MD.costs[0].price), 78500, "Rückgängig in den Stammdaten");
+  // Speichern als Datei, Leeren, Öffnen
+  const [d1] = await Promise.all([page.waitForEvent("download"), page.click('#panel-stammdaten [data-md="save"]')]);
+  assert.equal(d1.suggestedFilename(), "stammdaten_kalkulation.json");
+  const saved = JSON.parse(require("fs").readFileSync(await d1.path(), "utf8"));
+  assert.equal(saved.tool, "Kalkulationstool-Stammdaten");
+  assert.equal(await page.evaluate(() => MD_FILE.dirty), false);
+  await page.click('#panel-stammdaten [data-md="clear"]');
+  assert.equal(await page.evaluate(() => MD.staff.length), 0);
+  await page.evaluate((t) => mdLoadText(t, "stammdaten_kalkulation.json"), JSON.stringify(saved));
+  assert.equal(await page.evaluate(() => MD.staff.length), 3);
+  // Zusammenführen: neuer Eintrag, neuere Änderung übernommen, eigene neuere bleibt
+  const other = JSON.parse(JSON.stringify(saved));
+  other.staff.push({ country: "CZ", kind: "Lohn", name: "Skladník", grade: "", rate: 220, gross: 15, extra: 0, validFrom: "", validTo: "", note: "", updated: "2030-01-01T00:00:00Z" });
+  other.costs[0].price = 99000; other.costs[0].updated = "2030-01-01T00:00:00Z";
+  other.costs[1].price = 1; other.costs[1].updated = "2000-01-01T00:00:00Z";
+  await page.evaluate((t) => mdMergeText(t), JSON.stringify(other));
+  md = await page.evaluate(() => ({ n: MD.staff.length, p0: MD.costs[0].price, p1: MD.costs[1].price }));
+  assert.deepEqual(md, { n: 4, p0: 99000, p1: 1150 });
+  assert.match(await page.textContent(".toast:last-of-type"), /1 neu, 1 aktualisiert, .* 1 eigene neuere Einträge behalten/);
+  // Ungültige Datei wird abgelehnt
+  const msgs = [];
+  page.on("dialog", (dd) => msgs.push(dd.message()));
+  await page.evaluate(() => mdLoadText(JSON.stringify({ tool: "Kalkulationstool-Stammdaten", staff: [{ name: 5 }] })));
+  assert.match(msgs.join(" "), /Stammdaten wurden nicht übernommen/);
+  // Stammdaten bleiben nach dem Neuladen erhalten und gehören nicht in die Kalkulationsdatei
+  await page.reload();
+  assert.equal(await page.evaluate(() => MD.staff.length), 4);
+  assert.equal(await page.evaluate(() => "md" in S || JSON.stringify(S).includes("Skladník")), false);
+  // Englisch
+  await page.click('.lang-switch [data-lang="en"]');
+  await page.click("#tab-stammdaten");
+  assert.equal((await page.textContent("#tab-stammdaten")).trim(), "Master data");
+  assert.match(await page.textContent("#md-card-costs"), /Material cost catalogue/);
 });
 
 (async () => {

@@ -6,6 +6,7 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
 |---|---|
 | `Kalkulationstool.html` | das Werkzeug: per Doppelklick im Browser öffnen |
 | `beispiele/beispiel-ersatzteillager.json` | Beispielkalkulation Ersatzteillager, 5 Jahre (Datei › Öffnen) |
+| `beispiele/stammdaten-beispiel.json` | Beispiel-Stammdaten aus der Testkalkulation (Land DE): Länderprofil, Mitarbeiterklassen, Tarifgruppen, Sachkosten (Stammdaten › Stammdaten öffnen) |
 | `testdaten/kalkulation-kombinationen.json` | Testkalkulation mit möglichst vielen Kombinationen (Datei › Öffnen) |
 | `tests/kalkulationstool.test.js` | automatische Tests |
 | `vergleich/Vergleich_Excel_HTML.xlsx` | Vergleichsrechnung Excel-Vorlage gegen HTML-Tool: Beispiel und Testwerte, Überleitung der Deltas |
@@ -47,6 +48,19 @@ Eigenständiger Nachbau des Excel-Kalkulationstools Light V1.0 als eine HTML-Dat
   - automatisches Änderungsprotokoll der Kalkulationsinhalte: jede Änderung mit altem und neuem Wert, Anlass, Version, Bearbeiter, Wirkung auf den Umsatz p.a. und Kommentar; Suche, Versionsfilter, Druck, Excel-Blatt.
 
 Rechts zeigt die **KPI-Leiste** vier feste und bis zu vier wählbare Kennzahlen. Sie rechnet beim Tippen mit; ein Klick springt zur markierten Herkunft im jeweiligen Register.
+
+- **Stammdaten:** eine Datei mit allen Ländern, die jeder Kalkulator für sich aufbaut und weitergibt:
+  - Länderprofile mit Basisdaten, Auswertungseinstellungen und Währung;
+  - Mitarbeiterklassen (Bezeichnung, Tarifgruppe oder Satz, FTE-Brutto-Zuschlag, Zuschlag je Zeile), Tarifgruppen und Sachkostenkatalog;
+  - Wechselkurse (1 EUR = x).
+  - Jeder Eintrag hat Land (leer = alle Länder) und „gültig von/bis“; vorgeschlagen werden nur zum Kalkulationsdatum gültige Einträge. Keine Versionierung, es zählen die aktuellen Werte.
+
+## Stammdaten verwenden
+
+- **Übernehmen:** Land in den Projektdaten eintragen und „Länderprofil übernehmen“ setzt Basisdaten, Auswertung, Währung mit gültigem Kurs und ergänzt die Tarifgruppen des Landes. Beim Tippen der Qualifikation bzw. Bezeichnung (Gehälter, Löhne, Sachkosten) erscheinen Vorschläge; die Auswahl füllt nur leere Felder und vermerkt „Stammdaten“ als Quelle.
+- **Zurückschreiben:** „In Stammdaten übernehmen“ unter jeder Liste schreibt deren Zeilen mit dem Land der Kalkulation in die Stammdaten (neu oder aktualisiert, mit Zusammenfassung). „Als Länderprofil speichern“ legt Basisdaten, Auswertung, Währung und Kurs als Länderprofil ab.
+- **Datei:** Im Register Stammdaten oder im Datei-Menü öffnen, speichern, speichern unter und zusammenführen. Beim Zusammenführen kommen neue Einträge hinzu; weicht ein Eintrag ab, gilt der zuletzt geänderte. Die Stammdaten bleiben außerdem im Browser erhalten und sind nicht Teil der Kalkulationsdatei.
+- Werte werden kopiert: Änderungen der Stammdaten ändern bestehende Kalkulationen nicht. Rückgängig gilt auch für Stammdaten.
 
 ## Bedienung
 
