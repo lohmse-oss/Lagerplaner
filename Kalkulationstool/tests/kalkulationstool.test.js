@@ -994,6 +994,18 @@ test("KPI-Leiste: läuft beim Tippen mit, springt zur markierten Herkunft", asyn
   await page.click("#kpi-config");
   await page.evaluate(() => refreshCalcOutputs());
   assert.ok(await page.locator("#kpi-picker.open").count());
+  // Fehlende Werte als „–“; ein Fehler in der Leiste blockiert die Kalkulation nicht
+  assert.deepEqual(await page.evaluate(() => [kpiFmt(null, "money"), kpiFmt(NaN, "pct"), kpiFmt(undefined, "months"), kpiFmt(Infinity, "num")]), ["–", "–", "–", "–"]);
+  await page.evaluate(() => { const c = computeCalc; window.computeCalc = () => { throw new Error("Test"); }; try { renderKpiSidebar(); } finally { window.computeCalc = c; } });
+  assert.match(await page.textContent("#kpi-sidebar"), /KPI-Anzeige konnte nicht berechnet werden/);
+  await page.evaluate(() => renderKpiSidebar());
+  assert.equal(await page.locator(".kpi-card").count(), 8, "Leiste nach dem Fehler wieder vollständig");
+  // Bis 860 px Breite steht die Leiste neben dem Inhalt, ohne Überlauf
+  await page.setViewportSize({ width: 1000, height: 900 });
+  const lay = await page.evaluate(() => ({ side: $("kpi-sidebar").getBoundingClientRect().left, main: $("panels").getBoundingClientRect().right, over: document.documentElement.scrollWidth - innerWidth }));
+  assert.ok(lay.side > lay.main && lay.over <= 0, JSON.stringify(lay));
+  await page.setViewportSize({ width: 800, height: 900 });
+  assert.ok(await page.evaluate(() => $("kpi-sidebar").getBoundingClientRect().bottom <= $("panels").getBoundingClientRect().top + 1), "schmal: Leiste über dem Inhalt");
 });
 
 test("Kopfzeile und Fußzeile: Anordnung, Version, Fußzeile unten auf der Startseite", async (page) => {
